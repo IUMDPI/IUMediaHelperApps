@@ -1,1 +1,78 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0"?>
+<IU xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Carrier type="OpenReel">
+    <Identifier>9858</Identifier>
+    <Barcode>40000000523896X</Barcode>
+    <Configuration>
+      <Track>Full track</Track>
+      <SoundField>Mono</SoundField>
+      <Speed>7.5 ips</Speed>
+    </Configuration>
+    <Brand>Audiotape 1251</Brand>
+    <Thickness>1.5</Thickness>
+    <DirectionsRecorded>1</DirectionsRecorded>
+    <PhysicalCondition>
+      <Damage>Minor</Damage>
+      <PreservationProblem>0</PreservationProblem>
+    </PhysicalCondition>
+    <Repaired>No</Repaired>
+    <Preview>
+      <Comments />
+    </Preview>
+    <Cleaning>
+      <Date xsi:nil="true" />
+    </Cleaning>
+    <Baking>
+      <Date xsi:nil="true" />
+    </Baking>
+    <Parts>
+      <DigitizingEntity>Memnon Archiving Services Inc</DigitizingEntity>
+      <Part Side="1">
+        <Ingest>
+          <Date>2015-04-28</Date>
+          <Comments>Very low level;Major background noise;</Comments>
+          <Created_by />
+          <Player_serial_number>SN16812</Player_serial_number>
+          <Player_manufacturer>Studer</Player_manufacturer>
+          <Player_model>A807MK1</Player_model>
+          <AD_serial_number>5896Ghh</AD_serial_number>
+          <AD_manufacturer>Noa Audio Solutions</AD_manufacturer>
+          <AD_model>N6095</AD_model>
+          <Extraction_workstation>NOAREC2</Extraction_workstation>
+          <Speed_used>7.5 ips</Speed_used>
+        </Ingest>
+        <ManualCheck>No</ManualCheck>
+        <Files>
+          <File>
+            <FileName>MDPI_40000000523896X_01_pres.wav</FileName>
+            <CheckSum>C905D4DB6F405D1182747F9CC8DA3500</CheckSum>
+          </File>
+          <File>
+            <FileName>MDPI_40000000523896X_01_pres.xml</FileName>
+            <CheckSum />
+          </File>
+          <File>
+            <FileName>MDPI_40000000523896X_01_pres_ingest.xml</FileName>
+            <CheckSum />
+          </File>
+          <File>
+            <FileName>MDPI_40000000523896X_01_pres_Wave.jpg</FileName>
+            <CheckSum />
+          </File>
+          <File>
+            <FileName>MDPI_40000000523896X_01_prod.wav</FileName>
+            <CheckSum>186C7FDBFD18A96900B625835D01E330</CheckSum>
+          </File>
+          <File>
+            <FileName>MDPI_40000000523896X_01_prod_Wave.jpg</FileName>
+            <CheckSum />
+          </File>
+          <File>
+            <FileName>MDPI_40000000523896X_01_access.mp4</FileName>
+            <CheckSum>5B33181614D1A2FB44CE2459987A5080</CheckSum>
+          </File>
+        </Files>
+      </Part>
+    </Parts>
+  </Carrier>
+</IU>

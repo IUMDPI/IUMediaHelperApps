@@ -1,3 +1,17 @@
+Embedded file info - Bext Chunk - Description	Embedded file info - Info List - ICMT	Embedded file info - Info List - IARL
+Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use: 	Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use: 	Indiana University, Bloomington. William and Gayle Cook Music Library.
+
+
+Questions for Mike and Susan:
+
+1) do we use the BEXT Description field only with just the text from the spreadsheet
+2) do we use the IARL field with just the text from the spreadsheet
+3) do we use the ISFT or do we use the xxxx for the ICMT field from the spreadsheet
+4) can we count on always having a preservation copy that is whole?  or do we need to program for the case where there is a collection of preservation files and a consolidated production file?
+5) on what conditions would there be any auxiliary files, and how would they be named and organized along with the main files
+
+
+
 using System;
 
 using System.Configuration;

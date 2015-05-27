@@ -44,9 +44,7 @@ namespace Packager.Utilities
             CreateMezzanine(targetPath, _ffmpegAudioMezzanineArguments);
             CreateAccess(targetPath, _ffmpegAudioAccessArguments);
         }
-
-      
-
+        
         private void CreateMezzanine(string inputPath, string commandLineArgs)
         {
             var outputPath = Path.Combine(Path.GetDirectoryName(inputPath), Path.GetFileNameWithoutExtension(inputPath) + ".aac");
@@ -62,7 +60,7 @@ namespace Packager.Utilities
 
             CreateDerivative(args);
         }
-
+        
         private void CreateDerivative(string args)
         {
             var startInfo = new ProcessStartInfo(_ffmpegPath)
@@ -84,7 +82,6 @@ namespace Packager.Utilities
                 Application.DoEvents();
                 process.WaitForExit(5);
             } while (!process.HasExited);
-
 
             string output;
             using (var reader = process.StandardOutput)

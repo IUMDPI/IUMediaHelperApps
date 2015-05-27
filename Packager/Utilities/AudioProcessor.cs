@@ -69,12 +69,20 @@ namespace Packager.Utilities
             {
                 output = reader.ReadToEnd();
             }
-
-
-            if (process.ExitCode != 0)
+            
+            if (process.ExitCode != 0 || !SuccessMessagePresent(targetPath, output))
             {
                 throw new Exception(string.Format("Could not insert BEXT Data: {0}",process.ExitCode));
             }
         }
+
+        private static bool SuccessMessagePresent(string fileName, string output)
+        {
+            var success = string.Format("{0}: is modified", fileName).ToLowerInvariant();
+            var nothingToDo = string.Format("{0}: nothing to do", fileName).ToLowerInvariant();
+            return output.ToLowerInvariant().Contains(success) || output.ToLowerInvariant().Contains(nothingToDo);
+        }
     }
+
+    
 }

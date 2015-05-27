@@ -1,4 +1,6 @@
-﻿namespace Packager.Models
+﻿using Packager.Extensions;
+
+namespace Packager.Models
 {
     public class BextData
     {
@@ -10,9 +12,9 @@
         {
             return new[]
             {
-                string.Format("--Description=\"{0}\"", Description),
-                string.Format("--IARL=\"{0}\"", IARL),
-                string.Format("--ICMT=\"{0}\"", ICMT)
+                string.Format("--Description={0}", Description.ToQuoted()),
+                string.Format("--IARL={0}", IARL.ToQuoted()),
+                string.Format("--ICMT={0}", ICMT.ToQuoted())
             };
         }
     }

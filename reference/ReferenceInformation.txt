@@ -11,6 +11,11 @@ Questions for Mike and Susan:
 5) on what conditions would there be any auxiliary files, and how would they be named and organized along with the main files
 
 
+Follow ups for Mike and Jean
+- command line arguments for the production and play copies
+- follow up on webservice status, and build in a way to save the password safely outside the program
+
+
 -	DATs will be digitized at original sample rate: either 16/44.1 or 16/48.
 
 

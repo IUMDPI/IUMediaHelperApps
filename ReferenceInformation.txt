@@ -12,159 +12,69 @@ Questions for Mike and Susan:
 
 
 
-using System;
-
-using System.Configuration;
-
-using System.IO;
-
-using System.Security.Cryptography;
-
-using System.Windows.Forms;
-
-using System.Xml.Linq;
-
-
-
-
-
-namespace IuMDPIApplication
-
-{
-
-    public partial class Form1 : Form
-
-    {
-
-        // declare our variables that we will load from a config file
-
-        private String workDirectoryName;
-
-        private String iuXmlOutputFileName;
-
-        private String webServiceUrl; // basic auth with valid cert over ssl, big payload
-
-
-
-
-
-        public Form1()
-
-        {
-
-            InitializeComponent();
-
-            this.workDirectoryName = ConfigurationSettings.AppSettings["workDirectoryName"];
-
-            this.iuXmlOutputFileName = ConfigurationSettings.AppSettings["iuXmlOutputFileName"];
-
-            this.webServiceUrl = ConfigurationSettings.AppSettings["webServiceUrl"];
-
-        }
-
-
-
-        private void Form1_Load(object sender, EventArgs e)
-
-        {
-
-            // if we need to handle any events on load, all config should be read in on Construction
-
-        }
-
-
-
-        private void button1_Click(object sender, EventArgs e)
-
-        {
-
-            this.openFileDialog1.InitialDirectory = workDirectoryName;
-
-            this.openFileDialog1.ShowDialog();
-
-            this.textBox1.Text = this.openFileDialog1.FileName;
-
-
-
-            String hashAsString = "";             
-
-            using (var md5 = MD5.Create())
-
-                {
-
-                    using (var stream = File.OpenRead(this.textBox1.Text))
-
-                    {
-
-                        byte[] hash = md5.ComputeHash(stream);
-
-                        //this.richTextBox1.Text = Convert.ToBase64String(hash);
-
- 
-
-                        foreach (byte b in hash)
-
-                        {
-
-                            hashAsString = hashAsString +  string.Format("{0:x2}", b); 
-
-                                // printf as "%02x";
-
-                            
-
-                        }
-
-                        this.richTextBox1.Text = hashAsString;
-
-                    }
-
-                }
-
-        }
-
-
-
-        private String getMd5HashString(String fileName)
-
-        {
-
-            using (var md5 = MD5.Create())
-
-            {
-
-                using (var stream = File.OpenRead(fileName))
-
-                {
-
-                    return System.Text.Encoding.UTF8.GetString(md5.ComputeHash(stream));
-
-                }
-
-            }
-
-        }
-
-
-
-        private XDocument generateXmlDocument(String md5, String techMetaData)
-
-        {
-
-            XDocument doc = new XDocument(new XElement("body",
-
-                                           new XElement("level1",
-
-                                               new XElement("level2", "text"),
-
-                                               new XElement("level2", "other text"))));
-
-            return doc;
-
-
-
-        }
-
-    }
-
-}
-
+A couple of useful command lines :
+
+1°) Find out available and supported decklink devices : ffmpeg -f decklink -list_devices 1 -i dummy
+
+[decklink @ 00000000002F3B80] Blackmagic DeckLink devices:
+[decklink @ 00000000002F3B80]   'DeckLink 4K Extreme'
+dummy: Immediate exit requested
+
+2°) Find out supported formats for a devices :  ffmpeg -f decklink -list_formats 1 -i "DeckLink 4K Extreme"
+
+[decklink @ 00000000000E3B20] Supported formats for 'DeckLink 4K Extreme':
+[decklink @ 00000000000E3B20]   1       720x486 at 30000/1001 fps (interlaced, lower field first)
+[decklink @ 00000000000E3B20]   2       720x576 at 25000/1000 fps (interlaced, upper field first)
+[decklink @ 00000000000E3B20]   3       1920x1080 at 24000/1001 fps
+[decklink @ 00000000000E3B20]   4       1920x1080 at 24000/1000 fps
+[decklink @ 00000000000E3B20]   5       1920x1080 at 25000/1000 fps
+[decklink @ 00000000000E3B20]   6       1920x1080 at 30000/1001 fps
+[decklink @ 00000000000E3B20]   7       1920x1080 at 30000/1000 fps
+[decklink @ 00000000000E3B20]   8       1920x1080 at 25000/1000 fps (interlaced, upper field first)
+[decklink @ 00000000000E3B20]   9       1920x1080 at 30000/1001 fps (interlaced, upper field first)
+[decklink @ 00000000000E3B20]   10      1920x1080 at 30000/1000 fps (interlaced, upper field first)
+[decklink @ 00000000000E3B20]   11      1920x1080 at 50000/1000 fps
+[decklink @ 00000000000E3B20]   12      1920x1080 at 60000/1001 fps
+[decklink @ 00000000000E3B20]   13      1920x1080 at 60000/1000 fps
+[decklink @ 00000000000E3B20]   14      1280x720 at 50000/1000 fps
+[decklink @ 00000000000E3B20]   15      1280x720 at 60000/1001 fps
+[decklink @ 00000000000E3B20]   16      1280x720 at 60000/1000 fps
+[decklink @ 00000000000E3B20]   17      2048x1080 at 24000/1001 fps
+[decklink @ 00000000000E3B20]   18      2048x1080 at 24000/1000 fps
+[decklink @ 00000000000E3B20]   19      2048x1080 at 25000/1000 fps
+[decklink @ 00000000000E3B20]   20      3840x2160 at 24000/1001 fps
+[decklink @ 00000000000E3B20]   21      3840x2160 at 24000/1000 fps
+[decklink @ 00000000000E3B20]   22      3840x2160 at 25000/1000 fps
+[decklink @ 00000000000E3B20]   23      3840x2160 at 30000/1001 fps
+[decklink @ 00000000000E3B20]   24      3840x2160 at 30000/1000 fps
+[decklink @ 00000000000E3B20]   25      4096x2160 at 24000/1001 fps
+[decklink @ 00000000000E3B20]   26      4096x2160 at 24000/1000 fps
+[decklink @ 00000000000E3B20]   27      4096x2160 at 25000/1000 fps
+DeckLink 4K Extreme: Immediate exit requested
+
+3°) Use the decklink card to capture a NTSC stream into a file: 
+
+ffmpeg.exe ^
+   -rtbufsize 1073741824 ^
+   -bm_v210 1 ^
+   -bm_channels 8 ^
+   -bm_audiodepth 32 ^
+   -f decklink -i "DeckLink 4K Extreme@1" ^
+   -filter_complex "[0:0]pan=1c|c0=c0[a1];[0:0]pan=1c|c0=c1[a2];[0:0]pan=1c|c0=c2[a3];[0:0]pan=1c|c0=c3[a4]" ^
+   -map 0:1 ^
+   -aspect 4:3 ^
+   -codec:v ffv1 ^
+   -level 3 ^
+   -coder 1 ^
+   -context 1 ^
+   -g 1 ^
+   -threads 4 ^
+   -slices 24 ^
+   -slicecrc 1 ^
+   -map [a1]:1 ^
+   -map [a2]:2 ^
+   -map [a3]:3 ^
+   -map [a4]:4 ^
+   -codec:a pcm_s24le ^
+   -f matroska ^
+   d:\test.mkv

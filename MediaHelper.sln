@@ -7,8 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager", "Packager\Packag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{A80F0017-48F8-4323-A7D9-81CC4ED6AD6C}"
 	ProjectSection(SolutionItems) = preProject
-		MemnonReference.xml = MemnonReference.xml
-		ReferenceInformation.txt = ReferenceInformation.txt
+		reference\IU_PID_1.0_technical_only.docx = reference\IU_PID_1.0_technical_only.docx
+		reference\MemnonReference.xml = reference\MemnonReference.xml
+		reference\ReferenceInformation.txt = reference\ReferenceInformation.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager.Test", "Packager.Test\Packager.Test.csproj", "{52D5A6E9-5667-4163-B97A-4DB1AC4500F0}"

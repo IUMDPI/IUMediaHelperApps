@@ -12,11 +12,15 @@ namespace Packager.Utilities
     {
         private readonly string _bwfMetaEditPath;
         private readonly string _ffmpegPath;
+        private readonly string _ffmpegAudioMezzanineArguments;
+        private readonly string _ffmpegAudioAccessArguments;
 
-        public AudioProcessor(string ffmpegPath, string bwfMetaEditPath)
+        public AudioProcessor(string ffmpegPath, string bwfMetaEditPath, string ffmpegAudioMezzanineArguments, string ffmpegAudioAccessArguments)
         {
             _ffmpegPath = ffmpegPath;
             _bwfMetaEditPath = bwfMetaEditPath;
+            _ffmpegAudioMezzanineArguments = ffmpegAudioMezzanineArguments;
+            _ffmpegAudioAccessArguments = ffmpegAudioAccessArguments;
         }
 
         public void ProcessFile(string targetPath)
@@ -37,6 +41,61 @@ namespace Packager.Utilities
             };
 
             AddMetadata(targetPath,data);
+            CreateMezzanine(targetPath, _ffmpegAudioMezzanineArguments);
+            CreateAccess(targetPath, _ffmpegAudioAccessArguments);
+        }
+
+      
+
+        private void CreateMezzanine(string inputPath, string commandLineArgs)
+        {
+            var outputPath = Path.Combine(Path.GetDirectoryName(inputPath), Path.GetFileNameWithoutExtension(inputPath) + ".aac");
+            var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
+
+            CreateDerivative(args);
+        }
+
+        private void CreateAccess(string inputPath, string commandLineArgs)
+        {
+            var outputPath = Path.Combine(Path.GetDirectoryName(inputPath), Path.GetFileNameWithoutExtension(inputPath) + ".mp4");
+            var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
+
+            CreateDerivative(args);
+        }
+
+        private void CreateDerivative(string args)
+        {
+            var startInfo = new ProcessStartInfo(_ffmpegPath)
+            {
+                Arguments = args,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+
+            var process = Process.Start(startInfo);
+            if (process == null)
+            {
+                throw new Exception(string.Format("Could not start {0}", _bwfMetaEditPath));
+            }
+
+            do
+            {
+                Application.DoEvents();
+                process.WaitForExit(5);
+            } while (!process.HasExited);
+
+
+            string output;
+            using (var reader = process.StandardOutput)
+            {
+                output = reader.ReadToEnd();
+            }
+
+            if (process.ExitCode != 0)
+            {
+                throw new Exception(string.Format("Could not generate derivative: {0}", process.ExitCode));
+            }
         }
 
         private void AddMetadata(string targetPath, BextData data)

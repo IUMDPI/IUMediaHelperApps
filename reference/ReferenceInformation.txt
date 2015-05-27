@@ -11,6 +11,9 @@ Questions for Mike and Susan:
 5) on what conditions would there be any auxiliary files, and how would they be named and organized along with the main files
 
 
+-	DATs will be digitized at original sample rate: either 16/44.1 or 16/48.
+
+
 
 A couple of useful command lines :
 

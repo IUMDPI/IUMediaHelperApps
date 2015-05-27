@@ -14,6 +14,8 @@ namespace Packager
         private readonly string _inputDirectory;
         private readonly string _processingDirectory;
         private readonly Dictionary<string, IProcessor> _processors;
+        private readonly string _ffmpegAudioMezzanineArguments;
+        private string _ffmpegAudioAccessArguments;
 
         public Form1()
         {
@@ -23,10 +25,12 @@ namespace Packager
             _processingDirectory = ConfigurationSettings.AppSettings["ProcessingDirectoryName"];
             _ffmpegPath = ConfigurationSettings.AppSettings["PathToFFMpeg"];
             _bwfMetaEditPath = ConfigurationSettings.AppSettings["PathToMetaEdit"];
+            _ffmpegAudioMezzanineArguments = ConfigurationSettings.AppSettings["ffmpegAudioMezzanineArguments"];
+            _ffmpegAudioAccessArguments = ConfigurationSettings.AppSettings["ffmpegAudioAccessArguments"];
 
             _processors = new Dictionary<string, IProcessor>
             {
-                {".wav", new AudioProcessor(_ffmpegPath, _bwfMetaEditPath)}
+                {".wav", new AudioProcessor(_ffmpegPath, _bwfMetaEditPath, _ffmpegAudioMezzanineArguments, _ffmpegAudioAccessArguments)}
             };
         }
 
@@ -105,7 +109,7 @@ namespace Packager
 
             if (!File.Exists(_ffmpegPath))
             {
-                //    throw new FileNotFoundException(_ffmpegPath);
+                throw new FileNotFoundException(_ffmpegPath);
             }
 
             if (!File.Exists(_bwfMetaEditPath))

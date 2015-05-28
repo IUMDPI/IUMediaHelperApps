@@ -30,7 +30,8 @@ namespace Packager
 
             _processors = new Dictionary<string, IProcessor>
             {
-                {".wav", new AudioProcessor(_ffmpegPath, _bwfMetaEditPath, _ffmpegAudioMezzanineArguments, _ffmpegAudioAccessArguments)}
+                {".wav", new AudioProcessor(_ffmpegPath, _bwfMetaEditPath, _ffmpegAudioMezzanineArguments, _ffmpegAudioAccessArguments, _inputDirectory, _processingDirectory)},
+                {".xlsx", new SkippingProcessor()}
             };
         }
 

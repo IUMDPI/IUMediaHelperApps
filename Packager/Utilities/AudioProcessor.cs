@@ -14,13 +14,17 @@ namespace Packager.Utilities
         private readonly string _ffmpegPath;
         private readonly string _ffmpegAudioMezzanineArguments;
         private readonly string _ffmpegAudioAccessArguments;
+        private readonly string _inputFolder;
+        private readonly string _processingFolder;
 
-        public AudioProcessor(string ffmpegPath, string bwfMetaEditPath, string ffmpegAudioMezzanineArguments, string ffmpegAudioAccessArguments)
+        public AudioProcessor(string ffmpegPath, string bwfMetaEditPath, string ffmpegAudioMezzanineArguments, string ffmpegAudioAccessArguments, string inputFolder, string processingFolder)
         {
             _ffmpegPath = ffmpegPath;
             _bwfMetaEditPath = bwfMetaEditPath;
             _ffmpegAudioMezzanineArguments = ffmpegAudioMezzanineArguments;
             _ffmpegAudioAccessArguments = ffmpegAudioAccessArguments;
+            _inputFolder = inputFolder;
+            _processingFolder = processingFolder;
         }
 
         public void ProcessFile(string targetPath)
@@ -43,11 +47,15 @@ namespace Packager.Utilities
             AddMetadata(targetPath,data);
             var mezzanineFilePath = CreateMezzanine(targetPath, _ffmpegAudioMezzanineArguments);
             CreateAccess(mezzanineFilePath, _ffmpegAudioAccessArguments);
+
+            //todo: figure out how to get canonical name
+            var temporaryInputDataName = Path.Combine(_processingFolder,"Barcode.xlsx");
+            var inputData = new InputData(temporaryInputDataName);
         }
         
         private string CreateMezzanine(string inputPath, string commandLineArgs)
         {
-            var outputPath = Path.Combine(Path.GetDirectoryName(inputPath), Path.GetFileNameWithoutExtension(inputPath) + ".aac");
+            var outputPath = Path.Combine(_processingFolder, Path.GetFileNameWithoutExtension(inputPath) + ".aac");
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);
@@ -56,7 +64,7 @@ namespace Packager.Utilities
 
         private void CreateAccess(string inputPath, string commandLineArgs)
         {
-            var outputPath = Path.Combine(Path.GetDirectoryName(inputPath), Path.GetFileNameWithoutExtension(inputPath) + ".mp4");
+            var outputPath = Path.Combine(_processingFolder, Path.GetFileNameWithoutExtension(inputPath) + ".mp4");
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);

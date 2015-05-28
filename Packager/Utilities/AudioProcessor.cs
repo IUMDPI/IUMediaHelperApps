@@ -50,7 +50,8 @@ namespace Packager.Utilities
             Observers.LogHeader("Generating Xml: {0}", fileName);
 
             var carrierData = GenerateCarrierData();
-            var test = 0;
+            var xmlDataString = new XmlExporter().GenerateXml(new IU {Carrier  = carrierData});
+            var foo = "bar";
         }
 
         private string CreateMezzanine(string inputPath, string commandLineArgs)

@@ -7,6 +7,7 @@ using Packager.Attributes;
 
 namespace Packager.Models
 {
+    [Serializable]
     public class CleaningData
     {
         [ExcelField("Cleaning-Date", false)]

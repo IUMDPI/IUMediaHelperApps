@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Packager.Models
 {
+    [Serializable]
     public class IngestData
     {
         public string Date { get; set; }

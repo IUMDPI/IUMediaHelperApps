@@ -11,11 +11,11 @@ namespace Packager.Utilities
         {
             var result = new T();
 
-            SlurpFromRow(result, row);
+            ImportFromRow(result, row);
             return result;
         }
 
-        private static void SlurpFromRow(T instance, DataRow row)
+        private static void ImportFromRow(T instance, DataRow row)
         {
             foreach (var info in instance.GetType().GetProperties())
             {

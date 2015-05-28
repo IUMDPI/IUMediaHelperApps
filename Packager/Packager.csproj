@@ -60,6 +60,7 @@
     <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Models\BakingData.cs" />
+    <Compile Include="Models\IU.cs" />
     <Compile Include="Models\ConfigurationData.cs" />
     <Compile Include="Models\CleaningData.cs" />
     <Compile Include="Models\FileData.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\CarrierData.cs" />
     <Compile Include="Utilities\IProcessor.cs" />
+    <Compile Include="Utilities\IXmlExporter.cs" />
     <Compile Include="Utilities\SkippingProcessor.cs" />
     <EmbeddedResource Include="OutputForm.resx">
       <DependentUpon>OutputForm.cs</DependentUpon>

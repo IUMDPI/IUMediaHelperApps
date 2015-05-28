@@ -1,7 +1,9 @@
-﻿using Packager.Attributes;
+﻿using System;
+using Packager.Attributes;
 
 namespace Packager.Models
 {
+    [Serializable]
     public class PreviewData
     {
         [ExcelField("Preview-Comments", false)]

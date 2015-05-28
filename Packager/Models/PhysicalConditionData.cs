@@ -1,7 +1,9 @@
-﻿using Packager.Attributes;
+﻿using System;
+using Packager.Attributes;
 
 namespace Packager.Models
 {
+    [Serializable]
     public class PhysicalConditionData
     {
         [ExcelField("PhysicalCondition-Damage", true)]

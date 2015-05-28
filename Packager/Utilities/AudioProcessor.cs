@@ -39,7 +39,6 @@ namespace Packager.Utilities
 
             AddMetadata(targetPath, data);
 
-
             Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
             var mezzanineFilePath = CreateMezzanine(targetPath, FFMPEGAudioMezzanineArguments);
 
@@ -49,8 +48,9 @@ namespace Packager.Utilities
             //todo: figure out how to get canonical name
 
             Observers.LogHeader("Generating Xml: {0}", fileName);
-            var temporaryInputDataName = MoveFileToProcessing("barcode.xlsx");
-            var inputData = new InputData(temporaryInputDataName);
+
+            var carrierData = GenerateCarrierData();
+            var test = 0;
         }
 
         private string CreateMezzanine(string inputPath, string commandLineArgs)
@@ -143,6 +143,12 @@ namespace Packager.Utilities
             {
                 throw new Exception(string.Format("Could not insert BEXT Data: {0}", process.ExitCode));
             }
+        }
+
+        private CarrierData GenerateCarrierData()
+        {
+            var temporaryInputDataName = MoveFileToProcessing("barcode.xlsx");
+            return CarrierData.ImportFromExcel(temporaryInputDataName);
         }
 
         private static bool SuccessMessagePresent(string fileName, string output)

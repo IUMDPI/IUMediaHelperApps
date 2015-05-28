@@ -55,8 +55,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\ExcelFieldAttribute.cs" />
+    <Compile Include="Attributes\ExcelObjectAttribute.cs" />
     <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Models\BakingData.cs" />
+    <Compile Include="Models\ConfigurationData.cs" />
+    <Compile Include="Models\CleaningData.cs" />
+    <Compile Include="Models\FileData.cs" />
+    <Compile Include="Models\IngestData.cs" />
+    <Compile Include="Models\SideData.cs" />
+    <Compile Include="Models\PartsData.cs" />
+    <Compile Include="Models\PhysicalConditionData.cs" />
+    <Compile Include="Models\PreviewData.cs" />
     <Compile Include="OutputForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -71,8 +82,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\AbstractProcessor.cs" />
     <Compile Include="Utilities\AudioProcessor.cs" />
+    <Compile Include="Utilities\ExcelImporter.cs" />
+    <Compile Include="Utilities\IExcelImporter.cs" />
     <Compile Include="Utilities\IHasher.cs" />
-    <Compile Include="Models\InputData.cs" />
+    <Compile Include="Models\CarrierData.cs" />
     <Compile Include="Utilities\IProcessor.cs" />
     <Compile Include="Utilities\SkippingProcessor.cs" />
     <EmbeddedResource Include="OutputForm.resx">

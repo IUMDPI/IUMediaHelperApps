@@ -13,9 +13,8 @@ namespace Packager
     public partial class OutputForm : Form
     {
         private readonly Dictionary<string, IProcessor> _processors;
-        private List<IObserver> _observers;
+        private readonly List<IObserver> _observers;
         private readonly IProgramSettings _programSettings;
-
 
         public OutputForm()
         {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Windows.Forms;
+using Packager.Extensions;
+using Packager.Observers;
 using Packager.Utilities;
 
 namespace Packager
@@ -16,6 +18,8 @@ namespace Packager
         private readonly Dictionary<string, IProcessor> _processors;
         private readonly string _ffmpegAudioMezzanineArguments;
         private string _ffmpegAudioAccessArguments;
+
+        private List<IObserver> _observers; 
 
         public Form1()
         {
@@ -33,6 +37,8 @@ namespace Packager
                 {".wav", new AudioProcessor(_ffmpegPath, _bwfMetaEditPath, _ffmpegAudioMezzanineArguments, _ffmpegAudioAccessArguments, _inputDirectory, _processingDirectory)},
                 {".xlsx", new SkippingProcessor()}
             };
+
+            _observers = new List<IObserver>{new TextBoxOutputObserver(outputTextBox)};
         }
 
         private void FormLoadHandler(object sender, EventArgs e)
@@ -68,7 +74,7 @@ namespace Packager
             }
             catch (Exception ex)
             {
-                outputTextBox.AppendText(string.Format("Fatal Exception Occurred: {0}", ex.Message));
+                _observers.Log("Fatal Exception Occurred: {0}", ex.Message);
             }
         }
 
@@ -76,11 +82,7 @@ namespace Packager
 
         private void WriteHelloMessage()
         {
-            outputTextBox.AppendText(string.Format("Starting {0}\n\n", DateTime.Now));
-        }
-
-        private void AppendToOutput(string text)
-        {
+            _observers.Log("Starting {0}\n\n", DateTime.Now);
         }
 
         private void VerifyPaths()

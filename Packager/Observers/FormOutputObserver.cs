@@ -24,8 +24,14 @@ namespace Packager.Observers
             }
 
             _target.AppendText(string.Format(baseMessage, elements));
+            _target.AppendText("\n\n");
         }
 
-
+        public void LogHeader(string baseMessage, params object[] elements)
+        {
+            Log("");
+            Log(string.Format(baseMessage, elements).ToUpperInvariant());
+            Log("------------------------------------------------------------------------------------------");
+        }
     }
 }

@@ -1,45 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing.Text;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
+using Packager.Extensions;
 using Packager.Models;
+using Packager.Observers;
 
 namespace Packager.Utilities
 {
-    public class AudioProcessor : IProcessor
+    public class AudioProcessor : AbstractProcessor
     {
-        private readonly string _bwfMetaEditPath;
-        private readonly string _ffmpegPath;
-        private readonly string _ffmpegAudioMezzanineArguments;
-        private readonly string _ffmpegAudioAccessArguments;
-        private readonly string _inputFolder;
-        private readonly string _processingFolder;
-
-        public AudioProcessor(string ffmpegPath, string bwfMetaEditPath, string ffmpegAudioMezzanineArguments, string ffmpegAudioAccessArguments, string inputFolder, string processingFolder)
+        public AudioProcessor(IProgramSettings programSettings, List<IObserver> observers) : base(programSettings, observers)
         {
-            _ffmpegPath = ffmpegPath;
-            _bwfMetaEditPath = bwfMetaEditPath;
-            _ffmpegAudioMezzanineArguments = ffmpegAudioMezzanineArguments;
-            _ffmpegAudioAccessArguments = ffmpegAudioAccessArguments;
-            _inputFolder = inputFolder;
-            _processingFolder = processingFolder;
         }
 
-        public void ProcessFile(string fileName)
+        public override void ProcessFile(string fileName)
         {
+            Observers.LogHeader("Embedding Metadata: {0}", fileName);
+
             // move the file to our work dir
             var targetPath = MoveFileToProcessing(fileName);
-            
+
             const string standinDescription =
-               "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
+                "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
 
             const string standinIARL =
                 "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
 
             const string standinICMT = "Indiana University, Bloomington. William and Gayle Cook Music Library.";
-            
+
             var data = new BextData
             {
                 Description = standinDescription,
@@ -47,19 +37,26 @@ namespace Packager.Utilities
                 ICMT = standinICMT
             };
 
-            AddMetadata(targetPath,data);
-            var mezzanineFilePath = CreateMezzanine(targetPath, _ffmpegAudioMezzanineArguments);
-            CreateAccess(mezzanineFilePath, _ffmpegAudioAccessArguments);
+            AddMetadata(targetPath, data);
+
+
+            Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
+            var mezzanineFilePath = CreateMezzanine(targetPath, FFMPEGAudioMezzanineArguments);
+
+            Observers.LogHeader("Generating AccessVersion: {0}", fileName);
+            CreateAccess(mezzanineFilePath, FFMPEGAudioAccessArguments);
 
             //todo: figure out how to get canonical name
 
+            Observers.LogHeader("Generating Xml: {0}", fileName);
             var temporaryInputDataName = MoveFileToProcessing("barcode.xlsx");
             var inputData = new InputData(temporaryInputDataName);
         }
-        
+
         private string CreateMezzanine(string inputPath, string commandLineArgs)
         {
-            var outputPath = Path.Combine(_processingFolder, Path.GetFileNameWithoutExtension(inputPath) + ".aac");
+            
+            var outputPath = Path.Combine(ProcessingDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".aac");
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);
@@ -68,15 +65,15 @@ namespace Packager.Utilities
 
         private void CreateAccess(string inputPath, string commandLineArgs)
         {
-            var outputPath = Path.Combine(_processingFolder, Path.GetFileNameWithoutExtension(inputPath) + ".mp4");
+            var outputPath = Path.Combine(ProcessingDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".mp4");
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);
         }
-        
+
         private void CreateDerivative(string args)
         {
-            var startInfo = new ProcessStartInfo(_ffmpegPath)
+            var startInfo = new ProcessStartInfo(FFMPEGPath)
             {
                 Arguments = args,
                 RedirectStandardError = true,
@@ -87,7 +84,7 @@ namespace Packager.Utilities
             var process = Process.Start(startInfo);
             if (process == null)
             {
-                throw new Exception(string.Format("Could not start {0}", _bwfMetaEditPath));
+                throw new Exception(string.Format("Could not start {0}", FFMPEGPath));
             }
 
             do
@@ -97,10 +94,12 @@ namespace Packager.Utilities
             } while (!process.HasExited);
 
             string output;
-            using (var reader = process.StandardOutput)
+            using (var reader = process.StandardError)
             {
                 output = reader.ReadToEnd();
             }
+
+            Observers.Log(output);
 
             if (process.ExitCode != 0)
             {
@@ -110,9 +109,9 @@ namespace Packager.Utilities
 
         private void AddMetadata(string targetPath, BextData data)
         {
-            var args = string.Format("--verbose --append {0} {1}", string.Join(" ", data.GenerateCommandArgs()), targetPath); 
-            
-            var startInfo = new ProcessStartInfo(_bwfMetaEditPath)
+            var args = string.Format("--verbose --append {0} {1}", string.Join(" ", data.GenerateCommandArgs()), targetPath);
+
+            var startInfo = new ProcessStartInfo(BWFMetaEditPath)
             {
                 Arguments = args,
                 RedirectStandardError = true,
@@ -123,7 +122,7 @@ namespace Packager.Utilities
             var process = Process.Start(startInfo);
             if (process == null)
             {
-                throw new Exception(string.Format("Could not start {0}", _bwfMetaEditPath));
+                throw new Exception(string.Format("Could not start {0}", BWFMetaEditPath));
             }
 
             do
@@ -138,10 +137,11 @@ namespace Packager.Utilities
             {
                 output = reader.ReadToEnd();
             }
-            
+            Observers.Log(output);
+
             if (process.ExitCode != 0 || !SuccessMessagePresent(targetPath, output))
             {
-                throw new Exception(string.Format("Could not insert BEXT Data: {0}",process.ExitCode));
+                throw new Exception(string.Format("Could not insert BEXT Data: {0}", process.ExitCode));
             }
         }
 
@@ -151,20 +151,5 @@ namespace Packager.Utilities
             var nothingToDo = string.Format("{0}: nothing to do", fileName).ToLowerInvariant();
             return output.ToLowerInvariant().Contains(success) || output.ToLowerInvariant().Contains(nothingToDo);
         }
-
-        private string MoveFileToProcessing(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                throw new ArgumentException("Invalid file name", "fileName");
-            }
-
-            var sourcePath = Path.Combine(_inputFolder, fileName);
-            var targetPath = Path.Combine(_processingFolder, fileName);
-            File.Move(sourcePath, targetPath);
-            return targetPath;
-        }
     }
-
-    
 }

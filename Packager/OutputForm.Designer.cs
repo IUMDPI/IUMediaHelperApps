@@ -1,6 +1,6 @@
 ﻿namespace Packager
 {
-    partial class Form1
+    partial class OutputForm
     {
         /// <summary>
         /// Required designer variable.
@@ -35,19 +35,23 @@
             // 
             this.outputTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.outputTextBox.Location = new System.Drawing.Point(0, 0);
+            this.outputTextBox.Margin = new System.Windows.Forms.Padding(8);
             this.outputTextBox.Multiline = true;
             this.outputTextBox.Name = "outputTextBox";
+            this.outputTextBox.ReadOnly = true;
+            this.outputTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.outputTextBox.Size = new System.Drawing.Size(535, 390);
             this.outputTextBox.TabIndex = 0;
+            this.outputTextBox.WordWrap = false;
             // 
-            // Form1
+            // OutputForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(535, 390);
             this.Controls.Add(this.outputTextBox);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "OutputForm";
+            this.Text = "Output";
             this.Load += new System.EventHandler(this.FormLoadHandler);
             this.ResumeLayout(false);
             this.PerformLayout();

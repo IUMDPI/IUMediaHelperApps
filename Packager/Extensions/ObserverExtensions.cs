@@ -12,5 +12,13 @@ namespace Packager.Extensions
                 observer.Log(baseMessage, elements);
             }
         }
+
+        public static void LogHeader(this IEnumerable<IObserver> observers, string baseMessage, params object[] elements)
+        {
+            foreach (var observer in observers)
+            {
+                observer.LogHeader(baseMessage, elements);
+            }
+        }
     }
 }

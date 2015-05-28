@@ -41,16 +41,17 @@ namespace Packager.Utilities
             };
 
             AddMetadata(targetPath,data);
-            CreateMezzanine(targetPath, _ffmpegAudioMezzanineArguments);
-            CreateAccess(targetPath, _ffmpegAudioAccessArguments);
+            var mezzanineFilePath = CreateMezzanine(targetPath, _ffmpegAudioMezzanineArguments);
+            CreateAccess(mezzanineFilePath, _ffmpegAudioAccessArguments);
         }
         
-        private void CreateMezzanine(string inputPath, string commandLineArgs)
+        private string CreateMezzanine(string inputPath, string commandLineArgs)
         {
             var outputPath = Path.Combine(Path.GetDirectoryName(inputPath), Path.GetFileNameWithoutExtension(inputPath) + ".aac");
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);
+            return outputPath;
         }
 
         private void CreateAccess(string inputPath, string commandLineArgs)

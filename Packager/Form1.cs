@@ -45,18 +45,15 @@ namespace Packager
                 var filesToProcess = Directory.EnumerateFiles(_inputDirectory);
                 foreach (var filePath in filesToProcess)
                 {
-                    // move the file to our work dir
-                    var targetPath = MoveFileToProcessing(filePath);
-
                     IProcessor processor;
-                    var extension = Path.GetExtension(targetPath).ToLowerInvariant();
+                    var extension = Path.GetExtension(filePath).ToLowerInvariant();
                     _processors.TryGetValue(extension, out processor);
                     if (processor == null)
                     {
                         throw new Exception(string.Format("No processor found for extension: {0}", extension));
                     }
 
-                    processor.ProcessFile(targetPath);
+                    processor.ProcessFile(Path.GetFileName(filePath));
                     // insert chunks (BEXT, INFO, IARL)
 
 
@@ -75,17 +72,7 @@ namespace Packager
             }
         }
 
-        private string MoveFileToProcessing(string sourcePath)
-        {
-            if (string.IsNullOrWhiteSpace(Path.GetFileName(sourcePath)))
-            {
-                throw new Exception(string.Format("Could not parse file: {0}", sourcePath));
-            }
-
-            var targetPath = Path.Combine(_processingDirectory, Path.GetFileName(sourcePath));
-            File.Move(sourcePath, targetPath);
-            return targetPath;
-        }
+       
 
         private void WriteHelloMessage()
         {

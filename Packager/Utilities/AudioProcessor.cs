@@ -27,8 +27,11 @@ namespace Packager.Utilities
             _processingFolder = processingFolder;
         }
 
-        public void ProcessFile(string targetPath)
+        public void ProcessFile(string fileName)
         {
+            // move the file to our work dir
+            var targetPath = MoveFileToProcessing(fileName);
+            
             const string standinDescription =
                "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
 
@@ -49,7 +52,8 @@ namespace Packager.Utilities
             CreateAccess(mezzanineFilePath, _ffmpegAudioAccessArguments);
 
             //todo: figure out how to get canonical name
-            var temporaryInputDataName = Path.Combine(_processingFolder,"Barcode.xlsx");
+
+            var temporaryInputDataName = MoveFileToProcessing("barcode.xlsx");
             var inputData = new InputData(temporaryInputDataName);
         }
         
@@ -146,6 +150,19 @@ namespace Packager.Utilities
             var success = string.Format("{0}: is modified", fileName).ToLowerInvariant();
             var nothingToDo = string.Format("{0}: nothing to do", fileName).ToLowerInvariant();
             return output.ToLowerInvariant().Contains(success) || output.ToLowerInvariant().Contains(nothingToDo);
+        }
+
+        private string MoveFileToProcessing(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                throw new ArgumentException("Invalid file name", "fileName");
+            }
+
+            var sourcePath = Path.Combine(_inputFolder, fileName);
+            var targetPath = Path.Combine(_processingFolder, fileName);
+            File.Move(sourcePath, targetPath);
+            return targetPath;
         }
     }
 

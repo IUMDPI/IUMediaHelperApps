@@ -90,6 +90,7 @@ namespace Packager.Models
             {
                 Side = sideValue.ToString(CultureInfo.InvariantCulture),
                 Files = new List<FileData>(),
+                ManualCheck = row[string.Format("Part-Side-{0}-ManualCheck", sideValue)].ToString(),
                 Ingest = new IngestData
                 {
                     SpeedUsed = row[string.Format("Part-Side-{0}-Speed_used",sideValue)].ToString(),

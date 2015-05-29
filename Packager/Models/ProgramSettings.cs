@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
 using System.IO;
 
 namespace Packager.Models
@@ -15,7 +16,7 @@ namespace Packager.Models
         string FFMPEGAudioMezzanineArguments { get; }
         // ReSharper disable once InconsistentNaming
         string FFMPEGAudioAccessArguments { get; }
-
+        string ProjectCode { get; }
         void Verify();
     }
 
@@ -29,6 +30,7 @@ namespace Packager.Models
             BWFMetaEditPath = settings["PathToMetaEdit"];
             FFMPEGAudioMezzanineArguments = settings["ffmpegAudioMezzanineArguments"];
             FFMPEGAudioAccessArguments = settings["ffmpegAudioAccessArguments"];
+            ProjectCode = settings["ProjectCode"];
         }
 
         public string BWFMetaEditPath { get; private set; }
@@ -37,6 +39,8 @@ namespace Packager.Models
         public string ProcessingDirectory { get; private set; }
         public string FFMPEGAudioMezzanineArguments { get; private set; }
         public string FFMPEGAudioAccessArguments { get; private set; }
+        public string ProjectCode { get; private set; }
+        
 
         public void Verify()
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Packager.Extensions;
 using Packager.Models;
@@ -15,12 +16,63 @@ namespace Packager.Utilities
         {
         }
 
-        public override void ProcessFile(string fileName)
+        public override void ProcessFile(IGrouping<string, FileModel> batchGrouping)
         {
+            Barcode = batchGrouping.Key;
+            Observers.LogHeader("Processing batch {0}", Barcode);
+
+            // make directory to hold processed files
+            var batchFolder = Directory.CreateDirectory(Path.Combine(ProcessingDirectory, Barcode));
+            
+            var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
+            Observers.Log("Spreadsheet: {0}", excelSpreadSheet.OriginalFileName);
+
+            var filesToProcess = batchGrouping.Where(m => m.Extension.Equals(SupportedExtension, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            foreach (var fileModel in filesToProcess)
+            {
+                Observers.Log("File: {0}", fileModel.OriginalFileName);
+            }
+            
+            if (filesToProcess.Any(f => f.IsValidForProcessing() == false))
+            {
+                throw new Exception("Could not process batch: one or more files has an unexpected filename");
+            }
+
+            foreach (var fileModel in filesToProcess)
+            {
+                ProcessFile(fileModel);
+            }
+
+
+            //throw new NotImplementedException();
+        }
+
+        public override string SupportedExtension
+        {
+            get { return ".wav"; }
+        }
+
+
+        private FileModel GetExcelSpreadSheet(IGrouping<string, FileModel> batchGrouping)
+        {
+            var result = batchGrouping.SingleOrDefault(m => m.Extension.Equals(".xlsx", StringComparison.InvariantCultureIgnoreCase));
+            if (result == null)
+            {
+                throw new Exception("No input data spreadsheet in batch");
+            }
+
+            return result;
+        }
+        
+
+        public override void ProcessFile(FileModel fileModel)
+        {
+            var fileName = fileModel.ToFileName();
+            
             Observers.LogHeader("Embedding Metadata: {0}", fileName);
 
             // move the file to our work dir
-            var targetPath = MoveFileToProcessing(fileName);
+            var targetPath = MoveFileToProcessing(fileModel.OriginalFileName);
 
             const string standinDescription =
                 "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
@@ -40,38 +92,48 @@ namespace Packager.Utilities
             AddMetadata(targetPath, data);
 
             Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
-            var mezzanineFilePath = CreateMezzanine(targetPath, FFMPEGAudioMezzanineArguments);
+            var mezzanineModel = CreateMezzanine(fileModel, FFMPEGAudioMezzanineArguments);
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
-            CreateAccess(mezzanineFilePath, FFMPEGAudioAccessArguments);
+            CreateAccess(mezzanineModel, FFMPEGAudioAccessArguments);
 
             //todo: figure out how to get canonical name
 
-            Observers.LogHeader("Generating Xml: {0}", fileName);
+            /*Observers.LogHeader("Generating Xml: {0}", fileName);
 
             var carrierData = GenerateCarrierData();
             carrierData.Parts.Sides[0].Files = GetFileHashes(fileName);
 
             var xmlDataString = new XmlExporter().GenerateXml(new IU {Carrier  = carrierData});
-            SaveXmlFile(string.Format("{0}.xml", Path.GetFileNameWithoutExtension(fileName)), xmlDataString);
+            SaveXmlFile(string.Format("{0}.xml", Path.GetFileNameWithoutExtension(fileName)), xmlDataString);*/
         }
 
-        private string CreateMezzanine(string inputPath, string commandLineArgs)
+        
+
+        private FileModel CreateMezzanine(FileModel originalModel, string commandLineArgs)
         {
+            var inputPath = Path.Combine(ProcessingDirectory, Barcode, originalModel.ToFileName());
+
+            var mezzanineModel = new FileModel(originalModel, "mezz", ".aac");
+            var outputPath = Path.Combine(ProcessingDirectory, Barcode, mezzanineModel.ToFileName());
             
-            var outputPath = Path.Combine(ProcessingDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".aac");
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);
-            return outputPath;
+            return mezzanineModel;
         }
 
-        private void CreateAccess(string inputPath, string commandLineArgs)
+        private FileModel CreateAccess(FileModel originalModel, string commandLineArgs)
         {
-            var outputPath = Path.Combine(ProcessingDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".mp4");
+            var inputPath = Path.Combine(ProcessingDirectory, Barcode, originalModel.ToFileName());
+
+            var accessModel = new FileModel(originalModel, "access", ".mp4");
+            var outputPath = Path.Combine(ProcessingDirectory, Barcode, accessModel.ToFileName());
+
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);
+            return accessModel;
         }
 
         private void CreateDerivative(string args)

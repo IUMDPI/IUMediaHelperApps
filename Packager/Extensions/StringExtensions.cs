@@ -12,5 +12,12 @@ namespace Packager.Extensions
         {
             return string.Format("\"{0}\"", value);
         }
+
+        public static string ToDefaultIfEmpty(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value) 
+                ? string.Empty 
+                : value;
+        }
     }
 }

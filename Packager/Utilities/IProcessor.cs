@@ -1,7 +1,10 @@
-﻿namespace Packager.Utilities
+﻿using System.Linq;
+using Packager.Models;
+
+namespace Packager.Utilities
 {
     internal interface IProcessor
     {
-        void ProcessFile(string targetPath);
+        void ProcessFile(IGrouping<string,FileModel> batchGrouping);
     }
 }

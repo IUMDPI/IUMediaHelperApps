@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Packager.Extensions;
 using Packager.Models;
@@ -26,7 +27,6 @@ namespace Packager
             _processors = new Dictionary<string, IProcessor>
             {
                 {".wav", new AudioProcessor(_programSettings, _observers)},
-                {".xlsx", new SkippingProcessor()}
             };
         }
 
@@ -37,28 +37,23 @@ namespace Packager
                 WriteHelloMessage();
                 _programSettings.Verify();
 
-                var filesToProcess = Directory.EnumerateFiles(_programSettings.InputDirectory);
-                foreach (var filePath in filesToProcess)
+                // want to get all files in the input directory
+                // and convert them to file models
+                // and then take all of the files that are valid
+                // and start with the correct project code
+                // and then group them by bar code
+                var batchGroups = Directory.EnumerateFiles(_programSettings.InputDirectory)
+                    .Select(p => new FileModel(p))
+                    .Where(f => f.IsValidForGrouping())
+                    .Where(f => f.BelongsToProject(_programSettings.ProjectCode))
+                    .GroupBy(f => f.BarCode).ToList();
+                   
+
+                foreach (var group in batchGroups)
                 {
-                    IProcessor processor;
-                    var extension = Path.GetExtension(filePath).ToLowerInvariant();
-                    _processors.TryGetValue(extension, out processor);
-                    if (processor == null)
-                    {
-                        throw new Exception(string.Format("No processor found for extension: {0}", extension));
-                    }
-
-                    processor.ProcessFile(Path.GetFileName(filePath));
-                    // insert chunks (BEXT, INFO, IARL)
-
-
-                    // generate MD5 hash
-
-
-                    // generate derivatives
-
-
-                    // move files to fileshare setup on server
+                    
+                    var processor = GetProcessor(group);
+                    processor.ProcessFile(group);
                 }
 
                 WriteGoodbyeMessage();
@@ -69,8 +64,26 @@ namespace Packager
             }
         }
 
-       
+        
+        private IProcessor GetProcessor(IEnumerable<FileModel> group )
+        {
+            // for each model in the group
+            // take those that have extensions associated with a processor
+            // and group them by that extension
+            var validExtensions = group
+                .Where(m => _processors.Keys.Contains(m.Extension))
+                .GroupBy(m => m.Extension).ToList();
+            
+            // if we have no groups or if we have more than one group, we have a problem
+            if (validExtensions.Count() != 1)
+            {
+                throw new Exception("Can not determine extension for file batch");
+            }
 
+            // get processor for the group's common extension
+            return _processors[validExtensions.First().Key];
+        }
+        
         private void WriteHelloMessage()
         {
             _observers.Log("Starting {0}", DateTime.Now);

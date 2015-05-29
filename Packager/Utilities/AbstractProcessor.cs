@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Packager.Models;
 using Packager.Observers;
 
@@ -10,8 +11,14 @@ namespace Packager.Utilities
     {
         private readonly IProgramSettings _programSettings;
         protected List<IObserver> Observers { get; private set; }
-        public abstract void ProcessFile(string targetPath);
         
+        public abstract void ProcessFile(FileModel fileModel);
+        public abstract void ProcessFile(IGrouping<string, FileModel> batchGrouping);
+
+        public abstract string SupportedExtension { get; }
+
+        protected string Barcode { get; set; }
+
         // ReSharper disable once InconsistentNaming
         public string BWFMetaEditPath
         {
@@ -60,9 +67,11 @@ namespace Packager.Utilities
             }
 
             var sourcePath = Path.Combine(InputDirectory, fileName);
-            var targetPath = Path.Combine(ProcessingDirectory, fileName);
+            var targetPath = Path.Combine(ProcessingDirectory, Barcode, fileName);
             File.Move(sourcePath, targetPath);
             return targetPath;
         }
+
+        
     }
 }

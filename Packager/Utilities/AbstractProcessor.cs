@@ -12,7 +12,7 @@ namespace Packager.Utilities
         private readonly IProgramSettings _programSettings;
         protected List<IObserver> Observers { get; private set; }
 
-        public abstract void ProcessFile(FileModel fileModel);
+        public abstract List<FileModel> ProcessFile(FileModel fileModel);
         public abstract void ProcessFile(IGrouping<string, FileModel> batchGrouping);
         public abstract FileModel ToAccessFileModel(FileModel original);
         public abstract FileModel ToMezzanineFileModel(FileModel original);

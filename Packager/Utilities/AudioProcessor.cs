@@ -44,16 +44,11 @@ namespace Packager.Utilities
             {
                 throw new Exception("Could not process batch: one or more files has an unexpected filename");
             }
+            
+            var processedList = new List<FileModel>();
+            processedList = filesToProcess.Aggregate(processedList, (current, fileModel) => current.Concat(ProcessFile(fileModel)).ToList());
 
-            foreach (var fileModel in filesToProcess)
-            {
-                ProcessFile(fileModel);
-            }
-
-
-            GenerateXml(excelSpreadSheet, filesToProcess)
-                ;
-            //throw new NotImplementedException();
+            GenerateXml(excelSpreadSheet, processedList);
         }
 
         public override FileModel ToAccessFileModel(FileModel original)
@@ -84,7 +79,7 @@ namespace Packager.Utilities
         }
 
 
-        public override void ProcessFile(FileModel fileModel)
+        public override List<FileModel> ProcessFile(FileModel fileModel)
         {
             var fileName = fileModel.ToFileName();
 
@@ -111,10 +106,13 @@ namespace Packager.Utilities
             AddMetadata(targetPath, data);
 
             Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
-            var mezzanineModel = CreateDerivative(fileModel, new FileModel(fileModel, "mezz", ".aac"), FFMPEGAudioMezzanineArguments);
-
+            var mezzanineModel = CreateDerivative(fileModel, ToMezzanineFileModel(fileModel), FFMPEGAudioMezzanineArguments);
+            
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
-            CreateDerivative(mezzanineModel, new FileModel(mezzanineModel, "access", ".mp4"), FFMPEGAudioAccessArguments);
+            var accessModel = CreateDerivative(mezzanineModel, ToAccessFileModel(mezzanineModel), FFMPEGAudioAccessArguments);
+            
+            // return models for files
+            return new List<FileModel> { fileModel, mezzanineModel, accessModel };
         }
 
         private FileModel CreateDerivative(FileModel originalModel, FileModel newModel, string commandLineArgs)
@@ -163,20 +161,6 @@ namespace Packager.Utilities
             {
                 throw new Exception(string.Format("Could not generate derivative: {0}", process.ExitCode));
             }
-        }
-
-        private List<FileData> GetFileHashes(IEnumerable<FileModel> fileModels)
-        {
-            var result = new List<FileData>();
-
-            foreach (var fileModel in fileModels)
-            {
-                result.Add(GetFileData(fileModel));
-                result.Add(GetFileData(ToMezzanineFileModel(fileModel)));
-                result.Add(GetFileData(ToAccessFileModel(fileModel)));
-            }
-
-            return result;
         }
 
         private FileData GetFileData(FileModel fileModel)
@@ -288,7 +272,7 @@ namespace Packager.Utilities
                 }
 
                 var sideData = ImportSideData(row, grouping.Key.Value);
-                sideData.Files = GetFileHashes(grouping);
+                sideData.Files = grouping.Select(GetFileData).ToList();
 
                 result.Add(sideData);
             }

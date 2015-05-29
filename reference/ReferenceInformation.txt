@@ -12,7 +12,7 @@ Questions for Mike and Susan:
 5) on what conditions would there be any auxiliary files, and how would they be named and organized along with the main files
 6) from which file do we derive the play copy
 		Answer: always from the production (mezzanine copy)
-
+7) should xml files have encoding specified. If so, what encoding should we use?
 
 Follow ups for Mike and Jean
 - command line arguments for the production and play copies

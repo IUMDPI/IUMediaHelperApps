@@ -60,7 +60,7 @@ namespace Packager
             }
             catch (Exception ex)
             {
-                _observers.Log("Fatal Exception Occurred: {0}", ex.Message);
+                _observers.Log("Fatal Exception Occurred: {0}", ex);
             }
         }
 

@@ -19,10 +19,9 @@ namespace Packager.Utilities
         public string GenerateXml(object o)
         {
             var serializer = new XmlSerializer(o.GetType());
-            var stream = new MemoryStream();
-
+         
             // code borrow
-            using (StringWriter textWriter = new StringWriter())
+            using (var textWriter = new StringWriter())
             {
                 using (XmlWriter xmlWriter = XmlWriter.Create(textWriter))
                 {

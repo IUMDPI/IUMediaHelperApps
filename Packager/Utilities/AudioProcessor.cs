@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Excel;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Observers;
@@ -12,19 +15,23 @@ namespace Packager.Utilities
 {
     public class AudioProcessor : AbstractProcessor
     {
-        public AudioProcessor(IProgramSettings programSettings, List<IObserver> observers) : base(programSettings, observers)
+        public AudioProcessor(IProgramSettings programSettings, List<IObserver> observers)
+            : base(programSettings, observers)
         {
         }
 
         public override void ProcessFile(IGrouping<string, FileModel> batchGrouping)
         {
             Barcode = batchGrouping.Key;
-            Observers.LogHeader("Processing batch {0}", Barcode);
+            ProjectCode = batchGrouping.First().ProjectCode;
 
             // make directory to hold processed files
-            var batchFolder = Directory.CreateDirectory(Path.Combine(ProcessingDirectory, Barcode));
-            
+            Directory.CreateDirectory(Path.Combine(ProcessingDirectory));
+
+            Observers.LogHeader("Processing batch {0}", Barcode);
+
             var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
+
             Observers.Log("Spreadsheet: {0}", excelSpreadSheet.OriginalFileName);
 
             var filesToProcess = batchGrouping.Where(m => m.Extension.Equals(SupportedExtension, StringComparison.InvariantCultureIgnoreCase)).ToList();
@@ -32,7 +39,7 @@ namespace Packager.Utilities
             {
                 Observers.Log("File: {0}", fileModel.OriginalFileName);
             }
-            
+
             if (filesToProcess.Any(f => f.IsValidForProcessing() == false))
             {
                 throw new Exception("Could not process batch: one or more files has an unexpected filename");
@@ -44,7 +51,19 @@ namespace Packager.Utilities
             }
 
 
+            GenerateXml(excelSpreadSheet, filesToProcess)
+                ;
             //throw new NotImplementedException();
+        }
+
+        public override FileModel ToAccessFileModel(FileModel original)
+        {
+            return original.ToAccessFileModel(".mp4");
+        }
+
+        public override FileModel ToMezzanineFileModel(FileModel original)
+        {
+            return original.ToMezzanineFileModel(".aac");
         }
 
         public override string SupportedExtension
@@ -53,7 +72,7 @@ namespace Packager.Utilities
         }
 
 
-        private FileModel GetExcelSpreadSheet(IGrouping<string, FileModel> batchGrouping)
+        private static FileModel GetExcelSpreadSheet(IGrouping<string, FileModel> batchGrouping)
         {
             var result = batchGrouping.SingleOrDefault(m => m.Extension.Equals(".xlsx", StringComparison.InvariantCultureIgnoreCase));
             if (result == null)
@@ -63,12 +82,12 @@ namespace Packager.Utilities
 
             return result;
         }
-        
+
 
         public override void ProcessFile(FileModel fileModel)
         {
             var fileName = fileModel.ToFileName();
-            
+
             Observers.LogHeader("Embedding Metadata: {0}", fileName);
 
             // move the file to our work dir
@@ -92,48 +111,21 @@ namespace Packager.Utilities
             AddMetadata(targetPath, data);
 
             Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
-            var mezzanineModel = CreateMezzanine(fileModel, FFMPEGAudioMezzanineArguments);
+            var mezzanineModel = CreateDerivative(fileModel, new FileModel(fileModel, "mezz", ".aac"), FFMPEGAudioMezzanineArguments);
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
-            CreateAccess(mezzanineModel, FFMPEGAudioAccessArguments);
-
-            //todo: figure out how to get canonical name
-
-            /*Observers.LogHeader("Generating Xml: {0}", fileName);
-
-            var carrierData = GenerateCarrierData();
-            carrierData.Parts.Sides[0].Files = GetFileHashes(fileName);
-
-            var xmlDataString = new XmlExporter().GenerateXml(new IU {Carrier  = carrierData});
-            SaveXmlFile(string.Format("{0}.xml", Path.GetFileNameWithoutExtension(fileName)), xmlDataString);*/
+            CreateDerivative(mezzanineModel, new FileModel(mezzanineModel, "access", ".mp4"), FFMPEGAudioAccessArguments);
         }
 
-        
-
-        private FileModel CreateMezzanine(FileModel originalModel, string commandLineArgs)
+        private FileModel CreateDerivative(FileModel originalModel, FileModel newModel, string commandLineArgs)
         {
-            var inputPath = Path.Combine(ProcessingDirectory, Barcode, originalModel.ToFileName());
-
-            var mezzanineModel = new FileModel(originalModel, "mezz", ".aac");
-            var outputPath = Path.Combine(ProcessingDirectory, Barcode, mezzanineModel.ToFileName());
-            
-            var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
-
-            CreateDerivative(args);
-            return mezzanineModel;
-        }
-
-        private FileModel CreateAccess(FileModel originalModel, string commandLineArgs)
-        {
-            var inputPath = Path.Combine(ProcessingDirectory, Barcode, originalModel.ToFileName());
-
-            var accessModel = new FileModel(originalModel, "access", ".mp4");
-            var outputPath = Path.Combine(ProcessingDirectory, Barcode, accessModel.ToFileName());
+            var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
+            var outputPath = Path.Combine(ProcessingDirectory, newModel.ToFileName());
 
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
             CreateDerivative(args);
-            return accessModel;
+            return newModel;
         }
 
         private void CreateDerivative(string args)
@@ -143,7 +135,8 @@ namespace Packager.Utilities
                 Arguments = args,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                CreateNoWindow = true
             };
 
             var process = Process.Start(startInfo);
@@ -172,24 +165,32 @@ namespace Packager.Utilities
             }
         }
 
-        private List<FileData> GetFileHashes(string fileName)
+        private List<FileData> GetFileHashes(IEnumerable<FileModel> fileModels)
         {
             var result = new List<FileData>();
-            var searchPattern = string.Format("{0}.*", Path.GetFileNameWithoutExtension(fileName));
-            var hasher = new Hasher();
-            foreach (var filePath in Directory.GetFiles(ProcessingDirectory, searchPattern))
+
+            foreach (var fileModel in fileModels)
             {
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    result.Add(new FileData()
-                    {
-                        Checksum = hasher.Hash(stream),
-                        FileName = Path.GetFileName(filePath)
-                    });
-                }
+                result.Add(GetFileData(fileModel));
+                result.Add(GetFileData(ToMezzanineFileModel(fileModel)));
+                result.Add(GetFileData(ToAccessFileModel(fileModel)));
             }
 
             return result;
+        }
+
+        private FileData GetFileData(FileModel fileModel)
+        {
+            var hasher = new Hasher();
+            var filePath = Path.Combine(ProcessingDirectory, fileModel.ToFileName());
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                return new FileData
+                {
+                    Checksum = hasher.Hash(stream),
+                    FileName = Path.GetFileName(filePath)
+                };
+            }
         }
 
         private void AddMetadata(string targetPath, BextData data)
@@ -201,7 +202,8 @@ namespace Packager.Utilities
                 Arguments = args,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                CreateNoWindow = true
             };
 
             var process = Process.Start(startInfo);
@@ -230,10 +232,68 @@ namespace Packager.Utilities
             }
         }
 
-        private CarrierData GenerateCarrierData()
+        private void GenerateXml(FileModel excelModel, List<FileModel> filesToProcess)
         {
-            var temporaryInputDataName = MoveFileToProcessing("barcode.xlsx");
-            return CarrierData.ImportFromExcel(temporaryInputDataName);
+            var carrierData = GenerateCarrierDataModel(excelModel, filesToProcess);
+            var xml = new XmlExporter().GenerateXml(carrierData);
+            SaveXmlFile(string.Format("{0}_{1}.xml", ProjectCode, Barcode), xml);
+        }
+
+        private CarrierData GenerateCarrierDataModel(FileModel excelModel, List<FileModel> filesToProcess)
+        {
+            MoveFileToProcessing(excelModel.OriginalFileName);
+            IExcelDataReader excelReader = null;
+            try
+            {
+                var targetPath = Path.Combine(ProcessingDirectory, excelModel.OriginalFileName);
+                using (var stream = new FileStream(targetPath, FileMode.Open, FileAccess.Read))
+                {
+                    excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+
+                    excelReader.IsFirstRowAsColumnNames = true;
+                    var dataSet = excelReader.AsDataSet();
+
+                    var row = dataSet.Tables["InputData"].Rows[0];
+
+                    var result = (CarrierData)new ExcelImporter<CarrierData>().Import(row);
+                    result.Parts.Sides = GenerateSideData(filesToProcess, row);
+
+
+                    return result;
+                }
+            }
+            finally
+            {
+                if (excelReader != null)
+                {
+                    excelReader.Close();
+                }
+            }
+        }
+
+        private SideData[] GenerateSideData(IEnumerable<FileModel> filesToProcess, DataRow row)
+        {
+            var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
+            if (!sideGroupings.Any())
+            {
+                throw new Exception("Could not determine side groupings");
+            }
+
+            var result = new List<SideData>();
+            foreach (var grouping in sideGroupings)
+            {
+                if (!grouping.Key.HasValue)
+                {
+                    throw new Exception("One or more groupings has an invalid sequence value");
+                }
+
+                var sideData = ImportSideData(row, grouping.Key.Value);
+                sideData.Files = GetFileHashes(grouping);
+
+                result.Add(sideData);
+            }
+
+            return result.ToArray();
         }
 
         private static bool SuccessMessagePresent(string fileName, string output)
@@ -245,8 +305,23 @@ namespace Packager.Utilities
 
         private void SaveXmlFile(string filename, string xml)
         {
-            File.WriteAllText(Path.Combine(ProcessingDirectory, filename),xml);
+            File.WriteAllText(Path.Combine(ProcessingDirectory, filename), xml);
         }
-        
+
+        private static SideData ImportSideData(DataRow row, int sideValue)
+        {
+            return new SideData
+            {
+                Side = sideValue.ToString(CultureInfo.InvariantCulture),
+                Files = new List<FileData>(),
+                ManualCheck = row[string.Format("Part-Side-{0}-ManualCheck", sideValue)].ToString(),
+                Ingest = new IngestData
+                {
+                    SpeedUsed = row[string.Format("Part-Side-{0}-Speed_used", sideValue)].ToString(),
+                    Comments = row[string.Format("Part-Side-{0}-Comments", sideValue)].ToString()
+                }
+            };
+        }
+
     }
 }

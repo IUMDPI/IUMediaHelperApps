@@ -98,5 +98,15 @@ namespace Packager.Models
         {
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);
         }
+
+        public FileModel ToAccessFileModel(string extension)
+        {
+            return new FileModel(this, "access", extension);
+        }
+
+        public FileModel ToMezzanineFileModel(string extension)
+        {
+            return new FileModel(this, "mezz", extension);
+        }
     }
 }

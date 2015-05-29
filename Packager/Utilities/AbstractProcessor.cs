@@ -11,13 +11,21 @@ namespace Packager.Utilities
     {
         private readonly IProgramSettings _programSettings;
         protected List<IObserver> Observers { get; private set; }
-        
+
         public abstract void ProcessFile(FileModel fileModel);
         public abstract void ProcessFile(IGrouping<string, FileModel> batchGrouping);
+        public abstract FileModel ToAccessFileModel(FileModel original);
+        public abstract FileModel ToMezzanineFileModel(FileModel original);
 
         public abstract string SupportedExtension { get; }
 
         protected string Barcode { get; set; }
+        protected string ProjectCode { get; set; }
+
+        public string ProcessingDirectory
+        {
+            get { return Path.Combine(RootProcessingDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
+        }
 
         // ReSharper disable once InconsistentNaming
         public string BWFMetaEditPath
@@ -36,7 +44,7 @@ namespace Packager.Utilities
             get { return _programSettings.InputDirectory; }
         }
 
-        protected string ProcessingDirectory
+        private string RootProcessingDirectory
         {
             get { return _programSettings.ProcessingDirectory; }
         }
@@ -67,11 +75,11 @@ namespace Packager.Utilities
             }
 
             var sourcePath = Path.Combine(InputDirectory, fileName);
-            var targetPath = Path.Combine(ProcessingDirectory, Barcode, fileName);
+            var targetPath = Path.Combine(ProcessingDirectory, fileName);
             File.Move(sourcePath, targetPath);
             return targetPath;
         }
 
-        
+
     }
 }

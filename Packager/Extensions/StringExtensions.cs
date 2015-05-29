@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Packager.Extensions
+﻿namespace Packager.Extensions
 {
     public static class StringExtensions
     {
@@ -18,6 +12,22 @@ namespace Packager.Extensions
             return string.IsNullOrWhiteSpace(value) 
                 ? string.Empty 
                 : value;
+        }
+
+        public static int? ToInteger(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            int result;
+            if (!int.TryParse(value, out result))
+            {
+                return null;
+            }
+
+            return result;
         }
     }
 }

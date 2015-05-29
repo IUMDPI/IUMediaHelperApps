@@ -17,6 +17,7 @@ namespace Packager.Models
         // ReSharper disable once InconsistentNaming
         string FFMPEGAudioAccessArguments { get; }
         string ProjectCode { get; }
+        string DropBoxDirectoryName { get; }
         void Verify();
     }
 
@@ -31,6 +32,7 @@ namespace Packager.Models
             FFMPEGAudioMezzanineArguments = settings["ffmpegAudioMezzanineArguments"];
             FFMPEGAudioAccessArguments = settings["ffmpegAudioAccessArguments"];
             ProjectCode = settings["ProjectCode"];
+            DropBoxDirectoryName = settings["DropBoxDirectoryName"];
         }
 
         public string BWFMetaEditPath { get; private set; }
@@ -40,7 +42,8 @@ namespace Packager.Models
         public string FFMPEGAudioMezzanineArguments { get; private set; }
         public string FFMPEGAudioAccessArguments { get; private set; }
         public string ProjectCode { get; private set; }
-        
+        public string DropBoxDirectoryName { get; private set; }
+
 
         public void Verify()
         {

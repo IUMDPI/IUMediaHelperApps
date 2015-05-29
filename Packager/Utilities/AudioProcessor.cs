@@ -53,7 +53,7 @@ namespace Packager.Utilities
             carrierData.Parts.Sides[0].Files = GetFileHashes(fileName);
 
             var xmlDataString = new XmlExporter().GenerateXml(new IU {Carrier  = carrierData});
-            var foo = "bar";
+            SaveXmlFile(string.Format("{0}.xml", Path.GetFileNameWithoutExtension(fileName)), xmlDataString);
         }
 
         private string CreateMezzanine(string inputPath, string commandLineArgs)
@@ -181,6 +181,10 @@ namespace Packager.Utilities
             return output.ToLowerInvariant().Contains(success) || output.ToLowerInvariant().Contains(nothingToDo);
         }
 
+        private void SaveXmlFile(string filename, string xml)
+        {
+            File.WriteAllText(Path.Combine(ProcessingDirectory, filename),xml);
+        }
         
     }
 }

@@ -50,6 +50,8 @@ namespace Packager.Utilities
             Observers.LogHeader("Generating Xml: {0}", fileName);
 
             var carrierData = GenerateCarrierData();
+            carrierData.Parts.Sides[0].Files = GetFileHashes(fileName);
+
             var xmlDataString = new XmlExporter().GenerateXml(new IU {Carrier  = carrierData});
             var foo = "bar";
         }
@@ -108,6 +110,26 @@ namespace Packager.Utilities
             }
         }
 
+        private List<FileData> GetFileHashes(string fileName)
+        {
+            var result = new List<FileData>();
+            var searchPattern = string.Format("{0}.*", Path.GetFileNameWithoutExtension(fileName));
+            var hasher = new Hasher();
+            foreach (var filePath in Directory.GetFiles(ProcessingDirectory, searchPattern))
+            {
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    result.Add(new FileData()
+                    {
+                        Checksum = hasher.Hash(stream),
+                        FileName = Path.GetFileName(filePath)
+                    });
+                }
+            }
+
+            return result;
+        }
+
         private void AddMetadata(string targetPath, BextData data)
         {
             var args = string.Format("--verbose --append {0} {1}", string.Join(" ", data.GenerateCommandArgs()), targetPath);
@@ -158,5 +180,7 @@ namespace Packager.Utilities
             var nothingToDo = string.Format("{0}: nothing to do", fileName).ToLowerInvariant();
             return output.ToLowerInvariant().Contains(success) || output.ToLowerInvariant().Contains(nothingToDo);
         }
+
+        
     }
 }

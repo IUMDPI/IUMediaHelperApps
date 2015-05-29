@@ -48,10 +48,10 @@ namespace Packager
                     .Where(f => f.BelongsToProject(_programSettings.ProjectCode))
                     .GroupBy(f => f.BarCode).ToList();
                    
-
+                // to do: catch exception and prompt user to retry, ignore, or cancel
+                // if retry move group files back to input and start over
                 foreach (var group in batchGroups)
                 {
-                    
                     var processor = GetProcessor(group);
                     processor.ProcessFile(group);
                 }

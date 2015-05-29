@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.IO;
 
 namespace Packager.Models
@@ -44,7 +43,6 @@ namespace Packager.Models
         public string ProjectCode { get; private set; }
         public string DropBoxDirectoryName { get; private set; }
 
-
         public void Verify()
         {
             if (!Directory.Exists(InputDirectory))
@@ -65,6 +63,11 @@ namespace Packager.Models
             if (!File.Exists(BWFMetaEditPath))
             {
                 throw new FileNotFoundException(BWFMetaEditPath);
+            }
+
+            if (!Directory.Exists(DropBoxDirectoryName))
+            {
+                throw new DirectoryNotFoundException(DropBoxDirectoryName);
             }
         }
     }

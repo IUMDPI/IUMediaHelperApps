@@ -4,15 +4,14 @@ Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A18
 
 Questions for Mike and Susan:
 
-1) do we use the BEXT Description field only with just the text from the spreadsheet
-2) do we use the IARL field with just the text from the spreadsheet
-3) do we use the ISFT or do we use the xxxx for the ICMT field from the spreadsheet
+
 4) can we count on always having a preservation copy that is whole?
 		Answer: NO  ie we need to program for the case where there is a collection of preservation files and a consolidated production file?
 5) on what conditions would there be any auxiliary files, and how would they be named and organized along with the main files
-6) from which file do we derive the play copy
-		Answer: always from the production (mezzanine copy)
 7) should xml files have encoding specified. If so, what encoding should we use?
+8) will there be mroe than one project code ("mdpi",etc)
+9) what should we do when something goes wrong? Email? Skip and Continue?
+10) will sequence numbers always be numeric?
 
 Follow ups for Mike and Jean
 - command line arguments for the production and play copies

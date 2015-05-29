@@ -20,15 +20,20 @@ namespace Packager.Utilities
         public abstract string SupportedExtension { get; }
 
         protected string Barcode { get; set; }
-        protected string ProjectCode { get; set; }
+        protected string ProjectCode { get { return _programSettings.ProjectCode; } }
 
-        public string ProcessingDirectory
+        protected string ProcessingDirectory
         {
             get { return Path.Combine(RootProcessingDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
         }
 
+        protected string DropBoxDirectory
+        {
+            get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
+        }
+
         // ReSharper disable once InconsistentNaming
-        public string BWFMetaEditPath
+        protected string BWFMetaEditPath
         {
             get { return _programSettings.BWFMetaEditPath; }
         }
@@ -39,9 +44,14 @@ namespace Packager.Utilities
             get { return _programSettings.FFMPEGPath; }
         }
 
-        protected string InputDirectory
+        private string InputDirectory
         {
             get { return _programSettings.InputDirectory; }
+        }
+
+        private string RootDropBoxDirectory
+        {
+            get { return _programSettings.DropBoxDirectoryName; }
         }
 
         private string RootProcessingDirectory

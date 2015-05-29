@@ -23,7 +23,6 @@ namespace Packager.Utilities
         public override void ProcessFile(IGrouping<string, FileModel> batchGrouping)
         {
             Barcode = batchGrouping.Key;
-            ProjectCode = batchGrouping.First().ProjectCode;
 
             // make directory to hold processed files
             Directory.CreateDirectory(Path.Combine(ProcessingDirectory));
@@ -32,7 +31,7 @@ namespace Packager.Utilities
 
             var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
 
-            Observers.Log("Spreadsheet: {0}", excelSpreadSheet.OriginalFileName);
+            Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
 
             var filesToProcess = batchGrouping.Where(m => m.Extension.Equals(SupportedExtension, StringComparison.InvariantCultureIgnoreCase)).ToList();
             foreach (var fileModel in filesToProcess)
@@ -44,11 +43,35 @@ namespace Packager.Utilities
             {
                 throw new Exception("Could not process batch: one or more files has an unexpected filename");
             }
-            
-            var processedList = new List<FileModel>();
-            processedList = filesToProcess.Aggregate(processedList, (current, fileModel) => current.Concat(ProcessFile(fileModel)).ToList());
 
-            GenerateXml(excelSpreadSheet, processedList);
+            // go through and process the various files
+            // and add them to a list of files that have
+            // been processed
+            var processedList = new List<FileModel>();
+            processedList = filesToProcess
+                .Aggregate(processedList, (current, fileModel) => current.Concat(ProcessFile(fileModel))
+                .ToList());
+
+            // using the list of files that have been processed
+            // make the xml file
+            var xmlModel = GenerateXml(excelSpreadSheet, processedList);
+            processedList.Add(xmlModel);
+
+            // make directory to hold completed files
+            Directory.CreateDirectory(DropBoxDirectory);
+            
+            // copy files
+            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()))
+            {
+                Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
+                File.Copy(
+                    Path.Combine(ProcessingDirectory, fileName), 
+                    Path.Combine(DropBoxDirectory, fileName));
+            }
+
+            // done - log new line
+            Observers.Log("");
+
         }
 
         public override FileModel ToAccessFileModel(FileModel original)
@@ -86,7 +109,7 @@ namespace Packager.Utilities
             Observers.LogHeader("Embedding Metadata: {0}", fileName);
 
             // move the file to our work dir
-            var targetPath = MoveFileToProcessing(fileModel.OriginalFileName);
+            var targetPath = MoveFileToProcessing(fileModel.ToFileName());
 
             const string standinDescription =
                 "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
@@ -107,10 +130,10 @@ namespace Packager.Utilities
 
             Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
             var mezzanineModel = CreateDerivative(fileModel, ToMezzanineFileModel(fileModel), FFMPEGAudioMezzanineArguments);
-            
+
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
             var accessModel = CreateDerivative(mezzanineModel, ToAccessFileModel(mezzanineModel), FFMPEGAudioAccessArguments);
-            
+
             // return models for files
             return new List<FileModel> { fileModel, mezzanineModel, accessModel };
         }
@@ -216,20 +239,23 @@ namespace Packager.Utilities
             }
         }
 
-        private void GenerateXml(FileModel excelModel, List<FileModel> filesToProcess)
+        private FileModel GenerateXml(FileModel excelModel, List<FileModel> filesToProcess)
         {
             var carrierData = GenerateCarrierDataModel(excelModel, filesToProcess);
             var xml = new XmlExporter().GenerateXml(carrierData);
-            SaveXmlFile(string.Format("{0}_{1}.xml", ProjectCode, Barcode), xml);
+
+            var result = new FileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
+            SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);
+            return result;
         }
 
         private CarrierData GenerateCarrierDataModel(FileModel excelModel, List<FileModel> filesToProcess)
         {
-            MoveFileToProcessing(excelModel.OriginalFileName);
+            MoveFileToProcessing(excelModel.ToFileName());
             IExcelDataReader excelReader = null;
             try
             {
-                var targetPath = Path.Combine(ProcessingDirectory, excelModel.OriginalFileName);
+                var targetPath = Path.Combine(ProcessingDirectory, excelModel.ToFileName());
                 using (var stream = new FileStream(targetPath, FileMode.Open, FileAccess.Read))
                 {
                     excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Packager.Extensions;
 
 namespace Packager.Models
@@ -91,7 +92,10 @@ namespace Packager.Models
 
         public string ToFileName()
         {
-            return string.Format("{0}_{1}_{2}_{3}{4}", ProjectCode, BarCode, SequenceIndicator, FileUse, Extension);
+            var parts = new[] {ProjectCode, BarCode, SequenceIndicator, FileUse};
+
+            var fileName = string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+            return string.Format("{0}{1}", fileName, Extension);
         }
 
         public bool BelongsToProject(string projectCode)

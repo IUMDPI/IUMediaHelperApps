@@ -246,8 +246,8 @@ namespace Packager.Utilities
 
         private FileModel GenerateXml(FileModel excelModel, List<FileModel> filesToProcess)
         {
-            var carrierData = GenerateCarrierDataModel(excelModel, filesToProcess);
-            var xml = new XmlExporter().GenerateXml(carrierData);
+            var wrapper = new IU {Carrier = GenerateCarrierDataModel(excelModel, filesToProcess)};
+            var xml = new XmlExporter().GenerateXml(wrapper);
 
             var result = new FileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
             SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);

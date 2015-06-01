@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Windows.Forms;
-using System.Xml;
 using Excel;
 using Packager.Extensions;
 using Packager.Models;
@@ -17,8 +16,8 @@ namespace Packager.Utilities
 {
     public class AudioProcessor : AbstractProcessor
     {
-        public AudioProcessor(IProgramSettings programSettings, List<IObserver> observers)
-            : base(programSettings, observers)
+        public AudioProcessor(IProgramSettings programSettings, IUtilityProvider utilityProvider, List<IObserver> observers)
+            : base(programSettings, utilityProvider, observers)
         {
         }
 
@@ -116,20 +115,8 @@ namespace Packager.Utilities
             // move the file to our work dir
             var targetPath = MoveFileToProcessing(fileModel.ToFileName());
 
-            const string standinDescription =
-                "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
-
-            const string standinIARL =
-                "Indiana University, Bloomington. William and Gayle Cook Music Library. TP-S .A1828 81-4-17 v. 1. File use:";
-
-            const string standinICMT = "Indiana University, Bloomington. William and Gayle Cook Music Library.";
-
-            var data = new BextData
-            {
-                Description = standinDescription,
-                IARL = standinIARL,
-                ICMT = standinICMT
-            };
+            var provider = new StandInBextDataProvider();
+            var data = provider.GetMetadata(fileModel.BarCode);
 
             AddMetadata(targetPath, data);
 

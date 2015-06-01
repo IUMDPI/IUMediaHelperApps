@@ -10,18 +10,33 @@ namespace Packager.Utilities
     public abstract class AbstractProcessor : IProcessor
     {
         private readonly IProgramSettings _programSettings;
+        private readonly IUtilityProvider _utilityProvider;
         protected List<IObserver> Observers { get; private set; }
-
-        public abstract List<FileModel> ProcessFile(FileModel fileModel);
-        public abstract void ProcessFile(IGrouping<string, FileModel> batchGrouping);
-
         protected abstract string ProductionFileExtension { get; }
         protected abstract string AccessFileExtension { get; }
         protected abstract string MezzanineFileExtension { get; }
         protected abstract string PreservationFileExtension { get; }
 
+        // constructor
+        protected AbstractProcessor(IProgramSettings programSettings, IUtilityProvider utilityProvider, List<IObserver> observers)
+        {
+            _programSettings = programSettings;
+            _utilityProvider = utilityProvider;
+            Observers = observers;
+        }
+
+        protected IExcelImporter ExcelImporter { get { return _utilityProvider.ExcelImporter; } }
+        protected IBextDataProvider BextDataProvider { get { return _utilityProvider.BextDataProvider; } }
+        protected IHasher Hasher { get { return _utilityProvider.Hasher; } }
+        protected IUserInfoResolver UserInfoResolver { get { return _utilityProvider.UserInfoResolver; } }
+        protected IXmlExporter XmlExporter { get { return _utilityProvider.XmlExporter; } }
+
         protected string Barcode { get; set; }
-        protected string ProjectCode { get { return _programSettings.ProjectCode; } }
+
+        protected string ProjectCode
+        {
+            get { return _programSettings.ProjectCode; }
+        }
 
         protected string ProcessingDirectory
         {
@@ -32,6 +47,9 @@ namespace Packager.Utilities
         {
             get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
         }
+
+        public abstract void ProcessFile(IGrouping<string, FileModel> batchGrouping);
+        public abstract List<FileModel> ProcessFile(FileModel fileModel);
 
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath
@@ -75,12 +93,6 @@ namespace Packager.Utilities
         protected string FFMPEGAudioAccessArguments
         {
             get { return _programSettings.FFMPEGAudioAccessArguments; }
-        }
-
-        protected AbstractProcessor(IProgramSettings programSettings, List<IObserver> observers)
-        {
-            _programSettings = programSettings;
-            Observers = observers;
         }
 
         protected string MoveFileToProcessing(string fileName)

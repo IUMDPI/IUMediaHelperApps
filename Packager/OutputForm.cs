@@ -16,6 +16,7 @@ namespace Packager
         private readonly Dictionary<string, IProcessor> _processors;
         private readonly List<IObserver> _observers;
         private readonly IProgramSettings _programSettings;
+        private readonly IUtilityProvider _utilityProvider;
 
         public OutputForm()
         {
@@ -23,10 +24,12 @@ namespace Packager
 
             _programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
             _observers = new List<IObserver> { new TextBoxOutputObserver(outputTextBox) };
- 
+
+            _utilityProvider = new DefaultUtilityProvider();
+            
             _processors = new Dictionary<string, IProcessor>
             {
-                {".wav", new AudioProcessor(_programSettings, _observers)},
+                {".wav", new AudioProcessor(_programSettings, _utilityProvider, _observers)},
             };
         }
 

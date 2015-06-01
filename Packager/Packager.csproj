@@ -88,9 +88,11 @@
     <Compile Include="Utilities\AbstractProcessor.cs" />
     <Compile Include="Utilities\AudioProcessor.cs" />
     <Compile Include="Utilities\ExcelImporter.cs" />
+    <Compile Include="Utilities\IBextDataProvider.cs" />
     <Compile Include="Utilities\IExcelImporter.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\CarrierData.cs" />
+    <Compile Include="Utilities\StandInBextDataProvider.cs" />
     <Compile Include="Utilities\IProcessor.cs" />
     <Compile Include="Utilities\IUserInfoResolver.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />

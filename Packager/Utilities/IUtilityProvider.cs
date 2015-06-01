@@ -1,4 +1,6 @@
-﻿namespace Packager.Utilities
+﻿using Packager.Providers;
+
+namespace Packager.Utilities
 {
     public interface IUtilityProvider
     {
@@ -7,5 +9,6 @@
         IHasher Hasher { get; }
         IUserInfoResolver UserInfoResolver { get; }
         IXmlExporter XmlExporter { get; }
+        IDirectoryProvider DirectoryProvider { get; }
     }
 }

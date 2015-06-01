@@ -6,6 +6,7 @@ using Packager.Extensions;
 using Packager.Models;
 using Packager.Processors;
 using Packager.Observers;
+using Packager.Providers;
 using Packager.Utilities;
 
 namespace Packager.Engine
@@ -16,7 +17,7 @@ namespace Packager.Engine
         void AddObserver(IObserver observer);
     }
 
-    class StandardEngine : IEngine
+    public class StandardEngine : IEngine
     {
         private readonly IProgramSettings _programSettings;
         private readonly Dictionary<string, IProcessor> _processors;
@@ -34,6 +35,8 @@ namespace Packager.Engine
             _observers = observers;
         }
 
+        private IDirectoryProvider DirectoryProvider { get { return _utilityProvider.DirectoryProvider; } }
+
         public void Start()
         {
             try
@@ -46,7 +49,7 @@ namespace Packager.Engine
                 // and then take all of the files that are valid
                 // and start with the correct project code
                 // and then group them by bar code
-                var batchGroups = Directory.EnumerateFiles(_programSettings.InputDirectory)
+                var batchGroups = DirectoryProvider.EnumerateFiles(_programSettings.InputDirectory)
                     .Select(p => new FileModel(p))
                     .Where(f => f.IsValidForGrouping())
                     .Where(f => f.BelongsToProject(_programSettings.ProjectCode))

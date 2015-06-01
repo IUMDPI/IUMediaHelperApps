@@ -1,4 +1,5 @@
 ﻿using Packager.Models;
+using Packager.Providers;
 
 namespace Packager.Utilities
 {
@@ -11,35 +12,14 @@ namespace Packager.Utilities
             Hasher = new Hasher();
             UserInfoResolver = new DomainUserResolver();
             XmlExporter = new XmlExporter();
-        }
-        
-        public IExcelImporter CarrierDataExcelImporter
-        {
-            get; private set; 
+            DirectoryProvider = new DirectoryProvider();
         }
 
-        public IBextDataProvider BextDataProvider
-        {
-            get;
-            private set; 
-        }
-
-        public IHasher Hasher
-        {
-            get;
-            private set; 
-        }
-
-        public IUserInfoResolver UserInfoResolver
-        {
-            get;
-            private set; 
-        }
-
-        public IXmlExporter XmlExporter
-        {
-            get;
-            private set; 
-        }
+        public IExcelImporter CarrierDataExcelImporter { get; private set; }
+        public IBextDataProvider BextDataProvider { get; private set; }
+        public IHasher Hasher { get; private set; }
+        public IUserInfoResolver UserInfoResolver { get; private set; }
+        public IXmlExporter XmlExporter { get; private set; }
+        public IDirectoryProvider DirectoryProvider { get; private set; }
     }
 }

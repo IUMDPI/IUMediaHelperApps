@@ -3,7 +3,7 @@ using Packager.Models;
 
 namespace Packager.Processors
 {
-    internal interface IProcessor
+    public interface IProcessor
     {
         void ProcessFile(IGrouping<string,FileModel> batchGrouping);
     }

@@ -19,5 +19,7 @@ namespace Packager.Models.FileModels
             var fileName = string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
             return string.Format("{0}{1}", fileName, Extension);
         }
+
+
     }
 }

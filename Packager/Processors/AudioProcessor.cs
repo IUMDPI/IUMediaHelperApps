@@ -104,7 +104,7 @@ namespace Packager.Processors
 
         private static ExcelFileModel GetExcelSpreadSheet(IEnumerable<AbstractFileModel> batchGrouping)
         {
-            var result = batchGrouping.SingleOrDefault(m => m.GetType() == typeof(ExcelFileModel));
+            var result = batchGrouping.SingleOrDefault(m => m is ExcelFileModel);
             if (result == null)
             {
                 throw new Exception("No input data spreadsheet in batch");

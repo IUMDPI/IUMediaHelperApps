@@ -12,7 +12,7 @@ namespace Packager.Providers
     {
         public IEnumerable<string> EnumerateFiles(string path)
         {
-            return Directory.EnumerateDirectories(path);
+            return Directory.EnumerateFiles(path);
         }
     }
 }

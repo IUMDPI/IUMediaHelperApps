@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using Packager.Models;
 using Packager.Observers;
-using Packager.Processors;
 using Packager.Providers;
+using Packager.Utilities;
 
-namespace Packager.Utilities
+namespace Packager.Processors
 {
     public abstract class AbstractProcessor : IProcessor
     {

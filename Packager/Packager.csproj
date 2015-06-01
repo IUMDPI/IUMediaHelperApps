@@ -87,7 +87,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\IDirectoryProvider.cs" />
-    <Compile Include="Utilities\AbstractProcessor.cs" />
+    <Compile Include="Processors\AbstractProcessor.cs" />
     <Compile Include="Processors\AudioProcessor.cs" />
     <Compile Include="Utilities\ExcelImporter.cs" />
     <Compile Include="Utilities\IBextDataProvider.cs" />

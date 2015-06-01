@@ -14,10 +14,11 @@ namespace Packager.Utilities
 
         public abstract List<FileModel> ProcessFile(FileModel fileModel);
         public abstract void ProcessFile(IGrouping<string, FileModel> batchGrouping);
-        public abstract FileModel ToAccessFileModel(FileModel original);
-        public abstract FileModel ToMezzanineFileModel(FileModel original);
 
-        public abstract string SupportedExtension { get; }
+        protected abstract string ProductionFileExtension { get; }
+        protected abstract string AccessFileExtension { get; }
+        protected abstract string MezzanineFileExtension { get; }
+        protected abstract string PreservationFileExtension { get; }
 
         protected string Barcode { get; set; }
         protected string ProjectCode { get { return _programSettings.ProjectCode; } }
@@ -36,6 +37,11 @@ namespace Packager.Utilities
         protected string BWFMetaEditPath
         {
             get { return _programSettings.BWFMetaEditPath; }
+        }
+
+        protected string DataFormat
+        {
+            get { return _programSettings.DateFormat; }
         }
 
         // ReSharper disable once InconsistentNaming
@@ -90,6 +96,19 @@ namespace Packager.Utilities
             return targetPath;
         }
 
+        protected FileModel ToAccessFileModel(FileModel original)
+        {
+            return original.ToAccessFileModel(AccessFileExtension);
+        }
 
+        protected FileModel ToMezzanineFileModel(FileModel original)
+        {
+            return original.ToMezzanineFileModel(MezzanineFileExtension);
+        }
+
+        protected FileModel ToProductionFileModel(FileModel original)
+        {
+            return original.ToProductionFileModel(ProductionFileExtension);
+        }
     }
 }

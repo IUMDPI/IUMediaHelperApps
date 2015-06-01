@@ -7,10 +7,16 @@ namespace Packager.Models
 {
     public class FileModel
     {
+
         public FileModel()
         {
         }
 
+        public const string PreservationFileUse = "pres";
+        public const string AccessFileUse = "access";
+        public const string MezzanineFileUse = "mezz";
+        public const string ProductionFileUse = "prod";
+       
         public FileModel(FileModel original, string newFileUse, string newExension)
         {
             ProjectCode = original.ProjectCode;
@@ -98,6 +104,26 @@ namespace Packager.Models
             return string.Format("{0}{1}", fileName, Extension);
         }
 
+        public bool IsProductionVersion()
+        {
+            return FileUse.Equals(ProductionFileUse, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public bool IsPreservationVersion()
+        {
+            return FileUse.Equals(PreservationFileUse, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public bool IsAccessVersion()
+        {
+            return FileUse.Equals(AccessFileUse, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public bool IsMezzanineVersion()
+        {
+            return FileUse.Equals(MezzanineFileUse, StringComparison.InvariantCultureIgnoreCase);
+        }
+
         public bool BelongsToProject(string projectCode)
         {
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);
@@ -105,12 +131,17 @@ namespace Packager.Models
 
         public FileModel ToAccessFileModel(string extension)
         {
-            return new FileModel(this, "access", extension);
+            return new FileModel(this, AccessFileUse, extension);
         }
 
         public FileModel ToMezzanineFileModel(string extension)
         {
-            return new FileModel(this, "mezz", extension);
+            return new FileModel(this, MezzanineFileUse, extension);
+        }
+
+        public FileModel ToProductionFileModel(string extension)
+        {
+            return new FileModel(this, ProductionFileUse,extension);
         }
     }
 }

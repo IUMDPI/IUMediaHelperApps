@@ -17,6 +17,7 @@ namespace Packager.Models
         string FFMPEGAudioAccessArguments { get; }
         string ProjectCode { get; }
         string DropBoxDirectoryName { get; }
+        string DateFormat { get; }
         void Verify();
     }
 
@@ -42,6 +43,12 @@ namespace Packager.Models
         public string FFMPEGAudioAccessArguments { get; private set; }
         public string ProjectCode { get; private set; }
         public string DropBoxDirectoryName { get; private set; }
+
+        public string DateFormat
+        {
+            get { return "yyyy-MM-dd"; }
+        }
+
 
         public void Verify()
         {

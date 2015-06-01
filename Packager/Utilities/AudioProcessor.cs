@@ -5,7 +5,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.Windows.Forms;
+using System.Xml;
 using Excel;
 using Packager.Extensions;
 using Packager.Models;
@@ -33,7 +35,7 @@ namespace Packager.Utilities
 
             Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
 
-            var filesToProcess = batchGrouping.Where(m => m.Extension.Equals(SupportedExtension, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            var filesToProcess = batchGrouping.Where(m => m.Extension.Equals(PreservationFileExtension, StringComparison.InvariantCultureIgnoreCase)).ToList();
             foreach (var fileModel in filesToProcess)
             {
                 Observers.Log("File: {0}", fileModel.OriginalFileName);
@@ -59,13 +61,13 @@ namespace Packager.Utilities
 
             // make directory to hold completed files
             Directory.CreateDirectory(DropBoxDirectory);
-            
+
             // copy files
             foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()))
             {
                 Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
                 File.Copy(
-                    Path.Combine(ProcessingDirectory, fileName), 
+                    Path.Combine(ProcessingDirectory, fileName),
                     Path.Combine(DropBoxDirectory, fileName));
             }
 
@@ -74,21 +76,25 @@ namespace Packager.Utilities
 
         }
 
-        public override FileModel ToAccessFileModel(FileModel original)
-        {
-            return original.ToAccessFileModel(".mp4");
-        }
-
-        public override FileModel ToMezzanineFileModel(FileModel original)
-        {
-            return original.ToMezzanineFileModel(".aac");
-        }
-
-        public override string SupportedExtension
+        protected override string ProductionFileExtension
         {
             get { return ".wav"; }
         }
 
+        protected override string AccessFileExtension
+        {
+            get { return ".mp4"; }
+        }
+
+        protected override string MezzanineFileExtension
+        {
+            get { return ".aac"; }
+        }
+
+        protected override string PreservationFileExtension
+        {
+            get { return ".wav"; }
+        }
 
         private static FileModel GetExcelSpreadSheet(IGrouping<string, FileModel> batchGrouping)
         {
@@ -100,7 +106,6 @@ namespace Packager.Utilities
 
             return result;
         }
-
 
         public override List<FileModel> ProcessFile(FileModel fileModel)
         {
@@ -244,7 +249,7 @@ namespace Packager.Utilities
             var carrierData = GenerateCarrierDataModel(excelModel, filesToProcess);
             var xml = new XmlExporter().GenerateXml(carrierData);
 
-            var result = new FileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
+            var result = new FileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
             SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);
             return result;
         }
@@ -298,12 +303,28 @@ namespace Packager.Utilities
                 }
 
                 var sideData = ImportSideData(row, grouping.Key.Value);
+                AddIngestMetadata(sideData, grouping.SingleOrDefault(g => g.IsPreservationVersion()));
                 sideData.Files = grouping.Select(GetFileData).ToList();
 
                 result.Add(sideData);
             }
 
             return result.ToArray();
+        }
+
+        private void AddIngestMetadata(SideData sideData, FileModel preservationFileModel)
+        {
+            var targetPath = Path.Combine(ProcessingDirectory, preservationFileModel.ToFileName());
+            var info = new FileInfo(targetPath);
+            info.Refresh();
+
+            sideData.Ingest.Date = info.CreationTimeUtc.ToString(DataFormat, CultureInfo.InvariantCulture);
+
+            var owner = info.GetAccessControl().GetOwner(typeof(NTAccount)).Value;
+            var userInfo = new DomainUserResolver().Resolve(owner);
+
+            sideData.Ingest.CreatedBy = userInfo.DisplayName;
+
         }
 
         private static bool SuccessMessagePresent(string fileName, string output)

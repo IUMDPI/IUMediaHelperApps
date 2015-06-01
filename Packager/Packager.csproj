@@ -45,6 +45,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -71,6 +72,7 @@
     <Compile Include="Models\PartsData.cs" />
     <Compile Include="Models\PhysicalConditionData.cs" />
     <Compile Include="Models\PreviewData.cs" />
+    <Compile Include="Models\UserInfo.cs" />
     <Compile Include="OutputForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,6 +92,7 @@
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\CarrierData.cs" />
     <Compile Include="Utilities\IProcessor.cs" />
+    <Compile Include="Utilities\IUserInfoResolver.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />
     <Compile Include="Utilities\SkippingProcessor.cs" />
     <EmbeddedResource Include="OutputForm.resx">

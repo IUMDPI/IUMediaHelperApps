@@ -9,9 +9,14 @@ Questions for Mike and Susan:
 		Answer: NO  ie we need to program for the case where there is a collection of preservation files and a consolidated production file?
 5) on what conditions would there be any auxiliary files, and how would they be named and organized along with the main files
 7) should xml files have encoding specified. If so, what encoding should we use?
-8) will there be mroe than one project code ("mdpi",etc)
+8) will there be more than one project code ("mdpi",etc)
 9) what should we do when something goes wrong? Email? Skip and Continue?
 10) will sequence numbers always be numeric?
+11) is "mezz" file-use only for video and "prod" only for audio?
+12) is the "int" part of "pres-int" dynamic? ie. "pres-1, pres-2," etc...?
+13) how do you want us to format dates in the xml file? Is format in example xml ("YYYY-MM-DD") ok ?
+14) should dates be in UTC or local time? Assuming UTC....
+15) what info should be in ingest->created_by? Username, full name, some combination of?
 
 Follow ups for Mike and Jean
 - command line arguments for the production and play copies

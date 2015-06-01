@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 
 namespace Packager.Utilities
 {
-    internal interface IXmlExporter
+    public interface IXmlExporter
     {
         string GenerateXml(object o);
     }

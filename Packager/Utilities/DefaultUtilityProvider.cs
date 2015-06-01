@@ -6,14 +6,14 @@ namespace Packager.Utilities
     {
         public DefaultUtilityProvider()
         {
-            ExcelImporter = new ExcelImporter<CarrierData>();
+            CarrierDataExcelImporter = new ExcelImporter<CarrierData>();
             BextDataProvider = new StandInBextDataProvider();
             Hasher = new Hasher();
             UserInfoResolver = new DomainUserResolver();
             XmlExporter = new XmlExporter();
         }
         
-        public IExcelImporter ExcelImporter
+        public IExcelImporter CarrierDataExcelImporter
         {
             get; private set; 
         }

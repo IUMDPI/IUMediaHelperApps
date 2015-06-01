@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Packager.Utilities
+﻿namespace Packager.Utilities
 {
-    interface IUtilityProvider
+    public interface IUtilityProvider
     {
-        IExcelImporter ExcelImporter { get; }
+        IExcelImporter CarrierDataExcelImporter { get; }
         IBextDataProvider BextDataProvider { get; }
         IHasher Hasher { get; }
         IUserInfoResolver UserInfoResolver { get; }

@@ -92,11 +92,13 @@
     <Compile Include="Utilities\IExcelImporter.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\CarrierData.cs" />
+    <Compile Include="Utilities\IUtilityProvider.cs" />
     <Compile Include="Utilities\StandInBextDataProvider.cs" />
     <Compile Include="Utilities\IProcessor.cs" />
     <Compile Include="Utilities\IUserInfoResolver.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />
     <Compile Include="Utilities\SkippingProcessor.cs" />
+    <Compile Include="Utilities\DefaultUtilityProvider.cs" />
     <EmbeddedResource Include="OutputForm.resx">
       <DependentUpon>OutputForm.cs</DependentUpon>
     </EmbeddedResource>

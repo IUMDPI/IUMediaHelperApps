@@ -114,9 +114,8 @@ namespace Packager.Utilities
 
             // move the file to our work dir
             var targetPath = MoveFileToProcessing(fileModel.ToFileName());
-
-            var provider = new StandInBextDataProvider();
-            var data = provider.GetMetadata(fileModel.BarCode);
+            
+            var data = BextDataProvider.GetMetadata(fileModel.BarCode);
 
             AddMetadata(targetPath, data);
 
@@ -234,7 +233,7 @@ namespace Packager.Utilities
         private FileModel GenerateXml(FileModel excelModel, List<FileModel> filesToProcess)
         {
             var wrapper = new IU {Carrier = GenerateCarrierDataModel(excelModel, filesToProcess)};
-            var xml = new XmlExporter().GenerateXml(wrapper);
+            var xml = XmlExporter.GenerateXml(wrapper);
 
             var result = new FileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
             SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);
@@ -257,10 +256,9 @@ namespace Packager.Utilities
 
                     var row = dataSet.Tables["InputData"].Rows[0];
 
-                    var result = (CarrierData)new ExcelImporter<CarrierData>().Import(row);
+                    var result = (CarrierData) ExcelImporter.Import(row);
                     result.Parts.Sides = GenerateSideData(filesToProcess, row);
-
-
+                    
                     return result;
                 }
             }
@@ -308,7 +306,7 @@ namespace Packager.Utilities
             sideData.Ingest.Date = info.CreationTimeUtc.ToString(DataFormat, CultureInfo.InvariantCulture);
 
             var owner = info.GetAccessControl().GetOwner(typeof(NTAccount)).Value;
-            var userInfo = new DomainUserResolver().Resolve(owner);
+            var userInfo = UserInfoResolver.Resolve(owner);
 
             sideData.Ingest.CreatedBy = userInfo.DisplayName;
 

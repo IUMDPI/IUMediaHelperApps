@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Packager.Models;
+﻿using Packager.Models;
 
 namespace Packager.Utilities
 {
-    class StandInBextDataProvider : IBextDataProvider
+    internal class StandInBextDataProvider : IBextDataProvider
     {
         public BextData GetMetadata(string barcode)
         {

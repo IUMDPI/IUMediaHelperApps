@@ -25,7 +25,7 @@ namespace Packager.Utilities
             Observers = observers;
         }
 
-        protected IExcelImporter ExcelImporter { get { return _utilityProvider.ExcelImporter; } }
+        protected IExcelImporter ExcelImporter { get { return _utilityProvider.CarrierDataExcelImporter; } }
         protected IBextDataProvider BextDataProvider { get { return _utilityProvider.BextDataProvider; } }
         protected IHasher Hasher { get { return _utilityProvider.Hasher; } }
         protected IUserInfoResolver UserInfoResolver { get { return _utilityProvider.UserInfoResolver; } }

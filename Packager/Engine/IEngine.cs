@@ -21,12 +21,12 @@ namespace Packager.Engine
     {
         private readonly IProgramSettings _programSettings;
         private readonly Dictionary<string, IProcessor> _processors;
-        private readonly IUtilityProvider _utilityProvider;
+        private readonly IDependencyProvider _utilityProvider;
         private readonly List<IObserver> _observers;
       
         public StandardEngine(IProgramSettings programSettings, 
             Dictionary<string, IProcessor> processors,
-            IUtilityProvider utilityProvider,
+            IDependencyProvider utilityProvider,
             List<IObserver> observers)
         {
             _programSettings = programSettings;

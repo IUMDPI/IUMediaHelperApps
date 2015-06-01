@@ -11,13 +11,14 @@ using Excel;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Observers;
+using Packager.Providers;
 using Packager.Utilities;
 
 namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {
-        public AudioProcessor(IProgramSettings programSettings, IUtilityProvider utilityProvider, List<IObserver> observers)
+        public AudioProcessor(IProgramSettings programSettings, IDependencyProvider utilityProvider, List<IObserver> observers)
             : base(programSettings, utilityProvider, observers)
         {
         }

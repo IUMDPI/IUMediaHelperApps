@@ -30,7 +30,7 @@ namespace Packager.Test.Engine
         static StandardEngine GetEngine(
             IProgramSettings settings = null,
             Dictionary<string, IProcessor> processors = null,
-            IUtilityProvider utilityProvider = null,
+            IDependencyProvider utilityProvider = null,
             List<IObserver> observers = null)
         {
             if (settings == null)
@@ -47,7 +47,7 @@ namespace Packager.Test.Engine
 
             if (utilityProvider == null)
             {
-                utilityProvider = Substitute.For<IUtilityProvider>();
+                utilityProvider = Substitute.For<IDependencyProvider>();
             }
 
             if (observers == null)
@@ -113,7 +113,7 @@ namespace Packager.Test.Engine
                         GetFileNameForBarCode(ProjectCode, BarCode2, ".mpeg")
                     });
 
-                var utilityProvider = Substitute.For<IUtilityProvider>();
+                var utilityProvider = Substitute.For<IDependencyProvider>();
                 utilityProvider.DirectoryProvider.ReturnsForAnyArgs(directoryProvider);
 
                 var engine = GetEngine(processors: processors, utilityProvider: utilityProvider);
@@ -138,7 +138,7 @@ namespace Packager.Test.Engine
                 
                 directoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(r => { throw exception; });
 
-                var utilityProvider = Substitute.For<IUtilityProvider>();
+                var utilityProvider = Substitute.For<IDependencyProvider>();
                 utilityProvider.DirectoryProvider.Returns(directoryProvider);
 
                 var engine = GetEngine(observers: new List<IObserver> { mockObserver }, utilityProvider: utilityProvider);

@@ -5,13 +5,14 @@ using System.Linq;
 using Packager.Models;
 using Packager.Observers;
 using Packager.Processors;
+using Packager.Providers;
 
 namespace Packager.Utilities
 {
     public abstract class AbstractProcessor : IProcessor
     {
         private readonly IProgramSettings _programSettings;
-        private readonly IUtilityProvider _utilityProvider;
+        private readonly IDependencyProvider _utilityProvider;
         protected List<IObserver> Observers { get; private set; }
         protected abstract string ProductionFileExtension { get; }
         protected abstract string AccessFileExtension { get; }
@@ -19,7 +20,7 @@ namespace Packager.Utilities
         protected abstract string PreservationFileExtension { get; }
 
         // constructor
-        protected AbstractProcessor(IProgramSettings programSettings, IUtilityProvider utilityProvider, List<IObserver> observers)
+        protected AbstractProcessor(IProgramSettings programSettings, IDependencyProvider utilityProvider, List<IObserver> observers)
         {
             _programSettings = programSettings;
             _utilityProvider = utilityProvider;

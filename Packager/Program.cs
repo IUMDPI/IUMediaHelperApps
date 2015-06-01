@@ -6,6 +6,7 @@ using Packager.Engine;
 using Packager.Models;
 using Packager.Observers;
 using Packager.Processors;
+using Packager.Providers;
 using Packager.Utilities;
 
 namespace Packager
@@ -25,7 +26,7 @@ namespace Packager
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
 
             // initialize utility provider
-            var utilityProvider = new DefaultUtilityProvider();
+            var utilityProvider = new DefaultDependencyProvider();
             
             // initialize observers
             var observers = new List<IObserver>();

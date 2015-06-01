@@ -94,12 +94,12 @@
     <Compile Include="Utilities\IExcelImporter.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\CarrierData.cs" />
-    <Compile Include="Utilities\IUtilityProvider.cs" />
+    <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Utilities\StandInBextDataProvider.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\IUserInfoResolver.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />
-    <Compile Include="Utilities\DefaultUtilityProvider.cs" />
+    <Compile Include="Providers\DefaultDependencyProvider.cs" />
     <EmbeddedResource Include="OutputForm.resx">
       <DependentUpon>OutputForm.cs</DependentUpon>
     </EmbeddedResource>

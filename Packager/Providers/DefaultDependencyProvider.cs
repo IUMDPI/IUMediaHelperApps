@@ -1,11 +1,11 @@
 ﻿using Packager.Models;
-using Packager.Providers;
+using Packager.Utilities;
 
-namespace Packager.Utilities
+namespace Packager.Providers
 {
-    public class DefaultUtilityProvider : IUtilityProvider
+    public class DefaultDependencyProvider : IDependencyProvider
     {
-        public DefaultUtilityProvider()
+        public DefaultDependencyProvider()
         {
             CarrierDataExcelImporter = new ExcelImporter<CarrierData>();
             BextDataProvider = new StandInBextDataProvider();

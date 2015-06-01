@@ -1,8 +1,8 @@
-﻿using Packager.Providers;
+﻿using Packager.Utilities;
 
-namespace Packager.Utilities
+namespace Packager.Providers
 {
-    public interface IUtilityProvider
+    public interface IDependencyProvider
     {
         IExcelImporter CarrierDataExcelImporter { get; }
         IBextDataProvider BextDataProvider { get; }

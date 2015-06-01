@@ -20,13 +20,18 @@ namespace Packager.Models.FileModels
             OriginalFileName = Path.GetFileName(path);
             Extension = Path.GetExtension(path).ToDefaultIfEmpty();
 
-            var parts = Path.GetFileNameWithoutExtension(path)
-                .ToDefaultIfEmpty()
-                .ToLowerInvariant()
-                .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            var parts = GetPathParts(path);
 
             ProjectCode = parts.FromIndex(0, string.Empty).ToLowerInvariant();
             BarCode = parts.FromIndex(1, string.Empty).ToLowerInvariant();
+        }
+
+        protected static string[] GetPathParts(string path)
+        {
+            return Path.GetFileNameWithoutExtension(path)
+                .ToDefaultIfEmpty()
+                .ToLowerInvariant()
+                .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         public string OriginalFileName { get; set; }

@@ -62,6 +62,11 @@
     <Compile Include="BextDataTests.cs" />
     <Compile Include="Engine\EngineTests.cs" />
     <Compile Include="HasherTest.cs" />
+    <Compile Include="Models\FileModels\ArtifactFileModelTests.cs" />
+    <Compile Include="Models\FileModels\ExcelFileModelTests.cs" />
+    <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
+    <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />
+    <Compile Include="Models\FileModels\XmlFileModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

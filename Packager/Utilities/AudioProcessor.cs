@@ -325,6 +325,8 @@ namespace Packager.Utilities
 
             sideData.Ingest.CreatedBy = userInfo.DisplayName;
 
+            sideData.Ingest.ExtractionWorkstation = Environment.MachineName;
+
         }
 
         private static bool SuccessMessagePresent(string fileName, string output)

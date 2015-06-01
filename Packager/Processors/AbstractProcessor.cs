@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Packager.Models;
+using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
@@ -50,8 +51,8 @@ namespace Packager.Processors
             get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
         }
 
-        public abstract void ProcessFile(IGrouping<string, FileModel> batchGrouping);
-        public abstract List<FileModel> ProcessFile(FileModel fileModel);
+        public abstract void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping);
+        public abstract List<ArtifactFileModel> ProcessFile(ArtifactFileModel artifactFileModel);
 
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath
@@ -110,17 +111,17 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected FileModel ToAccessFileModel(FileModel original)
+        protected ArtifactFileModel ToAccessFileModel(ArtifactFileModel original)
         {
             return original.ToAccessFileModel(AccessFileExtension);
         }
 
-        protected FileModel ToMezzanineFileModel(FileModel original)
+        protected ArtifactFileModel ToMezzanineFileModel(ArtifactFileModel original)
         {
             return original.ToMezzanineFileModel(MezzanineFileExtension);
         }
 
-        protected FileModel ToProductionFileModel(FileModel original)
+        protected ArtifactFileModel ToProductionFileModel(ArtifactFileModel original)
         {
             return original.ToProductionFileModel(ProductionFileExtension);
         }

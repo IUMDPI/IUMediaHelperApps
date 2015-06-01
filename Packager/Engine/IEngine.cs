@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Packager.Extensions;
 using Packager.Models;
-using Packager.Processors;
+using Packager.Models.FileModels;
 using Packager.Observers;
+using Packager.Processors;
 using Packager.Providers;
-using Packager.Utilities;
 
 namespace Packager.Engine
 {
@@ -19,12 +18,12 @@ namespace Packager.Engine
 
     public class StandardEngine : IEngine
     {
-        private readonly IProgramSettings _programSettings;
-        private readonly Dictionary<string, IProcessor> _processors;
-        private readonly IDependencyProvider _utilityProvider;
         private readonly List<IObserver> _observers;
-      
-        public StandardEngine(IProgramSettings programSettings, 
+        private readonly Dictionary<string, IProcessor> _processors;
+        private readonly IProgramSettings _programSettings;
+        private readonly IDependencyProvider _utilityProvider;
+
+        public StandardEngine(IProgramSettings programSettings,
             Dictionary<string, IProcessor> processors,
             IDependencyProvider utilityProvider,
             List<IObserver> observers)
@@ -35,7 +34,10 @@ namespace Packager.Engine
             _observers = observers;
         }
 
-        private IDirectoryProvider DirectoryProvider { get { return _utilityProvider.DirectoryProvider; } }
+        private IDirectoryProvider DirectoryProvider
+        {
+            get { return _utilityProvider.DirectoryProvider; }
+        }
 
         public void Start()
         {
@@ -44,19 +46,25 @@ namespace Packager.Engine
                 WriteHelloMessage();
                 _programSettings.Verify();
 
+                // this factory will assign each extension
+                // to the appropriate file model
+                var factory = new FileModelFactory(_processors.Keys);
+
                 // want to get all files in the input directory
-                // and convert them to file models
+                // and convert them to file models (via out file model factory)
                 // and then take all of the files that are valid
                 // and start with the correct project code
-                // and then group them by bar code
+                // and then group them by barcode
                 var batchGroups = DirectoryProvider.EnumerateFiles(_programSettings.InputDirectory)
-                    .Select(p => new FileModel(p))
-                    .Where(f => f.IsValidForGrouping())
+                    .Select(p => factory.GetModel(p))
+                    .Where(f => f.IsValid())
                     .Where(f => f.BelongsToProject(_programSettings.ProjectCode))
                     .GroupBy(f => f.BarCode).ToList();
 
-                // to do: catch exception and prompt user to retry, ignore, or cancel
-                // if retry move group files back to input and start over
+                // todo: catch exception and prompt user to retry, ignore, or cancel
+                // todo: if retry move group files back to input and start over
+                // now we want to get the processor for each group
+                // and process the files for the group
                 foreach (var group in batchGroups)
                 {
                     var processor = GetProcessor(group);
@@ -81,7 +89,7 @@ namespace Packager.Engine
             _observers.Add(observer);
         }
 
-        private IProcessor GetProcessor(IEnumerable<FileModel> group)
+        private IProcessor GetProcessor(IEnumerable<AbstractFileModel> group)
         {
             // for each model in the group
             // take those that have extensions associated with a processor

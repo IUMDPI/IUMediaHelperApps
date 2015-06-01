@@ -62,8 +62,12 @@
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Models\FileModels\FileModelFactory.cs" />
+    <Compile Include="Models\FileModels\AbstractFileModel.cs" />
     <Compile Include="Models\BakingData.cs" />
-    <Compile Include="Models\FileModel.cs" />
+    <Compile Include="Models\FileModels\ArtifactFileModel.cs" />
+    <Compile Include="Models\FileModels\ExcelFileModel.cs" />
+    <Compile Include="Models\FileModels\XmlFileModel.cs" />
     <Compile Include="Models\IU.cs" />
     <Compile Include="Models\ConfigurationData.cs" />
     <Compile Include="Models\CleaningData.cs" />
@@ -73,6 +77,7 @@
     <Compile Include="Models\PartsData.cs" />
     <Compile Include="Models\PhysicalConditionData.cs" />
     <Compile Include="Models\PreviewData.cs" />
+    <Compile Include="Models\FileModels\UnknownFileModel.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="OutputForm.cs">
       <SubType>Form</SubType>

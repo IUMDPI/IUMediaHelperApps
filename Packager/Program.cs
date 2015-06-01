@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Windows.Forms;
+using Packager.Engine;
+using Packager.Models;
+using Packager.Observers;
+using Packager.Processors;
+using Packager.Utilities;
 
 namespace Packager
 {
@@ -16,7 +20,32 @@ namespace Packager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new OutputForm());
+
+            // initialize program settings
+            var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
+
+            // initialize utility provider
+            var utilityProvider = new DefaultUtilityProvider();
+            
+            // initialize observers
+            var observers = new List<IObserver>();
+
+            // initialize processors
+            var processors = new Dictionary<string, IProcessor>
+            {
+                {".wav", new AudioProcessor(programSettings, utilityProvider, observers)},
+            };
+
+            // initialize engine
+            var engine = new StandardEngine(programSettings, processors, utilityProvider, observers);
+            
+            // pass engine into output form
+            var outputForm = new OutputForm(engine);
+
+            // load and run output form
+            Application.Run(outputForm);
+
+
         }
     }
 }

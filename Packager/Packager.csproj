@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Attributes\ExcelFieldAttribute.cs" />
     <Compile Include="Attributes\ExcelObjectAttribute.cs" />
+    <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />

@@ -14,11 +14,11 @@ namespace Packager.Utilities
         public string GenerateXml(object o)
         {
             var serializer = new XmlSerializer(o.GetType());
-
+            var settings = new XmlWriterSettings { Indent = true };
             // code borrow
             using (var textWriter = new StringWriter())
             {
-                using (var xmlWriter = XmlWriter.Create(textWriter))
+                using (var xmlWriter = XmlWriter.Create(textWriter, settings))
                 {
                     serializer.Serialize(xmlWriter, o);
                 }

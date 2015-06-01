@@ -11,8 +11,9 @@ using Excel;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Observers;
+using Packager.Utilities;
 
-namespace Packager.Utilities
+namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {

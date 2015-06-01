@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Packager.Models;
 
-namespace Packager.Utilities
+namespace Packager.Processors
 {
     internal interface IProcessor
     {

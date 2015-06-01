@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Packager.Models;
 using Packager.Observers;
+using Packager.Processors;
 
 namespace Packager.Utilities
 {

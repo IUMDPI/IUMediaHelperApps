@@ -17,6 +17,8 @@ Questions for Mike and Susan:
 13) how do you want us to format dates in the xml file? Is format in example xml ("YYYY-MM-DD") ok ?
 14) should dates be in UTC or local time? Assuming UTC....
 15) what info should be in ingest->created_by? Username, full name, some combination of?
+16) is Environment.MachineName (gets name of machine in domain) ok for Ingest->ExtractionWorkstation? This assumes that files are being processed on same machine as utility is being run on.
+17) what is the best way to get Player_serial_number, Player_manufacturer, Player_model, AD_serial_number, AD_manufacturer, and AD_model values?
 
 Follow ups for Mike and Jean
 - command line arguments for the production and play copies

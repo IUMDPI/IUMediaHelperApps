@@ -95,6 +95,7 @@
     <Compile Include="Providers\IDirectoryProvider.cs" />
     <Compile Include="Processors\AbstractProcessor.cs" />
     <Compile Include="Processors\AudioProcessor.cs" />
+    <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Utilities\ExcelImporter.cs" />
     <Compile Include="Utilities\IBextDataProvider.cs" />
     <Compile Include="Utilities\IExcelImporter.cs" />

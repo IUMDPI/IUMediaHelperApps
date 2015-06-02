@@ -1,0 +1,133 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using NSubstitute;
+using NUnit.Framework;
+using Packager.Models;
+using Packager.Models.FileModels;
+using Packager.Observers;
+using Packager.Processors;
+using Packager.Providers;
+using Packager.Test.Mocks;
+
+namespace Packager.Test.Processors
+{
+    [TestFixture]
+    public class AudioProcessorTests
+    {
+        protected const string ProjectCode = "mdpi";
+        protected const string BarCode1 = "4890764553278906";
+        protected const string BarCode2 = "7890764553278907";
+
+        private const string ExcelFileName = "mdpi_4890764553278906.xlxs";
+        private const string WavFileName1 = "mdpi_4890764553278906_01_pres.wav";
+        private const string WavFileName2 = "mdpi_4890764553278906_02_pres.wav";
+
+        private const string InvalidFileName = "mdpi_4890764553278906_pres.wav";
+
+        private readonly ExcelFileModel _excelModel = new ExcelFileModel(ExcelFileName);
+        private readonly ArtifactFileModel _wavModel1 = new ArtifactFileModel(WavFileName1);
+        private readonly ArtifactFileModel _wavModel2 = new ArtifactFileModel(WavFileName2);
+        private readonly ArtifactFileModel _invalidFileModel = new ArtifactFileModel(InvalidFileName);
+
+        private IGrouping<string, AbstractFileModel> GetGrouping()
+        {
+            var list = new List<AbstractFileModel> { _excelModel, _wavModel1, _wavModel2 };
+            return list.GroupBy(m => m.BarCode).First();
+        }
+
+
+        private AudioProcessor GetProcessor(IProgramSettings settings = null, IDependencyProvider dependencyProvider = null, List<IObserver> observers = null)
+        {
+            if (settings == null)
+            {
+                settings = MockProgramSettings.Get();
+            }
+
+            if (dependencyProvider == null)
+            {
+                dependencyProvider = MockDependencyProvider.Get();
+            }
+
+            if (observers == null)
+            {
+                observers = new List<IObserver>();
+            }
+
+            return new AudioProcessor(settings, dependencyProvider, observers);
+        }
+
+        [Test]
+        public void ItShouldCreateProcessingDirectory()
+        {
+            var directoryProvider = Substitute.For<IDirectoryProvider>();
+            var dependencyProvider = MockDependencyProvider.Get(directoryProvider: directoryProvider);
+
+            var processor = GetProcessor(dependencyProvider: dependencyProvider);
+
+            processor.ProcessFile(GetGrouping());
+
+            var expectedDirectory = Path.Combine(MockProgramSettings.ProcessingDirectory, string.Format("{0}_{1}", ProjectCode, BarCode1));
+            directoryProvider.Received().CreateDirectory(Arg.Is(expectedDirectory));
+        }
+
+        [Test]
+        public void ItShouldLogBatchProcessingHeader()
+        {
+            var mockObserver = Substitute.For<IObserver>();
+            var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
+
+            processor.ProcessFile(GetGrouping());
+
+            mockObserver.Received().LogHeader(Arg.Is("Processing batch {0}"), Arg.Is(BarCode1));
+        }
+
+        [Test]
+        public void ItShouldLogExcelSpreadsheet()
+        {
+            var mockObserver = Substitute.For<IObserver>();
+            var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
+
+            processor.ProcessFile(GetGrouping());
+
+            mockObserver.Received().Log(Arg.Is("Spreadsheet: {0}"), Arg.Is(ExcelFileName));
+        }
+
+        [Test]
+        public void ItShouldLogFilesToProcess()
+        {
+            var mockObserver = Substitute.For<IObserver>();
+            var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
+
+            processor.ProcessFile(GetGrouping());
+
+            mockObserver.Received().Log(Arg.Is("File: {0}"), Arg.Is(WavFileName1));
+            mockObserver.Received().Log(Arg.Is("File: {0}"), Arg.Is(WavFileName2));
+        }
+
+        [Test]
+        public void ItShouldThrowExceptionIfFileInGroupingIsInvalid()
+        {
+            var processor = GetProcessor();
+            var grouping = new List<AbstractFileModel> { _wavModel1, _wavModel2, _invalidFileModel, _excelModel }
+                .GroupBy(m => m.BarCode).First();
+
+            var exception = Assert.Throws<Exception>(() => processor.ProcessFile(grouping));
+            Assert.That(exception.Message, Is.EqualTo("Could not process batch: one or more files has an unexpected filename"));
+
+        }
+
+        [Test]
+        public void ItShouldThrowExceptionIfNoSpreadSheetModelPresent()
+        {
+            var processor = GetProcessor();
+            var grouping = new List<AbstractFileModel> { _wavModel1, _wavModel2 }
+                .GroupBy(m => m.BarCode).First();
+
+            var exception = Assert.Throws<Exception>(() => processor.ProcessFile(grouping));
+            Assert.That(exception.Message, Is.EqualTo("No input data spreadsheet in batch"));
+
+        }
+    }
+}

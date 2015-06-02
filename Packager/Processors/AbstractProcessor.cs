@@ -107,7 +107,7 @@ namespace Packager.Processors
 
             var sourcePath = Path.Combine(InputDirectory, fileName);
             var targetPath = Path.Combine(ProcessingDirectory, fileName);
-            File.Move(sourcePath, targetPath);
+            FileProvider.Move(sourcePath, targetPath);
             return targetPath;
         }
 
@@ -126,6 +126,7 @@ namespace Packager.Processors
             return original.ToProductionFileModel(ProductionFileExtension);
         }
 
+        protected IFileProvider FileProvider { get { return _dependencyProvider.FileProvider; } }
         protected IDirectoryProvider DirectoryProvider { get { return _dependencyProvider.DirectoryProvider; } }
     }
 }

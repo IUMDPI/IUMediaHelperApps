@@ -10,5 +10,6 @@ namespace Packager.Providers
         IUserInfoResolver UserInfoResolver { get; }
         IXmlExporter XmlExporter { get; }
         IDirectoryProvider DirectoryProvider { get; }
+        IFileProvider FileProvider { get; }
     }
 }

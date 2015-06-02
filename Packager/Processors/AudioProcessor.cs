@@ -36,7 +36,7 @@ namespace Packager.Processors
             var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
 
             Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
-
+            
             var filesToProcess = batchGrouping
                 .Where(m => m.HasExtension(PreservationFileExtension))
                 .Where(m => m.IsArtifactModel())

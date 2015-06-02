@@ -13,6 +13,7 @@ namespace Packager.Providers
             UserInfoResolver = new DomainUserResolver();
             XmlExporter = new XmlExporter();
             DirectoryProvider = new DirectoryProvider();
+            FileProvider = new FileProvider();
         }
 
         public IExcelImporter CarrierDataExcelImporter { get; private set; }
@@ -21,5 +22,7 @@ namespace Packager.Providers
         public IUserInfoResolver UserInfoResolver { get; private set; }
         public IXmlExporter XmlExporter { get; private set; }
         public IDirectoryProvider DirectoryProvider { get; private set; }
+
+        public IFileProvider FileProvider { get; private set; }
     }
 }

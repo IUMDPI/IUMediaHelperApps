@@ -19,8 +19,8 @@ namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {
-        public AudioProcessor(IProgramSettings programSettings, IDependencyProvider utilityProvider, List<IObserver> observers)
-            : base(programSettings, utilityProvider, observers)
+        public AudioProcessor(IProgramSettings programSettings, IDependencyProvider dependencyProvider, List<IObserver> observers)
+            : base(programSettings, dependencyProvider, observers)
         {
         }
 
@@ -29,7 +29,7 @@ namespace Packager.Processors
             Barcode = batchGrouping.Key;
 
             // make directory to hold processed files
-            Directory.CreateDirectory(Path.Combine(ProcessingDirectory));
+            DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
             Observers.LogHeader("Processing batch {0}", Barcode);
 
@@ -66,7 +66,7 @@ namespace Packager.Processors
             processedList.Add(xmlModel);
 
             // make directory to hold completed files
-            Directory.CreateDirectory(DropBoxDirectory);
+            DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
             // copy files
             foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()))

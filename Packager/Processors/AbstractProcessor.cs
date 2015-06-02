@@ -13,7 +13,7 @@ namespace Packager.Processors
     public abstract class AbstractProcessor : IProcessor
     {
         private readonly IProgramSettings _programSettings;
-        private readonly IDependencyProvider _utilityProvider;
+        private readonly IDependencyProvider _dependencyProvider;
         protected List<IObserver> Observers { get; private set; }
         protected abstract string ProductionFileExtension { get; }
         protected abstract string AccessFileExtension { get; }
@@ -21,18 +21,18 @@ namespace Packager.Processors
         protected abstract string PreservationFileExtension { get; }
 
         // constructor
-        protected AbstractProcessor(IProgramSettings programSettings, IDependencyProvider utilityProvider, List<IObserver> observers)
+        protected AbstractProcessor(IProgramSettings programSettings, IDependencyProvider dependencyProvider, List<IObserver> observers)
         {
             _programSettings = programSettings;
-            _utilityProvider = utilityProvider;
+            _dependencyProvider = dependencyProvider;
             Observers = observers;
         }
 
-        protected IExcelImporter ExcelImporter { get { return _utilityProvider.CarrierDataExcelImporter; } }
-        protected IBextDataProvider BextDataProvider { get { return _utilityProvider.BextDataProvider; } }
-        protected IHasher Hasher { get { return _utilityProvider.Hasher; } }
-        protected IUserInfoResolver UserInfoResolver { get { return _utilityProvider.UserInfoResolver; } }
-        protected IXmlExporter XmlExporter { get { return _utilityProvider.XmlExporter; } }
+        protected IExcelImporter ExcelImporter { get { return _dependencyProvider.CarrierDataExcelImporter; } }
+        protected IBextDataProvider BextDataProvider { get { return _dependencyProvider.BextDataProvider; } }
+        protected IHasher Hasher { get { return _dependencyProvider.Hasher; } }
+        protected IUserInfoResolver UserInfoResolver { get { return _dependencyProvider.UserInfoResolver; } }
+        protected IXmlExporter XmlExporter { get { return _dependencyProvider.XmlExporter; } }
 
         protected string Barcode { get; set; }
 
@@ -125,5 +125,7 @@ namespace Packager.Processors
         {
             return original.ToProductionFileModel(ProductionFileExtension);
         }
+
+        protected IDirectoryProvider DirectoryProvider { get { return _dependencyProvider.DirectoryProvider; } }
     }
 }

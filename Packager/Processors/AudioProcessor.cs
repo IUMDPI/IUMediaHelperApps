@@ -38,8 +38,10 @@ namespace Packager.Processors
             Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
 
             var filesToProcess = batchGrouping
-                .Where(m => m.Extension.Equals(PreservationFileExtension, StringComparison.InvariantCultureIgnoreCase))
-                .Select(m => m as ArtifactFileModel).ToList();
+                .Where(m => m.HasExtension(PreservationFileExtension))
+                .Where(m => m.IsArtifactModel())
+                .Select(m => (ArtifactFileModel)m).ToList();
+
             foreach (var fileModel in filesToProcess)
             {
                 Observers.Log("File: {0}", fileModel.OriginalFileName);

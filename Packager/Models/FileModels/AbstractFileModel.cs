@@ -46,6 +46,11 @@ namespace Packager.Models.FileModels
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);
         }
 
+        public bool HasExtension(string value)
+        {
+            return Extension.Equals(value, StringComparison.InvariantCultureIgnoreCase);
+        }
+
         public virtual bool IsValid()
         {
             if (string.IsNullOrWhiteSpace(ProjectCode))

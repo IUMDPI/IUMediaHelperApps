@@ -66,6 +66,7 @@
     <Compile Include="Models\FileModels\ArtifactFileModelTests.cs" />
     <Compile Include="Models\FileModels\ExcelFileModelTests.cs" />
     <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
+    <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />
     <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />
     <Compile Include="Models\FileModels\XmlFileModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

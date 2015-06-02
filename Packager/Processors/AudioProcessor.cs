@@ -39,7 +39,7 @@ namespace Packager.Processors
 
             var filesToProcess = batchGrouping
                 .Where(m => m.Extension.Equals(PreservationFileExtension, StringComparison.InvariantCultureIgnoreCase))
-                .Select(m=>m as ArtifactFileModel).ToList();
+                .Select(m => m as ArtifactFileModel).ToList();
             foreach (var fileModel in filesToProcess)
             {
                 Observers.Log("File: {0}", fileModel.OriginalFileName);
@@ -60,8 +60,8 @@ namespace Packager.Processors
 
             // using the list of files that have been processed
             // make the xml file
-            var xmlModel = GenerateXml(excelSpreadSheet, 
-                processedList.Select(m=>m as ArtifactFileModel).Where(m=>m!=null).ToList());
+            var xmlModel = GenerateXml(excelSpreadSheet,
+                processedList.Where(m => m.IsArtifactModel()).Select(m => (ArtifactFileModel)m).ToList());
 
             processedList.Add(xmlModel);
 
@@ -104,7 +104,7 @@ namespace Packager.Processors
 
         private static ExcelFileModel GetExcelSpreadSheet(IEnumerable<AbstractFileModel> batchGrouping)
         {
-            var result = batchGrouping.SingleOrDefault(m => m is ExcelFileModel);
+            var result = batchGrouping.SingleOrDefault(m => m.IsExcelModel());
             if (result == null)
             {
                 throw new Exception("No input data spreadsheet in batch");
@@ -121,7 +121,7 @@ namespace Packager.Processors
 
             // move the file to our work dir
             var targetPath = MoveFileToProcessing(artifactFileModel.ToFileName());
-            
+
             var data = BextDataProvider.GetMetadata(artifactFileModel.BarCode);
 
             AddMetadata(targetPath, data);
@@ -239,7 +239,7 @@ namespace Packager.Processors
 
         private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ArtifactFileModel> filesToProcess)
         {
-            var wrapper = new IU {Carrier = GenerateCarrierDataModel(excelModel, filesToProcess)};
+            var wrapper = new IU { Carrier = GenerateCarrierDataModel(excelModel, filesToProcess) };
             var xml = XmlExporter.GenerateXml(wrapper);
 
             var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
@@ -263,9 +263,9 @@ namespace Packager.Processors
 
                     var row = dataSet.Tables["InputData"].Rows[0];
 
-                    var result = (CarrierData) ExcelImporter.Import(row);
+                    var result = (CarrierData)ExcelImporter.Import(row);
                     result.Parts.Sides = GenerateSideData(filesToProcess, row);
-                    
+
                     return result;
                 }
             }

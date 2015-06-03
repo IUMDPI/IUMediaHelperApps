@@ -128,14 +128,14 @@ namespace Packager.Processors
 
             AddMetadata(targetPath, data);
 
-            Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
-            var mezzanineModel = CreateDerivative(objectFileModelModel, ToMezzanineFileModel(objectFileModelModel), FFMPEGAudioMezzanineArguments);
+            Observers.LogHeader("Generating Production Version: {0}", fileName);
+            var prodModel = CreateDerivative(objectFileModelModel, ToProductionFileModel(objectFileModelModel), FFMPEGAudioProductionArguments);
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
-            var accessModel = CreateDerivative(mezzanineModel, ToAccessFileModel(mezzanineModel), FFMPEGAudioAccessArguments);
+            var accessModel = CreateDerivative(prodModel, ToAccessFileModel(prodModel), FFMPEGAudioAccessArguments);
 
             // return models for files
-            return new List<ObjectFileModel> { objectFileModelModel, mezzanineModel, accessModel };
+            return new List<ObjectFileModel> { objectFileModelModel, prodModel, accessModel };
         }
 
         private ObjectFileModel CreateDerivative(ObjectFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)

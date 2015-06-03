@@ -87,9 +87,9 @@ namespace Packager.Processors
         }
 
         // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioMezzanineArguments
+        protected string FFMPEGAudioProductionArguments
         {
-            get { return _programSettings.FFMPEGAudioMezzanineArguments; }
+            get { return _programSettings.FFMPEGAudioProductionArguments; }
         }
 
         // ReSharper disable once InconsistentNaming

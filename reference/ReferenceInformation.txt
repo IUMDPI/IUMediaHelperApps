@@ -34,7 +34,7 @@ Things to do:
 2) audio should produce prod, not mezz (done - 6/3 -bm)
 3) should support pres-int (done - 6/3 -bm)
 4) should add metadata to pres, pres-int, prod, and mess, but not access (done - 6/3 -bm)
-5) should base prod off of pres-int it's present.
+5) should base prod off of pres-int it's present. (done = 6/3 - bm)
 6) figure out ffmpeg command-line, etc. to align with Brian's doc. See below.
 7) add timezone after date values
 8) project code should be upper-case when saved

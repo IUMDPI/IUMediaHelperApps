@@ -6,6 +6,6 @@ namespace Packager.Processors
 {
     public interface IProcessor
     {
-        void ProcessFile(IGrouping<string,AbstractFileModel> batchGrouping);
+        void ProcessFile(IGrouping<string,AbstractFileModel> barcodeGrouping);
     }
 }

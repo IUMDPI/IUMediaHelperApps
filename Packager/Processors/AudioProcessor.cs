@@ -48,42 +48,54 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
-        public override void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping)
+        public override void ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping)
         {
-            Barcode = batchGrouping.Key;
+            Barcode = barcodeGrouping.Key;
 
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
             Observers.LogHeader("Processing object {0}", Barcode);
 
-            var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
+            var excelSpreadSheet = GetExcelSpreadSheet(barcodeGrouping);
 
             Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
 
-            var filesToProcess = batchGrouping
-                .Where(m => m.HasExtension(PreservationFileExtension))
+            var filesToProcess = barcodeGrouping
                 .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel) m).ToList();
+                .Select(m => (ObjectFileModel) m)
+                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion())
+                .ToList();
 
-            foreach (var fileModel in filesToProcess)
-            {
-                Observers.Log("File: {0}", fileModel.OriginalFileName);
-            }
-
+            // make sure files are ok
             if (filesToProcess.Any(f => f.IsValid() == false))
             {
                 throw new Exception("Could not process batch: one or more files has an unexpected filename");
+            }
+
+            // now move them to processing
+            foreach (var fileModel in filesToProcess)
+            {
+                Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
+                MoveFileToProcessing(fileModel.ToFileName());
             }
 
             // create derivatives for the various files
             // and add them to a list of files that have
             // been processed
             var processedList = new List<AbstractFileModel>();
-            processedList = filesToProcess
-                .Aggregate(processedList, (current, fileModel) => current.Concat(CreateDerivatives(fileModel))
-                    .ToList());
+            processedList = processedList.Concat(filesToProcess).ToList();
 
+            // first group by sequence
+            // then determine which file to use to create derivatives
+            // then use that file to create the derivatives
+            // then aggregate the results into the processed list
+            processedList = filesToProcess.GroupBy(m => m.SequenceIndicator)
+                .Select(GetPreservationOrIntermediateModel)
+                .Select(CreateDerivatives)
+                .Aggregate(processedList, (current, derivatives) => current.Concat(derivatives)
+                    .ToList());
+            
             // now add metadata to eligible objects
             AddMetadata(processedList);
 
@@ -98,7 +110,7 @@ namespace Packager.Processors
             DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
             // copy files
-            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()))
+            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f=>f))
             {
                 Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
                 File.Copy(
@@ -109,7 +121,13 @@ namespace Packager.Processors
             // done - log new line
             Observers.Log("");
         }
-        
+
+        private static ObjectFileModel GetPreservationOrIntermediateModel<T>(IGrouping<T, ObjectFileModel> grouping)
+        {
+            var preservationIntermediate = grouping.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
+            return preservationIntermediate ?? grouping.SingleOrDefault(m => m.IsPreservationVersion());
+        }
+
         private static ExcelFileModel GetExcelSpreadSheet(IEnumerable<AbstractFileModel> batchGrouping)
         {
             var result = batchGrouping.SingleOrDefault(m => m.IsExcelModel());
@@ -125,18 +143,16 @@ namespace Packager.Processors
         {
             var fileName = fileModel.ToFileName();
 
-            MoveFileToProcessing(fileName);
-            
             Observers.LogHeader("Generating Production Version: {0}", fileName);
             var prodModel = CreateDerivative(fileModel, ToProductionFileModel(fileModel), FFMPEGAudioProductionArguments);
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
             var accessModel = CreateDerivative(prodModel, ToAccessFileModel(prodModel), FFMPEGAudioAccessArguments);
-            
+
             // return models for files
-            return new List<ObjectFileModel> {fileModel, prodModel, accessModel};
+            return new List<ObjectFileModel> {prodModel, accessModel};
         }
-        
+
         private ObjectFileModel CreateDerivative(ObjectFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
@@ -193,7 +209,7 @@ namespace Packager.Processors
         private void AddMetadata(IEnumerable<AbstractFileModel> processedList)
         {
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel)m)
+                .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsAccessVersion() == false).ToList();
 
             if (!filesToAddMetadata.Any())
@@ -207,9 +223,7 @@ namespace Packager.Processors
             {
                 AddMetadata(fileModel, data);
             }
-
         }
-
 
         private void AddMetadata(ObjectFileModel fileModel, BextData data)
         {
@@ -307,7 +321,7 @@ namespace Packager.Processors
                 }
 
                 var sideData = ImportSideData(row, grouping.Key.Value);
-                AddIngestMetadata(sideData, grouping.SingleOrDefault(g => g.IsPreservationVersion()));
+                AddIngestMetadata(sideData, GetPreservationOrIntermediateModel(grouping));
                 sideData.Files = grouping.Select(GetFileData).ToList();
 
                 result.Add(sideData);

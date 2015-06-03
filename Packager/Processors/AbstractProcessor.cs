@@ -52,7 +52,7 @@ namespace Packager.Processors
             get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
         }
 
-        public abstract void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping);
+        public abstract void ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping);
         public abstract List<ObjectFileModel> CreateDerivatives(ObjectFileModel fileModel);
 
         // ReSharper disable once InconsistentNaming

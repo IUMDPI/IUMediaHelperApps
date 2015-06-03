@@ -31,7 +31,7 @@ namespace Packager.Processors
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
-            Observers.LogHeader("Processing batch {0}", Barcode);
+            Observers.LogHeader("Processing object {0}", Barcode);
 
             var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
 

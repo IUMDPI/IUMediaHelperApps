@@ -7,6 +7,7 @@ namespace Packager.Models.FileModels
     public class ObjectFileModel : AbstractFileModel
     {
         private const string PreservationFileUse = "pres";
+        private const string PreservationItermediateFileUse = "pres-int";
         private const string AccessFileUse = "access";
         private const string MezzanineFileUse = "mezz";
         private const string ProductionFileUse = "prod";
@@ -57,6 +58,11 @@ namespace Packager.Models.FileModels
             return FileUse.Equals(AccessFileUse, StringComparison.InvariantCultureIgnoreCase);
         }
 
+        public bool IsPreservationIntermediateVersion()
+        {
+            return FileUse.Equals(PreservationItermediateFileUse, StringComparison.InvariantCultureIgnoreCase);
+        }
+
         public bool IsMezzanineVersion()
         {
             return FileUse.Equals(MezzanineFileUse, StringComparison.InvariantCultureIgnoreCase);
@@ -79,7 +85,7 @@ namespace Packager.Models.FileModels
 
         public override string ToFileName()
         {
-            var parts = new[] {ProjectCode, BarCode, SequenceIndicator, FileUse};
+            var parts = new[] { ProjectCode, BarCode, SequenceIndicator, FileUse };
 
             var fileName = string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
             return string.Format("{0}{1}", fileName, Extension);

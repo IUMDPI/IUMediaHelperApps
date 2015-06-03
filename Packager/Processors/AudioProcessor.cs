@@ -43,6 +43,11 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
+        protected override string PreservationIntermediateFileExtenstion
+        {
+            get { return ".wav"; }
+        }
+
         public override void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping)
         {
             Barcode = batchGrouping.Key;
@@ -71,13 +76,16 @@ namespace Packager.Processors
                 throw new Exception("Could not process batch: one or more files has an unexpected filename");
             }
 
-            // go through and process the various files
+            // create derivatives for the various files
             // and add them to a list of files that have
             // been processed
             var processedList = new List<AbstractFileModel>();
             processedList = filesToProcess
-                .Aggregate(processedList, (current, fileModel) => current.Concat(ProcessFile(fileModel))
+                .Aggregate(processedList, (current, fileModel) => current.Concat(CreateDerivatives(fileModel))
                     .ToList());
+
+            // now add metadata to eligible objects
+            AddMetadata(processedList);
 
             // using the list of files that have been processed
             // make the xml file
@@ -101,7 +109,7 @@ namespace Packager.Processors
             // done - log new line
             Observers.Log("");
         }
-
+        
         private static ExcelFileModel GetExcelSpreadSheet(IEnumerable<AbstractFileModel> batchGrouping)
         {
             var result = batchGrouping.SingleOrDefault(m => m.IsExcelModel());
@@ -113,29 +121,22 @@ namespace Packager.Processors
             return result as ExcelFileModel;
         }
 
-        public override List<ObjectFileModel> ProcessFile(ObjectFileModel objectFileModelModel)
+        public override List<ObjectFileModel> CreateDerivatives(ObjectFileModel fileModel)
         {
-            var fileName = objectFileModelModel.ToFileName();
+            var fileName = fileModel.ToFileName();
 
-            Observers.LogHeader("Embedding Metadata: {0}", fileName);
-
-            // move the file to our work dir
-            var targetPath = MoveFileToProcessing(objectFileModelModel.ToFileName());
-
-            var data = BextDataProvider.GetMetadata(objectFileModelModel.BarCode);
-
-            AddMetadata(targetPath, data);
-
+            MoveFileToProcessing(fileName);
+            
             Observers.LogHeader("Generating Production Version: {0}", fileName);
-            var prodModel = CreateDerivative(objectFileModelModel, ToProductionFileModel(objectFileModelModel), FFMPEGAudioProductionArguments);
+            var prodModel = CreateDerivative(fileModel, ToProductionFileModel(fileModel), FFMPEGAudioProductionArguments);
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
             var accessModel = CreateDerivative(prodModel, ToAccessFileModel(prodModel), FFMPEGAudioAccessArguments);
-
+            
             // return models for files
-            return new List<ObjectFileModel> {objectFileModelModel, prodModel, accessModel};
+            return new List<ObjectFileModel> {fileModel, prodModel, accessModel};
         }
-
+        
         private ObjectFileModel CreateDerivative(ObjectFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
@@ -187,6 +188,35 @@ namespace Packager.Processors
                     FileName = Path.GetFileName(filePath)
                 };
             }
+        }
+
+        private void AddMetadata(IEnumerable<AbstractFileModel> processedList)
+        {
+            var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
+                .Select(m => (ObjectFileModel)m)
+                .Where(m => m.IsAccessVersion() == false).ToList();
+
+            if (!filesToAddMetadata.Any())
+            {
+                throw new Exception("Could not add metadata: no eligible files");
+            }
+
+            var data = BextDataProvider.GetMetadata(Barcode);
+
+            foreach (var fileModel in filesToAddMetadata)
+            {
+                AddMetadata(fileModel, data);
+            }
+
+        }
+
+
+        private void AddMetadata(ObjectFileModel fileModel, BextData data)
+        {
+            var targetPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName());
+            Observers.LogHeader("Embedding Metadata: {0}", fileModel.ToFileName());
+
+            AddMetadata(targetPath, data);
         }
 
         private void AddMetadata(string targetPath, BextData data)

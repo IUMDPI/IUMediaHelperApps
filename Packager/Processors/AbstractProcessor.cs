@@ -19,6 +19,7 @@ namespace Packager.Processors
         protected abstract string AccessFileExtension { get; }
         protected abstract string MezzanineFileExtension { get; }
         protected abstract string PreservationFileExtension { get; }
+        protected abstract string PreservationIntermediateFileExtenstion { get; }
 
         // constructor
         protected AbstractProcessor(IProgramSettings programSettings, IDependencyProvider dependencyProvider, List<IObserver> observers)
@@ -52,7 +53,7 @@ namespace Packager.Processors
         }
 
         public abstract void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping);
-        public abstract List<ObjectFileModel> ProcessFile(ObjectFileModel objectFileModelModel);
+        public abstract List<ObjectFileModel> CreateDerivatives(ObjectFileModel fileModel);
 
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath

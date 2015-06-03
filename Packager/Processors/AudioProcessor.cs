@@ -166,18 +166,9 @@ namespace Packager.Processors
                 throw new Exception(string.Format("Could not start {0}", FFMPEGPath));
             }
 
-            do
-            {
-                Application.DoEvents();
-                process.WaitForExit(5);
-            } while (!process.HasExited);
-
-            string output;
-            using (var reader = process.StandardError)
-            {
-                output = reader.ReadToEnd();
-            }
-
+            var output = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            
             Observers.Log(output);
 
             if (process.ExitCode != 0)
@@ -219,18 +210,9 @@ namespace Packager.Processors
                 throw new Exception(string.Format("Could not start {0}", BWFMetaEditPath));
             }
 
-            do
-            {
-                Application.DoEvents();
-                process.WaitForExit(5);
-            } while (!process.HasExited);
+            var output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
 
-
-            string output;
-            using (var reader = process.StandardOutput)
-            {
-                output = reader.ReadToEnd();
-            }
             Observers.Log(output);
 
             if (process.ExitCode != 0 || !SuccessMessagePresent(targetPath, output))

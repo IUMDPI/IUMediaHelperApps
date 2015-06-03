@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Observers;
@@ -52,8 +53,8 @@ namespace Packager.Processors
             get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode)); }
         }
 
-        public abstract void ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping);
-        public abstract List<ObjectFileModel> CreateDerivatives(ObjectFileModel fileModel);
+        public abstract Task ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping);
+        public abstract Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel);
 
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath
@@ -129,5 +130,6 @@ namespace Packager.Processors
 
         protected IFileProvider FileProvider { get { return _dependencyProvider.FileProvider; } }
         protected IDirectoryProvider DirectoryProvider { get { return _dependencyProvider.DirectoryProvider; } }
+        protected IProcessRunner ProcessRunner { get { return _dependencyProvider.ProcessRunner; } }
     }
 }

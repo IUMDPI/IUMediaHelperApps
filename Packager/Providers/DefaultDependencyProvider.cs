@@ -14,6 +14,7 @@ namespace Packager.Providers
             XmlExporter = new XmlExporter();
             DirectoryProvider = new DirectoryProvider();
             FileProvider = new FileProvider();
+            ProcessRunner = new ProcessRunner();
         }
 
         public IExcelImporter CarrierDataExcelImporter { get; private set; }
@@ -24,5 +25,8 @@ namespace Packager.Providers
         public IDirectoryProvider DirectoryProvider { get; private set; }
 
         public IFileProvider FileProvider { get; private set; }
+
+        public IProcessRunner ProcessRunner { get; private set; }
     }
+
 }

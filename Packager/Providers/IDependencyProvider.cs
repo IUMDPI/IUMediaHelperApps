@@ -11,5 +11,6 @@ namespace Packager.Providers
         IXmlExporter XmlExporter { get; }
         IDirectoryProvider DirectoryProvider { get; }
         IFileProvider FileProvider { get; }
+        IProcessRunner ProcessRunner { get; }
     }
 }

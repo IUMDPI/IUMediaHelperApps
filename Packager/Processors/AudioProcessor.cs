@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Excel;
 using Packager.Extensions;
 using Packager.Models;
@@ -48,7 +49,7 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
-        public override void ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping)
+        public async override Task ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping)
         {
             Barcode = barcodeGrouping.Key;
 
@@ -84,14 +85,16 @@ namespace Packager.Processors
             // then determine which file to use to create derivatives
             // then use that file to create the derivatives
             // then aggregate the results into the processed list
-            processedList = filesToProcess.GroupBy(m => m.SequenceIndicator)
-                .Select(GetPreservationOrIntermediateModel)
-                .Select(CreateDerivatives)
-                .Aggregate(processedList, (current, derivatives) => current.Concat(derivatives)
-                    .ToList());
-            
+            foreach (var model in filesToProcess
+                .GroupBy(m => m.SequenceIndicator)
+                .Select(GetPreservationOrIntermediateModel))
+            {
+                var derivatives = await CreateDerivatives(model);
+                processedList = processedList.Concat(derivatives).ToList();
+            }
+          
             // now add metadata to eligible objects
-            AddMetadata(processedList);
+            await AddMetadata(processedList);
 
             // using the list of files that have been processed
             // make the xml file
@@ -104,6 +107,8 @@ namespace Packager.Processors
             DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
             // copy files
+            // todo: make asyc
+
             foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f=>f))
             {
                 Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
@@ -133,18 +138,18 @@ namespace Packager.Processors
             return result as ExcelFileModel;
         }
 
-        public override List<ObjectFileModel> CreateDerivatives(ObjectFileModel fileModel)
+        public override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
             var fileName = fileModel.ToFileName();
 
             Observers.LogHeader("Generating Production Version: {0}", fileName);
-            var prodModel = CreateDerivative(
+            var prodModel = await CreateDerivative(
                 fileModel, 
                 ToProductionFileModel(fileModel),
                 AddNoOverwriteToFfmpegCommand(FFMPEGAudioProductionArguments));
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
-            var accessModel = CreateDerivative(
+            var accessModel = await CreateDerivative(
                 prodModel, 
                 ToAccessFileModel(prodModel), 
                 AddNoOverwriteToFfmpegCommand(FFMPEGAudioAccessArguments));
@@ -163,18 +168,18 @@ namespace Packager.Processors
             return arguments + " -n";
         }
 
-        private ObjectFileModel CreateDerivative(ObjectFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
+        private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
             var outputPath = Path.Combine(ProcessingDirectory, newModel.ToFileName());
 
             var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
-            CreateDerivative(args);
+            await CreateDerivative(args);
             return newModel;
         }
 
-        private void CreateDerivative(string args)
+        private async Task CreateDerivative(string args)
         {
             var startInfo = new ProcessStartInfo(FFMPEGPath)
             {
@@ -185,20 +190,13 @@ namespace Packager.Processors
                 CreateNoWindow = true
             };
 
-            var process = Process.Start(startInfo);
-            if (process == null)
+            var result = await ProcessRunner.Run(startInfo);
+
+            Observers.Log(result.StandardError);
+
+            if (result.ExitCode != 0)
             {
-                throw new Exception(string.Format("Could not start {0}", FFMPEGPath));
-            }
-
-            var output = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-
-            Observers.Log(output);
-
-            if (process.ExitCode != 0)
-            {
-                throw new Exception(string.Format("Could not generate derivative: {0}", process.ExitCode));
+                throw new Exception(string.Format("Could not generate derivative: {0}", result.ExitCode));
             }
         }
 
@@ -216,7 +214,7 @@ namespace Packager.Processors
             }
         }
 
-        private void AddMetadata(IEnumerable<AbstractFileModel> processedList)
+        private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList)
         {
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
@@ -231,19 +229,19 @@ namespace Packager.Processors
 
             foreach (var fileModel in filesToAddMetadata)
             {
-                AddMetadata(fileModel, data);
+                await AddMetadata(fileModel, data);
             }
         }
 
-        private void AddMetadata(ObjectFileModel fileModel, BextData data)
+        private async Task AddMetadata(ObjectFileModel fileModel, BextData data)
         {
             var targetPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName());
             Observers.LogHeader("Embedding Metadata: {0}", fileModel.ToFileName());
 
-            AddMetadata(targetPath, data);
+            await AddMetadata(targetPath, data);
         }
 
-        private void AddMetadata(string targetPath, BextData data)
+        private async Task AddMetadata(string targetPath, BextData data)
         {
             var args = string.Format("--verbose --append {0} {1}", string.Join(" ", data.GenerateCommandArgs()), targetPath);
 
@@ -256,20 +254,13 @@ namespace Packager.Processors
                 CreateNoWindow = true
             };
 
-            var process = Process.Start(startInfo);
-            if (process == null)
+            var result = await ProcessRunner.Run(startInfo);
+
+            Observers.Log(result.StandardOutput);
+
+            if (result.ExitCode != 0 || !SuccessMessagePresent(targetPath, result.StandardOutput))
             {
-                throw new Exception(string.Format("Could not start {0}", BWFMetaEditPath));
-            }
-
-            var output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-
-            Observers.Log(output);
-
-            if (process.ExitCode != 0 || !SuccessMessagePresent(targetPath, output))
-            {
-                throw new Exception(string.Format("Could not insert BEXT Data: {0}", process.ExitCode));
+                throw new Exception(string.Format("Could not insert BEXT Data: {0}", result.ExitCode));
             }
         }
 

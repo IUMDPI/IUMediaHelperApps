@@ -46,7 +46,7 @@ namespace Packager.Models
 
         public string DateFormat
         {
-            get { return "yyyy-MM-dd"; }
+            get { return "yyyy-MM-dd HH:mm:ss \"GMT\"zzz"; }
         }
 
 

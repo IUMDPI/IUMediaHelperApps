@@ -352,7 +352,7 @@ namespace Packager.Processors
             var info = new FileInfo(targetPath);
             info.Refresh();
 
-            sideData.Ingest.Date = info.CreationTimeUtc.ToString(DataFormat, CultureInfo.InvariantCulture);
+            sideData.Ingest.Date = info.CreationTime.ToString(DateFormat, CultureInfo.InvariantCulture);
 
             var owner = info.GetAccessControl().GetOwner(typeof (NTAccount)).Value;
             var userInfo = UserInfoResolver.Resolve(owner);

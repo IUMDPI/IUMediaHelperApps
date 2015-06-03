@@ -61,7 +61,7 @@ namespace Packager.Processors
             get { return _programSettings.BWFMetaEditPath; }
         }
 
-        protected string DataFormat
+        protected string DateFormat
         {
             get { return _programSettings.DateFormat; }
         }

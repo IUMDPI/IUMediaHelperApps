@@ -144,13 +144,29 @@ namespace Packager.Processors
             var fileName = fileModel.ToFileName();
 
             Observers.LogHeader("Generating Production Version: {0}", fileName);
-            var prodModel = CreateDerivative(fileModel, ToProductionFileModel(fileModel), FFMPEGAudioProductionArguments);
+            var prodModel = CreateDerivative(
+                fileModel, 
+                ToProductionFileModel(fileModel),
+                AddNoOverwriteToFfmpegCommand(FFMPEGAudioProductionArguments));
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
-            var accessModel = CreateDerivative(prodModel, ToAccessFileModel(prodModel), FFMPEGAudioAccessArguments);
+            var accessModel = CreateDerivative(
+                prodModel, 
+                ToAccessFileModel(prodModel), 
+                AddNoOverwriteToFfmpegCommand(FFMPEGAudioAccessArguments));
 
             // return models for files
             return new List<ObjectFileModel> {prodModel, accessModel};
+        }
+
+        private static string AddNoOverwriteToFfmpegCommand(string arguments)
+        {
+            if (arguments.ToLowerInvariant().Contains("-y") || arguments.ToLowerInvariant().Contains("-n"))
+            {
+                return arguments;
+            }
+
+            return arguments + " -n";
         }
 
         private ObjectFileModel CreateDerivative(ObjectFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)

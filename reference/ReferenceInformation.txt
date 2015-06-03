@@ -20,6 +20,9 @@ Questions for Mike and Susan:
 16) is Environment.MachineName (gets name of machine in domain) ok for Ingest->ExtractionWorkstation? This assumes that files are being processed on same machine as utility is being run on.
 17) what is the best way to get Player_serial_number, Player_manufacturer, Player_model, AD_serial_number, AD_manufacturer, and AD_model values?
 
+---------
+18) should we configure ffmpeg to overwrite files or not to overwrite files? (for now it is not overwrite and return error)
+
 Follow ups for Mike and Jean
 - command line arguments for the production and play copies
 - follow up on webservice status, and build in a way to save the password safely outside the program

@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
-using System.Windows.Forms;
 using Excel;
 using Packager.Extensions;
 using Packager.Models;
@@ -22,66 +21,6 @@ namespace Packager.Processors
         public AudioProcessor(IProgramSettings programSettings, IDependencyProvider dependencyProvider, List<IObserver> observers)
             : base(programSettings, dependencyProvider, observers)
         {
-        }
-
-        public override void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping)
-        {
-            Barcode = batchGrouping.Key;
-
-            // make directory to hold processed files
-            DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
-
-            Observers.LogHeader("Processing object {0}", Barcode);
-
-            var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
-
-            Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
-            
-            var filesToProcess = batchGrouping
-                .Where(m => m.HasExtension(PreservationFileExtension))
-                .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel)m).ToList();
-
-            foreach (var fileModel in filesToProcess)
-            {
-                Observers.Log("File: {0}", fileModel.OriginalFileName);
-            }
-
-            if (filesToProcess.Any(f => f.IsValid() == false))
-            {
-                throw new Exception("Could not process batch: one or more files has an unexpected filename");
-            }
-
-            // go through and process the various files
-            // and add them to a list of files that have
-            // been processed
-            var processedList = new List<AbstractFileModel>();
-            processedList = filesToProcess
-                .Aggregate(processedList, (current, fileModel) => current.Concat(ProcessFile(fileModel))
-                .ToList());
-
-            // using the list of files that have been processed
-            // make the xml file
-            var xmlModel = GenerateXml(excelSpreadSheet,
-                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel)m).ToList());
-
-            processedList.Add(xmlModel);
-
-            // make directory to hold completed files
-            DirectoryProvider.CreateDirectory(DropBoxDirectory);
-
-            // copy files
-            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()))
-            {
-                Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
-                File.Copy(
-                    Path.Combine(ProcessingDirectory, fileName),
-                    Path.Combine(DropBoxDirectory, fileName));
-            }
-
-            // done - log new line
-            Observers.Log("");
-
         }
 
         protected override string ProductionFileExtension
@@ -102,6 +41,65 @@ namespace Packager.Processors
         protected override string PreservationFileExtension
         {
             get { return ".wav"; }
+        }
+
+        public override void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping)
+        {
+            Barcode = batchGrouping.Key;
+
+            // make directory to hold processed files
+            DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
+
+            Observers.LogHeader("Processing object {0}", Barcode);
+
+            var excelSpreadSheet = GetExcelSpreadSheet(batchGrouping);
+
+            Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
+
+            var filesToProcess = batchGrouping
+                .Where(m => m.HasExtension(PreservationFileExtension))
+                .Where(m => m.IsObjectModel())
+                .Select(m => (ObjectFileModel) m).ToList();
+
+            foreach (var fileModel in filesToProcess)
+            {
+                Observers.Log("File: {0}", fileModel.OriginalFileName);
+            }
+
+            if (filesToProcess.Any(f => f.IsValid() == false))
+            {
+                throw new Exception("Could not process batch: one or more files has an unexpected filename");
+            }
+
+            // go through and process the various files
+            // and add them to a list of files that have
+            // been processed
+            var processedList = new List<AbstractFileModel>();
+            processedList = filesToProcess
+                .Aggregate(processedList, (current, fileModel) => current.Concat(ProcessFile(fileModel))
+                    .ToList());
+
+            // using the list of files that have been processed
+            // make the xml file
+            var xmlModel = GenerateXml(excelSpreadSheet,
+                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
+
+            processedList.Add(xmlModel);
+
+            // make directory to hold completed files
+            DirectoryProvider.CreateDirectory(DropBoxDirectory);
+
+            // copy files
+            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()))
+            {
+                Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
+                File.Copy(
+                    Path.Combine(ProcessingDirectory, fileName),
+                    Path.Combine(DropBoxDirectory, fileName));
+            }
+
+            // done - log new line
+            Observers.Log("");
         }
 
         private static ExcelFileModel GetExcelSpreadSheet(IEnumerable<AbstractFileModel> batchGrouping)
@@ -135,7 +133,7 @@ namespace Packager.Processors
             var accessModel = CreateDerivative(prodModel, ToAccessFileModel(prodModel), FFMPEGAudioAccessArguments);
 
             // return models for files
-            return new List<ObjectFileModel> { objectFileModelModel, prodModel, accessModel };
+            return new List<ObjectFileModel> {objectFileModelModel, prodModel, accessModel};
         }
 
         private ObjectFileModel CreateDerivative(ObjectFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
@@ -168,7 +166,7 @@ namespace Packager.Processors
 
             var output = process.StandardError.ReadToEnd();
             process.WaitForExit();
-            
+
             Observers.Log(output);
 
             if (process.ExitCode != 0)
@@ -223,10 +221,10 @@ namespace Packager.Processors
 
         private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
         {
-            var wrapper = new IU { Carrier = GenerateCarrierDataModel(excelModel, filesToProcess) };
+            var wrapper = new IU {Carrier = GenerateCarrierDataModel(excelModel, filesToProcess)};
             var xml = XmlExporter.GenerateXml(wrapper);
 
-            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
+            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
             SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);
             return result;
         }
@@ -247,7 +245,7 @@ namespace Packager.Processors
 
                     var row = dataSet.Tables["InputData"].Rows[0];
 
-                    var result = (CarrierData)ExcelImporter.Import(row);
+                    var result = (CarrierData) ExcelImporter.Import(row);
                     result.Parts.Sides = GenerateSideData(filesToProcess, row);
 
                     return result;
@@ -296,13 +294,12 @@ namespace Packager.Processors
 
             sideData.Ingest.Date = info.CreationTimeUtc.ToString(DataFormat, CultureInfo.InvariantCulture);
 
-            var owner = info.GetAccessControl().GetOwner(typeof(NTAccount)).Value;
+            var owner = info.GetAccessControl().GetOwner(typeof (NTAccount)).Value;
             var userInfo = UserInfoResolver.Resolve(owner);
 
             sideData.Ingest.CreatedBy = userInfo.DisplayName;
 
             sideData.Ingest.ExtractionWorkstation = Environment.MachineName;
-
         }
 
         private static bool SuccessMessagePresent(string fileName, string output)
@@ -331,6 +328,5 @@ namespace Packager.Processors
                 }
             };
         }
-
     }
 }

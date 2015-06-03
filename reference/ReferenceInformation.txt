@@ -31,7 +31,7 @@ Follow ups for Mike and Jean
 Things to do:
 
 1) rename "Batch" to "Object" in logs (don't use 'artifact') (done - 6/3 - bm)
-2) audio should produce prod, not mezz
+2) audio should produce prod, not mezz (done - 6/3 -bm)
 3) should support pres-int
 4) should add metadata to pres, pres-int, prod, and mess, but not access
 5) should base prod off of pres-int it's present.

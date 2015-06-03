@@ -43,6 +43,7 @@ Things to do:
 11) In metadata need to add file use after description
 12) in metadata need to add original file name (without extension) to description
 13) need to figure out what extensions to use for audio
+14) need to get latest ffmpeg version
 
 
 A couple of useful command lines :

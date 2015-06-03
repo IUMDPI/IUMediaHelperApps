@@ -13,7 +13,7 @@ namespace Packager.Models.FileModels
             var generators = new Dictionary<string, Func<string, AbstractFileModel>>();
             foreach (var processorExtension in processorExtensions)
             {
-                generators[processorExtension] = path => new ArtifactFileModel(path);
+                generators[processorExtension] = path => new ObjectFileModel(path);
             }
 
             generators[".xlsx"] = path => new ExcelFileModel(path);

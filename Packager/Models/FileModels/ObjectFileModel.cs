@@ -4,18 +4,18 @@ using Packager.Extensions;
 
 namespace Packager.Models.FileModels
 {
-    public class ArtifactFileModel : AbstractFileModel
+    public class ObjectFileModel : AbstractFileModel
     {
         private const string PreservationFileUse = "pres";
         private const string AccessFileUse = "access";
         private const string MezzanineFileUse = "mezz";
         private const string ProductionFileUse = "prod";
 
-        private ArtifactFileModel()
+        private ObjectFileModel()
         {
         }
 
-        public ArtifactFileModel(string path)
+        public ObjectFileModel(string path)
             : base(path)
         {
             var parts = GetPathParts(path);
@@ -27,9 +27,9 @@ namespace Packager.Models.FileModels
         public string SequenceIndicator { get; set; }
         private string FileUse { get; set; }
 
-        private ArtifactFileModel ToNewModel(string newFileUse, string newExension)
+        private ObjectFileModel ToNewModel(string newFileUse, string newExension)
         {
-            var result = new ArtifactFileModel
+            var result = new ObjectFileModel
             {
                 ProjectCode = ProjectCode,
                 BarCode = BarCode,
@@ -62,17 +62,17 @@ namespace Packager.Models.FileModels
             return FileUse.Equals(MezzanineFileUse, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public ArtifactFileModel ToAccessFileModel(string extension)
+        public ObjectFileModel ToAccessFileModel(string extension)
         {
             return ToNewModel(AccessFileUse, extension);
         }
 
-        public ArtifactFileModel ToMezzanineFileModel(string extension)
+        public ObjectFileModel ToMezzanineFileModel(string extension)
         {
             return ToNewModel(MezzanineFileUse, extension);
         }
 
-        public ArtifactFileModel ToProductionFileModel(string extension)
+        public ObjectFileModel ToProductionFileModel(string extension)
         {
             return ToNewModel(ProductionFileUse, extension);
         }

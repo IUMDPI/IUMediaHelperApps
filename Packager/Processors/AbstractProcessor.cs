@@ -52,7 +52,7 @@ namespace Packager.Processors
         }
 
         public abstract void ProcessFile(IGrouping<string, AbstractFileModel> batchGrouping);
-        public abstract List<ArtifactFileModel> ProcessFile(ArtifactFileModel artifactFileModel);
+        public abstract List<ObjectFileModel> ProcessFile(ObjectFileModel objectFileModelModel);
 
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath
@@ -111,17 +111,17 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected ArtifactFileModel ToAccessFileModel(ArtifactFileModel original)
+        protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
         {
             return original.ToAccessFileModel(AccessFileExtension);
         }
 
-        protected ArtifactFileModel ToMezzanineFileModel(ArtifactFileModel original)
+        protected ObjectFileModel ToMezzanineFileModel(ObjectFileModel original)
         {
             return original.ToMezzanineFileModel(MezzanineFileExtension);
         }
 
-        protected ArtifactFileModel ToProductionFileModel(ArtifactFileModel original)
+        protected ObjectFileModel ToProductionFileModel(ObjectFileModel original)
         {
             return original.ToProductionFileModel(ProductionFileExtension);
         }

@@ -4,7 +4,7 @@ using Packager.Models.FileModels;
 namespace Packager.Test.Models.FileModels
 {
     [TestFixture]
-    public class ArtifactFileModelTests
+    public class ObjectFileModelTests
     {
         public enum UseCase
         {
@@ -39,7 +39,7 @@ namespace Packager.Test.Models.FileModels
         [TestCase(GoodPreservationFileName, UseCase.Pres)]
         public void ShouldParseFileNameCorrectly(string path, UseCase useCase)
         {
-            var model = new ArtifactFileModel(path);
+            var model = new ObjectFileModel(path);
             Assert.That(model.IsValid(), Is.True);
 
             Assert.That(model.BarCode, Is.EqualTo(Barcode));
@@ -70,7 +70,7 @@ namespace Packager.Test.Models.FileModels
         [TestCase(GoodPreservationFileName, UseCase.Pres)]
         public void IsValidShouldReturnTrueForGoodFileNames(string path, UseCase useCase)
         {
-            var model = new ArtifactFileModel(path);
+            var model = new ObjectFileModel(path);
             Assert.That(model.IsValid(), Is.True);
         }
 
@@ -85,21 +85,21 @@ namespace Packager.Test.Models.FileModels
         [TestCase(WhitespaceFileName)]
         public void IsValidShouldReturnFalseIfFileNameBad(string path)
         {
-            var model = new ArtifactFileModel(path);
+            var model = new ObjectFileModel(path);
             Assert.That(model.IsValid(), Is.False);
         }
 
         [Test]
         public void ToFileNameShouldWorkCorrectly()
         {
-            var model = new ArtifactFileModel(GoodProductionFileName);
+            var model = new ObjectFileModel(GoodProductionFileName);
             Assert.That(model.ToFileName(), Is.EqualTo(GoodProductionFileName));
         }
 
         [Test]
         public void ToProductionFileModelShouldWorkCorrectly()
         {
-            var model = new ArtifactFileModel(GoodPreservationFileName);
+            var model = new ObjectFileModel(GoodPreservationFileName);
             var result = model.ToProductionFileModel(Extension);
             Assert.That(result.IsProductionVersion());
         }
@@ -107,7 +107,7 @@ namespace Packager.Test.Models.FileModels
         [Test]
         public void ToAccessFileModelShouldWorkCorrectly()
         {
-            var model = new ArtifactFileModel(GoodPreservationFileName);
+            var model = new ObjectFileModel(GoodPreservationFileName);
             var result = model.ToAccessFileModel(Extension);
             Assert.That(result.IsAccessVersion());
         }
@@ -115,7 +115,7 @@ namespace Packager.Test.Models.FileModels
         [Test]
         public void ToMezzanineFileModelShouldWorkCorrectly()
         {
-            var model = new ArtifactFileModel(GoodPreservationFileName);
+            var model = new ObjectFileModel(GoodPreservationFileName);
             var result = model.ToMezzanineFileModel(Extension);
             Assert.That(result.IsMezzanineVersion());
         }

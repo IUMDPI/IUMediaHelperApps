@@ -39,8 +39,8 @@ namespace Packager.Processors
             
             var filesToProcess = batchGrouping
                 .Where(m => m.HasExtension(PreservationFileExtension))
-                .Where(m => m.IsArtifactModel())
-                .Select(m => (ArtifactFileModel)m).ToList();
+                .Where(m => m.IsObjectModel())
+                .Select(m => (ObjectFileModel)m).ToList();
 
             foreach (var fileModel in filesToProcess)
             {
@@ -63,7 +63,7 @@ namespace Packager.Processors
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = GenerateXml(excelSpreadSheet,
-                processedList.Where(m => m.IsArtifactModel()).Select(m => (ArtifactFileModel)m).ToList());
+                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel)m).ToList());
 
             processedList.Add(xmlModel);
 
@@ -115,30 +115,30 @@ namespace Packager.Processors
             return result as ExcelFileModel;
         }
 
-        public override List<ArtifactFileModel> ProcessFile(ArtifactFileModel artifactFileModel)
+        public override List<ObjectFileModel> ProcessFile(ObjectFileModel objectFileModelModel)
         {
-            var fileName = artifactFileModel.ToFileName();
+            var fileName = objectFileModelModel.ToFileName();
 
             Observers.LogHeader("Embedding Metadata: {0}", fileName);
 
             // move the file to our work dir
-            var targetPath = MoveFileToProcessing(artifactFileModel.ToFileName());
+            var targetPath = MoveFileToProcessing(objectFileModelModel.ToFileName());
 
-            var data = BextDataProvider.GetMetadata(artifactFileModel.BarCode);
+            var data = BextDataProvider.GetMetadata(objectFileModelModel.BarCode);
 
             AddMetadata(targetPath, data);
 
             Observers.LogHeader("Generating Mezzanine Version: {0}", fileName);
-            var mezzanineModel = CreateDerivative(artifactFileModel, ToMezzanineFileModel(artifactFileModel), FFMPEGAudioMezzanineArguments);
+            var mezzanineModel = CreateDerivative(objectFileModelModel, ToMezzanineFileModel(objectFileModelModel), FFMPEGAudioMezzanineArguments);
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
             var accessModel = CreateDerivative(mezzanineModel, ToAccessFileModel(mezzanineModel), FFMPEGAudioAccessArguments);
 
             // return models for files
-            return new List<ArtifactFileModel> { artifactFileModel, mezzanineModel, accessModel };
+            return new List<ObjectFileModel> { objectFileModelModel, mezzanineModel, accessModel };
         }
 
-        private ArtifactFileModel CreateDerivative(ArtifactFileModel originalModel, ArtifactFileModel newModel, string commandLineArgs)
+        private ObjectFileModel CreateDerivative(ObjectFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
             var outputPath = Path.Combine(ProcessingDirectory, newModel.ToFileName());
@@ -186,10 +186,10 @@ namespace Packager.Processors
             }
         }
 
-        private FileData GetFileData(ArtifactFileModel artifactFileModel)
+        private FileData GetFileData(ObjectFileModel objectFileModel)
         {
             var hasher = new Hasher();
-            var filePath = Path.Combine(ProcessingDirectory, artifactFileModel.ToFileName());
+            var filePath = Path.Combine(ProcessingDirectory, objectFileModel.ToFileName());
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
                 return new FileData
@@ -239,7 +239,7 @@ namespace Packager.Processors
             }
         }
 
-        private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ArtifactFileModel> filesToProcess)
+        private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
         {
             var wrapper = new IU { Carrier = GenerateCarrierDataModel(excelModel, filesToProcess) };
             var xml = XmlExporter.GenerateXml(wrapper);
@@ -249,7 +249,7 @@ namespace Packager.Processors
             return result;
         }
 
-        private CarrierData GenerateCarrierDataModel(ExcelFileModel excelModel, List<ArtifactFileModel> filesToProcess)
+        private CarrierData GenerateCarrierDataModel(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
         {
             MoveFileToProcessing(excelModel.ToFileName());
             IExcelDataReader excelReader = null;
@@ -280,7 +280,7 @@ namespace Packager.Processors
             }
         }
 
-        private SideData[] GenerateSideData(IEnumerable<ArtifactFileModel> filesToProcess, DataRow row)
+        private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, DataRow row)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -306,9 +306,9 @@ namespace Packager.Processors
             return result.ToArray();
         }
 
-        private void AddIngestMetadata(SideData sideData, ArtifactFileModel preservationArtifactFileModel)
+        private void AddIngestMetadata(SideData sideData, ObjectFileModel preservationObjectFileModel)
         {
-            var targetPath = Path.Combine(ProcessingDirectory, preservationArtifactFileModel.ToFileName());
+            var targetPath = Path.Combine(ProcessingDirectory, preservationObjectFileModel.ToFileName());
             var info = new FileInfo(targetPath);
             info.Refresh();
 

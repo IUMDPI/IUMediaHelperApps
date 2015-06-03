@@ -6,7 +6,7 @@ namespace Packager.Test.Models.FileModels
     [TestFixture]
     public class GeneralFileModelTests
     {
-        private readonly ArtifactFileModel _fileModel = new ArtifactFileModel("test.wav");
+        private readonly ObjectFileModel _fileModel = new ObjectFileModel("test.wav");
 
         [TestCase(".wav", true)]
         [TestCase(".mp4", false)]

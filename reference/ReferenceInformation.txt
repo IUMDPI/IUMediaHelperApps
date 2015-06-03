@@ -28,6 +28,21 @@ Follow ups for Mike and Jean
 -	DATs will be digitized at original sample rate: either 16/44.1 or 16/48.
 
 
+Things to do:
+
+1) rename "Batch" to "Object" in logs (don't use 'artifact')
+2) audio should produce prod, not mezz
+3) should support pres-int
+4) should add metadata to pres, pres-int, prod, and mess, but not access
+5) should base prod off of pres-int it's present.
+6) figure out ffmpeg command-line, etc. to align with Brian's doc. See below.
+7) add timezone after date values
+8) project code should be upper-case when saved
+9) can have up to 4 parts (sides)
+10) need to add path to auth file in program settings
+11) In metadata need to add file use after description
+12) in metadata need to add original file name (without extension) to description
+
 
 A couple of useful command lines :
 
@@ -95,3 +110,289 @@ ffmpeg.exe ^
    -codec:a pcm_s24le ^
    -f matroska ^
    d:\test.mkv
+
+
+
+   From Brian:
+   ---------------------------------------------------------------------------------
+   #!/usr/bin/perl
+
+our $CONFIG = {
+   env => 'dev',
+
+   # HPSS Configuration
+   hsiRoot => "MDPI-dev", 
+
+   # directories on HPSS
+   dropboxDir => "dropbox",
+   workspaceDir => "workspace",
+   investigateDir => "investigate",
+   archiveDir => "archive",
+   deleteDir => "deleted",
+   freezerDir => "freezer",
+
+   # NFS-shared directories
+   transcoderQueues => "/srv/mdpi/transcoderQueues-dev",
+
+   # timeouts
+   transferTimeout => 8 * 3600,  # 8 hours
+   queuedTimeout => 300, #30 * 60,  # 30 minutes
+
+   # POD
+   podURL => "https://pod-dev.mdpi.iu.edu/",
+   podAuthFile => "/srv/mdpi/auth.dev",
+
+   # admins
+   admins => "bdwheele\@indiana.edu",
+
+   # tolerances
+   durationTolerance => 0.1, # % allowable difference in duration for different master formats
+
+   # log file
+   logFile => "/srv/mdpi/mdpi_batch-dev/log/processing.log",
+
+   # tape latency bypass
+   atsSleep => 60 * 1, # seconds to wait for adaptive tape sleep to go into effect.
+   stagingTimeout => 3600 * 8,  # seconds to wait for object to be staged before restaging.
+
+   # qc transfer location
+   qcStaging => "/N/qc-01/Shared/QC",
+   qcStagingAge => 4, # in days
+
+   # audioinspector stuff
+   aiDropbox => "/N/qc-01/Shared/AI_Dropbox",
+   aiOutput => "/N/qc-01/Shared/QC/Reports",
+   aiOutputAge => 4, # in days
+
+   # MARC -> MODS Stylesheet
+   z3950Host => "libprd.uits.indiana.edu",
+   z3950Port => 2200,
+   xsltMARC2MODS => "/srv/mdpi/mdpi_batch-dev/etc/MARC21slim2MODS3-5.xsl",
+   xsltproc => "/usr/bin/xsltproc",
+
+   # stuff for changing ownership
+   ch2dlibHost => "newcsb1.bedrock.iu.edu",
+   ch2dlibUser => "dlib",
+   ch2dlib => "/usr/local/bin/ch2dlib",
+
+   avalonStaging => "/tmp/avalon",
+
+};
+
+our $CARRIER = {
+   "Open Reel Audio Tape" => {
+   capacity => 4,
+   masters => {
+       pres => {
+       ext => 'wav',
+       qc => [['format', undef, 'format_short_name', 'wav'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'bits_per_sample', 24, 0],
+              ['audio', 0, 'sample_rate', 96000, 0],
+              ['audio', 0, 'codec_name', 'pcm_s24le'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },
+       prod => {
+       ext => 'wav',
+       qc => 'pres'
+       },
+       access => {
+       ext => 'mp4',
+       qc => [['format', undef, 'format_short_name', 'qt'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'sample_rate', 48000, 0],
+              ['audio', 0, 'codec_name', 'aac'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },        
+   },
+   derivatives => [[pres => 'high'],
+           [pres => 'med'],
+           [pres => 'audioinspector'],
+           ['*' => 'sip']],
+   },
+
+   "CD-R" => {
+   capacity => 2,
+   masters => {
+       pres => {
+       ext => 'wav',
+       qc => [['format', undef, 'format_short_name', 'wav'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'bits_per_sample', 24, 0],
+              ['audio', 0, 'sample_rate', 96000, 0],
+              ['audio', 0, 'codec_name', 'pcm_s24le'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },
+       prod => {
+       ext => 'wav',
+       qc => 'pres'
+       },
+       access => {
+       ext => 'mp4',
+       qc => [['format', undef, 'format_short_name', 'qt'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'sample_rate', 48000, 0],
+              ['audio', 0, 'codec_name', 'aac'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },        
+   },
+   derivatives => [[pres => 'high'],
+           [pres => 'med'],
+           [pres => 'audioinspector'],
+           ['*' => 'sip']],
+   },
+
+   "LP" => {
+   capacity => 4,
+   masters => {
+       pres => {
+       ext => 'wav',
+       qc => [['format', undef, 'format_short_name', 'wav'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'bits_per_sample', 24, 0],
+              ['audio', 0, 'sample_rate', 96000, 0],
+              ['audio', 0, 'codec_name', 'pcm_s24le'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },
+       prod => {
+       ext => 'wav',
+       qc => 'pres'
+       },
+       access => {
+       ext => 'mp4',
+       qc => [['format', undef, 'format_short_name', 'qt'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'sample_rate', 48000, 0],
+              ['audio', 0, 'codec_name', 'aac'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },        
+   },
+   derivatives => [[pres => 'high'],
+           [pres => 'med'],
+           [pres => 'audioinspector'],
+           ['*' => 'sip']],
+   },
+
+
+   "DAT" => {
+   capacity => 2,
+   masters => {
+       pres => {
+       ext => 'wav',
+       qc => [['format', undef, 'format_short_name', 'wav'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'bits_per_sample', 24, 0],
+              ['audio', 0, 'sample_rate', 96000, 0],
+              ['audio', 0, 'codec_name', 'pcm_s24le'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },
+       prod => {
+       ext => 'wav',
+       qc => 'pres'
+       },
+       access => {
+       ext => 'mp4',
+       qc => [['format', undef, 'format_short_name', 'qt'],
+              ['format', undef, 'audio_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'sample_rate', 48000, 0],
+              ['audio', 0, 'codec_name', 'aac'],
+              ['audio', 0, 'channels', [2, 1], 0]],
+       },        
+   },
+   derivatives => [[pres => 'high'],
+           [pres => 'med'],
+           [pres => 'audioinspector'],
+           ['*' => 'sip']],
+   },
+
+   "Betacam SP" => {
+   #capacity => 25, # two masters per 48 cores, one per 24 cores
+   capacity => 17, # three masters per 48 cores, two masters per 24 cores
+   #capacity => 13, # four masters per 48 cores, two masters per 24 cores
+   #capacity => 50, # one master.
+
+   masters => {
+       pres => {
+       ext => "mov",
+       qc => [['format', undef, 'format_short_name', 'qt'],
+              ['format', undef, 'audio_stream_count', 2, 0],
+              ['format', undef, 'video_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'bits_per_sample', 24, 0],
+              ['audio', 0, 'sample_rate', 48000, 0],
+              ['audio', 0, 'codec_name', 'pcm_s24le'],
+              ['audio', 0, 'channels', 1, 0],
+              ['audio', 1, 'bits_per_sample', 24, 0],
+              ['audio', 1, 'sample_rate', 48000, 0],
+              ['audio', 1, 'codec_name', 'pcm_s24le'],
+              ['audio', 1, 'channels', 1, 0],
+              ['video', 0, 'codec_name', 'v210'],
+              ['video', 0, 'width', 720, 0],
+              ['video', 0, 'height', 486, 0],
+              ['video', 0, 'r_frame_rate_dec', 29.97, 0],
+              ['video', 0, 'pix_fmt', 'yuv422p10le']],
+       },
+       mezz => {
+       ext => 'mov',
+       qc => [['format', undef, 'format_short_name', 'qt'],
+              ['format', undef, 'audio_stream_count', 2, 0],
+              ['format', undef, 'video_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'bits_per_sample', 24, 0],
+              ['audio', 0, 'sample_rate', 48000, 0],
+              ['audio', 0, 'codec_name', 'pcm_s24le'],
+              ['audio', 0, 'channels', 1, 0],
+              ['audio', 1, 'bits_per_sample', 24, 0],
+              ['audio', 1, 'sample_rate', 48000, 0],
+              ['audio', 1, 'codec_name', 'pcm_s24le'],
+              ['audio', 1, 'channels', 1, 0],
+              ['video', 0, 'codec_name', 'mpeg2video'],
+              ['video', 0, 'width', 720, 0],
+              ['video', 0, 'height', 512, 0],
+              ['video', 0, 'r_frame_rate_dec', 29.97, 0],
+              ['video', 0, 'pix_fmt', 'yuv422p'],
+              ['video', 0, 'bit_rate', 50 * 1048576, 5]],
+       },
+       access => {
+       ext => 'mp4',
+       qc => [['format', undef, 'format_short_name', 'qt'],
+              ['format', undef, 'audio_stream_count', 2, 0],
+              ['format', undef, 'video_stream_count', 1, 0],
+              ['format', undef, 'stream_duration', 1, 0],
+              ['audio', 0, 'sample_rate', 48000, 0],
+              ['audio', 0, 'codec_name', 'aac'],
+              ['audio', 0, 'channels', 1, 0],
+              ['audio', 0, 'bit_rate', 128 * 1024, 5],
+              ['audio', 1, 'sample_rate', 48000, 0],
+              ['audio', 1, 'codec_name', 'aac'],
+              ['audio', 1, 'channels', 1, 0],
+              ['audio', 1, 'bit_rate', 128 * 1024, 5],
+              ['video', 0, 'codec_name', 'h264'],
+              ['video', 0, 'width', 720, 0],
+              ['video', 0, 'height', 486, 0],
+              ['video', 0, 'r_frame_rate_dec', 29.97, 0],
+              ['video', 0, 'pix_fmt', 'yuv420p'],
+              ['video', 0, 'bit_rate', 3 * 1048576, 5]],
+       },
+   },
+
+   derivatives => [[mezz => 'high'],
+           [mezz => 'med'],
+           [mezz => 'low'],
+           [mezz => 'qctools'],
+           ['*' => 'sip']],
+   },
+
+
+};
+
+
+1;

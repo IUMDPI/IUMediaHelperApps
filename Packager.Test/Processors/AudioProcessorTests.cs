@@ -27,9 +27,9 @@ namespace Packager.Test.Processors
         private const string InvalidFileName = "mdpi_4890764553278906_pres.wav";
 
         private readonly ExcelFileModel _excelModel = new ExcelFileModel(ExcelFileName);
-        private readonly ArtifactFileModel _wavModel1 = new ArtifactFileModel(WavFileName1);
-        private readonly ArtifactFileModel _wavModel2 = new ArtifactFileModel(WavFileName2);
-        private readonly ArtifactFileModel _invalidFileModel = new ArtifactFileModel(InvalidFileName);
+        private readonly ObjectFileModel _wavModel1 = new ObjectFileModel(WavFileName1);
+        private readonly ObjectFileModel _wavModel2 = new ObjectFileModel(WavFileName2);
+        private readonly ObjectFileModel _invalidFileModel = new ObjectFileModel(InvalidFileName);
 
         private IGrouping<string, AbstractFileModel> GetGrouping()
         {

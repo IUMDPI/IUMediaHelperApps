@@ -9,9 +9,9 @@ namespace Packager.Extensions
             return fileModel is ExcelFileModel;
         }
 
-        public static bool IsArtifactModel(this AbstractFileModel fileModel)
+        public static bool IsObjectModel(this AbstractFileModel fileModel)
         {
-            return fileModel is ArtifactFileModel;
+            return fileModel is ObjectFileModel;
         }
 
         public static bool IsXmlModel(this AbstractFileModel fileModel)

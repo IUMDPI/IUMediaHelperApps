@@ -23,10 +23,10 @@ namespace Packager.Test.Models.FileModels
 
         [TestCase(WavFileName)]
         [TestCase(Mp4FileName)]
-        public void ShouldGenerateCorrectModelForArtifactFiles(string filename)
+        public void ShouldGenerateCorrectModelForObjectFiles(string filename)
         {
             var result = _factory.GetModel(filename);
-            Assert.That(result as ArtifactFileModel, Is.Not.Null);
+            Assert.That(result as ObjectFileModel, Is.Not.Null);
         }
 
         [Test]

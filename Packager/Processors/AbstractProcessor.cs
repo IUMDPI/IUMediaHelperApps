@@ -44,12 +44,12 @@ namespace Packager.Processors
 
         protected string ProcessingDirectory
         {
-            get { return Path.Combine(RootProcessingDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
+            get { return Path.Combine(RootProcessingDirectory, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode)); }
         }
 
         protected string DropBoxDirectory
         {
-            get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode, Barcode)); }
+            get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode)); }
         }
 
         public abstract void ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping);

@@ -14,5 +14,14 @@ namespace Packager.Test.Models.FileModels
         {
             Assert.That(_fileModel.HasExtension(value), Is.EqualTo(expected));
         }
+
+        [TestCase("lowercase_barcode_01_pres.wav", "LOWERCASE")]
+        [TestCase("mixedCase_barcode_01_pres.wav", "MIXEDCASE")]
+        [TestCase("UPPERCASE_barcode_01_pres.wav", "UPPERCASE")]
+        public void ProjectCodeShouldAlwaysBeUpperCase(string value, string expected)
+        {
+            var model = new ObjectFileModel(value);
+            Assert.That(model.ProjectCode, Is.EqualTo(expected.ToUpperInvariant()));
+        }
     }
 }

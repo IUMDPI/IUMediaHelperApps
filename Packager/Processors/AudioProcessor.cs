@@ -66,13 +66,7 @@ namespace Packager.Processors
                 .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion())
                 .ToList();
-
-            // make sure files are ok
-            if (filesToProcess.Any(f => f.IsValid() == false))
-            {
-                throw new Exception("Could not process batch: one or more files has an unexpected filename");
-            }
-
+            
             // now move them to processing
             foreach (var fileModel in filesToProcess)
             {

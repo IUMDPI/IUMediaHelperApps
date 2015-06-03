@@ -20,11 +20,11 @@ namespace Packager.Test.Processors
         protected const string BarCode1 = "4890764553278906";
         protected const string BarCode2 = "7890764553278907";
 
-        private const string ExcelFileName = "mdpi_4890764553278906.xlxs";
-        private const string WavFileName1 = "mdpi_4890764553278906_01_pres.wav";
-        private const string WavFileName2 = "mdpi_4890764553278906_02_pres.wav";
+        private const string ExcelFileName = "MDPI_4890764553278906.xlxs";
+        private const string WavFileName1 = "MDPI_4890764553278906_01_pres.wav";
+        private const string WavFileName2 = "MDPI_4890764553278906_02_pres.wav";
 
-        private const string InvalidFileName = "mdpi_4890764553278906_pres.wav";
+        private const string InvalidFileName = "MDPI_4890764553278906_pres.wav";
 
         private readonly ExcelFileModel _excelModel = new ExcelFileModel(ExcelFileName);
         private readonly ObjectFileModel _wavModel1 = new ObjectFileModel(WavFileName1);
@@ -59,7 +59,7 @@ namespace Packager.Test.Processors
         }
 
         [Test]
-        public void ItShouldCreateProcessingDirectory()
+        public void ItShouldCreateProcessingDirectoryWithUpperCaseProjectName()
         {
             var directoryProvider = Substitute.For<IDirectoryProvider>();
             var dependencyProvider = MockDependencyProvider.Get(directoryProvider: directoryProvider);
@@ -68,7 +68,10 @@ namespace Packager.Test.Processors
 
             processor.ProcessFile(GetGrouping());
 
-            var expectedDirectory = Path.Combine(MockProgramSettings.ProcessingDirectory, string.Format("{0}_{1}", ProjectCode, BarCode1));
+            var expectedDirectory = Path.Combine(
+                MockProgramSettings.ProcessingDirectory, 
+                string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), BarCode1));
+
             directoryProvider.Received().CreateDirectory(Arg.Is(expectedDirectory));
         }
 
@@ -80,7 +83,7 @@ namespace Packager.Test.Processors
 
             processor.ProcessFile(GetGrouping());
 
-            mockObserver.Received().LogHeader(Arg.Is("Processing batch {0}"), Arg.Is(BarCode1));
+            mockObserver.Received().LogHeader(Arg.Is("Processing object {0}"), Arg.Is(BarCode1));
         }
 
         [Test]
@@ -95,29 +98,17 @@ namespace Packager.Test.Processors
         }
 
         [Test]
-        public void ItShouldLogFilesToProcess()
+        public void ItShouldLogFilesMovedToProcesings()
         {
             var mockObserver = Substitute.For<IObserver>();
             var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
 
             processor.ProcessFile(GetGrouping());
 
-            mockObserver.Received().Log(Arg.Is("File: {0}"), Arg.Is(WavFileName1));
-            mockObserver.Received().Log(Arg.Is("File: {0}"), Arg.Is(WavFileName2));
+            mockObserver.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(WavFileName1));
+            mockObserver.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(WavFileName2));
         }
-
-        [Test]
-        public void ItShouldThrowExceptionIfFileInGroupingIsInvalid()
-        {
-            var processor = GetProcessor();
-            var grouping = new List<AbstractFileModel> { _wavModel1, _wavModel2, _invalidFileModel, _excelModel }
-                .GroupBy(m => m.BarCode).First();
-
-            var exception = Assert.Throws<Exception>(() => processor.ProcessFile(grouping));
-            Assert.That(exception.Message, Is.EqualTo("Could not process batch: one or more files has an unexpected filename"));
-
-        }
-
+        
         [Test]
         public void ItShouldThrowExceptionIfNoSpreadSheetModelPresent()
         {

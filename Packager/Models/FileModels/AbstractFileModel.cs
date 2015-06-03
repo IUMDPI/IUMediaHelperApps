@@ -10,6 +10,8 @@ namespace Packager.Models.FileModels
         {
         }
 
+        private string _projectCode;
+
         protected AbstractFileModel(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -22,7 +24,7 @@ namespace Packager.Models.FileModels
 
             var parts = GetPathParts(path);
 
-            ProjectCode = parts.FromIndex(0, string.Empty).ToLowerInvariant();
+            ProjectCode = parts.FromIndex(0, string.Empty).ToUpperInvariant();
             BarCode = parts.FromIndex(1, string.Empty).ToLowerInvariant();
         }
 
@@ -34,13 +36,24 @@ namespace Packager.Models.FileModels
                 .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public string ProjectCode
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(_projectCode) 
+                    ? string.Empty 
+                    : _projectCode.ToUpperInvariant();
+            }
+            set { _projectCode = value; }
+        }
+
         public string OriginalFileName { get; set; }
-        public string ProjectCode { get; set; }
+
         public string BarCode { get; set; }
         public string Extension { get; set; }
 
         public abstract string ToFileName();
-        
+
         public bool BelongsToProject(string projectCode)
         {
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);

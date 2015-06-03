@@ -39,7 +39,7 @@ Things to do:
 4) should add metadata to pres, pres-int, prod, and mess, but not access (done - 6/3 -bm)
 5) should base prod off of pres-int it's present. (done = 6/3 - bm)
 6) figure out ffmpeg command-line, etc. to align with Brian's doc. See below.
-7) add timezone after date values
+7) add timezone after date values (done = 6/3 - bm)
 8) project code should be upper-case when saved
 9) can have up to 4 parts (sides)
 10) need to add path to auth file in program settings

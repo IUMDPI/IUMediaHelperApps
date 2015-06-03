@@ -59,6 +59,7 @@
     <Compile Include="Attributes\ExcelFieldAttribute.cs" />
     <Compile Include="Attributes\ExcelObjectAttribute.cs" />
     <Compile Include="Engine\IEngine.cs" />
+    <Compile Include="Engine\StandardEngine.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\FileModelExtensions.cs" />
     <Compile Include="Extensions\ObserverExtensions.cs" />

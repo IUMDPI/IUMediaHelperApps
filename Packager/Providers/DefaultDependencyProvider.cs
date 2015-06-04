@@ -1,11 +1,13 @@
-﻿using Packager.Models;
+﻿using System.Collections.Generic;
+using Packager.Models;
+using Packager.Observers;
 using Packager.Utilities;
 
 namespace Packager.Providers
 {
     public class DefaultDependencyProvider : IDependencyProvider
     {
-        public DefaultDependencyProvider()
+        public DefaultDependencyProvider(IProgramSettings programSettings, List<IObserver> observers)
         {
             CarrierDataExcelImporter = new ExcelImporter<CarrierData>();
             BextDataProvider = new StandInBextDataProvider();
@@ -15,6 +17,9 @@ namespace Packager.Providers
             DirectoryProvider = new DirectoryProvider();
             FileProvider = new FileProvider();
             ProcessRunner = new ProcessRunner();
+            ProgramSettings = programSettings;
+            MetadataGenerator = new FromExcelMetadataGenerator(CarrierDataExcelImporter, ProgramSettings, UserInfoResolver);
+            Observers = observers;
         }
 
         public IExcelImporter CarrierDataExcelImporter { get; private set; }
@@ -23,10 +28,10 @@ namespace Packager.Providers
         public IUserInfoResolver UserInfoResolver { get; private set; }
         public IXmlExporter XmlExporter { get; private set; }
         public IDirectoryProvider DirectoryProvider { get; private set; }
-
         public IFileProvider FileProvider { get; private set; }
-
         public IProcessRunner ProcessRunner { get; private set; }
+        public IMetadataGenerator MetadataGenerator { get; private set; }
+        public IProgramSettings ProgramSettings { get; private set; }
+        public List<IObserver> Observers { get; private set; }
     }
-
 }

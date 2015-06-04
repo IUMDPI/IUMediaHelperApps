@@ -10,6 +10,7 @@ using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
+using Packager.Test.Mocks;
 
 namespace Packager.Test.Engine
 {
@@ -28,7 +29,7 @@ namespace Packager.Test.Engine
         private static StandardEngine GetEngine(
             IProgramSettings settings = null,
             Dictionary<string, IProcessor> processors = null,
-            IDependencyProvider utilityProvider = null,
+            IDependencyProvider dependencyProvider = null,
             List<IObserver> observers = null)
         {
             if (settings == null)
@@ -40,21 +41,22 @@ namespace Packager.Test.Engine
             if (processors == null)
             {
                 var mockProcessor = Substitute.For<IProcessor>();
-                processors = new Dictionary<string, IProcessor> {{".wav", mockProcessor}};
+                processors = new Dictionary<string, IProcessor> { { ".wav", mockProcessor } };
             }
-
-            if (utilityProvider == null)
-            {
-                utilityProvider = Substitute.For<IDependencyProvider>();
-            }
+            
 
             if (observers == null)
             {
                 var mockObserver = Substitute.For<IObserver>();
-                observers = new List<IObserver> {mockObserver};
+                observers = new List<IObserver> { mockObserver };
             }
 
-            return new StandardEngine(settings, processors, utilityProvider, observers);
+            if (dependencyProvider == null)
+            {
+                dependencyProvider = MockDependencyProvider.Get(observers: observers, programSettings: settings);
+            }
+
+            return new StandardEngine(processors, dependencyProvider);
         }
 
         public class WhenEngineRunsWithoutIssues : EngineTests
@@ -74,7 +76,7 @@ namespace Packager.Test.Engine
             public void ItShouldWriteHelloMessage()
             {
                 var mockObserver = Substitute.For<IObserver>();
-                var engine = GetEngine(observers: new List<IObserver> {mockObserver});
+                var engine = GetEngine(observers: new List<IObserver> { mockObserver });
                 engine.Start();
 
                 mockObserver.Received().Log(Arg.Is("Starting {0}"), Arg.Any<DateTime>());
@@ -84,7 +86,7 @@ namespace Packager.Test.Engine
             public void ItShouldWriteGoodbyeMessage()
             {
                 var mockObserver = Substitute.For<IObserver>();
-                var engine = GetEngine(observers: new List<IObserver> {mockObserver});
+                var engine = GetEngine(observers: new List<IObserver> { mockObserver });
                 engine.Start();
 
                 mockObserver.Received().Log(Arg.Is("Completed {0}"), Arg.Any<DateTime>());
@@ -110,10 +112,9 @@ namespace Packager.Test.Engine
                         GetFileNameForBarCode(ProjectCode, BarCode2, ".mpeg")
                     });
 
-                var utilityProvider = Substitute.For<IDependencyProvider>();
-                utilityProvider.DirectoryProvider.ReturnsForAnyArgs(directoryProvider);
+                var utilityProvider = MockDependencyProvider.Get(directoryProvider: directoryProvider);
 
-                var engine = GetEngine(processors: processors, utilityProvider: utilityProvider);
+                var engine = GetEngine(processors: processors, dependencyProvider: utilityProvider);
                 engine.Start();
 
                 mockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode1)));
@@ -136,7 +137,7 @@ namespace Packager.Test.Engine
                 var utilityProvider = Substitute.For<IDependencyProvider>();
                 utilityProvider.DirectoryProvider.Returns(directoryProvider);
 
-                var engine = GetEngine(observers: new List<IObserver> {mockObserver}, utilityProvider: utilityProvider);
+                var engine = GetEngine(observers: new List<IObserver> { mockObserver }, dependencyProvider: utilityProvider);
                 engine.Start();
 
                 mockObserver.Received().Log(Arg.Is("Fatal Exception Occurred: {0}"), Arg.Is(exception));

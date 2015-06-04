@@ -2,20 +2,20 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
-using Packager.Models;
+using Packager.Models.ProcessResults;
 
 namespace Packager.Utilities
 {
     public interface IProcessRunner
     {
-        Task<ProcessResult> Run(ProcessStartInfo startInfo);
+        Task<IProcessResult> Run<T>(ProcessStartInfo startInfo) where T:AbstractProcessResult, new();
     }
 
     public class ProcessRunner : IProcessRunner
     {
-        public Task<ProcessResult> Run(ProcessStartInfo startInfo)
+        public Task<IProcessResult> Run<T>(ProcessStartInfo startInfo) where T:AbstractProcessResult, new()
         {
-            var completionSource = new TaskCompletionSource<ProcessResult>();
+            var completionSource = new TaskCompletionSource<IProcessResult>();
 
             // just in case
             startInfo.CreateNoWindow = true;
@@ -34,7 +34,8 @@ namespace Packager.Utilities
             process.ErrorDataReceived += new DataReceivedHandler(standardError).OnDataReceived;
             process.OutputDataReceived += new DataReceivedHandler(standardOutput).OnDataReceived;
 
-            process.Exited += new ProcessExitHandler(
+            process.Exited += new ProcessExitHandler<T>(
+                startInfo,
                 completionSource,
                 standardOutput,
                 standardError).OnExitHandler;
@@ -50,15 +51,17 @@ namespace Packager.Utilities
             return completionSource.Task;
         }
 
-        private class ProcessExitHandler
+        private class ProcessExitHandler<T> where T:AbstractProcessResult, new()
         {
-            private readonly TaskCompletionSource<ProcessResult> _completionSource;
+            private readonly ProcessStartInfo _startInfo;
+            private readonly TaskCompletionSource<IProcessResult> _completionSource;
             private readonly StringBuilder _standardErrorBuffer;
             private readonly StringBuilder _standardOutputBuffer;
 
-            public ProcessExitHandler(TaskCompletionSource<ProcessResult> completionSource,
+            public ProcessExitHandler(ProcessStartInfo startInfo, TaskCompletionSource<IProcessResult> completionSource,
                 StringBuilder standardOutputBuffer, StringBuilder standardErrorBuffer)
             {
+                _startInfo = startInfo;
                 _completionSource = completionSource;
                 _standardOutputBuffer = standardOutputBuffer;
                 _standardErrorBuffer = standardErrorBuffer;
@@ -73,8 +76,9 @@ namespace Packager.Utilities
                     return;
                 }
 
-                _completionSource.SetResult(new ProcessResult
+                _completionSource.SetResult(new T
                 {
+                    StartInfo = _startInfo,
                     ExitCode = process.ExitCode,
                     StandardOutput = _standardOutputBuffer.ToString(),
                     StandardError = _standardErrorBuffer.ToString()

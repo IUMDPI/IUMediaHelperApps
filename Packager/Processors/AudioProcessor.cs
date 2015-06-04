@@ -11,7 +11,7 @@ using Excel;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
-using Packager.Observers;
+using Packager.Models.ProcessResults;
 using Packager.Providers;
 using Packager.Utilities;
 
@@ -19,8 +19,8 @@ namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {
-        public AudioProcessor(IProgramSettings programSettings, IDependencyProvider dependencyProvider, List<IObserver> observers)
-            : base(programSettings, dependencyProvider, observers)
+        public AudioProcessor(IDependencyProvider dependencyProvider)
+            : base(dependencyProvider)
         {
         }
 
@@ -49,7 +49,7 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
-        public async override Task ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping)
+        public override async Task ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping)
         {
             Barcode = barcodeGrouping.Key;
 
@@ -59,6 +59,7 @@ namespace Packager.Processors
             Observers.LogHeader("Processing object {0}", Barcode);
 
             var excelSpreadSheet = GetExcelSpreadSheet(barcodeGrouping);
+            MoveFileToProcessing(excelSpreadSheet.ToFileName());
 
             Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
 
@@ -67,7 +68,7 @@ namespace Packager.Processors
                 .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion())
                 .ToList();
-            
+
             // now move them to processing
             foreach (var fileModel in filesToProcess)
             {
@@ -87,12 +88,12 @@ namespace Packager.Processors
             // then aggregate the results into the processed list
             foreach (var model in filesToProcess
                 .GroupBy(m => m.SequenceIndicator)
-                .Select(GetPreservationOrIntermediateModel))
+                .Select(g => g.GetPreservationOrIntermediateModel()))
             {
                 var derivatives = await CreateDerivatives(model);
                 processedList = processedList.Concat(derivatives).ToList();
             }
-          
+
             // now add metadata to eligible objects
             await AddMetadata(processedList);
 
@@ -109,22 +110,16 @@ namespace Packager.Processors
             // copy files
             // todo: make asyc
 
-            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f=>f))
+            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
             {
                 Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
-                File.Copy(
+                FileProvider.Copy(
                     Path.Combine(ProcessingDirectory, fileName),
                     Path.Combine(DropBoxDirectory, fileName));
             }
 
             // done - log new line
             Observers.Log("");
-        }
-
-        private static ObjectFileModel GetPreservationOrIntermediateModel<T>(IGrouping<T, ObjectFileModel> grouping)
-        {
-            var preservationIntermediate = grouping.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
-            return preservationIntermediate ?? grouping.SingleOrDefault(m => m.IsPreservationVersion());
         }
 
         private static ExcelFileModel GetExcelSpreadSheet(IEnumerable<AbstractFileModel> batchGrouping)
@@ -144,14 +139,14 @@ namespace Packager.Processors
 
             Observers.LogHeader("Generating Production Version: {0}", fileName);
             var prodModel = await CreateDerivative(
-                fileModel, 
+                fileModel,
                 ToProductionFileModel(fileModel),
                 AddNoOverwriteToFfmpegCommand(FFMPEGAudioProductionArguments));
 
             Observers.LogHeader("Generating AccessVersion: {0}", fileName);
             var accessModel = await CreateDerivative(
-                prodModel, 
-                ToAccessFileModel(prodModel), 
+                prodModel,
+                ToAccessFileModel(prodModel),
                 AddNoOverwriteToFfmpegCommand(FFMPEGAudioAccessArguments));
 
             // return models for files
@@ -190,11 +185,11 @@ namespace Packager.Processors
                 CreateNoWindow = true
             };
 
-            var result = await ProcessRunner.Run(startInfo);
+            var result = await ProcessRunner.Run<FFMPEGProcessResult>(startInfo);
 
             Observers.Log(result.StandardError);
 
-            if (result.ExitCode != 0)
+            if (!result.Succeeded())
             {
                 throw new Exception(string.Format("Could not generate derivative: {0}", result.ExitCode));
             }
@@ -233,7 +228,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task AddMetadata(ObjectFileModel fileModel, BextData data)
+        private async Task AddMetadata(AbstractFileModel fileModel, BextData data)
         {
             var targetPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName());
             Observers.LogHeader("Embedding Metadata: {0}", fileModel.ToFileName());
@@ -254,11 +249,11 @@ namespace Packager.Processors
                 CreateNoWindow = true
             };
 
-            var result = await ProcessRunner.Run(startInfo);
+            var result = await ProcessRunner.Run<BwfMetaEditProcessResult>(startInfo);
 
             Observers.Log(result.StandardOutput);
 
-            if (result.ExitCode != 0 || !SuccessMessagePresent(targetPath, result.StandardOutput))
+            if (!result.Succeeded())
             {
                 throw new Exception(string.Format("Could not insert BEXT Data: {0}", result.ExitCode));
             }
@@ -266,7 +261,7 @@ namespace Packager.Processors
 
         private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
         {
-            var wrapper = new IU {Carrier = GenerateCarrierDataModel(excelModel, filesToProcess)};
+            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(excelModel, filesToProcess, ProcessingDirectory)};
             var xml = XmlExporter.GenerateXml(wrapper);
 
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
@@ -274,7 +269,7 @@ namespace Packager.Processors
             return result;
         }
 
-        private CarrierData GenerateCarrierDataModel(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
+        /*private CarrierData GenerateCarrierDataModel(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
         {
             MoveFileToProcessing(excelModel.ToFileName());
             IExcelDataReader excelReader = null;
@@ -303,9 +298,9 @@ namespace Packager.Processors
                     excelReader.Close();
                 }
             }
-        }
+        }*/
 
-        private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, DataRow row)
+        /*private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, DataRow row)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -322,16 +317,16 @@ namespace Packager.Processors
                 }
 
                 var sideData = ImportSideData(row, grouping.Key.Value);
-                AddIngestMetadata(sideData, GetPreservationOrIntermediateModel(grouping));
+                AddIngestMetadata(sideData, grouping.GetPreservationOrIntermediateModel());
                 sideData.Files = grouping.Select(GetFileData).ToList();
 
                 result.Add(sideData);
             }
 
             return result.ToArray();
-        }
+        }*/
 
-        private void AddIngestMetadata(SideData sideData, ObjectFileModel preservationObjectFileModel)
+        /*private void AddIngestMetadata(SideData sideData, ObjectFileModel preservationObjectFileModel)
         {
             var targetPath = Path.Combine(ProcessingDirectory, preservationObjectFileModel.ToFileName());
             var info = new FileInfo(targetPath);
@@ -353,12 +348,13 @@ namespace Packager.Processors
             var nothingToDo = string.Format("{0}: nothing to do", fileName).ToLowerInvariant();
             return output.ToLowerInvariant().Contains(success) || output.ToLowerInvariant().Contains(nothingToDo);
         }
-
+*/
         private void SaveXmlFile(string filename, string xml)
         {
             File.WriteAllText(Path.Combine(ProcessingDirectory, filename), xml);
         }
 
+/*
         private static SideData ImportSideData(DataRow row, int sideValue)
         {
             return new SideData
@@ -373,5 +369,6 @@ namespace Packager.Processors
                 }
             };
         }
+*/
     }
 }

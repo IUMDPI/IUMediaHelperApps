@@ -12,25 +12,23 @@ namespace Packager.Engine
 {
     public class StandardEngine : IEngine
     {
-        private readonly List<IObserver> _observers;
+        private  List<IObserver> Observers {get { return _dependencyProvider.Observers; }}
         private readonly Dictionary<string, IProcessor> _processors;
-        private readonly IProgramSettings _programSettings;
-        private readonly IDependencyProvider _utilityProvider;
+        private IProgramSettings ProgramSettings {get { return _dependencyProvider.ProgramSettings; }}
+        private readonly IDependencyProvider _dependencyProvider;
 
-        public StandardEngine(IProgramSettings programSettings,
+        public StandardEngine(
             Dictionary<string, IProcessor> processors,
-            IDependencyProvider utilityProvider,
-            List<IObserver> observers)
+            IDependencyProvider dependencyProvider)
         {
-            _programSettings = programSettings;
+            _dependencyProvider = dependencyProvider;
             _processors = processors;
-            _utilityProvider = utilityProvider;
-            _observers = observers;
+            
         }
 
         private IDirectoryProvider DirectoryProvider
         {
-            get { return _utilityProvider.DirectoryProvider; }
+            get { return _dependencyProvider.DirectoryProvider; }
         }
 
         public void Start()
@@ -38,7 +36,7 @@ namespace Packager.Engine
             try
             {
                 WriteHelloMessage();
-                _programSettings.Verify();
+                ProgramSettings.Verify();
 
                 // this factory will assign each extension
                 // to the appropriate file model
@@ -49,10 +47,10 @@ namespace Packager.Engine
                 // and then take all of the files that are valid
                 // and start with the correct project code
                 // and then group them by barcode
-                var batchGroups = DirectoryProvider.EnumerateFiles(_programSettings.InputDirectory)
+                var batchGroups = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
                     .Select(p => factory.GetModel(p))
                     .Where(f => f.IsValid())
-                    .Where(f => f.BelongsToProject(_programSettings.ProjectCode))
+                    .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
                     .GroupBy(f => f.BarCode).ToList();
 
                 // todo: catch exception and prompt user to retry, ignore, or cancel
@@ -69,18 +67,18 @@ namespace Packager.Engine
             }
             catch (Exception ex)
             {
-                _observers.Log("Fatal Exception Occurred: {0}", ex);
+                Observers.Log("Fatal Exception Occurred: {0}", ex);
             }
         }
 
         public void AddObserver(IObserver observer)
         {
-            if (_observers.Any(instance => instance.GetType() == observer.GetType()))
+            if (Observers.Any(instance => instance.GetType() == observer.GetType()))
             {
                 return;
             }
 
-            _observers.Add(observer);
+            Observers.Add(observer);
         }
 
         private IProcessor GetProcessor(IEnumerable<AbstractFileModel> group)
@@ -104,12 +102,12 @@ namespace Packager.Engine
 
         private void WriteHelloMessage()
         {
-            _observers.Log("Starting {0}", DateTime.Now);
+            Observers.Log("Starting {0}", DateTime.Now);
         }
 
         private void WriteGoodbyeMessage()
         {
-            _observers.Log("Completed {0}", DateTime.Now);
+            Observers.Log("Completed {0}", DateTime.Now);
         }
     }
 }

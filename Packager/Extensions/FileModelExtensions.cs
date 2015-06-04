@@ -1,4 +1,5 @@
-﻿using Packager.Models.FileModels;
+﻿using System.Linq;
+using Packager.Models.FileModels;
 
 namespace Packager.Extensions
 {
@@ -23,5 +24,13 @@ namespace Packager.Extensions
         {
             return fileModel is UnknownFileModel;
         }
+
+
+        public static ObjectFileModel GetPreservationOrIntermediateModel<T>(this IGrouping<T, ObjectFileModel> grouping)
+        {
+            var preservationIntermediate = grouping.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
+            return preservationIntermediate ?? grouping.SingleOrDefault(m => m.IsPreservationVersion());
+        }
+
     }
 }

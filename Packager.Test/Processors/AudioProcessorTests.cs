@@ -45,70 +45,72 @@ namespace Packager.Test.Processors
                 settings = MockProgramSettings.Get();
             }
 
-            if (dependencyProvider == null)
-            {
-                dependencyProvider = MockDependencyProvider.Get();
-            }
-
             if (observers == null)
             {
                 observers = new List<IObserver>();
             }
 
-            return new AudioProcessor(settings, dependencyProvider, observers);
+            if (dependencyProvider == null)
+            {
+                dependencyProvider = MockDependencyProvider.Get(programSettings: settings, observers: observers);
+            }
+
+
+
+            return new AudioProcessor(dependencyProvider);
         }
 
         [Test]
-        public void ItShouldCreateProcessingDirectoryWithUpperCaseProjectName()
+        public async void ItShouldCreateProcessingDirectoryWithUpperCaseProjectName()
         {
             var directoryProvider = Substitute.For<IDirectoryProvider>();
             var dependencyProvider = MockDependencyProvider.Get(directoryProvider: directoryProvider);
 
             var processor = GetProcessor(dependencyProvider: dependencyProvider);
 
-            processor.ProcessFile(GetGrouping());
+            await processor.ProcessFile(GetGrouping());
 
             var expectedDirectory = Path.Combine(
-                MockProgramSettings.ProcessingDirectory, 
+                MockProgramSettings.ProcessingDirectory,
                 string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), BarCode1));
 
             directoryProvider.Received().CreateDirectory(Arg.Is(expectedDirectory));
         }
 
         [Test]
-        public void ItShouldLogBatchProcessingHeader()
+        public async void ItShouldLogBatchProcessingHeader()
         {
             var mockObserver = Substitute.For<IObserver>();
             var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
 
-            processor.ProcessFile(GetGrouping());
+            await processor.ProcessFile(GetGrouping());
 
             mockObserver.Received().LogHeader(Arg.Is("Processing object {0}"), Arg.Is(BarCode1));
         }
 
         [Test]
-        public void ItShouldLogExcelSpreadsheet()
+        public async void ItShouldLogExcelSpreadsheet()
         {
             var mockObserver = Substitute.For<IObserver>();
             var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
 
-            processor.ProcessFile(GetGrouping());
+            await processor.ProcessFile(GetGrouping());
 
             mockObserver.Received().Log(Arg.Is("Spreadsheet: {0}"), Arg.Is(ExcelFileName));
         }
 
         [Test]
-        public void ItShouldLogFilesMovedToProcesings()
+        public async void ItShouldLogFilesMovedToProcesings()
         {
             var mockObserver = Substitute.For<IObserver>();
             var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
 
-            processor.ProcessFile(GetGrouping());
+            await processor.ProcessFile(GetGrouping());
 
             mockObserver.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(WavFileName1));
             mockObserver.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(WavFileName2));
         }
-        
+
         [Test]
         public void ItShouldThrowExceptionIfNoSpreadSheetModelPresent()
         {
@@ -116,7 +118,7 @@ namespace Packager.Test.Processors
             var grouping = new List<AbstractFileModel> { _wavModel1, _wavModel2 }
                 .GroupBy(m => m.BarCode).First();
 
-            var exception = Assert.Throws<Exception>(() => processor.ProcessFile(grouping));
+            var exception = Assert.Throws<Exception>(async () => await processor.ProcessFile(grouping));
             Assert.That(exception.Message, Is.EqualTo("No input data spreadsheet in batch"));
 
         }

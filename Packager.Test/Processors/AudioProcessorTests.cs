@@ -100,7 +100,7 @@ namespace Packager.Test.Processors
         }
 
         [Test]
-        public async void ItShouldLogFilesMovedToProccessingDirectory()
+        public async void ItShouldLogFilesMovedToProcessingDirectory()
         {
             var mockObserver = Substitute.For<IObserver>();
             var processor = GetProcessor(observers: new List<IObserver> { mockObserver });

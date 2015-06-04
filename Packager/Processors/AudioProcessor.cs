@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Principal;
 using System.Threading.Tasks;
-using Excel;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.ProcessResults;
 using Packager.Providers;
-using Packager.Utilities;
 
 namespace Packager.Processors
 {
@@ -65,7 +60,7 @@ namespace Packager.Processors
 
             var filesToProcess = barcodeGrouping
                 .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel)m)
+                .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion())
                 .ToList();
 
@@ -100,7 +95,7 @@ namespace Packager.Processors
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = GenerateXml(excelSpreadSheet,
-                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel)m).ToList());
+                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
 
             processedList.Add(xmlModel);
 
@@ -150,7 +145,7 @@ namespace Packager.Processors
                 AddNoOverwriteToFfmpegCommand(FFMPEGAudioAccessArguments));
 
             // return models for files
-            return new List<ObjectFileModel> { prodModel, accessModel };
+            return new List<ObjectFileModel> {prodModel, accessModel};
         }
 
         private static string AddNoOverwriteToFfmpegCommand(string arguments)
@@ -198,7 +193,7 @@ namespace Packager.Processors
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList)
         {
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel)m)
+                .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsAccessVersion() == false).ToList();
 
             if (!filesToAddMetadata.Any())
@@ -247,18 +242,17 @@ namespace Packager.Processors
 
         private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
         {
-            var wrapper = new IU { Carrier = MetadataGenerator.GenerateMetadata(excelModel, filesToProcess, ProcessingDirectory) };
+            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(excelModel, filesToProcess, ProcessingDirectory)};
             var xml = XmlExporter.GenerateXml(wrapper);
 
-            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
+            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
             SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);
             return result;
         }
-        
+
         private void SaveXmlFile(string filename, string xml)
         {
             File.WriteAllText(Path.Combine(ProcessingDirectory, filename), xml);
         }
-
     }
 }

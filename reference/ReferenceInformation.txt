@@ -49,6 +49,41 @@ Things to do:
 14) need to get latest ffmpeg version
 
 
+
+
+Audio Command-lines
+
+Preservation-Master / Production (from Brian’s perl script): 
+
+extension: .wav
+format-short-name: wav
+audio-stream-count: 1
+stream-duration: 1
+bits-per-sample: 24
+sample-rate: 96000
+codec-name: pcm_241e
+channels: [1,2]
+
+<add key ="ffmpegAudioProductionArguments" value="-c:a pcm_s24le -b:a 128k -strict -2 -ar 96000 "/>
+
+It looks like the pcm_s24le codec works with our build of ffmpeg.  The “-ar” part specifies that the sample rate should be 96000.  The pcm_s241e part sets the bits per sample to 24.  I’m not sure what to do with channels.  It looks like if you don’t specify arguments, it keeps the original channels?
+
+Access
+
+extension: mp4
+format-short-name: mp4
+audio-stream-count: 1
+stream-duration: 1
+sample-rate: 48000
+codec-name: aac
+channels: 2
+
+<add key ="ffmpegAudioAccessArguments" value="-c:a aac -b:a 128k -strict -2 -ar 48000"/>
+
+Same as the above, generally, but the –ar is set to 48000 now.
+
+
+
 A couple of useful command lines :
 
 1°) Find out available and supported decklink devices : ffmpeg -f decklink -list_devices 1 -i dummy
@@ -116,7 +151,7 @@ ffmpeg.exe ^
    -f matroska ^
    d:\test.mkv
 
-
+   
 
    From Brian:
    ---------------------------------------------------------------------------------

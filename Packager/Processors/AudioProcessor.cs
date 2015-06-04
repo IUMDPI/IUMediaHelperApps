@@ -65,7 +65,7 @@ namespace Packager.Processors
 
             var filesToProcess = barcodeGrouping
                 .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel) m)
+                .Select(m => (ObjectFileModel)m)
                 .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion())
                 .ToList();
 
@@ -100,7 +100,7 @@ namespace Packager.Processors
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = GenerateXml(excelSpreadSheet,
-                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
+                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel)m).ToList());
 
             processedList.Add(xmlModel);
 
@@ -150,7 +150,7 @@ namespace Packager.Processors
                 AddNoOverwriteToFfmpegCommand(FFMPEGAudioAccessArguments));
 
             // return models for files
-            return new List<ObjectFileModel> {prodModel, accessModel};
+            return new List<ObjectFileModel> { prodModel, accessModel };
         }
 
         private static string AddNoOverwriteToFfmpegCommand(string arguments)
@@ -195,24 +195,10 @@ namespace Packager.Processors
             }
         }
 
-        private FileData GetFileData(ObjectFileModel objectFileModel)
-        {
-            var hasher = new Hasher();
-            var filePath = Path.Combine(ProcessingDirectory, objectFileModel.ToFileName());
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                return new FileData
-                {
-                    Checksum = hasher.Hash(stream),
-                    FileName = Path.GetFileName(filePath)
-                };
-            }
-        }
-
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList)
         {
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel) m)
+                .Select(m => (ObjectFileModel)m)
                 .Where(m => m.IsAccessVersion() == false).ToList();
 
             if (!filesToAddMetadata.Any())
@@ -261,114 +247,18 @@ namespace Packager.Processors
 
         private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
         {
-            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(excelModel, filesToProcess, ProcessingDirectory)};
+            var wrapper = new IU { Carrier = MetadataGenerator.GenerateMetadata(excelModel, filesToProcess, ProcessingDirectory) };
             var xml = XmlExporter.GenerateXml(wrapper);
 
-            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
+            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
             SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);
             return result;
         }
-
-        /*private CarrierData GenerateCarrierDataModel(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
-        {
-            MoveFileToProcessing(excelModel.ToFileName());
-            IExcelDataReader excelReader = null;
-            try
-            {
-                var targetPath = Path.Combine(ProcessingDirectory, excelModel.ToFileName());
-                using (var stream = new FileStream(targetPath, FileMode.Open, FileAccess.Read))
-                {
-                    excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
-
-                    excelReader.IsFirstRowAsColumnNames = true;
-                    var dataSet = excelReader.AsDataSet();
-
-                    var row = dataSet.Tables["InputData"].Rows[0];
-
-                    var result = (CarrierData) ExcelImporter.Import(row);
-                    result.Parts.Sides = GenerateSideData(filesToProcess, row);
-
-                    return result;
-                }
-            }
-            finally
-            {
-                if (excelReader != null)
-                {
-                    excelReader.Close();
-                }
-            }
-        }*/
-
-        /*private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, DataRow row)
-        {
-            var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
-            if (!sideGroupings.Any())
-            {
-                throw new Exception("Could not determine side groupings");
-            }
-
-            var result = new List<SideData>();
-            foreach (var grouping in sideGroupings)
-            {
-                if (!grouping.Key.HasValue)
-                {
-                    throw new Exception("One or more groupings has an invalid sequence value");
-                }
-
-                var sideData = ImportSideData(row, grouping.Key.Value);
-                AddIngestMetadata(sideData, grouping.GetPreservationOrIntermediateModel());
-                sideData.Files = grouping.Select(GetFileData).ToList();
-
-                result.Add(sideData);
-            }
-
-            return result.ToArray();
-        }*/
-
-        /*private void AddIngestMetadata(SideData sideData, ObjectFileModel preservationObjectFileModel)
-        {
-            var targetPath = Path.Combine(ProcessingDirectory, preservationObjectFileModel.ToFileName());
-            var info = new FileInfo(targetPath);
-            info.Refresh();
-
-            sideData.Ingest.Date = info.CreationTime.ToString(DateFormat, CultureInfo.InvariantCulture);
-
-            var owner = info.GetAccessControl().GetOwner(typeof (NTAccount)).Value;
-            var userInfo = UserInfoResolver.Resolve(owner);
-
-            sideData.Ingest.CreatedBy = userInfo.DisplayName;
-
-            sideData.Ingest.ExtractionWorkstation = Environment.MachineName;
-        }
-
-        private static bool SuccessMessagePresent(string fileName, string output)
-        {
-            var success = string.Format("{0}: is modified", fileName).ToLowerInvariant();
-            var nothingToDo = string.Format("{0}: nothing to do", fileName).ToLowerInvariant();
-            return output.ToLowerInvariant().Contains(success) || output.ToLowerInvariant().Contains(nothingToDo);
-        }
-*/
+        
         private void SaveXmlFile(string filename, string xml)
         {
             File.WriteAllText(Path.Combine(ProcessingDirectory, filename), xml);
         }
 
-/*
-        private static SideData ImportSideData(DataRow row, int sideValue)
-        {
-            return new SideData
-            {
-                Side = sideValue.ToString(CultureInfo.InvariantCulture),
-                Files = new List<FileData>(),
-                ManualCheck = row[string.Format("Part-Side-{0}-ManualCheck", sideValue)].ToString(),
-                Ingest = new IngestData
-                {
-                    SpeedUsed = row[string.Format("Part-Side-{0}-Speed_used", sideValue)].ToString(),
-                    Comments = row[string.Format("Part-Side-{0}-Comments", sideValue)].ToString()
-                }
-            };
-        }
-*/
     }
 }

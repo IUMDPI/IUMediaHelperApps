@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
@@ -175,6 +177,17 @@ namespace Packager.Processors
         protected IMetadataGenerator MetadataGenerator
         {
             get { return _dependencyProvider.MetadataGenerator; }
+        }
+
+        protected async Task<PodMetadata> GetMetadata()
+        {
+            var metadata = await MetadataProvider.Get(Barcode);
+            if (!metadata.Success)
+            {
+                throw new Exception(string.Format("Could not retrieve metadata: {0}", metadata.Message.ToDefaultIfEmpty("[no error message present]")));
+            }
+
+            return metadata;
         }
     }
 }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Packager.Models;
+using Packager.Models.PodMetadataModels;
 using RestSharp;
 
 namespace Packager.Providers
@@ -13,14 +10,14 @@ namespace Packager.Providers
         Task<PodMetadata> Get(string barcode);
     }
 
-    class PodMetadataProvider : IPodMetadataProvider
+    internal class PodMetadataProvider : IPodMetadataProvider
     {
-        private IProgramSettings ProgramSettings { get; set; }
-
         public PodMetadataProvider(IProgramSettings programSettings)
         {
             ProgramSettings = programSettings;
         }
+
+        private IProgramSettings ProgramSettings { get; set; }
 
         public async Task<PodMetadata> Get(string barcode)
         {
@@ -30,10 +27,10 @@ namespace Packager.Providers
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
             };
 
-            var request = new RestRequest();
+            var request = new RestRequest {DateFormat = "yyyy-MM-ddTHH:mm:sszzz"};
 
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
-
+           
             return response.Data;
         }
     }

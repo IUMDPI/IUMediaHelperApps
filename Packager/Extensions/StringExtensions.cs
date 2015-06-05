@@ -7,12 +7,14 @@
             return string.Format("\"{0}\"", value);
         }
 
-        public static string ToDefaultIfEmpty(this string value)
+        public static string ToDefaultIfEmpty(this string value, string defaultValue = "")
         {
             return string.IsNullOrWhiteSpace(value) 
-                ? string.Empty 
+                ? defaultValue
                 : value;
         }
+
+        
 
         public static int? ToInteger(this string value)
         {

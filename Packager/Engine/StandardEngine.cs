@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
@@ -31,7 +32,7 @@ namespace Packager.Engine
             get { return _dependencyProvider.DirectoryProvider; }
         }
 
-        public void Start()
+        public async Task Start()
         {
             try
             {
@@ -60,7 +61,7 @@ namespace Packager.Engine
                 foreach (var group in batchGroups)
                 {
                     var processor = GetProcessor(group);
-                    processor.ProcessFile(group);
+                    await processor.ProcessFile(group);
                 }
 
                 WriteGoodbyeMessage();

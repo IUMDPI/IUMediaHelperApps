@@ -1,10 +1,11 @@
-﻿using Packager.Observers;
+﻿using System.Threading.Tasks;
+using Packager.Observers;
 
 namespace Packager.Engine
 {
     public interface IEngine
     {
-        void Start();
+        Task Start();
         void AddObserver(IObserver observer);
     }
 }

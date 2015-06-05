@@ -48,8 +48,7 @@ namespace Packager.Processors
         {
             Barcode = barcodeGrouping.Key;
 
-            var metadata = await MetadataProvider.Get(Barcode);
-            
+            var metadata = await GetMetadata();
             
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
@@ -222,7 +221,7 @@ namespace Packager.Processors
 
         private async Task AddMetadata(string targetPath, BextData data)
         {
-            var args = string.Format("--verbose --append {0} {1}", string.Join(" ", data.GenerateCommandArgs()), targetPath);
+            var args = string.Format("--verbose --Append {0} {1}", string.Join(" ", data.GenerateCommandArgs()), targetPath);
 
             var startInfo = new ProcessStartInfo(BWFMetaEditPath)
             {

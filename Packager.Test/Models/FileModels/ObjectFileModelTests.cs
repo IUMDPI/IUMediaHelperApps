@@ -15,19 +15,19 @@ namespace Packager.Test.Models.FileModels
         }
 
         private const string Barcode = "4890764553278906";
-        private const string ProjectCode = "mdpi";
+        private const string ProjectCode = "MDPI";
         private const string SequenceIndicator = "01";
         private const string Extension = ".wav";
-        private const string GoodPreservationFileName = "mdpi_4890764553278906_01_pres.wav";
-        private const string GoodProductionFileName = "mdpi_4890764553278906_01_prod.wav";
-        private const string GoodMezzanineFileName = "mdpi_4890764553278906_01_mezz.wav";
-        private const string GoodAccessFileName = "mdpi_4890764553278906_01_access.wav";
+        private const string GoodPreservationFileName = "MDPI_4890764553278906_01_pres.wav";
+        private const string GoodProductionFileName = "MDPI_4890764553278906_01_prod.wav";
+        private const string GoodMezzanineFileName = "MDPI_4890764553278906_01_mezz.wav";
+        private const string GoodAccessFileName = "MDPI_4890764553278906_01_access.wav";
         
         private const string NoProjectCodeFileName = "4890764553278906_01_pres.wav";
-        private const string NoBarcodeFileName = "mdpi_01_pres.wav";
-        private const string NoSequenceIndicatorFileName = "mdpi_4890764553278906_pres.wav";
-        private const string NoUseFileName = "mdpi_4890764553278906_01.wav";
-        private const string NoExtensionFileName = "mdpi_4890764553278906_01_pres";
+        private const string NoBarcodeFileName = "MDPI_01_pres.wav";
+        private const string NoSequenceIndicatorFileName = "MDPI_4890764553278906_pres.wav";
+        private const string NoUseFileName = "MDPI_4890764553278906_01.wav";
+        private const string NoExtensionFileName = "MDPI_4890764553278906_01_pres";
         private const string AnotherBadFileName = "badFormat.wav";
         private const string EmptyFileName = "";
         private const string NullFileName = "";

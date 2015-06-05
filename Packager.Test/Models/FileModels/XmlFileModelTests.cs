@@ -7,12 +7,12 @@ namespace Packager.Test.Models.FileModels
     public class XmlFileModelTests
     {
         private const string Barcode = "4890764553278906";
-        private const string ProjectCode = "mdpi";
+        private const string ProjectCode = "MDPI";
         private const string Extension = ".xml";
-        private const string GoodFileName = "mdpi_4890764553278906.xml";
+        private const string GoodFileName = "MDPI_4890764553278906.xml";
         private const string NoProjectCodeFileName = "4890764553278906.xml";
-        private const string NoBarcodeFileName = "mdpi.xml";
-        private const string NoExtensionFileName = "mdpi_4890764553278906";
+        private const string NoBarcodeFileName = "MDPI.xml";
+        private const string NoExtensionFileName = "MDPI_4890764553278906";
         private const string AnotherBadFileName = "badFormat.xml";
         private const string EmptyFileName = "";
         private const string NullFileName = "";

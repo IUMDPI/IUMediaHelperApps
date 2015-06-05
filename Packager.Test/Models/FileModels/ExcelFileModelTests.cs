@@ -7,12 +7,12 @@ namespace Packager.Test.Models.FileModels
     public class ExcelFileModelTests
     {
         private const string Barcode = "4890764553278906";
-        private const string ProjectCode = "mdpi";
+        private const string ProjectCode = "MDPI";
         private const string Extension = ".xlsx";
-        private const string GoodFileName = "mdpi_4890764553278906.xlsx";
+        private const string GoodFileName = "MDPI_4890764553278906.xlsx";
         private const string NoProjectCodeFileName = "4890764553278906.xlsx";
         private const string NoBarcodeFileName = "mdpi.xlsx";
-        private const string NoExtensionFileName = "mdpi_4890764553278906";
+        private const string NoExtensionFileName = "MDPI_4890764553278906";
         private const string AnotherBadFileName = "badFormat.xlsx";
         private const string EmptyFileName = "";
         private const string NullFileName = "";

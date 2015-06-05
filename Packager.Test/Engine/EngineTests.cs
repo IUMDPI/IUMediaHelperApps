@@ -134,8 +134,9 @@ namespace Packager.Test.Engine
 
                 directoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(r => { throw exception; });
 
-                var utilityProvider = Substitute.For<IDependencyProvider>();
-                utilityProvider.DirectoryProvider.Returns(directoryProvider);
+                var utilityProvider = MockDependencyProvider.Get(
+                    directoryProvider: directoryProvider, 
+                    observers: new List<IObserver> {mockObserver});        
 
                 var engine = GetEngine(observers: new List<IObserver> { mockObserver }, dependencyProvider: utilityProvider);
                 engine.Start();

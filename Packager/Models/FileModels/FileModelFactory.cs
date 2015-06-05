@@ -16,7 +16,7 @@ namespace Packager.Models.FileModels
                 generators[processorExtension] = path => new ObjectFileModel(path);
             }
 
-            generators[".xlsx"] = path => new ExcelFileModel(path);
+            //generators[".xlsx"] = path => new ExcelFileModel(path);
 
             _generators = generators;
         }

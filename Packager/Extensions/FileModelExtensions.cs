@@ -5,11 +5,6 @@ namespace Packager.Extensions
 {
     public static class FileModelExtensions
     {
-        public static bool IsExcelModel(this AbstractFileModel fileModel)
-        {
-            return fileModel is ExcelFileModel;
-        }
-
         public static bool IsObjectModel(this AbstractFileModel fileModel)
         {
             return fileModel is ObjectFileModel;

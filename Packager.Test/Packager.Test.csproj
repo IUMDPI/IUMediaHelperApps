@@ -69,7 +69,6 @@
     <Compile Include="Mocks\MockGrouping.cs" />
     <Compile Include="Mocks\MockProgramSettings.cs" />
     <Compile Include="Models\FileModels\ObjectFileModelTests.cs" />
-    <Compile Include="Models\FileModels\ExcelFileModelTests.cs" />
     <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
     <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />
     <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />

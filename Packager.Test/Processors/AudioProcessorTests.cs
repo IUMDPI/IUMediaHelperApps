@@ -27,14 +27,13 @@ namespace Packager.Test.Processors
 
         private const string InvalidFileName = "MDPI_4890764553278906_pres.wav";
 
-        private readonly ExcelFileModel _excelModel = new ExcelFileModel(ExcelFileName);
         private readonly ObjectFileModel _wavModel1 = new ObjectFileModel(PreservationFileName1);
         private readonly ObjectFileModel _wavModel2 = new ObjectFileModel(PreservationFileName2);
         private readonly ObjectFileModel _invalidFileModel = new ObjectFileModel(InvalidFileName);
 
         private IGrouping<string, AbstractFileModel> GetGrouping()
         {
-            var list = new List<AbstractFileModel> { _excelModel, _wavModel1, _wavModel2 };
+            var list = new List<AbstractFileModel> {_wavModel1, _wavModel2 };
             return list.GroupBy(m => m.BarCode).First();
         }
 

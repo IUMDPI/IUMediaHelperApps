@@ -38,11 +38,6 @@ namespace Packager.Processors
         protected abstract string PreservationFileExtension { get; }
         protected abstract string PreservationIntermediateFileExtenstion { get; }
 
-        protected IExcelImporter ExcelImporter
-        {
-            get { return _dependencyProvider.CarrierDataExcelImporter; }
-        }
-
         protected IPodMetadataProvider MetadataProvider
         {
             get { return _dependencyProvider.MetadataProvider; }

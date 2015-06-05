@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.PodMetadataModels;
 using Packager.Models.ProcessResults;
 using Packager.Providers;
 
@@ -54,12 +55,7 @@ namespace Packager.Processors
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
             Observers.LogHeader("Processing object {0}", Barcode);
-
-            var excelSpreadSheet = GetExcelSpreadSheet(barcodeGrouping);
-            MoveFileToProcessing(excelSpreadSheet.ToFileName());
-
-            Observers.Log("Spreadsheet: {0}", excelSpreadSheet.ToFileName());
-
+            
             var filesToProcess = barcodeGrouping
                 .Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
@@ -96,7 +92,7 @@ namespace Packager.Processors
 
             // using the list of files that have been processed
             // make the xml file
-            var xmlModel = GenerateXml(excelSpreadSheet,
+            var xmlModel = GenerateXml(metadata,
                 processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
 
             processedList.Add(xmlModel);
@@ -117,17 +113,6 @@ namespace Packager.Processors
 
             // done - log new line
             Observers.Log("");
-        }
-
-        private static ExcelFileModel GetExcelSpreadSheet(IEnumerable<AbstractFileModel> batchGrouping)
-        {
-            var result = batchGrouping.SingleOrDefault(m => m.IsExcelModel());
-            if (result == null)
-            {
-                throw new Exception("No input data spreadsheet in batch");
-            }
-
-            return result as ExcelFileModel;
         }
 
         public override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
@@ -242,9 +227,9 @@ namespace Packager.Processors
             }
         }
 
-        private XmlFileModel GenerateXml(ExcelFileModel excelModel, List<ObjectFileModel> filesToProcess)
+        private XmlFileModel GenerateXml(PodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
-            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(excelModel, filesToProcess, ProcessingDirectory)};
+            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(metadata, filesToProcess, ProcessingDirectory)};
             var xml = XmlExporter.GenerateXml(wrapper);
 
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};

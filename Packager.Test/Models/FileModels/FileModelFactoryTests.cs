@@ -9,7 +9,6 @@ namespace Packager.Test.Models.FileModels
     {
         private const string WavExtension = ".wav";
         private const string Mp4Extension = ".mp4";
-        private const string ExcelFileName = "mdpi_4890764553278906.xlsx";
         private const string WavFileName = "mdpi_4890764553278906_01_pres.wav";
         private const string Mp4FileName = "mdpi_5890764553278906_01_pres.mp4";
         private const string UnknownFilename = "unknown.txt";
@@ -28,14 +27,7 @@ namespace Packager.Test.Models.FileModels
             var result = _factory.GetModel(filename);
             Assert.That(result as ObjectFileModel, Is.Not.Null);
         }
-
-        [Test]
-        public void ShouldGenerateCorrectModelForExcelFiles()
-        {
-            var result = _factory.GetModel(ExcelFileName);
-            Assert.That(result as ExcelFileModel, Is.Not.Null);
-        }
-
+        
         [Test]
         public void ShouldAssignUnknownFileModelToOtherFileExtensions()
         {

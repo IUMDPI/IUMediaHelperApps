@@ -72,7 +72,6 @@
     <Compile Include="Models\FileModels\AbstractFileModel.cs" />
     <Compile Include="Models\BakingData.cs" />
     <Compile Include="Models\FileModels\ObjectFileModel.cs" />
-    <Compile Include="Models\FileModels\ExcelFileModel.cs" />
     <Compile Include="Models\FileModels\XmlFileModel.cs" />
     <Compile Include="Models\IU.cs" />
     <Compile Include="Models\ConfigurationData.cs" />
@@ -120,14 +119,13 @@
     <Compile Include="Processors\AudioProcessor.cs" />
     <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Providers\IPodMetadataProvider.cs" />
-    <Compile Include="Utilities\ExcelImporter.cs" />
     <Compile Include="Utilities\IBextDataProvider.cs" />
-    <Compile Include="Utilities\IExcelImporter.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\CarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Utilities\IMetadataGenerator.cs" />
     <Compile Include="Utilities\IProcessRunner.cs" />
+    <Compile Include="Utilities\MetadataGenerator.cs" />
     <Compile Include="Utilities\StandInBextDataProvider.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\IUserInfoResolver.cs" />

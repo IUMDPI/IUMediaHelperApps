@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models;
-using Packager.Models.ProcessResults;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
@@ -13,7 +11,6 @@ namespace Packager.Test.Mocks
     {
         public static IDependencyProvider Get(
             IBextDataProvider bextDataProvider = null,
-            IExcelImporter carrierDataImporter = null,
             IDirectoryProvider directoryProvider = null,
             IFileProvider fileProvider = null,
             IHasher hasher = null,
@@ -41,11 +38,6 @@ namespace Packager.Test.Mocks
             if (hasher == null)
             {
                 hasher = Substitute.For<IHasher>();
-            }
-
-            if (carrierDataImporter == null)
-            {
-                carrierDataImporter = Substitute.For<IExcelImporter>();
             }
 
             if (userResolver == null)
@@ -76,7 +68,6 @@ namespace Packager.Test.Mocks
             var result = Substitute.For<IDependencyProvider>();
 
             result.BextDataProvider.Returns(bextDataProvider);
-            result.CarrierDataExcelImporter.Returns(carrierDataImporter);
             result.DirectoryProvider.Returns(directoryProvider);
             result.FileProvider.Returns(fileProvider);
             result.Hasher.Returns(hasher);

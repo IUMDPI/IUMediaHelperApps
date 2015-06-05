@@ -41,6 +41,11 @@ namespace Packager.Processors
             get { return _dependencyProvider.CarrierDataExcelImporter; }
         }
 
+        protected IPodMetadataProvider MetadataProvider
+        {
+            get { return _dependencyProvider.MetadataProvider; }
+        }
+
         protected IBextDataProvider BextDataProvider
         {
             get { return _dependencyProvider.BextDataProvider; }

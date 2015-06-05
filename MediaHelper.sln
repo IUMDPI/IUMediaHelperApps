@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{
 		reference\InputTemplate.xlsx = reference\InputTemplate.xlsx
 		reference\IU_PID_1.0_technical_only.docx = reference\IU_PID_1.0_technical_only.docx
 		reference\MemnonReference.xml = reference\MemnonReference.xml
+		reference\Pod-Output.xml = reference\Pod-Output.xml
 		reference\ReferenceInformation.txt = reference\ReferenceInformation.txt
 	EndProjectSection
 EndProject

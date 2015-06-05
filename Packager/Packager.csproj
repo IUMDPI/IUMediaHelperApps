@@ -42,6 +42,10 @@
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp, Version=105.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.1.0\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -75,6 +79,8 @@
     <Compile Include="Models\CleaningData.cs" />
     <Compile Include="Models\FileData.cs" />
     <Compile Include="Models\IngestData.cs" />
+    <Compile Include="Models\PodAuth.cs" />
+    <Compile Include="Models\PodMetadata.cs" />
     <Compile Include="Models\ProcessResults\AbstractProcessResult.cs" />
     <Compile Include="Models\ProcessResults\BwfMetaEditProcessResult.cs" />
     <Compile Include="Models\ProcessResults\FFMPEGProcessResult.cs" />
@@ -101,6 +107,7 @@
     <Compile Include="Processors\AbstractProcessor.cs" />
     <Compile Include="Processors\AudioProcessor.cs" />
     <Compile Include="Providers\IFileProvider.cs" />
+    <Compile Include="Providers\IPodMetadataProvider.cs" />
     <Compile Include="Utilities\ExcelImporter.cs" />
     <Compile Include="Utilities\IBextDataProvider.cs" />
     <Compile Include="Utilities\IExcelImporter.cs" />

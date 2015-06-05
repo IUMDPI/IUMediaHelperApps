@@ -20,6 +20,7 @@ namespace Packager.Providers
             ProgramSettings = programSettings;
             MetadataGenerator = new FromExcelMetadataGenerator(FileProvider, Hasher, CarrierDataExcelImporter, ProgramSettings, UserInfoResolver);
             Observers = observers;
+            MetadataProvider = new PodMetadataProvider(ProgramSettings);
         }
 
         public IExcelImporter CarrierDataExcelImporter { get; private set; }
@@ -33,5 +34,6 @@ namespace Packager.Providers
         public IMetadataGenerator MetadataGenerator { get; private set; }
         public IProgramSettings ProgramSettings { get; private set; }
         public List<IObserver> Observers { get; private set; }
+        public IPodMetadataProvider MetadataProvider { get; private set; }
     }
 }

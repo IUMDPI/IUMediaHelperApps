@@ -42,11 +42,13 @@ Things to do:
 7) add timezone after date values (done = 6/3 - bm)
 8) project code should be upper-case when saved (done = 6/3 - bm)
 9) can have up to 4 parts (sides)
-10) need to add path to auth file in program settings
+10) need to add path to auth file in program settings (done = 6/5 bm)
 11) In metadata need to add file use after description
 12) in metadata need to add original file name (without extension) to description
 13) need to figure out what extensions to use for audio (done = 6/4/bm -- .wav for prod .mp4 for access)
 14) need to get latest ffmpeg version
+15) if something goes right, move to "success" folder
+16) if somethings goes wrong, move to "error" folder, send email, and log
 
 
 

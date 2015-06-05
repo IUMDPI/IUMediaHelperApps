@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pod>
+  <success>true</success>
+  <data>
+    <object>
+      <basics>
+        <format>CD-R</format>
+        <files>1</files>
+      </basics>
+      <assignment>
+        <unit>B-CSHM</unit>
+        <group_key>GR00061390</group_key>
+        <spreadsheet>qc_import_cdr.csv</spreadsheet>
+      </assignment>
+      <details>
+        <id>66720</id>
+        <bin-id nil="true"/>
+        <box-id nil="true"/>
+        <picklist-id nil="true"/>
+        <container-id nil="true"/>
+        <title>QC CD-R Title</title>
+        <title-control-number></title-control-number>
+        <home-location></home-location>
+        <call-number></call-number>
+        <iucat-barcode>0</iucat-barcode>
+        <format>CD-R</format>
+        <collection-identifier>qc_data</collection-identifier>
+        <mdpi-barcode>49000000000011</mdpi-barcode>
+        <format-duration></format-duration>
+        <has-ephemera>false</has-ephemera>
+        <created-at>2015-04-13T12:41:59-04:00</created-at>
+        <updated-at>2015-05-28T11:14:06-04:00</updated-at>
+        <author>QC CD-R Author</author>
+        <catalog-key></catalog-key>
+        <collection-name>Brian's QC data</collection-name>
+        <generation>Original</generation>
+        <oclc-number></oclc-number>
+        <other-copies>false</other-copies>
+        <year>1942</year>
+        <unit-id>33</unit-id>
+        <group-key-id>61390</group-key-id>
+        <group-position>1</group-position>
+        <ephemera-returned>false</ephemera-returned>
+        <spreadsheet-id>58</spreadsheet-id>
+        <workflow-status>Unassigned</workflow-status>
+        <workflow-index>1</workflow-index>
+        <staging-requested>false</staging-requested>
+        <staged>false</staged>
+        <digital-start>2015-05-28T11:14:06-04:00</digital-start>
+        <staging-request-timestamp nil="true"/>
+        <audio>true</audio>
+        <video>false</video>
+        <memnon-qc-completed>false</memnon-qc-completed>
+        <workflow-statuses>
+          <workflow-status>
+            <id>132037</id>
+            <workflow-status-template-id>35</workflow-status-template-id>
+            <physical-object-id>66720</physical-object-id>
+            <batch-id nil="true"/>
+            <bin-id nil="true"/>
+            <notes nil="true"/>
+            <created-at>2015-04-13T12:41:59-04:00</created-at>
+            <updated-at>2015-04-24T16:53:15-04:00</updated-at>
+            <user>aploshay</user>
+            <has-ephemera>false</has-ephemera>
+            <ephemera-returned>false</ephemera-returned>
+            <ephemera-okay nil="true"/>
+          </workflow-status>
+        </workflow-statuses>
+        <notes/>
+        <condition-statuses/>
+      </details>
+      <technical_metadata>
+        <damage>None</damage>
+        <format_duration></format_duration>
+        <preservation-problems/>
+      </technical_metadata>
+      <digital_provenance>
+      </digital_provenance>
+    </object>
+  </data>
+</pod>

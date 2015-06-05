@@ -48,6 +48,9 @@ namespace Packager.Processors
         {
             Barcode = barcodeGrouping.Key;
 
+            var metadata = await MetadataProvider.Get(Barcode);
+            
+            
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 

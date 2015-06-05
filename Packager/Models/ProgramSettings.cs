@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.IO;
+using System.Xml.Serialization;
 
 namespace Packager.Models
 {
@@ -18,6 +19,8 @@ namespace Packager.Models
         string ProjectCode { get; }
         string DropBoxDirectoryName { get; }
         string DateFormat { get; }
+        PodAuth PodAuth { get; }
+        string BaseWebServiceUrlFormat { get; }
         void Verify();
     }
 
@@ -33,6 +36,9 @@ namespace Packager.Models
             FFMPEGAudioAccessArguments = settings["ffmpegAudioAccessArguments"];
             ProjectCode = settings["ProjectCode"];
             DropBoxDirectoryName = settings["DropBoxDirectoryName"];
+            BaseWebServiceUrlFormat = settings["BaseWebServiceUrlFormat"];
+
+            PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
         }
 
         public string BWFMetaEditPath { get; private set; }
@@ -49,6 +55,7 @@ namespace Packager.Models
             get { return "yyyy-MM-dd HH:mm:ss \"GMT\"zzz"; }
         }
 
+        public PodAuth PodAuth { get; private set; }
 
         public void Verify()
         {
@@ -75,6 +82,17 @@ namespace Packager.Models
             if (!Directory.Exists(DropBoxDirectoryName))
             {
                 throw new DirectoryNotFoundException(DropBoxDirectoryName);
+            }
+        }
+
+        public string BaseWebServiceUrlFormat { get; private set; }
+
+        private static PodAuth GetAuthorization(string path)
+        {
+            var serializer = new XmlSerializer(typeof (PodAuth));
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                return (PodAuth) serializer.Deserialize(stream);
             }
         }
     }

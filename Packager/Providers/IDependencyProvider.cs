@@ -18,5 +18,6 @@ namespace Packager.Providers
         IMetadataGenerator MetadataGenerator { get; }
         IProgramSettings ProgramSettings { get; }
         List<IObserver> Observers { get; }
+        IPodMetadataProvider MetadataProvider { get;}
     }
 }

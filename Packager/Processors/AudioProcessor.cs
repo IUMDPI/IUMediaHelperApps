@@ -252,7 +252,7 @@ namespace Packager.Processors
 
         private void SaveXmlFile(string filename, string xml)
         {
-            File.WriteAllText(Path.Combine(ProcessingDirectory, filename), xml);
+            FileProvider.WriteAllText(Path.Combine(ProcessingDirectory, filename), xml);
         }
     }
 }

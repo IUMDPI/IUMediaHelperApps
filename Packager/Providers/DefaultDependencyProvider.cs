@@ -18,7 +18,7 @@ namespace Packager.Providers
             FileProvider = new FileProvider();
             ProcessRunner = new ProcessRunner();
             ProgramSettings = programSettings;
-            MetadataGenerator = new FromExcelMetadataGenerator(CarrierDataExcelImporter, ProgramSettings, UserInfoResolver);
+            MetadataGenerator = new FromExcelMetadataGenerator(FileProvider, Hasher, CarrierDataExcelImporter, ProgramSettings, UserInfoResolver);
             Observers = observers;
         }
 

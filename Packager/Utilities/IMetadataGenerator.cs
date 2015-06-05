@@ -9,6 +9,7 @@ using Excel;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Providers;
 
 namespace Packager.Utilities
 {
@@ -19,19 +20,34 @@ namespace Packager.Utilities
 
     public class FromExcelMetadataGenerator : IMetadataGenerator
     {
-        private IUserInfoResolver UserInfoResolver { get; set; }
+        private readonly IDependencyProvider _dependencyProvider;
 
-        private readonly IExcelImporter _excelImporter;
-        private readonly IProgramSettings _programSettings;
-
-        public FromExcelMetadataGenerator(IExcelImporter excelImporter, IProgramSettings programSettings, IUserInfoResolver userInfoResolver)
+        public FromExcelMetadataGenerator(IFileProvider fileProvider, IHasher hasher, IExcelImporter excelImporter, IProgramSettings programSettings, IUserInfoResolver userInfoResolver)
         {
+            FileProvider = fileProvider;
+            Hasher = hasher;
+            ExcelImporter = excelImporter;
+            ProgramSettings = programSettings;
             UserInfoResolver = userInfoResolver;
-            _excelImporter = excelImporter;
-            _programSettings = programSettings;
         }
 
-        private string DateFormat { get { return _programSettings.DateFormat; } }
+        private IUserInfoResolver UserInfoResolver { get; set; }
+        
+        private IFileProvider FileProvider { get; set; }
+
+        private IExcelImporter ExcelImporter
+        { get; set; }
+
+        private IProgramSettings ProgramSettings
+        { get; set; }
+
+        private string DateFormat
+        {
+            get { return ProgramSettings.DateFormat; }
+        }
+
+        private IHasher Hasher
+        { get; set; }
 
         public CarrierData GenerateMetadata(ExcelFileModel excelModel, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
         {
@@ -48,7 +64,7 @@ namespace Packager.Utilities
 
                     var row = dataSet.Tables["InputData"].Rows[0];
 
-                    var result = (CarrierData)_excelImporter.Import(row);
+                    var result = (CarrierData) ExcelImporter.Import(row);
                     result.Parts.Sides = GenerateSideData(filesToProcess, row, processingDirectory);
 
                     return result;
@@ -62,7 +78,7 @@ namespace Packager.Utilities
                 }
             }
         }
-
+        
         private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, DataRow row, string processingDirectory)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
@@ -92,12 +108,12 @@ namespace Packager.Utilities
         private void AddIngestMetadata(SideData sideData, ObjectFileModel preservationObjectFileModel, string processingDirectory)
         {
             var targetPath = Path.Combine(processingDirectory, preservationObjectFileModel.ToFileName());
-            var info = new FileInfo(targetPath);
+            var info = FileProvider.GetFileInfo(targetPath);
             info.Refresh();
 
             sideData.Ingest.Date = info.CreationTime.ToString(DateFormat, CultureInfo.InvariantCulture);
 
-            var owner = info.GetAccessControl().GetOwner(typeof(NTAccount)).Value;
+            var owner = info.GetAccessControl().GetOwner(typeof (NTAccount)).Value;
             var userInfo = UserInfoResolver.Resolve(owner);
 
             sideData.Ingest.CreatedBy = userInfo.DisplayName;
@@ -120,15 +136,14 @@ namespace Packager.Utilities
             };
         }
 
-        private FileData GetFileData(ObjectFileModel objectFileModel, string processingDirectory)
+        private FileData GetFileData(AbstractFileModel objectFileModel, string processingDirectory)
         {
-            var hasher = new Hasher();
             var filePath = Path.Combine(processingDirectory, objectFileModel.ToFileName());
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
                 return new FileData
                 {
-                    Checksum = hasher.Hash(stream),
+                    Checksum = Hasher.Hash(stream),
                     FileName = Path.GetFileName(filePath)
                 };
             }

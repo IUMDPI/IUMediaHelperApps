@@ -1,0 +1,62 @@
+﻿<?xml version="1.0"?>
+<IU xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Carrier type="OpenReel">
+    <Identifier>12079</Identifier>
+    <Barcode>40000000089666</Barcode>
+    <Configuration>
+      <Track>Half track</Track>
+      <SoundField>Stereo</SoundField>
+      <Speed>7.5 ips</Speed>
+    </Configuration>
+    <Brand>Scotch 208</Brand>
+    <Thickness>1.5</Thickness>
+    <DirectionsRecorded>1</DirectionsRecorded>
+    <PhysicalCondition>
+      <Damage>None</Damage>
+      <PreservationProblem />
+    </PhysicalCondition>
+    <Repaired>No</Repaired>
+    <Preview>
+      <Comments />
+    </Preview>
+    <Cleaning>
+      <Date xsi:nil="true" />
+    </Cleaning>
+    <Baking>
+      <Date xsi:nil="true" />
+    </Baking>
+    <Parts>
+      <DigitizingEntity>Memnon Archiving Services Inc</DigitizingEntity>
+      <Part Side="1">
+        <Ingest>
+          <Date>2015-06-02</Date>
+          <Comments />
+          <Created_by>kgweinbe</Created_by>
+          <Player_serial_number>12553</Player_serial_number>
+          <Player_manufacturer>Studer</Player_manufacturer>
+          <Player_model>A807MK2</Player_model>
+          <AD_serial_number />
+          <AD_manufacturer>Noa Audio Solutions</AD_manufacturer>
+          <AD_model>N6191</AD_model>
+          <Extraction_workstation>NoaRec-01</Extraction_workstation>
+          <Speed_used>7.5 ips</Speed_used>
+        </Ingest>
+        <ManualCheck>No</ManualCheck>
+        <Files>
+          <File>
+            <FileName>MDPI_40000000089666_01_pres.wav</FileName>
+            <CheckSum>5A84DE3449226CF23FF3807D3B567E21</CheckSum>
+          </File>
+          <File>
+            <FileName>MDPI_40000000089666_01_prod.wav</FileName>
+            <CheckSum>71D5785DD374F082D7203DB459579949</CheckSum>
+          </File>
+          <File>
+            <FileName>MDPI_40000000089666_01_access.mp4</FileName>
+            <CheckSum>27978E7AEF4EA41FD8E8F7A6F61E507E</CheckSum>
+          </File>
+        </Files>
+      </Part>
+    </Parts>
+  </Carrier>
+</IU>

@@ -14,13 +14,13 @@ namespace Packager.Test.Mocks
             if (bwfMetaEditResult == null)
             {
                 bwfMetaEditResult = Substitute.For<IProcessResult>();
-                bwfMetaEditResult.Succeeded().ReturnsForAnyArgs(true);
+                bwfMetaEditResult.ExitCode.ReturnsForAnyArgs(0);
             }
 
             if (ffmpegResult == null)
             {
                 ffmpegResult = Substitute.For<IProcessResult>();
-                ffmpegResult.Succeeded().ReturnsForAnyArgs(true);
+                ffmpegResult.ExitCode.ReturnsForAnyArgs(0);
             }
 
             runner.Run(null).ReturnsForAnyArgs(Task.FromResult(bwfMetaEditResult));

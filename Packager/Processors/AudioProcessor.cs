@@ -10,13 +10,14 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
+using Packager.Verifiers;
 
 namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {
         // todo: figure out how to get this
-        private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library.";
+        private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
 
         public AudioProcessor(IDependencyProvider dependencyProvider)
             : base(dependencyProvider)
@@ -105,7 +106,6 @@ namespace Packager.Processors
 
             // copy files
             // todo: make asyc
-
             foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
             {
                 Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
@@ -174,7 +174,8 @@ namespace Packager.Processors
 
             Observers.Log(result.StandardError);
 
-            if (!result.Succeeded())
+            var verifier = new FFMPEGVerifier(result.ExitCode);
+            if (!verifier.Verify())
             {
                 throw new Exception(string.Format("Could not generate derivative: {0}", result.ExitCode));
             }
@@ -191,52 +192,16 @@ namespace Packager.Processors
                 throw new Exception("Could not add metadata: no eligible files");
             }
 
-            var xml = GenerateMetadataXml(filesToAddMetadata, podMetadata);
+            var xml = new ConformancePointDocumentFactory(FileProvider, ProcessingDirectory, DigitizingEntity, TempInstitution)
+                .Get(filesToAddMetadata, podMetadata);
+
             await AddMetadata(xml);
-        }
-
-        private ConformancePointDocument GenerateMetadataXml(IEnumerable<ObjectFileModel> filesToAddMetadata, PodMetadata metadata)
-        {
-            var result = new ConformancePointDocument
-            {
-                File = (from fileModel in filesToAddMetadata
-                    let fullPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName())
-                    let fileInfo = FileProvider.GetFileInfo(fullPath)
-                    select new ConformancePointDocumentFile
-                    {
-                        Name = fullPath,
-                        Core = new ConformancePointDocumentFileCore
-                        {
-                            Originator = DigitizingEntity,
-                            OriginatorReference = Path.GetFileNameWithoutExtension(fileModel.ToFileName()),
-                            Description = GetBextDescription(metadata, fileModel),
-                            ICMT = GetBextDescription(metadata, fileModel),
-                            IARL = TempInstitution,
-                            OriginationDate = fileInfo.CreationTime.ToString("yyyy:MM:dd"),
-                            OriginationTime = fileInfo.CreationTime.ToString("HH:mm:ss"),
-                            TimeReference = "0",
-                            ICRD = fileInfo.CreationTime.ToString("yyyy:MM:dd"),
-                            INAM = metadata.Data.Object.Details.Title
-                        }
-                    }).ToArray()
-            };
-
-            return result;
-        }
-
-        private static string GetBextDescription(PodMetadata metadata, ObjectFileModel fileModel)
-        {
-            return string.Format("{0}. {1}. File use: {2}. {3}",
-                TempInstitution,
-                metadata.Data.Object.Details.CallNumber,
-                fileModel.FullFileUse, fileModel.ToFileName());
         }
 
         private async Task AddMetadata(ConformancePointDocument xml)
         {
-            var xmlText = XmlExporter.GenerateXml(xml);
             var xmlPath = Path.Combine(ProcessingDirectory, "core.xml");
-            FileProvider.WriteAllText(xmlPath, xmlText);
+            XmlExporter.ExportToFile(xml, xmlPath);
 
             var args = string.Format("--verbose --Append --in-core={0}", xmlPath.ToQuoted());
 
@@ -253,35 +218,26 @@ namespace Packager.Processors
 
             Observers.Log(result.StandardOutput);
 
-            VerifyBwfOutput(result.StandardOutput.ToLowerInvariant(),
-                xml.File.Select(f => f.Name.ToLowerInvariant()).ToArray());
-        }
+            var verifier = new BwfMetaEditResultsVerifier(
+                result.StandardOutput.ToLowerInvariant(),
+                xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(),
+                Observers);
 
-        private void VerifyBwfOutput(string output, string[] paths)
-        {
-            foreach (var path in from path in paths
-                let modified = string.Format("{0}: is modified", path)
-                let nothingToDo = string.Format("{0}: nothing to do", path)
-                where !output.Contains(modified) && !output.Contains(nothingToDo)
-                select path)
+            if (!verifier.Verify())
             {
-                throw new Exception(string.Format("Could not add metadata to {0}", path));
+                throw new Exception("Could not add metadata to one or more files!");
             }
         }
 
-        private XmlFileModel GenerateXml(PodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        private XmlFileModel GenerateXml(PodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
+            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
             var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(metadata, filesToProcess, ProcessingDirectory)};
-            var xml = XmlExporter.GenerateXml(wrapper);
-
-            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
-            SaveXmlFile(string.Format(result.ToFileName(), ProjectCode, Barcode), xml);
+            XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
+            
             return result;
         }
 
-        private void SaveXmlFile(string filename, string xml)
-        {
-            FileProvider.WriteAllText(Path.Combine(ProcessingDirectory, filename), xml);
-        }
+        
     }
 }

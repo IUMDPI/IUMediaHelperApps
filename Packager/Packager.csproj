@@ -59,6 +59,7 @@
     <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
+    <Compile Include="Models\BextModels\ConformancePointDocumentFactory.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFileCore.cs" />
     <Compile Include="Models\FileModels\FileModelFactory.cs" />
@@ -119,6 +120,9 @@
     <Compile Include="Utilities\IUserInfoResolver.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />
     <Compile Include="Providers\DefaultDependencyProvider.cs" />
+    <Compile Include="Verifiers\BwfMetaeditResultsVerifier.cs" />
+    <Compile Include="Verifiers\FFMPEGVerifier.cs" />
+    <Compile Include="Verifiers\IVerifier.cs" />
     <EmbeddedResource Include="OutputForm.resx">
       <DependentUpon>OutputForm.cs</DependentUpon>
     </EmbeddedResource>

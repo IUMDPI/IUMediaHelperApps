@@ -7,6 +7,7 @@ namespace Packager.Utilities
     public interface IXmlExporter
     {
         string GenerateXml(object o);
+        void ExportToFile(object o, string path);
     }
 
     internal class XmlExporter : IXmlExporter
@@ -24,6 +25,13 @@ namespace Packager.Utilities
                 }
                 return textWriter.ToString();
             }
+        }
+
+        public void ExportToFile(object o, string path)
+        {
+            var xml = GenerateXml(o);
+            File.WriteAllText(path, xml);
+
         }
     }
 }

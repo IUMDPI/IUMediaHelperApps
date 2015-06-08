@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace Packager.Models
+namespace Packager.Models.OutputModels
 {
     [Serializable]
     public class IngestData

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Packager.Models
+namespace Packager.Models.OutputModels
 {
     [Serializable]
     public class PreviewData

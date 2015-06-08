@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.ProcessResults;
 using Packager.Providers;
@@ -48,13 +49,15 @@ namespace Packager.Processors
         public override async Task ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping)
         {
             Barcode = barcodeGrouping.Key;
+            Observers.LogHeader("Processing object {0}", Barcode);
 
+            // fetch metadata
             var metadata = await GetMetadata();
             
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
-            Observers.LogHeader("Processing object {0}", Barcode);
+         
             
             var filesToProcess = barcodeGrouping
                 .Where(m => m.IsObjectModel())

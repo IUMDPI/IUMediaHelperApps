@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Packager.Models
+namespace Packager.Models.OutputModels
 {
     [Serializable]
-    public class BakingData
+    public class CleaningData
     {
         public string Date { get; set; }
     }

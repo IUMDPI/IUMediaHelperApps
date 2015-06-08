@@ -176,6 +176,8 @@ namespace Packager.Processors
 
         protected async Task<PodMetadata> GetMetadata()
         {
+            Observers.Log("Requesting metadata for object: {0}", Barcode);
+            
             var metadata = await MetadataProvider.Get(Barcode);
             if (!metadata.Success)
             {

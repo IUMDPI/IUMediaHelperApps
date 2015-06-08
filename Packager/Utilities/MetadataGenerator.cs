@@ -8,6 +8,7 @@ using System.Security.Principal;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
 
@@ -34,12 +35,19 @@ namespace Packager.Utilities
 
         private IHasher Hasher { get; set; }
 
-        public CarrierData GenerateMetadata(PodMetadata excelModel, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+        public CarrierData GenerateMetadata(PodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
         {
-            return new CarrierData();
-        }
+            var result = CarrierData.FromPodMetadata(podMetadata);
+            result.Parts = new PartsData
+            {
+                DigitizingEntity = ProgramSettings.DigitizingEntity,
+                Sides = GenerateSideData(filesToProcess, processingDirectory)
+            };
 
-        private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, DataRow row, string processingDirectory)
+            return result;
+        }
+        
+        private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -55,7 +63,7 @@ namespace Packager.Utilities
                     throw new Exception("One or more groupings has an invalid sequence value");
                 }
 
-                var sideData = ImportSideData(row, grouping.Key.Value);
+                var sideData = ImportSideData(grouping.Key.Value);
                 AddIngestMetadata(sideData, grouping.GetPreservationOrIntermediateModel(), processingDirectory);
                 sideData.Files = grouping.Select(m => GetFileData(m, processingDirectory)).ToList();
 
@@ -81,17 +89,17 @@ namespace Packager.Utilities
             sideData.Ingest.ExtractionWorkstation = Environment.MachineName;
         }
 
-        private static SideData ImportSideData(DataRow row, int sideValue)
+        private static SideData ImportSideData(int sideValue)
         {
             return new SideData
             {
                 Side = sideValue.ToString(CultureInfo.InvariantCulture),
                 Files = new List<FileData>(),
-                ManualCheck = row[string.Format("Part-Side-{0}-ManualCheck", sideValue)].ToString(),
+                ManualCheck = "Unknown",
                 Ingest = new IngestData
                 {
-                    SpeedUsed = row[string.Format("Part-Side-{0}-Speed_used", sideValue)].ToString(),
-                    Comments = row[string.Format("Part-Side-{0}-Comments", sideValue)].ToString()
+                    SpeedUsed = "Unknown",
+                    Comments = "Unknown"
                 }
             };
         }

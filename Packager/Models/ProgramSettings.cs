@@ -21,6 +21,7 @@ namespace Packager.Models
         string DateFormat { get; }
         PodAuth PodAuth { get; }
         string BaseWebServiceUrlFormat { get; }
+        string DigitizingEntity { get; }
         void Verify();
     }
 
@@ -37,7 +38,7 @@ namespace Packager.Models
             ProjectCode = settings["ProjectCode"];
             DropBoxDirectoryName = settings["DropBoxDirectoryName"];
             BaseWebServiceUrlFormat = settings["BaseWebServiceUrlFormat"];
-
+            DigitizingEntity = settings["DigitizingEntity"];
             PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
         }
 
@@ -56,6 +57,7 @@ namespace Packager.Models
         }
 
         public PodAuth PodAuth { get; private set; }
+        public string DigitizingEntity { get; private set; }
 
         public void Verify()
         {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace Packager.Models
+namespace Packager.Models.OutputModels
 {
     [Serializable]
     public class SideData

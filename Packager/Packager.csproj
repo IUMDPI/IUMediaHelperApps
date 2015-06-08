@@ -52,8 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\ExcelFieldAttribute.cs" />
-    <Compile Include="Attributes\ExcelObjectAttribute.cs" />
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />

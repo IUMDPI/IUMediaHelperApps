@@ -12,8 +12,8 @@ namespace Packager.Models.FileModels
         private const string MezzanineFileUse = "mezz";
         private const string ProductionFileUse = "prod";
 
-        private const string PreservationFileUseLongName = "Preservation master";
-        private const string ProductionFileUseLongName = "Production master";
+        private const string PreservationFileUseLongName = "Preservation Master";
+        private const string ProductionFileUseLongName = "Production Master";
 
         private ObjectFileModel()
         {

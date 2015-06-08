@@ -12,6 +12,9 @@ namespace Packager.Models.FileModels
         private const string MezzanineFileUse = "mezz";
         private const string ProductionFileUse = "prod";
 
+        private const string PreservationFileUseLongName = "Preservation master";
+        private const string ProductionFileUseLongName = "Production master";
+
         private ObjectFileModel()
         {
         }
@@ -26,7 +29,26 @@ namespace Packager.Models.FileModels
         }
 
         public string SequenceIndicator { get; set; }
+
         private string FileUse { get; set; }
+
+        public string FullFileUse
+        {
+            get
+            {
+                if (IsPreservationIntermediateVersion() || IsPreservationVersion())
+                {
+                    return PreservationFileUseLongName;
+                }
+
+                if (IsProductionVersion())
+                {
+                    return ProductionFileUseLongName;
+                }
+
+                return "Unknown";
+            }
+        }
 
         private ObjectFileModel ToNewModel(string newFileUse, string newExension)
         {

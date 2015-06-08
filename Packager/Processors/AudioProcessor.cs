@@ -5,17 +5,19 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Packager.Extensions;
-using Packager.Models;
+using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.ProcessResults;
 using Packager.Providers;
 
 namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {
+        // todo: figure out how to get this
+        private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library.";
+
         public AudioProcessor(IDependencyProvider dependencyProvider)
             : base(dependencyProvider)
         {
@@ -53,12 +55,10 @@ namespace Packager.Processors
 
             // fetch metadata
             var metadata = await GetMetadata();
-            
+
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
-         
-            
             var filesToProcess = barcodeGrouping
                 .Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
@@ -91,7 +91,7 @@ namespace Packager.Processors
             }
 
             // now add metadata to eligible objects
-            await AddMetadata(processedList);
+            await AddMetadata(processedList, metadata);
 
             // using the list of files that have been processed
             // make the xml file
@@ -170,7 +170,7 @@ namespace Packager.Processors
                 CreateNoWindow = true
             };
 
-            var result = await ProcessRunner.Run<FFMPEGProcessResult>(startInfo);
+            var result = await ProcessRunner.Run(startInfo);
 
             Observers.Log(result.StandardError);
 
@@ -180,7 +180,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList)
+        private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, PodMetadata podMetadata)
         {
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
@@ -191,25 +191,54 @@ namespace Packager.Processors
                 throw new Exception("Could not add metadata: no eligible files");
             }
 
-            var data = BextDataProvider.GetMetadata(Barcode);
+            var xml = GenerateMetadataXml(filesToAddMetadata, podMetadata);
+            await AddMetadata(xml);
+        }
 
-            foreach (var fileModel in filesToAddMetadata)
+        private ConformancePointDocument GenerateMetadataXml(IEnumerable<ObjectFileModel> filesToAddMetadata, PodMetadata metadata)
+        {
+            var result = new ConformancePointDocument
             {
-                await AddMetadata(fileModel, data);
-            }
+                File = (from fileModel in filesToAddMetadata
+                    let fullPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName())
+                    let fileInfo = FileProvider.GetFileInfo(fullPath)
+                    select new ConformancePointDocumentFile
+                    {
+                        Name = fullPath,
+                        Core = new ConformancePointDocumentFileCore
+                        {
+                            Originator = DigitizingEntity,
+                            OriginatorReference = Path.GetFileNameWithoutExtension(fileModel.ToFileName()),
+                            Description = GetBextDescription(metadata, fileModel),
+                            ICMT = GetBextDescription(metadata, fileModel),
+                            IARL = TempInstitution,
+                            OriginationDate = fileInfo.CreationTime.ToString("yyyy:MM:dd"),
+                            OriginationTime = fileInfo.CreationTime.ToString("HH:mm:ss"),
+                            TimeReference = "0",
+                            ICRD = fileInfo.CreationTime.ToString("yyyy:MM:dd"),
+                            INAM = metadata.Data.Object.Details.Title
+                        }
+                    }).ToArray()
+            };
+
+            return result;
         }
 
-        private async Task AddMetadata(AbstractFileModel fileModel, BextData data)
+        private static string GetBextDescription(PodMetadata metadata, ObjectFileModel fileModel)
         {
-            var targetPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName());
-            Observers.LogHeader("Embedding Metadata: {0}", fileModel.ToFileName());
-
-            await AddMetadata(targetPath, data);
+            return string.Format("{0}. {1}. File use: {2}. {3}",
+                TempInstitution,
+                metadata.Data.Object.Details.CallNumber,
+                fileModel.FullFileUse, fileModel.ToFileName());
         }
 
-        private async Task AddMetadata(string targetPath, BextData data)
+        private async Task AddMetadata(ConformancePointDocument xml)
         {
-            var args = string.Format("--verbose --Append {0} {1}", string.Join(" ", data.GenerateCommandArgs()), targetPath);
+            var xmlText = XmlExporter.GenerateXml(xml);
+            var xmlPath = Path.Combine(ProcessingDirectory, "core.xml");
+            FileProvider.WriteAllText(xmlPath, xmlText);
+
+            var args = string.Format("--verbose --Append --in-core={0}", xmlPath.ToQuoted());
 
             var startInfo = new ProcessStartInfo(BWFMetaEditPath)
             {
@@ -220,13 +249,23 @@ namespace Packager.Processors
                 CreateNoWindow = true
             };
 
-            var result = await ProcessRunner.Run<BwfMetaEditProcessResult>(startInfo);
+            var result = await ProcessRunner.Run(startInfo);
 
             Observers.Log(result.StandardOutput);
 
-            if (!result.Succeeded())
+            VerifyBwfOutput(result.StandardOutput.ToLowerInvariant(),
+                xml.File.Select(f => f.Name.ToLowerInvariant()).ToArray());
+        }
+
+        private void VerifyBwfOutput(string output, string[] paths)
+        {
+            foreach (var path in from path in paths
+                let modified = string.Format("{0}: is modified", path)
+                let nothingToDo = string.Format("{0}: nothing to do", path)
+                where !output.Contains(modified) && !output.Contains(nothingToDo)
+                select path)
             {
-                throw new Exception(string.Format("Could not insert BEXT Data: {0}", result.ExitCode));
+                throw new Exception(string.Format("Could not add metadata to {0}", path));
             }
         }
 

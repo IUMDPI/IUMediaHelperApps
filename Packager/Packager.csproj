@@ -58,6 +58,9 @@
     <Compile Include="Extensions\FileModelExtensions.cs" />
     <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
+    <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />
+    <Compile Include="Models\BextModels\ConformancePointDocumentFileCore.cs" />
     <Compile Include="Models\FileModels\FileModelFactory.cs" />
     <Compile Include="Models\FileModels\AbstractFileModel.cs" />
     <Compile Include="Models\OutputModels\BakingData.cs" />
@@ -82,9 +85,7 @@
     <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataTapeBase.cs" />
     <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataTapeThickness.cs" />
     <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataTrackConfiguration.cs" />
-    <Compile Include="Models\ProcessResults\AbstractProcessResult.cs" />
-    <Compile Include="Models\ProcessResults\BwfMetaEditProcessResult.cs" />
-    <Compile Include="Models\ProcessResults\FFMPEGProcessResult.cs" />
+    <Compile Include="Models\ProcessResults\ProcessResult.cs" />
     <Compile Include="Models\ProcessResults\IAbstractProcessResult.cs" />
     <Compile Include="Models\OutputModels\SideData.cs" />
     <Compile Include="Models\OutputModels\PartsData.cs" />
@@ -98,7 +99,6 @@
     <Compile Include="OutputForm.Designer.cs">
       <DependentUpon>OutputForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\BextData.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Observers\FormOutputObserver.cs" />
     <Compile Include="Observers\IObserver.cs" />
@@ -109,14 +109,12 @@
     <Compile Include="Processors\AudioProcessor.cs" />
     <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Providers\IPodMetadataProvider.cs" />
-    <Compile Include="Utilities\IBextDataProvider.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Utilities\IMetadataGenerator.cs" />
     <Compile Include="Utilities\IProcessRunner.cs" />
     <Compile Include="Utilities\MetadataGenerator.cs" />
-    <Compile Include="Utilities\StandInBextDataProvider.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\IUserInfoResolver.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />

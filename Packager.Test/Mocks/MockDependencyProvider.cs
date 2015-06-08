@@ -10,7 +10,7 @@ namespace Packager.Test.Mocks
     public static class MockDependencyProvider
     {
         public static IDependencyProvider Get(
-            IBextDataProvider bextDataProvider = null,
+            
             IDirectoryProvider directoryProvider = null,
             IFileProvider fileProvider = null,
             IHasher hasher = null,
@@ -20,11 +20,6 @@ namespace Packager.Test.Mocks
             IXmlExporter xmlExporter = null,
             List<IObserver> observers = null)
         {
-            if (bextDataProvider == null)
-            {
-                bextDataProvider = MockBextDataProvider.Get();
-            }
-
             if (directoryProvider == null)
             {
                 directoryProvider = Substitute.For<IDirectoryProvider>();
@@ -67,7 +62,6 @@ namespace Packager.Test.Mocks
 
             var result = Substitute.For<IDependencyProvider>();
 
-            result.BextDataProvider.Returns(bextDataProvider);
             result.DirectoryProvider.Returns(directoryProvider);
             result.FileProvider.Returns(fileProvider);
             result.Hasher.Returns(hasher);

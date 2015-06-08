@@ -23,8 +23,8 @@ namespace Packager.Test.Mocks
                 ffmpegResult.Succeeded().ReturnsForAnyArgs(true);
             }
 
-            runner.Run<BwfMetaEditProcessResult>(null).ReturnsForAnyArgs(Task.FromResult(bwfMetaEditResult));
-            runner.Run<FFMPEGProcessResult>(null).ReturnsForAnyArgs(Task.FromResult(ffmpegResult));
+            runner.Run(null).ReturnsForAnyArgs(Task.FromResult(bwfMetaEditResult));
+            runner.Run(null).ReturnsForAnyArgs(Task.FromResult(ffmpegResult));
             return runner;
         }
     }

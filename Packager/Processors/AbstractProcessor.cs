@@ -43,11 +43,6 @@ namespace Packager.Processors
             get { return _dependencyProvider.MetadataProvider; }
         }
 
-        protected IBextDataProvider BextDataProvider
-        {
-            get { return _dependencyProvider.BextDataProvider; }
-        }
-
         protected IHasher Hasher
         {
             get { return _dependencyProvider.Hasher; }
@@ -124,6 +119,11 @@ namespace Packager.Processors
         protected string FFMPEGAudioAccessArguments
         {
             get { return ProgramSettings.FFMPEGAudioAccessArguments; }
+        }
+
+        protected string DigitizingEntity
+        {
+            get { return ProgramSettings.DigitizingEntity; }
         }
 
         protected string MoveFileToProcessing(string fileName)

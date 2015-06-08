@@ -2,7 +2,7 @@
 
 namespace Packager.Models.ProcessResults
 {
-    public abstract class AbstractProcessResult : IProcessResult
+    public class ProcessResult : IProcessResult
     {
         public int ExitCode { get; set; }
         public string StandardOutput { get; set; }

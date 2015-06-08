@@ -9,7 +9,6 @@ namespace Packager.Providers
     {
         public DefaultDependencyProvider(IProgramSettings programSettings, List<IObserver> observers)
         {
-            BextDataProvider = new StandInBextDataProvider();
             Hasher = new Hasher();
             UserInfoResolver = new DomainUserResolver();
             XmlExporter = new XmlExporter();
@@ -22,7 +21,6 @@ namespace Packager.Providers
             MetadataProvider = new PodMetadataProvider(ProgramSettings);
         }
 
-        public IBextDataProvider BextDataProvider { get; private set; }
         public IHasher Hasher { get; private set; }
         public IUserInfoResolver UserInfoResolver { get; private set; }
         public IXmlExporter XmlExporter { get; private set; }

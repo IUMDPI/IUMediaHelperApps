@@ -8,12 +8,12 @@ namespace Packager.Utilities
 {
     public interface IProcessRunner
     {
-        Task<IProcessResult> Run<T>(ProcessStartInfo startInfo) where T:AbstractProcessResult, new();
+        Task<IProcessResult> Run(ProcessStartInfo startInfo);
     }
 
     public class ProcessRunner : IProcessRunner
     {
-        public Task<IProcessResult> Run<T>(ProcessStartInfo startInfo) where T:AbstractProcessResult, new()
+        public Task<IProcessResult> Run(ProcessStartInfo startInfo)
         {
             var completionSource = new TaskCompletionSource<IProcessResult>();
 
@@ -34,7 +34,7 @@ namespace Packager.Utilities
             process.ErrorDataReceived += new DataReceivedHandler(standardError).OnDataReceived;
             process.OutputDataReceived += new DataReceivedHandler(standardOutput).OnDataReceived;
 
-            process.Exited += new ProcessExitHandler<T>(
+            process.Exited += new ProcessExitHandler(
                 startInfo,
                 completionSource,
                 standardOutput,
@@ -51,7 +51,7 @@ namespace Packager.Utilities
             return completionSource.Task;
         }
 
-        private class ProcessExitHandler<T> where T:AbstractProcessResult, new()
+        private class ProcessExitHandler
         {
             private readonly ProcessStartInfo _startInfo;
             private readonly TaskCompletionSource<IProcessResult> _completionSource;
@@ -76,7 +76,7 @@ namespace Packager.Utilities
                     return;
                 }
 
-                _completionSource.SetResult(new T
+                _completionSource.SetResult(new ProcessResult
                 {
                     StartInfo = _startInfo,
                     ExitCode = process.ExitCode,

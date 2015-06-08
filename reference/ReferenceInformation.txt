@@ -36,14 +36,14 @@ Things to do:
 1) rename "Batch" to "Object" in logs (don't use 'artifact') (done - 6/3 - bm)
 2) audio should produce prod, not mezz (done - 6/3 -bm)
 3) should support pres-int (done - 6/3 -bm)
-4) should add metadata to pres, pres-int, prod, and mess, but not access (done - 6/3 -bm)
+4) should add metadata to pres, pres-int, prod, and mezz, but not access (done - 6/3 -bm)
 5) should base prod off of pres-int it's present. (done = 6/3 - bm)
 6) figure out ffmpeg command-line, etc. to align with Brian's doc. See below.
 7) add timezone after date values (done = 6/3 - bm)
 8) project code should be upper-case when saved (done = 6/3 - bm)
 9) can have up to 4 parts (sides)
 10) need to add path to auth file in program settings (done = 6/5 bm)
-11) In metadata need to add file use after description
+11) In metadata need to add file use after description (done = 6/8 bm)
 12) in metadata need to add original file name (without extension) to description
 13) need to figure out what extensions to use for audio (done = 6/4/bm -- .wav for prod .mp4 for access)
 14) need to get latest ffmpeg version

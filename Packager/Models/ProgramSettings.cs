@@ -22,6 +22,9 @@ namespace Packager.Models
         PodAuth PodAuth { get; }
         string BaseWebServiceUrlFormat { get; }
         string DigitizingEntity { get; }
+        string ErrorDirectoryName { get; }
+        string SuccessDirectoryName { get; }
+        string LogDirectoryName { get; }
         void Verify();
     }
 
@@ -40,6 +43,9 @@ namespace Packager.Models
             BaseWebServiceUrlFormat = settings["BaseWebServiceUrlFormat"];
             DigitizingEntity = settings["DigitizingEntity"];
             PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
+            ErrorDirectoryName = settings["ErrorDirectoryName"];
+            SuccessDirectoryName = settings["SuccessDirectoryName"];
+            LogDirectoryName = settings["LogDirectoryName"];
         }
 
         public string BWFMetaEditPath { get; private set; }
@@ -50,14 +56,17 @@ namespace Packager.Models
         public string FFMPEGAudioAccessArguments { get; private set; }
         public string ProjectCode { get; private set; }
         public string DropBoxDirectoryName { get; private set; }
-
+         public PodAuth PodAuth { get; private set; }
+        public string DigitizingEntity { get; private set; }
+        public string ErrorDirectoryName { get; private set; }
+        public string SuccessDirectoryName { get; private set; }
+        public string LogDirectoryName { get; private set; }
         public string DateFormat
         {
             get { return "yyyy-MM-dd HH:mm:ss \"GMT\"zzz"; }
         }
 
-        public PodAuth PodAuth { get; private set; }
-        public string DigitizingEntity { get; private set; }
+       
 
         public void Verify()
         {
@@ -84,6 +93,21 @@ namespace Packager.Models
             if (!Directory.Exists(DropBoxDirectoryName))
             {
                 throw new DirectoryNotFoundException(DropBoxDirectoryName);
+            }
+
+            if (!Directory.Exists(ErrorDirectoryName))
+            {
+                throw new DirectoryNotFoundException(ErrorDirectoryName);
+            }
+
+            if (!Directory.Exists(LogDirectoryName))
+            {
+                throw new DirectoryNotFoundException(LogDirectoryName);
+            }
+
+            if (!Directory.Exists(SuccessDirectoryName))
+            {
+                throw new DirectoryNotFoundException(SuccessDirectoryName);
             }
         }
 

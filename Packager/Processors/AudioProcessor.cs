@@ -19,8 +19,8 @@ namespace Packager.Processors
         // todo: figure out how to get this
         private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
 
-        public AudioProcessor(IDependencyProvider dependencyProvider)
-            : base(dependencyProvider)
+        public AudioProcessor(string barcode, IDependencyProvider dependencyProvider)
+            : base(barcode, dependencyProvider)
         {
         }
 
@@ -49,18 +49,14 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
-        public override async Task ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping)
+        protected override async Task ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels)
         {
-            Barcode = barcodeGrouping.Key;
             Observers.LogHeader("Processing object {0}", Barcode);
-
-            // fetch metadata
-            var metadata = await GetMetadata();
 
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
-            var filesToProcess = barcodeGrouping
+            var filesToProcess = fileModels
                 .Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion())
@@ -70,8 +66,11 @@ namespace Packager.Processors
             foreach (var fileModel in filesToProcess)
             {
                 Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
-                MoveFileToProcessing(fileModel.ToFileName());
+                await MoveFileToProcessing(fileModel.ToFileName());
             }
+
+            // fetch metadata
+            var metadata = await GetMetadata();
 
             // create derivatives for the various files
             // and add them to a list of files that have
@@ -105,17 +104,13 @@ namespace Packager.Processors
             DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
             // copy files
-            // todo: make asyc
             foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
             {
                 Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
-                FileProvider.Copy(
+                await FileProvider.CopyFileAsync(
                     Path.Combine(ProcessingDirectory, fileName),
                     Path.Combine(DropBoxDirectory, fileName));
             }
-
-            // done - log new line
-            Observers.Log("");
         }
 
         public override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)

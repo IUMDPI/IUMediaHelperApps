@@ -56,7 +56,8 @@ namespace Packager.Test.Engine
                 dependencyProvider = MockDependencyProvider.Get(observers: observers, programSettings: settings);
             }
 
-            return new StandardEngine(processors, dependencyProvider);
+            throw new NotImplementedException();
+            //return new StandardEngine(processors, dependencyProvider);
         }
 
         public class WhenEngineRunsWithoutIssues : EngineTests

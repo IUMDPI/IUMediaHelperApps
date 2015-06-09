@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Packager.Providers
 {
@@ -8,6 +8,9 @@ namespace Packager.Providers
         void Move(string sourceFileName, string destFileName);
         void Copy(string sourceFileName, string destFileName);
         void WriteAllText(string path, string contents);
+        Task CopyFileAsync(string sourceFileName, string destFileName);
+        Task MoveFileAsync(string sourceFileName, string destFileName);
+        bool FileExists(string path);
         FileInfo GetFileInfo(string path);
     }
 
@@ -26,6 +29,21 @@ namespace Packager.Providers
         public void WriteAllText(string path, string contents)
         {
             File.WriteAllText(path, contents);
+        }
+
+        public async Task CopyFileAsync(string sourceFileName, string destFileName)
+        {
+            await Task.Run(() => { File.Copy(sourceFileName, destFileName); });
+        }
+
+        public async Task MoveFileAsync(string sourceFileName, string destFileName)
+        {
+            await Task.Run(() => { File.Move(sourceFileName, destFileName); });
+        }
+
+        public bool FileExists(string path)
+        {
+            return File.Exists(path);
         }
 
         public FileInfo GetFileInfo(string path)

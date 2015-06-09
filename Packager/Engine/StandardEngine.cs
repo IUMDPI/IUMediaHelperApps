@@ -13,18 +13,25 @@ namespace Packager.Engine
 {
     public class StandardEngine : IEngine
     {
-        private  List<IObserver> Observers {get { return _dependencyProvider.Observers; }}
-        private readonly Dictionary<string, IProcessor> _processors;
-        private IProgramSettings ProgramSettings {get { return _dependencyProvider.ProgramSettings; }}
         private readonly IDependencyProvider _dependencyProvider;
+        private readonly Dictionary<string, Type> _processorsTypes;
 
         public StandardEngine(
-            Dictionary<string, IProcessor> processors,
+            Dictionary<string, Type> processorsTypes,
             IDependencyProvider dependencyProvider)
         {
+            _processorsTypes = processorsTypes;
             _dependencyProvider = dependencyProvider;
-            _processors = processors;
-            
+        }
+
+        private List<IObserver> Observers
+        {
+            get { return _dependencyProvider.Observers; }
+        }
+
+        private IProgramSettings ProgramSettings
+        {
+            get { return _dependencyProvider.ProgramSettings; }
         }
 
         private IDirectoryProvider DirectoryProvider
@@ -37,11 +44,12 @@ namespace Packager.Engine
             try
             {
                 WriteHelloMessage();
+
                 ProgramSettings.Verify();
 
                 // this factory will assign each extension
                 // to the appropriate file model
-                var factory = new FileModelFactory(_processors.Keys);
+                var factory = new FileModelFactory(_processorsTypes.Keys);
 
                 // want to get all files in the input directory
                 // and convert them to file models (via out file model factory)
@@ -54,56 +62,27 @@ namespace Packager.Engine
                     .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
                     .GroupBy(f => f.BarCode).ToList();
 
+
+                Observers.Log("Found {0} objects to process", objectGroups.Count());
+
+                var results = new Dictionary<string, bool>();
+
                 // todo: catch exception and prompt user to retry, ignore, or cancel
                 // todo: if retry move group files back to input and start over
                 // now we want to get the processor for each group
                 // and process the files for the group
                 foreach (var group in objectGroups)
                 {
-                    await ProcessFile(group);
+                    results[group.Key] = await ProcessFile(group);
                 }
 
+                WriteResultsMessage(results);
                 WriteGoodbyeMessage();
             }
             catch (Exception ex)
             {
                 Observers.Log("Fatal Exception Occurred: {0}", ex);
             }
-        }
-
-        private async Task ProcessFile(IGrouping<string, AbstractFileModel> group)
-        {
-            try
-            {
-                AddObjectProcessingObserver(group.Key, ProgramSettings.ProjectCode);
-                
-                var processor = GetProcessor(group);
-                await processor.ProcessFile(group);
-            }
-            catch (Exception e)
-            {
-
-            }
-            finally
-            {
-                RemoveObjectProcessingObservers();
-            }
-        }
-
-        private void AddObjectProcessingObserver(string barCode, string projectCode)
-        {
-            RemoveObjectProcessingObservers();
-
-            Observers.Add(new ObjectProcessingNLogObserver(
-                barCode, 
-                projectCode, 
-                ProgramSettings.LogDirectoryName, 
-                ProgramSettings.ProcessingDirectory));
-        }
-
-        private void RemoveObjectProcessingObservers()
-        {
-            Observers.RemoveAll(o => o is ObjectProcessingNLogObserver);
         }
 
         public void AddObserver(IObserver observer)
@@ -116,13 +95,19 @@ namespace Packager.Engine
             Observers.Add(observer);
         }
 
-        private IProcessor GetProcessor(IEnumerable<AbstractFileModel> group)
+        private async Task<bool> ProcessFile(IGrouping<string, AbstractFileModel> group)
+        {
+            var processor = GetProcessor(group);
+            return await processor.ProcessFile(group);
+        }
+
+        private IProcessor GetProcessor(IGrouping<string, AbstractFileModel> group)
         {
             // for each model in the group
             // take those that have extensions associated with a processor
             // and group them by that extension
             var validExtensions = group
-                .Where(m => _processors.Keys.Contains(m.Extension))
+                .Where(m => _processorsTypes.Keys.Contains(m.Extension))
                 .GroupBy(m => m.Extension).ToList();
 
             // if we have no groups or if we have more than one group, we have a problem
@@ -131,8 +116,9 @@ namespace Packager.Engine
                 throw new Exception("Can not determine extension for file batch");
             }
 
-            // get processor for the group's common extension
-            return _processors[validExtensions.First().Key];
+            var type = _processorsTypes[validExtensions.First().Key];
+
+            return (IProcessor) Activator.CreateInstance(type, group.Key, _dependencyProvider);
         }
 
         private void WriteHelloMessage()
@@ -143,6 +129,19 @@ namespace Packager.Engine
         private void WriteGoodbyeMessage()
         {
             Observers.Log("Completed {0}", DateTime.Now);
+        }
+
+        private void WriteResultsMessage(Dictionary<string, bool> results)
+        {
+            var inError = results.Where(r => r.Value == false).Select(r => r.Key).ToList();
+            var success = results.Where(r => r.Value).Select(r => r.Key).ToList();
+
+            Observers.Log("Successfully processed {0} objects.", success.Count);
+
+            foreach (var barcode in inError)
+            {
+                Observers.Log("Could not process {0}", barcode);
+            }
         }
     }
 }

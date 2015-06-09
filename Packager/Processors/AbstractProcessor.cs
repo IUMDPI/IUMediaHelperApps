@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models;
@@ -15,11 +14,17 @@ namespace Packager.Processors
 {
     public abstract class AbstractProcessor : IProcessor
     {
+
+        public abstract Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel);
+        protected abstract Task ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels);
+        
         private readonly IDependencyProvider _dependencyProvider;
+        
         // constructor
-        protected AbstractProcessor(IDependencyProvider dependencyProvider)
+        protected AbstractProcessor(string barcode, IDependencyProvider dependencyProvider)
         {
             _dependencyProvider = dependencyProvider;
+            Barcode = barcode;
         }
 
         private IProgramSettings ProgramSettings
@@ -65,9 +70,14 @@ namespace Packager.Processors
             get { return ProgramSettings.ProjectCode; }
         }
 
+        private string ObjectDirectoryName
+        {
+            get { return string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode); }
+        }
+
         protected string ProcessingDirectory
         {
-            get { return Path.Combine(RootProcessingDirectory, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode)); }
+            get { return Path.Combine(RootProcessingDirectory, ObjectDirectoryName); }
         }
 
         protected string DropBoxDirectory
@@ -75,8 +85,50 @@ namespace Packager.Processors
             get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode)); }
         }
 
-        public abstract Task ProcessFile(IGrouping<string, AbstractFileModel> barcodeGrouping);
-        public abstract Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel);
+        public virtual async Task<bool> ProcessFile(IEnumerable<AbstractFileModel> fileModels)
+        {
+            try
+            {
+                AddObjectProcessingObserver();
+                await ProcessFileInternal(fileModels);
+                await MoveToSuccessFolder();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Observers.Log("An issue occurred while processing object {0}: {1}", Barcode, e);
+                MoveToErrorFolder();
+                return false;
+            }
+            finally
+            {
+                RemoveObjectProcessingObservers();
+            }
+        }
+
+        private async Task MoveToSuccessFolder()
+        {
+            // move folder to success
+            Observers.Log("Moving {0} to success directory", ObjectDirectoryName);
+            await DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory, SuccesDirectory);
+        }
+
+        private void MoveToErrorFolder()
+        {
+            try
+            {
+                
+                // move folder to success
+                Observers.Log("Moving {0} to error directory", ObjectDirectoryName);
+                
+                DirectoryProvider.MoveDirectory(ProcessingDirectory, ErrorDirectory);
+            }
+            catch (Exception e)
+            {
+                Observers.Log("Could not more {0} to error directory: {1}",ObjectDirectoryName, e);
+            }
+        }
+        
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath
         {
@@ -126,7 +178,17 @@ namespace Packager.Processors
             get { return ProgramSettings.DigitizingEntity; }
         }
 
-        protected string MoveFileToProcessing(string fileName)
+        protected string SuccesDirectory
+        {
+            get { return Path.Combine(ProgramSettings.SuccessDirectoryName, ObjectDirectoryName); }
+        }
+
+        protected string ErrorDirectory
+        {
+            get { return Path.Combine(ProgramSettings.ErrorDirectoryName, ObjectDirectoryName); }
+        }
+
+        protected async Task<string> MoveFileToProcessing(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
             {
@@ -135,7 +197,7 @@ namespace Packager.Processors
 
             var sourcePath = Path.Combine(InputDirectory, fileName);
             var targetPath = Path.Combine(ProcessingDirectory, fileName);
-            FileProvider.Move(sourcePath, targetPath);
+            await FileProvider.MoveFileAsync(sourcePath, targetPath);
             return targetPath;
         }
 
@@ -177,7 +239,7 @@ namespace Packager.Processors
         protected async Task<PodMetadata> GetMetadata()
         {
             Observers.Log("Requesting metadata for object: {0}", Barcode);
-            
+
             var metadata = await MetadataProvider.Get(Barcode);
             if (!metadata.Success)
             {
@@ -186,5 +248,28 @@ namespace Packager.Processors
 
             return metadata;
         }
+
+        public void Initialize(string barCode)
+        {
+            Barcode = Barcode;
+        }
+
+        protected void AddObjectProcessingObserver()
+        {
+            RemoveObjectProcessingObservers();
+
+            Observers.Add(new ObjectProcessingNLogObserver(
+                Barcode,
+                ProjectCode,
+                ProgramSettings.LogDirectoryName,
+                ProgramSettings.ProcessingDirectory));
+        }
+
+        protected void RemoveObjectProcessingObservers()
+        {
+            Observers.RemoveAll(o => o is ObjectProcessingNLogObserver);
+        }
+
+        
     }
 }

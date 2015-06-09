@@ -42,6 +42,7 @@
             this.outputTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.outputTextBox.Size = new System.Drawing.Size(535, 390);
             this.outputTextBox.TabIndex = 0;
+            this.outputTextBox.UseWaitCursor = true;
             this.outputTextBox.WordWrap = false;
             // 
             // OutputForm

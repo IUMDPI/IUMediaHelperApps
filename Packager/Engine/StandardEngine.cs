@@ -48,7 +48,7 @@ namespace Packager.Engine
                 // and then take all of the files that are valid
                 // and start with the correct project code
                 // and then group them by barcode
-                var batchGroups = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
+                var objectGroups = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
                     .Select(p => factory.GetModel(p))
                     .Where(f => f.IsValid())
                     .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
@@ -58,10 +58,9 @@ namespace Packager.Engine
                 // todo: if retry move group files back to input and start over
                 // now we want to get the processor for each group
                 // and process the files for the group
-                foreach (var group in batchGroups)
+                foreach (var group in objectGroups)
                 {
-                    var processor = GetProcessor(group);
-                    await processor.ProcessFile(group);
+                    await ProcessFile(group);
                 }
 
                 WriteGoodbyeMessage();
@@ -70,6 +69,41 @@ namespace Packager.Engine
             {
                 Observers.Log("Fatal Exception Occurred: {0}", ex);
             }
+        }
+
+        private async Task ProcessFile(IGrouping<string, AbstractFileModel> group)
+        {
+            try
+            {
+                AddObjectProcessingObserver(group.Key, ProgramSettings.ProjectCode);
+                
+                var processor = GetProcessor(group);
+                await processor.ProcessFile(group);
+            }
+            catch (Exception e)
+            {
+
+            }
+            finally
+            {
+                RemoveObjectProcessingObservers();
+            }
+        }
+
+        private void AddObjectProcessingObserver(string barCode, string projectCode)
+        {
+            RemoveObjectProcessingObservers();
+
+            Observers.Add(new ObjectProcessingNLogObserver(
+                barCode, 
+                projectCode, 
+                ProgramSettings.LogDirectoryName, 
+                ProgramSettings.ProcessingDirectory));
+        }
+
+        private void RemoveObjectProcessingObservers()
+        {
+            Observers.RemoveAll(o => o is ObjectProcessingNLogObserver);
         }
 
         public void AddObserver(IObserver observer)

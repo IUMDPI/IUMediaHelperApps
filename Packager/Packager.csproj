@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.3.2.1\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp, Version=105.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.105.1.0\lib\net45\RestSharp.dll</HintPath>
       <Private>True</Private>
@@ -94,6 +97,13 @@
     <Compile Include="Models\OutputModels\PreviewData.cs" />
     <Compile Include="Models\FileModels\UnknownFileModel.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Observers\AbstractNLogObserver.cs" />
+    <Compile Include="Observers\GeneralNLogObserver.cs" />
+    <Compile Include="Observers\LayoutRenderers\BarcodeLayoutRenderer.cs" />
+    <Compile Include="Observers\LayoutRenderers\ProjectCodeLayoutRenderer.cs" />
+    <Compile Include="Observers\LayoutRenderers\ProcessingDirectoryNameLayoutRenderer.cs" />
+    <Compile Include="Observers\LayoutRenderers\LoggingDirectoryLayoutRenderer.cs" />
+    <Compile Include="Observers\ObjectProcessingNLogObserver.cs" />
     <Compile Include="OutputForm.cs">
       <SubType>Form</SubType>
     </Compile>

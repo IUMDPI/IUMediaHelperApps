@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Windows.Forms;
+using NLog.Config;
 using Packager.Engine;
 using Packager.Models;
 using Packager.Observers;
+using Packager.Observers.LayoutRenderers;
 using Packager.Processors;
 using Packager.Providers;
 
@@ -21,11 +23,15 @@ namespace Packager
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            ConfigureNLog();
             // initialize program settings
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
-
+            
             // initialize observers
-            var observers = new List<IObserver>();
+            var observers = new List<IObserver>
+            {
+                new GeneralNLogObserver(programSettings.LogDirectoryName, programSettings.ProcessingDirectory)
+            };
 
             // initialize utility provider
             var dependencyProvider = new DefaultDependencyProvider(programSettings, observers);
@@ -44,5 +50,16 @@ namespace Packager
             // load and run output form
             Application.Run(outputForm);
         }
+
+
+        private static void ConfigureNLog()
+        {
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName", typeof(LoggingDirectoryLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProcessingDirectoryName", typeof(ProcessingDirectoryNameLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode", typeof(BarcodeLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode", typeof(ProjectCodeLayoutRenderer));
+        }
+
+
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using NLog.Targets;
+using Packager.Models;
 using Packager.Observers;
 
 namespace Packager.Extensions

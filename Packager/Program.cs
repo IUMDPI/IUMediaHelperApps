@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Windows.Forms;
+using NLog;
 using NLog.Config;
 using Packager.Engine;
 using Packager.Models;
@@ -24,6 +26,8 @@ namespace Packager
             Application.SetCompatibleTextRenderingDefault(false);
 
             ConfigureNLog();
+
+
             // initialize program settings
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
             
@@ -50,8 +54,7 @@ namespace Packager
             // load and run output form
             Application.Run(outputForm);
         }
-
-
+        
         private static void ConfigureNLog()
         {
             ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName", typeof(LoggingDirectoryLayoutRenderer));

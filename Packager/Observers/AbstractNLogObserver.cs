@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using System;
+using NLog;
 
 namespace Packager.Observers
 {
@@ -26,5 +27,7 @@ namespace Packager.Observers
             
             return eventInfo;
         }
+
+      
     }
 }

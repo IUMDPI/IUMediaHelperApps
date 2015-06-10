@@ -57,7 +57,7 @@ namespace Packager.Models.BextModels
             return string.Format("{0}. {1}. File use: {2}. {3}",
                 Institution,
                 metadata.Data.Object.Details.CallNumber,
-                fileModel.FullFileUse, fileModel.ToFileName());
+                fileModel.FullFileUse, Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
         }
     }
 }

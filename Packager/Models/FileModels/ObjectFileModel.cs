@@ -14,6 +14,7 @@ namespace Packager.Models.FileModels
 
         private const string PreservationFileUseLongName = "Preservation Master";
         private const string ProductionFileUseLongName = "Production Master";
+        private const string PreservationIntermediateFileUseLongName = "Preservation Master - Intermediate";
 
         private ObjectFileModel()
         {
@@ -36,7 +37,12 @@ namespace Packager.Models.FileModels
         {
             get
             {
-                if (IsPreservationIntermediateVersion() || IsPreservationVersion())
+                if (IsPreservationIntermediateVersion())
+                {
+                    return PreservationIntermediateFileUseLongName;
+                }
+
+                if (IsPreservationVersion())
                 {
                     return PreservationFileUseLongName;
                 }

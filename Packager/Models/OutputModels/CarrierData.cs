@@ -57,8 +57,15 @@ namespace Packager.Models.OutputModels
                 DirectionsRecorded = GetDirectionsRecorded(podMetadata), 
                 Identifier = GetIdentifier(podMetadata),
                 Configuration = ConfigurationData.FromPodMetadata(podMetadata),
-                Thickness = podMetadata.Data.Object.TechnicalMetadata.TapeThickness.GetValue()
+                Thickness = GetTapeThickness(podMetadata)
             };
+        }
+
+        private static string GetTapeThickness(PodMetadata podMetadata)
+        {
+            return podMetadata.Data.Object.TechnicalMetadata.TapeThickness == null 
+                ? null 
+                : podMetadata.Data.Object.TechnicalMetadata.TapeThickness.GetValue();
         }
 
         private static string GetCarrierType(PodMetadata podMetadata)

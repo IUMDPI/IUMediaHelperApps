@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Packager.Engine;
 using Packager.Observers;
@@ -18,10 +19,12 @@ namespace Packager
             _engine = engine;
         }
 
-        private void FormLoadHandler(object sender, EventArgs e)
+        private async void FormLoadHandler(object sender, EventArgs e)
         {
             _engine.AddObserver(new TextBoxOutputObserver(outputTextBox));
-            _engine.Start();
+            outputTextBox.Cursor = Cursors.WaitCursor;
+            await _engine.Start();
+            outputTextBox.Cursor = Cursors.Default;
         }
     }
 }

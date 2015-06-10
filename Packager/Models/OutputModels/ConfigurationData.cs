@@ -14,12 +14,31 @@ namespace Packager.Models.OutputModels
         {
             return new ConfigurationData
             {
-                Track = podMetadata.Data.Object.TechnicalMetadata.TrackConfiguration.GetValue(),
-                SoundField = podMetadata.Data.Object.TechnicalMetadata.SoundField.GetValue(),
-                Speed = podMetadata.Data.Object.TechnicalMetadata.PlaybackSpeed.GetValue()
+                Track = GetTrackConfiguration(podMetadata),
+                SoundField = GetSoundField(podMetadata),
+                Speed = GetSpeed(podMetadata)
             };
         }
 
+        private static string GetTrackConfiguration(PodMetadata podMetadata)
+        {
+            return podMetadata.Data.Object.TechnicalMetadata.TrackConfiguration == null 
+                ? null 
+                : podMetadata.Data.Object.TechnicalMetadata.TrackConfiguration.GetValue();
+        }
 
+        private static string GetSoundField(PodMetadata podMetadata)
+        {
+            return podMetadata.Data.Object.TechnicalMetadata.SoundField == null
+                ? null
+                : podMetadata.Data.Object.TechnicalMetadata.SoundField.GetValue();
+        }
+
+        private static string GetSpeed(PodMetadata podMetadata)
+        {
+            return podMetadata.Data.Object.TechnicalMetadata.PlaybackSpeed == null
+                ? null
+                : podMetadata.Data.Object.TechnicalMetadata.PlaybackSpeed.GetValue();
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace Packager.Models.BextModels
                             ICMT = GetBextDescription(metadata, fileModel),
                             IARL = string.Format("{0}.", Institution),
                             OriginationDate = fileInfo.CreationTime.ToString("yyyy-MM-dd"),
-                            OriginationTime = fileInfo.CreationTime.ToString("HH-mm-ss"),
+                            OriginationTime = fileInfo.CreationTime.ToString("HH:mm:ss"),
                             TimeReference = "0",
                             ICRD = fileInfo.CreationTime.ToString("yyyy-MM-dd"),
                             INAM = metadata.Data.Object.Details.Title

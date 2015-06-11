@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -25,6 +26,7 @@ namespace Packager.Models
         string ErrorDirectoryName { get; }
         string SuccessDirectoryName { get; }
         string LogDirectoryName { get; }
+      
         void Verify();
     }
 
@@ -42,10 +44,10 @@ namespace Packager.Models
             DropBoxDirectoryName = settings["DropBoxDirectoryName"];
             BaseWebServiceUrlFormat = settings["BaseWebServiceUrlFormat"];
             DigitizingEntity = settings["DigitizingEntity"];
-            PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
             ErrorDirectoryName = settings["ErrorDirectoryName"];
             SuccessDirectoryName = settings["SuccessDirectoryName"];
             LogDirectoryName = settings["LogDirectoryName"];
+            PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
         }
 
         public string BWFMetaEditPath { get; private set; }
@@ -61,13 +63,13 @@ namespace Packager.Models
         public string ErrorDirectoryName { get; private set; }
         public string SuccessDirectoryName { get; private set; }
         public string LogDirectoryName { get; private set; }
+        public Dictionary<string, string> UnitLookupTable { get; private set; }
+
         public string DateFormat
         {
             get { return "yyyy-MM-dd HH:mm:ss \"GMT\"zzz"; }
         }
-
-       
-
+        
         public void Verify()
         {
             if (!Directory.Exists(InputDirectory))

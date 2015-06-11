@@ -18,6 +18,7 @@ namespace Packager.Providers
             ProgramSettings = programSettings;
             MetadataGenerator = new MetadataGenerator(FileProvider, Hasher, ProgramSettings, UserInfoResolver);
             Observers = observers;
+            LookupsProvider = new AppConfigLookupsProvider();
             MetadataProvider = new PodMetadataProvider(ProgramSettings);
         }
 
@@ -31,5 +32,6 @@ namespace Packager.Providers
         public IProgramSettings ProgramSettings { get; private set; }
         public List<IObserver> Observers { get; private set; }
         public IPodMetadataProvider MetadataProvider { get; private set; }
+        public ILookupsProvider LookupsProvider { get; private set; }
     }
 }

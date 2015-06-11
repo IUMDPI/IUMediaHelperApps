@@ -26,8 +26,7 @@ namespace Packager
             Application.SetCompatibleTextRenderingDefault(false);
 
             ConfigureNLog();
-
-
+            
             // initialize program settings
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
             

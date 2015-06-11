@@ -17,5 +17,6 @@ namespace Packager.Providers
         IProgramSettings ProgramSettings { get; }
         List<IObserver> Observers { get; }
         IPodMetadataProvider MetadataProvider { get;}
+        ILookupsProvider LookupsProvider { get; }
     }
 }

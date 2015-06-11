@@ -115,11 +115,13 @@
     <Compile Include="Observers\IObserver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\AppConfigLookupsProvider.cs" />
     <Compile Include="Providers\IDirectoryProvider.cs" />
     <Compile Include="Processors\AbstractProcessor.cs" />
     <Compile Include="Processors\AudioProcessor.cs" />
     <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Providers\IPodMetadataProvider.cs" />
+    <Compile Include="Providers\ILookupsProvider.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />

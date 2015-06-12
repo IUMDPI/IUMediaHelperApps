@@ -19,7 +19,7 @@ namespace Packager.Providers
         Dictionary<string, string> SoundFields { get; }
         Dictionary<string, string> TapeThicknesses { get; }
 
-        string LookupValue(LookupTables table, string value, string defaultValue="");
+        string LookupValue(LookupTables table, string value);
         string[] LookupValue(LookupTables table, string[] values);
     }
 }

@@ -15,9 +15,6 @@ namespace Packager.Deserializers
 {
     public class PodMetadataDeserializer : IDeserializer
     {
-        private const string CallNumberElementName = "call-number";
-        private const string BarcodeElementName = "mdpi-barcode";
-        private const string TitleElementName = "title";
         private readonly ILookupsProvider _lookupsProvider;
 
         public PodMetadataDeserializer(ILookupsProvider lookupsProvider)

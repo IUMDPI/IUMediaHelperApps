@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace Packager.Providers
         private const string SoundFieldsPath = "LookupTables/SoundFields";
         private const string ThicknessesPath = "LookupTables/TapeThicknesses";
 
+        private readonly Dictionary<LookupTables, Dictionary<string, string>> _tables;
+
         public AppConfigLookupsProvider()
         {
             Units = GetDictionary(UnitsPath);
@@ -20,6 +23,15 @@ namespace Packager.Providers
             TrackConfigurations = GetDictionary(TrackConfigurationsPath);
             SoundFields = GetDictionary(SoundFieldsPath);
             TapeThicknesses = GetDictionary(ThicknessesPath);
+
+            _tables = new Dictionary<LookupTables, Dictionary<string, string>>
+            {
+                {LookupTables.Units, Units},
+                {LookupTables.PlaybackSpeeds, PlaybackSpeeds},
+                {LookupTables.SoundFields, SoundFields},
+                {LookupTables.TrackConfigurations, TrackConfigurations},
+                {LookupTables.TapeThicknesses, TapeThicknesses}
+            };
         }
 
         public Dictionary<string, string> Units { get; private set; }
@@ -28,23 +40,26 @@ namespace Packager.Providers
         public Dictionary<string, string> SoundFields { get; private set; }
         public Dictionary<string, string> TapeThicknesses { get; private set; }
 
-        public string LookupValue(LookupTables table, string value, string defaultValue = null)
+        public string LookupValue(LookupTables table, string value)
         {
-            switch (table)
+            if (!_tables.ContainsKey(table))
             {
-                case LookupTables.Units:
-                    return GetValue(Units, value, defaultValue);
-                case LookupTables.PlaybackSpeeds:
-                    return GetValue(PlaybackSpeeds, value, defaultValue);
-                case LookupTables.SoundFields:
-                    return GetValue(SoundFields, value, defaultValue);
-                case LookupTables.TrackConfigurations:
-                    return GetValue(TrackConfigurations, value, defaultValue);
-                case LookupTables.TapeThicknesses:
-                    return GetValue(TapeThicknesses, value, defaultValue);
+                throw new Exception(string.Format("No lookup handler for table {0}", table));    
             }
 
-            return defaultValue;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            var result = GetValue(_tables[table], value);
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                throw new Exception(string.Format("No value present for key {0} in lookup table {1}", value, table));
+            }
+
+            return result;
+
         }
 
         public string[] LookupValue(LookupTables table, string[] values)
@@ -59,17 +74,17 @@ namespace Packager.Providers
             {
                 return new Dictionary<string, string>();
             }
-            
+
             return hashTable
                 .Cast<DictionaryEntry>()
                 .ToDictionary(n => n.Key.ToString(), n => n.Value.ToString());
         }
 
-        private static string GetValue(IReadOnlyDictionary<string, string> table, string key, string defaultValue =null)
+        private static string GetValue(IReadOnlyDictionary<string, string> table, string key)
         {
             return table.ContainsKey(key)
                 ? table[key]
-                : defaultValue;
+                : null;
         }
     }
 }

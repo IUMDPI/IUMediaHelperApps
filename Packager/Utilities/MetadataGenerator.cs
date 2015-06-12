@@ -35,7 +35,7 @@ namespace Packager.Utilities
 
         private IHasher Hasher { get; set; }
 
-        public CarrierData GenerateMetadata(PodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+        public CarrierData GenerateMetadata(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
         {
             var result = CarrierData.FromPodMetadata(podMetadata);
             result.Parts = new PartsData

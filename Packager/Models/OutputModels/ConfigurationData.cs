@@ -10,35 +10,14 @@ namespace Packager.Models.OutputModels
         public string SoundField { get; set; }
         public string Speed { get; set; }
 
-        public static ConfigurationData FromPodMetadata(PodMetadata podMetadata)
+        public static ConfigurationData FromPodMetadata(ConsolidatedPodMetadata podMetadata)
         {
             return new ConfigurationData
             {
-                Track = GetTrackConfiguration(podMetadata),
-                SoundField = GetSoundField(podMetadata),
-                Speed = GetSpeed(podMetadata)
+                Track = string.Join(",", podMetadata.TrackConfigurations),
+                SoundField = string.Join(",", podMetadata.SoundFields),
+                Speed = string.Join(",", podMetadata.PlaybackSpeeds)
             };
-        }
-
-        private static string GetTrackConfiguration(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.TechnicalMetadata.TrackConfiguration == null 
-                ? null 
-                : podMetadata.Data.Object.TechnicalMetadata.TrackConfiguration.GetValue();
-        }
-
-        private static string GetSoundField(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.TechnicalMetadata.SoundField == null
-                ? null
-                : podMetadata.Data.Object.TechnicalMetadata.SoundField.GetValue();
-        }
-
-        private static string GetSpeed(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.TechnicalMetadata.PlaybackSpeed == null
-                ? null
-                : podMetadata.Data.Object.TechnicalMetadata.PlaybackSpeed.GetValue();
         }
     }
 }

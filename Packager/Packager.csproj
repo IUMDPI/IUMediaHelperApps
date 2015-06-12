@@ -55,12 +55,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\DeserializeAsLookupAttribute.cs" />
+    <Compile Include="Deserializers\PodMetadataDeserializer.cs" />
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\FileModelExtensions.cs" />
     <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\XElementExtensions.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFactory.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />
@@ -76,19 +79,7 @@
     <Compile Include="Models\OutputModels\FileData.cs" />
     <Compile Include="Models\OutputModels\IngestData.cs" />
     <Compile Include="Models\PodAuth.cs" />
-    <Compile Include="Models\PodMetadataModels\PodMetadata.cs" />
-    <Compile Include="Models\PodMetadataModels\PodData.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObject.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectAssignment.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectBasics.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectDetails.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectDetailsWorkflowStatus.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadata.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataPlaybackSpeed.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataSoundField.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataTapeBase.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataTapeThickness.cs" />
-    <Compile Include="Models\PodMetadataModels\PodDataObjectTechnicalMetadataTrackConfiguration.cs" />
+    <Compile Include="Models\PodMetadataModels\ConsolidatedPodMetadata.cs" />
     <Compile Include="Models\ProcessResults\ProcessResult.cs" />
     <Compile Include="Models\ProcessResults\IAbstractProcessResult.cs" />
     <Compile Include="Models\OutputModels\SideData.cs" />

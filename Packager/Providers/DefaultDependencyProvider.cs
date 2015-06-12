@@ -19,7 +19,7 @@ namespace Packager.Providers
             MetadataGenerator = new MetadataGenerator(FileProvider, Hasher, ProgramSettings, UserInfoResolver);
             Observers = observers;
             LookupsProvider = new AppConfigLookupsProvider();
-            MetadataProvider = new PodMetadataProvider(ProgramSettings);
+            MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider);
         }
 
         public IHasher Hasher { get; private set; }

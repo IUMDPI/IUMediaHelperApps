@@ -176,7 +176,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, PodMetadata podMetadata)
+        private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
@@ -224,7 +224,7 @@ namespace Packager.Processors
             }
         }
 
-        private XmlFileModel GenerateXml(PodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
+        private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
             var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(metadata, filesToProcess, ProcessingDirectory)};

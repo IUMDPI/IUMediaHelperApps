@@ -13,20 +13,34 @@
                 ? defaultValue
                 : value;
         }
-
         
-
-        public static int? ToInteger(this string value)
+        public static int? ToInteger(this string value, int? defaultValue = null)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                return null;
+                return defaultValue;
             }
 
             int result;
             if (!int.TryParse(value, out result))
             {
-                return null;
+                return defaultValue;
+            }
+
+            return result;
+        }
+
+        public static bool? ToBool(this string value, bool? defaultValue = null)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return defaultValue;
+            }
+
+            bool result;
+            if (!bool.TryParse(value, out result))
+            {
+                return defaultValue;
             }
 
             return result;

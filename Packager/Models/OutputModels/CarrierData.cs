@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml.Serialization;
 using Packager.Models.PodMetadataModels;
 
@@ -27,14 +28,14 @@ namespace Packager.Models.OutputModels
         public string Thickness { get; set; }
 
         [XmlElement(Order = 6)]
-        public int DirectionsRecorded { get; set; }
+        public string DirectionsRecorded { get; set; }
 
         [XmlElement(Order = 7)]
         public PhysicalConditionData PhysicalCondition { get; set; }
 
         [XmlElement(Order = 8)]
         public string Repaired { get; set; }
-        
+
         [XmlElement(Order = 9)]
         public PreviewData Preview { get; set; }
 
@@ -47,50 +48,18 @@ namespace Packager.Models.OutputModels
         [XmlElement(Order = 12)]
         public PartsData Parts { get; set; }
 
-        public static CarrierData FromPodMetadata(PodMetadata podMetadata)
+        public static CarrierData FromPodMetadata(ConsolidatedPodMetadata podMetadata)
         {
             return new CarrierData
             {
-                Barcode = GetBarcode(podMetadata), 
-                Brand = GetBrand(podMetadata),
-                CarrierType = GetCarrierType(podMetadata),
-                DirectionsRecorded = GetDirectionsRecorded(podMetadata), 
-                Identifier = GetIdentifier(podMetadata),
+                Barcode = podMetadata.Barcode,
+                Brand = podMetadata.Brand,
+                CarrierType = podMetadata.CarrierType,
+                DirectionsRecorded = podMetadata.DirectionsRecorded,
+                Identifier = podMetadata.Identifier,
                 Configuration = ConfigurationData.FromPodMetadata(podMetadata),
-                Thickness = GetTapeThickness(podMetadata)
+                Thickness = string.Join(",", podMetadata.TapeThicknesses)
             };
-        }
-
-        private static string GetTapeThickness(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.TechnicalMetadata.TapeThickness == null 
-                ? null 
-                : podMetadata.Data.Object.TechnicalMetadata.TapeThickness.GetValue();
-        }
-
-        private static string GetCarrierType(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.Basics.Format;
-        }
-
-        private static string GetBarcode(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.Details.MdpiBarcode;
-        }
-
-        private static int GetDirectionsRecorded(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.TechnicalMetadata.DirectionsRecorded;
-        }
-
-        private static string GetBrand(PodMetadata podMetadata)
-        {
-            return podMetadata.Data.Object.TechnicalMetadata.TapeStockBrand;
-        }
-
-        private static string GetIdentifier(PodMetadata podMetadata)
-        {
-            return "Unknown";
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Packager.Models.BextModels
             Institution = institution;
         }
 
-        public ConformancePointDocument Get(IEnumerable<ObjectFileModel> filesToAddMetadata, PodMetadata metadata)
+        public ConformancePointDocument Get(IEnumerable<ObjectFileModel> filesToAddMetadata, ConsolidatedPodMetadata metadata)
         {
             var result = new ConformancePointDocument
             {
@@ -43,7 +43,7 @@ namespace Packager.Models.BextModels
                             OriginationTime = fileInfo.CreationTime.ToString("HH:mm:ss"),
                             TimeReference = "0",
                             ICRD = fileInfo.CreationTime.ToString("yyyy-MM-dd"),
-                            INAM = metadata.Data.Object.Details.Title
+                            INAM = metadata.Title
                         }
                     }).ToArray()
             };
@@ -52,11 +52,11 @@ namespace Packager.Models.BextModels
             
         }
 
-        private string GetBextDescription(PodMetadata metadata, ObjectFileModel fileModel)
+        private string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
         {
             return string.Format("{0}. {1}. File use: {2}. {3}",
                 Institution,
-                metadata.Data.Object.Details.CallNumber,
+                metadata.CallNumber,
                 fileModel.FullFileUse, Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
         }
     }

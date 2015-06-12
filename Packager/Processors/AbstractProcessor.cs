@@ -236,7 +236,7 @@ namespace Packager.Processors
             get { return _dependencyProvider.MetadataGenerator; }
         }
 
-        protected async Task<PodMetadata> GetMetadata()
+        protected async Task<ConsolidatedPodMetadata> GetMetadata()
         {
             Observers.Log("Requesting metadata for object: {0}", Barcode);
 
@@ -248,12 +248,7 @@ namespace Packager.Processors
 
             return metadata;
         }
-
-        public void Initialize(string barCode)
-        {
-            Barcode = Barcode;
-        }
-
+        
         protected void AddObjectProcessingObserver()
         {
             RemoveObjectProcessingObservers();

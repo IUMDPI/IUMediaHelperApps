@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
 using Packager.Deserializers;
 using Packager.Models;
 using Packager.Models.PodMetadataModels;
@@ -40,7 +42,22 @@ namespace Packager.Providers
 
             var response = await client.ExecuteGetTaskAsync<ConsolidatedPodMetadata>(request);
 
+            VerifyResponse(response);
+
             return response.Data;
+        }
+
+        private void VerifyResponse(IRestResponse response)
+        {
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                throw new Exception("Could not retrieve metadata from Pod", response.ErrorException);  
+            }
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception("Could not retrieve metadata from Pod", new Exception(response.ErrorMessage));
+            }
         }
     }
 }

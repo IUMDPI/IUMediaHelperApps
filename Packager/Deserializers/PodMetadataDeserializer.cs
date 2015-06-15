@@ -5,6 +5,7 @@ using System.Net;
 using System.Reflection;
 using System.Xml.Linq;
 using Packager.Attributes;
+using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Providers;
 using RestSharp;
@@ -56,7 +57,7 @@ namespace Packager.Deserializers
                 var value = ConvertToCorrectType(stringValue, property);
                 if (value == null)
                 {
-                    throw new Exception(string.Format("Could not convert value of {0} for field {1} to a known type", stringValue, property.Name));
+                    throw new DeserializeValueException("Could not convert value of {0} for field {1} to a known type", stringValue, property.Name);
                 }
 
                 property.SetValue(target, value);
@@ -81,7 +82,7 @@ namespace Packager.Deserializers
                 }
                 else
                 {
-                    throw new Exception("Property value must be string or string array");
+                    throw new DeserializeValueException("Property value must be string or string array");
                 }
 
                 property.SetValue(target, value);

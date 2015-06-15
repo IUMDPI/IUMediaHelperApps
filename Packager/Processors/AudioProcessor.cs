@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
@@ -172,7 +173,7 @@ namespace Packager.Processors
             var verifier = new FFMPEGVerifier(result.ExitCode);
             if (!verifier.Verify())
             {
-                throw new Exception(string.Format("Could not generate derivative: {0}", result.ExitCode));
+                throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
         }
 
@@ -184,7 +185,7 @@ namespace Packager.Processors
 
             if (!filesToAddMetadata.Any())
             {
-                throw new Exception("Could not add metadata: no eligible files");
+                throw new AddMetadataException("Could not add metadata: no eligible files");
             }
 
             var xml = new ConformancePointDocumentFactory(FileProvider, ProcessingDirectory, DigitizingEntity, TempInstitution)
@@ -220,7 +221,7 @@ namespace Packager.Processors
 
             if (!verifier.Verify())
             {
-                throw new Exception("Could not add metadata to one or more files!");
+                throw new AddMetadataException("Could not add metadata to one or more files!");
             }
         }
 

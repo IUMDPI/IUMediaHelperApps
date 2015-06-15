@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
@@ -243,7 +244,7 @@ namespace Packager.Processors
             var metadata = await MetadataProvider.Get(Barcode);
             if (!metadata.Success)
             {
-                throw new Exception(string.Format("Could not retrieve metadata: {0}", metadata.Message.ToDefaultIfEmpty("[no error message present]")));
+                throw new PodMetadataException("Could not retrieve metadata: {0}", metadata.Message.ToDefaultIfEmpty("[no error message present]"));
             }
 
             return metadata;

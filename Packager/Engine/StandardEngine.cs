@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
@@ -113,7 +114,7 @@ namespace Packager.Engine
             // if we have no groups or if we have more than one group, we have a problem
             if (validExtensions.Count() != 1)
             {
-                throw new Exception("Can not determine extension for file batch");
+                throw new DetermineProcessorException("Can not determine extension for file batch");
             }
 
             var type = _processorsTypes[validExtensions.First().Key];

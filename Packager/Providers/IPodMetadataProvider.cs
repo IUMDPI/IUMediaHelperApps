@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Packager.Deserializers;
+using Packager.Exceptions;
 using Packager.Models;
 using Packager.Models.PodMetadataModels;
 using RestSharp;
@@ -47,16 +48,16 @@ namespace Packager.Providers
             return response.Data;
         }
 
-        private void VerifyResponse(IRestResponse response)
+        private static void VerifyResponse(IRestResponse response)
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
-                throw new Exception("Could not retrieve metadata from Pod", response.ErrorException);  
+                throw new PodMetadataException("Could not retrieve metadata from Pod", response.ErrorException);  
             }
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new Exception("Could not retrieve metadata from Pod", new Exception(response.ErrorMessage));
+                throw new PodMetadataException("Could not retrieve metadata from Pod", new Exception(response.ErrorMessage));
             }
         }
     }

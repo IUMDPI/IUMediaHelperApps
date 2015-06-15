@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Packager.Exceptions;
 
 namespace Packager.Providers
 {
@@ -44,7 +45,7 @@ namespace Packager.Providers
         {
             if (!_tables.ContainsKey(table))
             {
-                throw new Exception(string.Format("No lookup handler for table {0}", table));    
+                throw new LookupException("No lookup handler for table {0}", table);    
             }
 
             if (string.IsNullOrWhiteSpace(value))
@@ -55,7 +56,7 @@ namespace Packager.Providers
             var result = GetValue(_tables[table], value);
             if (string.IsNullOrWhiteSpace(result))
             {
-                throw new Exception(string.Format("No value present for key {0} in lookup table {1}", value, table));
+                throw new LookupException("No value present for key {0} in lookup table {1}", value, table);
             }
 
             return result;

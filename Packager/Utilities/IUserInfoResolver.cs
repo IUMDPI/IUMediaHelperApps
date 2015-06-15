@@ -1,5 +1,6 @@
 ﻿using System;
 using System.DirectoryServices.AccountManagement;
+using Packager.Exceptions;
 using Packager.Models;
 
 namespace Packager.Utilities
@@ -17,7 +18,7 @@ namespace Packager.Utilities
             var user = UserPrincipal.FindByIdentity(context, username);
             if (user == null)
             {
-                throw new Exception(string.Format("Could not resolve file creator from username {0}", username));
+                throw new ResolverException("Could not resolve file creator from username {0}", username);
             }
 
             return new UserInfo

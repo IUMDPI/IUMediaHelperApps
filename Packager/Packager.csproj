@@ -59,6 +59,15 @@
     <Compile Include="Deserializers\PodMetadataDeserializer.cs" />
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
+    <Compile Include="Exceptions\AbstractEngineException.cs" />
+    <Compile Include="Exceptions\BextMetadataException.cs" />
+    <Compile Include="Exceptions\DeserializeValueException.cs" />
+    <Compile Include="Exceptions\DetermineProcessorException.cs" />
+    <Compile Include="Exceptions\GenerateDerivativeException.cs" />
+    <Compile Include="Exceptions\LookupException.cs" />
+    <Compile Include="Exceptions\OutputXmlException.cs" />
+    <Compile Include="Exceptions\ResolverException.cs" />
+    <Compile Include="Exceptions\PodMetadataException.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\FileModelExtensions.cs" />
     <Compile Include="Extensions\ObserverExtensions.cs" />

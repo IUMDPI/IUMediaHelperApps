@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
+using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
@@ -52,7 +53,7 @@ namespace Packager.Utilities
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
             {
-                throw new Exception("Could not determine side groupings");
+                throw new OutputXmlException("Could not determine side groupings");
             }
 
             var result = new List<SideData>();
@@ -60,7 +61,7 @@ namespace Packager.Utilities
             {
                 if (!grouping.Key.HasValue)
                 {
-                    throw new Exception("One or more groupings has an invalid sequence value");
+                    throw new OutputXmlException("One or more groupings has an invalid sequence value");
                 }
 
                 var sideData = ImportSideData(grouping.Key.Value);

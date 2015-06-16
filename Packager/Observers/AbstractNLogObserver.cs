@@ -5,8 +5,15 @@ namespace Packager.Observers
 {
     public abstract class AbstractNLogObserver:IObserver
     {
+        
         public abstract void Log(string baseMessage, params object[] elements);
         public abstract void LogHeader(string baseMessage, params object[] elements);
+        public abstract void LogError(string baseMessage, object[] elements);
+        
+        public void LogExternal(string text)
+        {
+            Log(text);
+        }
 
         protected abstract string LoggerName { get;}
 

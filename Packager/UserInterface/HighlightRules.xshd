@@ -1,0 +1,18 @@
+﻿<SyntaxDefinition name="Packager"
+                  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+
+  <Color name="Success" foreground="Blue" />
+  <Color name="Error" foreground="Red" />
+
+  <RuleSet>
+    <Span color="Success" begin="Successfully " />
+    <Span color="Error" begin="An issue occurred while processing object " />
+    <Span color="Error" begin="   at "/>
+    <Span color="Error" begin="--- " />
+    
+    <Rule fontWeight="bold" foreground="Purple">
+      \b\d{14}x\b|(\b\d{14}\b) #barcode
+    </Rule>
+  </RuleSet>
+
+</SyntaxDefinition>

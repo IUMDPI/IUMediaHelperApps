@@ -20,10 +20,10 @@ namespace Packager
 
         private async void FormLoadHandler(object sender, EventArgs e)
         {
-            _engine.AddObserver(new TextBoxOutputObserver(outputTextBox));
-            outputTextBox.Cursor = Cursors.WaitCursor;
-            await _engine.Start();
-            outputTextBox.Cursor = Cursors.Default;
+           _engine.AddObserver(new TextBoxOutputObserver(OutputBox));
+           OutputBox.Cursor = Cursors.WaitCursor;
+           await _engine.Start();
+           OutputBox.Cursor = Cursors.Default;
         }
     }
 }

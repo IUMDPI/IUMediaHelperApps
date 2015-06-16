@@ -168,7 +168,7 @@ namespace Packager.Processors
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.Log(result.StandardError);
+            Observers.LogExternal(result.StandardError);
 
             var verifier = new FFMPEGVerifier(result.ExitCode);
             if (!verifier.Verify())
@@ -179,6 +179,7 @@ namespace Packager.Processors
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {
+            Observers.Log("\nAdding metadata to objects");
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsAccessVersion() == false).ToList();
@@ -212,7 +213,7 @@ namespace Packager.Processors
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.Log(result.StandardOutput);
+            Observers.LogExternal(result.StandardOutput);
 
             var verifier = new BwfMetaEditResultsVerifier(
                 result.StandardOutput.ToLowerInvariant(),

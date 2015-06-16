@@ -28,39 +28,46 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.outputTextBox = new System.Windows.Forms.TextBox();
+            this.OutputBox = new FastColoredTextBoxNS.FastColoredTextBox();
             this.SuspendLayout();
             // 
-            // outputTextBox
+            // OutputBox
             // 
-            this.outputTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.outputTextBox.Location = new System.Drawing.Point(0, 0);
-            this.outputTextBox.Margin = new System.Windows.Forms.Padding(8);
-            this.outputTextBox.Multiline = true;
-            this.outputTextBox.Name = "outputTextBox";
-            this.outputTextBox.ReadOnly = true;
-            this.outputTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.outputTextBox.Size = new System.Drawing.Size(535, 390);
-            this.outputTextBox.TabIndex = 0;
-            this.outputTextBox.WordWrap = false;
+            this.OutputBox.AutoScrollMinSize = new System.Drawing.Size(0, 15);
+            this.OutputBox.BackBrush = null;
+            this.OutputBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.OutputBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.OutputBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.OutputBox.LeftPadding = 8;
+            this.OutputBox.Location = new System.Drawing.Point(0, 0);
+            this.OutputBox.Name = "OutputBox";
+            this.OutputBox.Paddings = new System.Windows.Forms.Padding(0);
+            this.OutputBox.ReadOnly = true;
+            this.OutputBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.OutputBox.ShowLineNumbers = false;
+            this.OutputBox.Size = new System.Drawing.Size(535, 390);
+            this.OutputBox.TabIndex = 0;
+            this.OutputBox.Text = "OutputBox";
+            this.OutputBox.WordWrap = true;
             // 
             // OutputForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(535, 390);
-            this.Controls.Add(this.outputTextBox);
+            this.Controls.Add(this.OutputBox);
             this.Name = "OutputForm";
             this.Text = "Output";
             this.Load += new System.EventHandler(this.FormLoadHandler);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.TextBox outputTextBox;
+        private FastColoredTextBoxNS.FastColoredTextBox OutputBox;
+
+
     }
 }
 

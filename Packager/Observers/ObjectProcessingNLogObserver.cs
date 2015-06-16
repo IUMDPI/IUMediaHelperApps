@@ -27,10 +27,16 @@ namespace Packager.Observers
             Log(baseMessage, elements);
         }
 
+        public override void LogError(string baseMessage, object[] elements)
+        {
+            Log(baseMessage, elements);
+        }
+
         protected override string LoggerName
         {
             get { return ThisLoggerName; }
         }
+
 
         protected override LogEventInfo GetLogEvent(string baseMessage, params object[] elements)
         {

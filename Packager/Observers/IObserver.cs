@@ -4,5 +4,7 @@
     {
         void Log(string baseMessage, params object[] elements);
         void LogHeader(string baseMessage, params object[] elements);
+        void LogError(string baseMessage, object[] elements);
+        void LogExternal(string text);
     }
 }

@@ -22,5 +22,21 @@ namespace Packager.Extensions
                 observer.LogHeader(baseMessage, elements);
             }
         }
+
+        public static void LogError(this IEnumerable<IObserver> observers, string baseMessage, params object[] elements)
+        {
+            foreach (var observer in observers)
+            {
+                observer.LogError(baseMessage, elements);
+            }
+        }
+
+        public static void LogExternal(this IEnumerable<IObserver> observers, string text)
+        {
+            foreach (var observer in observers)
+            {
+                observer.LogExternal(text);
+            }
+        }
     }
 }

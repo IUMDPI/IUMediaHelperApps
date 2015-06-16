@@ -97,7 +97,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.Log("An issue occurred while processing object {0}: {1}", Barcode, e);
+                Observers.LogError("An issue occurred while processing object {0}: {1}", Barcode, e);
                 MoveToErrorFolder();
                 return false;
             }

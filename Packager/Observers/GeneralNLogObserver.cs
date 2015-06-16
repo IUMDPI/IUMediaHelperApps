@@ -12,13 +12,18 @@ namespace Packager.Observers
             : base(logDirectory, processingDirectory)
         {
         }
-
+        
         public override void Log(string baseMessage, params object[] elements)
         {
             Logger.Log(GetLogEvent(baseMessage, elements));
         }
 
         public override void LogHeader(string baseMessage, params object[] elements)
+        {
+            Log(baseMessage, elements);
+        }
+
+        public override void LogError(string baseMessage, object[] elements)
         {
             Log(baseMessage, elements);
         }

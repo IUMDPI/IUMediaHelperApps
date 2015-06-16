@@ -48,10 +48,10 @@ namespace Packager
             var engine = new StandardEngine(processors, dependencyProvider);
 
             // pass engine into output form
-            var outputForm = new OutputForm(engine);
+            //var outputForm = new OutputForm(engine);
 
             // load and run output form
-            Application.Run(outputForm);
+            //Application.Run(outputForm);
         }
         
         private static void ConfigureNLog()

@@ -24,15 +24,11 @@ namespace Packager.Verifiers
             foreach (var path in TargetPaths)
             {
                 var fileName = Path.GetFileName(path);
-                if (IsModifiedOrNothingToDo(Output, path))
-                {
-                    Observers.Log("Successfully added metadata to {0}", fileName);
-                }
-                else
-                {
-                    Observers.Log("Could not add metadata to {0}", fileName);
-                    hasError = true;
-                }
+
+                if (IsModifiedOrNothingToDo(Output, path)) continue; // no error continue
+
+                Observers.Log("Could not add metadata to {0}", fileName);
+                hasError = true;
             }
 
             return hasError == false;

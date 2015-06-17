@@ -15,6 +15,16 @@ namespace Packager.Observers
             Log(text);
         }
 
+        public void BeginSection(Guid sectionKey, string baseMessage, params object[] elements)
+        {
+            Log(baseMessage, elements);
+        }
+
+        public void EndSection(Guid sectionKey)
+        {
+            // do nothing here
+        }
+
         protected abstract string LoggerName { get;}
 
         protected AbstractNLogObserver(string logDirectory, string processingDirectory)

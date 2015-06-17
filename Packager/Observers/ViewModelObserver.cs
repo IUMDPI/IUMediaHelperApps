@@ -1,4 +1,5 @@
-﻿using Packager.UserInterface;
+﻿using System;
+using Packager.UserInterface;
 
 namespace Packager.Observers
 {
@@ -29,6 +30,19 @@ namespace Packager.Observers
         public void LogExternal(string text)
         {
             ViewModel.InsertFolding(text);
+        }
+
+        public void BeginSection(Guid sectionKey, string baseMessage, params object[] elements)
+        {
+            Log("");
+            ViewModel.BeginSection(sectionKey, string.Format(baseMessage, elements));
+            Log(baseMessage, elements);
+        }
+
+        public void EndSection(Guid sectionKey)
+        {
+            ViewModel.EndSection(sectionKey);
+            Log("");
         }
     }
 }

@@ -15,6 +15,8 @@ namespace Packager.Models.FileModels
         private const string PreservationFileUseLongName = "Preservation Master";
         private const string ProductionFileUseLongName = "Production Master";
         private const string PreservationIntermediateFileUseLongName = "Preservation Master - Intermediate";
+        private const string AccessFileUseLongName = "Access File Version";
+        private const string MezzanineFileUseLongName = "Mezzanine File Version";
 
         private ObjectFileModel()
         {
@@ -50,6 +52,16 @@ namespace Packager.Models.FileModels
                 if (IsProductionVersion())
                 {
                     return ProductionFileUseLongName;
+                }
+
+                if (IsAccessVersion())
+                {
+                    return AccessFileUseLongName;
+                }
+
+                if (IsMezzanineVersion())
+                {
+                    return MezzanineFileUseLongName;
                 }
 
                 return "Unknown";

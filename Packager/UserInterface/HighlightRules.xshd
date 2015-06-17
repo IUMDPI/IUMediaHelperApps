@@ -3,15 +3,18 @@
 
   <Color name="Success" foreground="Blue" />
   <Color name="Error" foreground="Red" />
-
+  <Color name="Header" foreground="Blue" fontWeight="bold" />
+  
   <RuleSet>
-    <Span color="Success" begin="Successfully " />
     <Span color="Error" begin="An issue occurred while processing object " />
     <Span color="Error" begin="   at "/>
     <Span color="Error" begin="--- " />
     
+    <Span color="Header" begin="Generating " end=": " />
+    <Span color="Header" begin="Adding BEXT metadata" />
+    
     <Rule fontWeight="bold" foreground="Purple">
-      \b\d{14}x\b|(\b\d{14}\b) #barcode
+      \b\d{14}x\b|\b\d{14}\b #barcode
     </Rule>
   </RuleSet>
 

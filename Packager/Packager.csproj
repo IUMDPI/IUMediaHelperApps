@@ -121,7 +121,6 @@
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Observers\IObserver.cs" />
     <Compile Include="Observers\ViewModelObserver.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\AppConfigLookupsProvider.cs" />
@@ -167,7 +166,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="UserInterface\HighlightRules.xshd" />
+    <EmbeddedResource Include="UserInterface\HighlightRules.xshd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

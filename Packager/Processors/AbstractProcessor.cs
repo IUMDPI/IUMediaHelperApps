@@ -88,11 +88,15 @@ namespace Packager.Processors
 
         public virtual async Task<bool> ProcessFile(IEnumerable<AbstractFileModel> fileModels)
         {
+            var sectionKey = Guid.Empty;
             try
             {
                 AddObjectProcessingObserver();
+                sectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
+
                 await ProcessFileInternal(fileModels);
                 await MoveToSuccessFolder();
+                
                 return true;
             }
             catch (Exception e)
@@ -103,6 +107,7 @@ namespace Packager.Processors
             }
             finally
             {
+                Observers.EndSection(sectionKey);
                 RemoveObjectProcessingObservers();
             }
         }

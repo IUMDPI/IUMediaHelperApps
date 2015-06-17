@@ -52,8 +52,6 @@ namespace Packager.Processors
 
         protected override async Task ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels)
         {
-            Observers.LogHeader("Processing object {0}", Barcode);
-
             // make directory to hold processed files
             DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
 
@@ -64,6 +62,7 @@ namespace Packager.Processors
                 .ToList();
 
             // now move them to processing
+            Observers.Log("");
             foreach (var fileModel in filesToProcess)
             {
                 Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
@@ -71,6 +70,7 @@ namespace Packager.Processors
             }
 
             // fetch metadata
+            Observers.Log("");
             var metadata = await GetMetadata();
 
             // create derivatives for the various files
@@ -104,6 +104,7 @@ namespace Packager.Processors
             // make directory to hold completed files
             DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
+            Observers.Log("");
             // copy files
             foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
             {
@@ -116,15 +117,11 @@ namespace Packager.Processors
 
         public override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
-            var fileName = fileModel.ToFileName();
-
-            Observers.LogHeader("Generating Production Version: {0}", fileName);
             var prodModel = await CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
                 AddNoOverwriteToFfmpegCommand(FFMPEGAudioProductionArguments));
 
-            Observers.LogHeader("Generating AccessVersion: {0}", fileName);
             var accessModel = await CreateDerivative(
                 prodModel,
                 ToAccessFileModel(prodModel),
@@ -146,13 +143,23 @@ namespace Packager.Processors
 
         private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
-            var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
-            var outputPath = Path.Combine(ProcessingDirectory, newModel.ToFileName());
+            var sectionKey = Guid.Empty;
+            try
+            {
+                sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
 
-            var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
+                var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
+                var outputPath = Path.Combine(ProcessingDirectory, newModel.ToFileName());
 
-            await CreateDerivative(args);
-            return newModel;
+                var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
+
+                await CreateDerivative(args);
+                return newModel;
+            }
+            finally
+            {
+                Observers.EndSection(sectionKey);
+            }
         }
 
         private async Task CreateDerivative(string args)
@@ -168,7 +175,7 @@ namespace Packager.Processors
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.LogExternal(result.StandardError);
+            Observers.Log(result.StandardError);
 
             var verifier = new FFMPEGVerifier(result.ExitCode);
             if (!verifier.Verify())
@@ -179,7 +186,7 @@ namespace Packager.Processors
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {
-            Observers.Log("\nAdding metadata to objects");
+            Observers.Log("\nAdding BEXT metadata to objects");
             var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsAccessVersion() == false).ToList();

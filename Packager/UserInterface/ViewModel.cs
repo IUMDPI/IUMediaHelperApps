@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
+using Packager.Extensions;
 
 namespace Packager.UserInterface
 {
     public class ViewModel
     {
         private readonly List<NewFolding> _foldings = new List<NewFolding>();
-        private FoldingManager _foldingManager;
 
-        public TextDocument Document { get; private set; }
-
-        private FoldingManager FoldingManager
-        {
-            get { return _foldingManager; }
-            set { _foldingManager = value; }
-        }
+        private readonly Dictionary<Guid, NewFolding> _sectionDictionary =
+            new Dictionary<Guid, NewFolding>();
 
         public ViewModel()
         {
@@ -26,17 +22,24 @@ namespace Packager.UserInterface
             Document.TextChanged += TextChangedHandler;
         }
 
+        public TextDocument Document { get; private set; }
+        private FoldingManager FoldingManager { get; set; }
+
+        private int TextLength
+        {
+            get { return Document.TextLength; }
+        }
+
         public void Initialize(OutputWindow outputWindow)
         {
             outputWindow.DataContext = this;
             outputWindow.Show();
             FoldingManager = FoldingManager.Install(outputWindow.OutputText.TextArea);
-            
         }
 
         private void TextChangedHandler(object sender, EventArgs e)
         {
-            FoldingManager.UpdateFoldings(_foldings, -1);
+            FoldingManager.UpdateFoldings(_foldings.OrderBy(f => f.StartOffset), -1);
         }
 
         private void DocumentChangedHandler(object sender, DocumentChangeEventArgs e)
@@ -56,16 +59,52 @@ namespace Packager.UserInterface
             {
                 builder.AppendFormat("\t{0}\n", line);
             }
-            
-            var folding = new NewFolding(TextLength, TextLength + builder.Length-1);
-            _foldings.Add(folding);
+
+            var folding = new NewFolding(TextLength, TextLength + builder.Length - 1)
+            {
+                Name = value.Split('\n').FirstOrDefault().ToDefaultIfEmpty()
+            };
+
+            //_foldings.Add(folding);
 
             Document.Insert(TextLength, builder.ToString());
         }
 
-        private int TextLength
+        public void BeginSection(Guid sectionKey, string text)
         {
-            get { return Document.TextLength; }
+            if (sectionKey == Guid.Empty)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return;
+            }
+
+            var folding = new NewFolding(TextLength, TextLength + 1)
+            {
+                Name = text
+            };
+
+            _sectionDictionary[sectionKey] = folding;
+        }
+
+        public void EndSection(Guid sectionKey)
+        {
+            if (sectionKey == Guid.Empty)
+            {
+                return;
+            }
+
+            if (!_sectionDictionary.ContainsKey(sectionKey))
+            {
+                return;
+            }
+
+            var folding = _sectionDictionary[sectionKey];
+            folding.EndOffset = TextLength;
+            _foldings.Add(folding);
         }
     }
 }

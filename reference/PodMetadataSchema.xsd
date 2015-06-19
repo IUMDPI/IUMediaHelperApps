@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="pod">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="success"/>
+        <xs:element ref="data"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="success" type="xs:boolean"/>
+  <xs:element name="data">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="object"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="object">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="basics"/>
+        <xs:element ref="assignment"/>
+        <xs:element ref="details"/>
+        <xs:element ref="technical_metadata"/>
+        <xs:element ref="digital_provenance"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="basics">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="format"/>
+        <xs:element ref="files"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="format" type="xs:string"/>
+  <xs:element name="files" type="xs:integer"/>
+  <xs:element name="assignment">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="unit"/>
+        <xs:element ref="group_key"/>
+        <xs:element minOccurs="0" ref="picklist"/>
+        <xs:element minOccurs="0" ref="box"/>
+        <xs:element minOccurs="0" ref="bin"/>
+        <xs:element minOccurs="0" ref="batch"/>
+        <xs:element minOccurs="0" ref="spreadsheet"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="unit" type="xs:string"/>
+  <xs:element name="group_key" type="xs:string"/>
+  <xs:element name="picklist" type="xs:string"/>
+  <xs:element name="box" type="xs:integer"/>
+  <xs:element name="bin" type="xs:integer"/>
+  <xs:element name="batch" type="xs:string"/>
+  <xs:element name="spreadsheet" type="xs:string"/>
+  <xs:element name="details">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="id"/>
+        <xs:element ref="title"/>
+        <xs:element ref="title_control_number"/>
+        <xs:element ref="home_location"/>
+        <xs:element ref="call_number"/>
+        <xs:element ref="iucat_barcode"/>
+        <xs:element ref="format"/>
+        <xs:element ref="collection_identifier"/>
+        <xs:element ref="mdpi_barcode"/>
+        <xs:element ref="has_ephemera"/>
+        <xs:element ref="created_at"/>
+        <xs:element ref="updated_at"/>
+        <xs:element ref="author"/>
+        <xs:element ref="catalog_key"/>
+        <xs:element ref="collection_name"/>
+        <xs:element ref="generation"/>
+        <xs:element ref="oclc_number"/>
+        <xs:element ref="other_copies"/>
+        <xs:element ref="year"/>
+        <xs:element ref="group_position"/>
+        <xs:element ref="ephemera_returned"/>
+        <xs:element ref="staging_requested"/>
+        <xs:element ref="staged"/>
+        <xs:element ref="digital_start"/>
+        <xs:element ref="staging_request_timestamp"/>
+        <xs:element ref="audio"/>
+        <xs:element ref="video"/>
+        <xs:element ref="memnon_qc_completed"/>
+        <xs:element ref="group_total"/>
+        <xs:element ref="carrier_stream_index"/>
+        <xs:element ref="current_workflow_status"/>
+        <xs:element ref="workflow_statuses"/>
+        <xs:element ref="notes"/>
+        <xs:element ref="condition_statuses"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="id" type="xs:integer"/>
+  <xs:element name="title" type="xs:string"/>
+  <xs:element name="title_control_number" type="xs:string"/>
+  <xs:element name="home_location" type="xs:string"/>
+  <xs:element name="call_number" type="xs:string"/>
+  <xs:element name="iucat_barcode" type="xs:string"/>
+  <xs:element name="collection_identifier" type="xs:string"/>
+  <xs:element name="mdpi_barcode" type="xs:integer"/>
+  <xs:element name="has_ephemera" type="xs:boolean"/>
+  <xs:element name="created_at" type="xs:dateTime"/>
+  <xs:element name="updated_at" type="xs:dateTime"/>
+  <xs:element name="author" type="xs:string"/>
+  <xs:element name="catalog_key" type="xs:string"/>
+  <xs:element name="collection_name" type="xs:string"/>
+  <xs:element name="generation" type="xs:string"/>
+  <xs:element name="oclc_number" type="xs:string"/>
+  <xs:element name="other_copies" type="xs:boolean"/>
+  <xs:element name="year" type="xs:string"/>
+  <xs:element name="group_position" type="xs:integer"/>
+  <xs:element name="ephemera_returned" type="xs:boolean"/>
+  <xs:element name="staging_requested" type="xs:boolean"/>
+  <xs:element name="staged" type="xs:boolean"/>
+  <xs:element name="digital_start" type="xs:dateTime" nillable="true"/>
+  <xs:element name="staging_request_timestamp" type="xs:dateTime" nillable="true"/>
+  <xs:element name="audio" type="xs:boolean"/>
+  <xs:element name="video" type="xs:boolean"/>
+  <xs:element name="memnon_qc_completed" type="xs:boolean"/>
+  <xs:element name="group_total" type="xs:integer"/>
+  <xs:element name="carrier_stream_index" type="xs:string"/>
+  <xs:element name="current_workflow_status" type="xs:string"/>
+  <xs:element name="workflow_statuses">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="workflow_status"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="workflow_status">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="id"/>
+        <xs:element ref="created_at"/>
+        <xs:element ref="updated_at"/>
+        <xs:element ref="user"/>
+        <xs:element ref="has_ephemera"/>
+        <xs:element ref="ephemera_returned"/>
+        <xs:element ref="ephemera_okay"/>
+        <xs:element ref="name"/>
+        <xs:element ref="sequence_index"/>
+        <xs:element ref="workflow_note"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="user" type="xs:string"/>
+  <xs:element name="ephemera_okay" type="xs:boolean"/>
+  <xs:element name="name" type="xs:string"/>
+  <xs:element name="sequence_index" type="xs:integer"/>
+  <xs:element name="workflow_note" type="xs:string"/>
+  <xs:element name="notes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="note"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="note">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="id"/>
+        <xs:element ref="body"/>
+        <xs:element ref="user"/>
+        <xs:element ref="created_at"/>
+        <xs:element ref="updated_at"/>
+        <xs:element ref="export"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="body" type="xs:string"/>
+  <xs:element name="export" type="xs:boolean"/>
+  <xs:element name="condition_statuses">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="condition_status"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="condition_status">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="id"/>
+        <xs:element ref="created_at"/>
+        <xs:element ref="updated_at"/>
+        <xs:element ref="user"/>
+        <xs:element ref="active"/>
+        <xs:element ref="name"/>
+        <xs:element ref="blocks_packing"/>
+        <xs:element ref="condition_note"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="active" type="xs:boolean"/>
+  <xs:element name="blocks_packing" type="xs:boolean"/>
+  <xs:element name="condition_note" type="xs:string"/>
+  <xs:element name="technical_metadata">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="format"/>
+        <xs:element ref="files"/>
+        <xs:choice>
+          <!-- Betacam -->
+          <xs:sequence>
+            <xs:element ref="format_version"/>
+            <xs:element ref="pack_deformation"/>
+            <xs:element ref="cassette_size"/>
+            <xs:element ref="recording_standard"/>
+            <xs:element ref="format_duration"/>
+            <xs:element ref="tape_stock_brand"/>
+            <xs:element ref="image_format"/>
+            <xs:element ref="preservation_problems"/>
+          </xs:sequence>
+          <!-- CD-R -->
+          <xs:sequence>
+            <xs:element ref="damage"/>
+            <xs:element ref="format_duration"/>
+            <xs:element ref="preservation_problems"/>
+          </xs:sequence>
+          <!-- DAT -->
+          <xs:sequence>
+            <xs:element ref="format_duration"/>
+            <xs:element ref="tape_stock_brand"/>
+            <xs:element ref="sample_rate"/>
+            <xs:element ref="preservation_problems"/>
+          </xs:sequence>
+          <!-- LP -->
+          <xs:sequence>
+            <xs:element ref="diameter"/>
+            <xs:element ref="speed"/>
+            <xs:element ref="groove_size"/>
+            <xs:element ref="groove_orientation"/>
+            <xs:element ref="recording_method"/>
+            <xs:element ref="material"/>
+            <xs:element ref="substrate"/>
+            <xs:element ref="coating"/>
+            <xs:element ref="equalization"/>
+            <xs:element ref="sound_field"/>
+            <xs:element ref="country_of_origin"/>
+            <xs:element ref="label"/>
+            <xs:element ref="preservation_problems"/>
+            <xs:element ref="damage"/>
+          </xs:sequence>
+          <!-- Open Reel Audio Tape -->
+          <xs:sequence>
+            <xs:element ref="pack_deformation"/>
+            <xs:element ref="reel_size"/>
+            <xs:element ref="tape_stock_brand"/>
+            <xs:element ref="directions_recorded"/>
+            <xs:element ref="preservation_problems"/>
+            <xs:element ref="playback_speed"/>
+            <xs:element ref="track_configuration"/>
+            <xs:element ref="tape_thickness"/>
+            <xs:element ref="sound_field"/>
+            <xs:element ref="tape_base"/>
+          </xs:sequence>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!-- Betacam -->
+  <xs:element name="format_version" type="xs:string"/>
+  <xs:element name="pack_deformation" type="xs:string"/>
+  <xs:element name="cassette_size" type="xs:string"/>
+  <xs:element name="recording_standard" type="xs:string"/>
+  <xs:element name="format_duration" type="xs:string"/>
+  <xs:element name="tape_stock_brand" type="xs:string"/>
+  <xs:element name="image_format" type="xs:string"/>
+  <!-- CD-R -->
+  <!-- damage: mixed -->
+  <!-- DAT -->
+  <!-- LP -->
+  <xs:element name="diameter" type="xs:integer"/>
+  <xs:element name="speed" type="xs:decimal"/>
+  <xs:element name="groove_size" type="xs:string"/>
+  <xs:element name="groove_orientation" type="xs:string"/>
+  <xs:element name="recording_method" type="xs:string"/>
+  <xs:element name="material" type="xs:string"/>
+  <xs:element name="substrate" type="xs:string"/>
+  <xs:element name="coating" type="xs:string"/>
+  <xs:element name="equalization" type="xs:string"/>
+  <xs:element name="country_of_origin" type="xs:string"/>
+  <xs:element name="label" type="xs:string"/>
+  <!-- Open Reel Audio Tape -->
+  <xs:element name="reel_size" type="xs:string"/>
+  <xs:element name="directions_recorded" type="xs:integer"/>
+  <!-- Complex types -->
+  <xs:element name="damage">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="fungus"/>
+        <xs:element ref="broken"/>
+        <xs:element ref="cracked"/>
+        <xs:element ref="dirty"/>
+        <xs:element ref="scratched"/>
+        <xs:element ref="warped"/>
+        <xs:element ref="worn"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="fungus" type="xs:boolean"/>
+  <xs:element name="broken" type="xs:boolean"/>
+  <xs:element name="cracked" type="xs:boolean"/>
+  <xs:element name="dirty" type="xs:boolean"/>
+  <xs:element name="scratched" type="xs:boolean"/>
+  <xs:element name="warped" type="xs:boolean"/>
+  <xs:element name="worn" type="xs:boolean"/>
+  <xs:element name="playback_speed">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="zero_point9375_ips"/>
+        <xs:element minOccurs="0" ref="one_point875_ips"/>
+        <xs:element minOccurs="0" ref="three_point75_ips"/>
+        <xs:element minOccurs="0" ref="seven_point5_ips"/>
+        <xs:element minOccurs="0" ref="fifteen_ips"/>
+        <xs:element minOccurs="0" ref="thirty_ips"/>
+        <xs:element minOccurs="0" ref="unknown_playback_speed"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="zero_point9375_ips" type="xs:boolean"/>
+  <xs:element name="one_point875_ips" type="xs:boolean"/>
+  <xs:element name="three_point75_ips" type="xs:boolean"/>
+  <xs:element name="seven_point5_ips" type="xs:boolean"/>
+  <xs:element name="fifteen_ips" type="xs:boolean"/>
+  <xs:element name="thirty_ips" type="xs:boolean"/>
+  <xs:element name="unknown_playback_speed" type="xs:boolean"/>
+  <xs:element name="preservation_problems">
+    <xs:complexType>
+      <xs:choice>
+        <!-- LP -->
+        <xs:sequence>
+          <xs:element minOccurs="0" ref="delamination"/>
+          <xs:element minOccurs="0" ref="exudation"/>
+          <xs:element minOccurs="0" ref="oxidation"/>
+        </xs:sequence>
+        <!-- All other types -->
+        <xs:sequence>
+          <xs:element minOccurs="0" ref="breakdown_of_materials"/>
+          <xs:element minOccurs="0" ref="fungus"/>
+          <xs:element minOccurs="0" ref="soft_binder_syndrome"/>
+          <xs:element minOccurs="0" ref="vinegar_syndrome"/>
+          <xs:element minOccurs="0" ref="other_contaminants"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <!-- fungus duplicated under damage types -->
+  <xs:element name="delamination" type="xs:boolean"/>
+  <xs:element name="exudation" type="xs:boolean"/>
+  <xs:element name="oxidation" type="xs:boolean"/>
+  <xs:element name="breakdown_of_materials" type="xs:boolean"/>
+  <xs:element name="soft_binder_syndrome" type="xs:boolean"/>
+  <xs:element name="vinegar_syndrome" type="xs:boolean"/>
+  <xs:element name="other_contaminants" type="xs:boolean"/>
+  <xs:element name="sample_rate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="sample_rate_32k"/>
+        <xs:element minOccurs="0" ref="sample_rate_44_1_k"/>
+        <xs:element minOccurs="0" ref="sample_rate_48k"/>
+        <xs:element minOccurs="0" ref="sample_rate_96k"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="sample_rate_32k" type="xs:boolean"/>
+  <xs:element name="sample_rate_44_1_k" type="xs:boolean"/>
+  <xs:element name="sample_rate_48k" type="xs:boolean"/>
+  <xs:element name="sample_rate_96k" type="xs:boolean"/>
+  <xs:element name="sound_field">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="mono"/>
+        <xs:element ref="stereo"/>
+        <xs:element ref="unknown_sound_field"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="mono" type="xs:boolean"/>
+  <xs:element name="stereo" type="xs:boolean"/>
+  <xs:element name="unknown_sound_field" type="xs:boolean"/>
+  <xs:element name="tape_thickness">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="zero_point5_mils"/>
+        <xs:element minOccurs="0" ref="one_mils"/>
+        <xs:element minOccurs="0" ref="one_point5_mils"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="zero_point5_mils" type="xs:boolean"/>
+  <xs:element name="one_mils" type="xs:boolean"/>
+  <xs:element name="one_point5_mils" type="xs:boolean"/>
+  <xs:element name="track_configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="full_track"/>
+        <xs:element minOccurs="0" ref="half_track"/>
+        <xs:element minOccurs="0" ref="quarter_track"/>
+        <xs:element minOccurs="0" ref="unknown_track"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="full_track" type="xs:boolean"/>
+  <xs:element name="half_track" type="xs:boolean"/>
+  <xs:element name="quarter_track" type="xs:boolean"/>
+  <xs:element name="unknown_track" type="xs:boolean"/>
+  <xs:element name="tape_base">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="acetate_base"/>
+        <xs:element minOccurs="0" ref="polyester_base"/>
+        <xs:element minOccurs="0" ref="pvc_base"/>
+        <xs:element minOccurs="0" ref="paper_base"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="acetate_base" type="xs:boolean"/>
+  <xs:element name="polyester_base" type="xs:boolean"/>
+  <xs:element name="pvc_base" type="xs:boolean"/>
+  <xs:element name="paper_base" type="xs:boolean"/>
+  <xs:element name="digital_provenance">
+    <xs:complexType/>
+  </xs:element>
+</xs:schema>

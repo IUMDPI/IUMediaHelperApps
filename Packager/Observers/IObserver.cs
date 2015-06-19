@@ -5,11 +5,15 @@ namespace Packager.Observers
     public interface IObserver
     {
         void Log(string baseMessage, params object[] elements);
-        void LogHeader(string baseMessage, params object[] elements);
         void LogError(string baseMessage, object[] elements);
-        void LogExternal(string text);
+    }
 
+    public interface IViewModelObserver : IObserver
+    {
         void BeginSection(Guid sectionKey, string baseMessage, params object[] elements);
         void EndSection(Guid sectionKey);
+        void FlagAsSuccessful(Guid sectionKey, string newTitle);
+        void FlagAsWarning(Guid sectionKey, string newTitle);
+        void FlagAsError(Guid sectionKey, string newTitle);
     }
 }

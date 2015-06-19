@@ -111,6 +111,7 @@
     <Compile Include="Models\OutputModels\PreviewData.cs" />
     <Compile Include="Models\FileModels\UnknownFileModel.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\UserInterfaceModels\SectionModel.cs" />
     <Compile Include="Observers\AbstractNLogObserver.cs" />
     <Compile Include="Observers\GeneralNLogObserver.cs" />
     <Compile Include="Observers\LayoutRenderers\BarcodeLayoutRenderer.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Providers\IPodMetadataProvider.cs" />
     <Compile Include="Providers\ILookupsProvider.cs" />
+    <Compile Include="UserInterface\Strategies\IndentationStrategy.cs" />
     <Compile Include="UserInterface\View.xaml.cs">
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>

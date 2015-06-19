@@ -62,8 +62,7 @@ namespace Packager.Engine
                     .Where(f => f.IsValid())
                     .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
                     .GroupBy(f => f.BarCode).ToList();
-
-
+                
                 Observers.Log("Found {0} objects to process", objectGroups.Count());
 
                 var results = new Dictionary<string, bool>();
@@ -99,7 +98,14 @@ namespace Packager.Engine
         private async Task<bool> ProcessFile(IGrouping<string, AbstractFileModel> group)
         {
             var processor = GetProcessor(group);
-            return await processor.ProcessFile(group);
+
+            var result = await processor.ProcessFile(group);
+            if (result)
+            {
+                Observers.FlagAsSuccessful(processor.SectionKey, string.Format("Object processed succesfully: {0}", processor.Barcode));
+            }
+
+            return result;
         }
 
         private IProcessor GetProcessor(IGrouping<string, AbstractFileModel> group)

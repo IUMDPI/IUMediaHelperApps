@@ -3,7 +3,7 @@ using Packager.UserInterface;
 
 namespace Packager.Observers
 {
-    internal class ViewModelObserver : IObserver
+    internal class ViewModelObserver : IViewModelObserver
     {
         public ViewModelObserver(ViewModel viewModel)
         {
@@ -27,22 +27,30 @@ namespace Packager.Observers
             Log(baseMessage, elements);
         }
 
-        public void LogExternal(string text)
-        {
-            ViewModel.InsertFolding(text);
-        }
-
         public void BeginSection(Guid sectionKey, string baseMessage, params object[] elements)
         {
-            Log("");
             ViewModel.BeginSection(sectionKey, string.Format(baseMessage, elements));
-            Log(baseMessage, elements);
         }
 
         public void EndSection(Guid sectionKey)
         {
             ViewModel.EndSection(sectionKey);
-            Log("");
+           
+        }
+
+        public void FlagAsSuccessful(Guid sectionKey, string newTitle)
+        {
+            ViewModel.FlagSectionAsSuccessful(sectionKey, newTitle);
+        }
+
+        public void FlagAsWarning(Guid sectionKey, string newTitle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FlagAsError(Guid sectionKey, string newTitle)
+        {
+            throw new NotImplementedException();
         }
     }
 }

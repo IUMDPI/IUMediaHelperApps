@@ -24,7 +24,7 @@ namespace Packager.Observers
         {
             // do nothing here
         }
-
+        
         protected abstract string LoggerName { get;}
 
         protected AbstractNLogObserver(string logDirectory, string processingDirectory)

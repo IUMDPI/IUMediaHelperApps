@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -44,6 +45,8 @@ namespace Packager.Processors
         protected abstract string PreservationFileExtension { get; }
         protected abstract string PreservationIntermediateFileExtenstion { get; }
 
+        public Guid SectionKey { get; private set; }
+
         protected IPodMetadataProvider MetadataProvider
         {
             get { return _dependencyProvider.MetadataProvider; }
@@ -64,7 +67,7 @@ namespace Packager.Processors
             get { return _dependencyProvider.XmlExporter; }
         }
 
-        protected string Barcode { get; set; }
+        public string Barcode { get; private set; }
 
         protected string ProjectCode
         {
@@ -88,11 +91,10 @@ namespace Packager.Processors
 
         public virtual async Task<bool> ProcessFile(IEnumerable<AbstractFileModel> fileModels)
         {
-            var sectionKey = Guid.Empty;
             try
             {
                 AddObjectProcessingObserver();
-                sectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
+                SectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
 
                 await ProcessFileInternal(fileModels);
                 await MoveToSuccessFolder();
@@ -107,16 +109,42 @@ namespace Packager.Processors
             }
             finally
             {
-                Observers.EndSection(sectionKey);
+                Observers.EndSection(SectionKey);
                 RemoveObjectProcessingObservers();
             }
         }
-
+        
         private async Task MoveToSuccessFolder()
         {
             // move folder to success
             Observers.Log("Moving {0} to success directory", ObjectDirectoryName);
             await DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory, SuccesDirectory);
+        }
+
+        protected async Task CopyToDropbox(IEnumerable<AbstractFileModel> fileList)
+        {
+            var sectionId = Guid.Empty;
+            try
+            {
+                sectionId = Observers.BeginSection("Copying objects to dropbox");
+                
+                DirectoryProvider.CreateDirectory(DropBoxDirectory);
+
+                
+                foreach (var fileName in fileList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
+                {
+                    Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
+                    await FileProvider.CopyFileAsync(
+                        Path.Combine(ProcessingDirectory, fileName),
+                        Path.Combine(DropBoxDirectory, fileName));
+                }
+            }
+            finally
+            {
+                Observers.EndSection(sectionId);
+            }
+
+            
         }
 
         private void MoveToErrorFolder()

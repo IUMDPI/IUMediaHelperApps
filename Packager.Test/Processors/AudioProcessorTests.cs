@@ -83,7 +83,7 @@ namespace Packager.Test.Processors
 
                 await processor.ProcessFile(GetGrouping());
 
-                mockObserver.Received().LogHeader(Arg.Is("Processing object {0}"), Arg.Is(BarCode1));
+                mockObserver.Received().Log(Arg.Is("Processing object {0}"), Arg.Is(BarCode1));
             }
 
             [Test]

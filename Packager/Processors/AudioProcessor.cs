@@ -62,7 +62,6 @@ namespace Packager.Processors
                 .ToList();
 
             // now move them to processing
-            Observers.Log("");
             foreach (var fileModel in filesToProcess)
             {
                 Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
@@ -70,7 +69,6 @@ namespace Packager.Processors
             }
 
             // fetch metadata
-            Observers.Log("");
             var metadata = await GetMetadata();
 
             // create derivatives for the various files
@@ -101,18 +99,7 @@ namespace Packager.Processors
 
             processedList.Add(xmlModel);
 
-            // make directory to hold completed files
-            DirectoryProvider.CreateDirectory(DropBoxDirectory);
-
-            Observers.Log("");
-            // copy files
-            foreach (var fileName in processedList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
-            {
-                Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
-                await FileProvider.CopyFileAsync(
-                    Path.Combine(ProcessingDirectory, fileName),
-                    Path.Combine(DropBoxDirectory, fileName));
-            }
+            await CopyToDropbox(processedList);
         }
 
         public override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
@@ -144,6 +131,7 @@ namespace Packager.Processors
         private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var sectionKey = Guid.Empty;
+            var success = false;
             try
             {
                 sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
@@ -154,11 +142,16 @@ namespace Packager.Processors
                 var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
                 await CreateDerivative(args);
+                success = true;
                 return newModel;
             }
             finally
             {
                 Observers.EndSection(sectionKey);
+                if (success)
+                {
+                    Observers.FlagAsSuccessful(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()));
+                }
             }
         }
 
@@ -186,20 +179,29 @@ namespace Packager.Processors
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {
-            Observers.Log("\nAdding BEXT metadata to objects");
-            var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel) m)
+            var sectionId = Guid.Empty;
+            try
+            {
+                sectionId = Observers.BeginSection("Adding BEXT metadata");
+                var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
+                .Select(m => (ObjectFileModel)m)
                 .Where(m => m.IsAccessVersion() == false).ToList();
 
-            if (!filesToAddMetadata.Any())
-            {
-                throw new AddMetadataException("Could not add metadata: no eligible files");
+                if (!filesToAddMetadata.Any())
+                {
+                    throw new AddMetadataException("Could not add metadata: no eligible files");
+                }
+
+                var xml = new ConformancePointDocumentFactory(FileProvider, ProcessingDirectory, DigitizingEntity, TempInstitution)
+                    .Get(filesToAddMetadata, podMetadata);
+
+                await AddMetadata(xml);
             }
-
-            var xml = new ConformancePointDocumentFactory(FileProvider, ProcessingDirectory, DigitizingEntity, TempInstitution)
-                .Get(filesToAddMetadata, podMetadata);
-
-            await AddMetadata(xml);
+            finally
+            {
+                Observers.EndSection(sectionId);
+            }
+            
         }
 
         private async Task AddMetadata(ConformancePointDocument xml)
@@ -220,7 +222,7 @@ namespace Packager.Processors
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.LogExternal(result.StandardOutput);
+            Observers.Log(result.StandardOutput);
 
             var verifier = new BwfMetaEditResultsVerifier(
                 result.StandardOutput.ToLowerInvariant(),

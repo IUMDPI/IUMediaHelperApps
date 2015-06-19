@@ -1,25 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Runtime.InteropServices;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
-using Packager.Extensions;
+using Packager.Models.UserInterfaceModels;
 
 namespace Packager.UserInterface
 {
     public class ViewModel
     {
-        private readonly List<NewFolding> _foldings = new List<NewFolding>();
-
-        private readonly Dictionary<Guid, NewFolding> _sectionDictionary =
-            new Dictionary<Guid, NewFolding>();
+        private readonly List<SectionModel> _sections = new List<SectionModel>();
 
         public ViewModel()
         {
             Document = new TextDocument();
             Document.Changed += DocumentChangedHandler;
-            Document.TextChanged += TextChangedHandler;
         }
 
         public TextDocument Document { get; private set; }
@@ -34,12 +30,8 @@ namespace Packager.UserInterface
         {
             outputWindow.DataContext = this;
             outputWindow.Show();
-            FoldingManager = FoldingManager.Install(outputWindow.OutputText.TextArea);
-        }
 
-        private void TextChangedHandler(object sender, EventArgs e)
-        {
-            FoldingManager.UpdateFoldings(_foldings.OrderBy(f => f.StartOffset), -1);
+            FoldingManager = FoldingManager.Install(outputWindow.OutputText.TextArea);
         }
 
         private void DocumentChangedHandler(object sender, DocumentChangeEventArgs e)
@@ -49,25 +41,22 @@ namespace Packager.UserInterface
 
         public void InsertLine(string value)
         {
-            Document.Insert(TextLength, string.Format("{0}\n", value));
+            value = value.TrimEnd('\n');
+
+            var indent = GetIndents(value);
+            var lines = value.Split('\n');
+
+            foreach (var line in lines)
+            {
+                Document.Insert(TextLength, string.Format("{0}\n", Indent(line, indent)));
+            }
         }
 
-        public void InsertFolding(string value)
+        private int GetIndents(string value)
         {
-            var builder = new StringBuilder();
-            foreach (var line in value.Split('\n'))
-            {
-                builder.AppendFormat("\t{0}\n", line);
-            }
-
-            var folding = new NewFolding(TextLength, TextLength + builder.Length - 1)
-            {
-                Name = value.Split('\n').FirstOrDefault().ToDefaultIfEmpty()
-            };
-
-            //_foldings.Add(folding);
-
-            Document.Insert(TextLength, builder.ToString());
+            return _sections
+                .Where(m => m.Completed == false)
+                .Count(m => !m.Title.Equals(value));
         }
 
         public void BeginSection(Guid sectionKey, string text)
@@ -82,12 +71,29 @@ namespace Packager.UserInterface
                 return;
             }
 
-            var folding = new NewFolding(TextLength, TextLength + 1)
+            InsertLine("");
+
+            var sectionModel = GetOrCreateSectionModel(sectionKey);
+
+            sectionModel.StartOffset = TextLength;
+            sectionModel.Title = text;
+
+            InsertLine(text);
+        }
+
+        private SectionModel GetOrCreateSectionModel(Guid key)
+        {
+            var sectionModel = _sections.SingleOrDefault(m => m.Key.Equals(key));
+            if (sectionModel != null) return sectionModel;
+
+            sectionModel = new SectionModel
             {
-                Name = text
+                Key = key,
+                Indent = _sections.Count(m => !m.Completed)
             };
 
-            _sectionDictionary[sectionKey] = folding;
+            _sections.Add(sectionModel);
+            return sectionModel;
         }
 
         public void EndSection(Guid sectionKey)
@@ -97,14 +103,56 @@ namespace Packager.UserInterface
                 return;
             }
 
-            if (!_sectionDictionary.ContainsKey(sectionKey))
+            var sectionModel = _sections.SingleOrDefault(m => m.Key.Equals(sectionKey));
+            if (sectionModel == null)
             {
                 return;
             }
 
-            var folding = _sectionDictionary[sectionKey];
-            folding.EndOffset = TextLength;
-            _foldings.Add(folding);
+            InsertLine("");
+
+            sectionModel.EndOffset = TextLength - 1;
+            sectionModel.Completed = true;
+
+            var foldingSection = FoldingManager.CreateFolding(sectionModel.StartOffset, sectionModel.EndOffset);
+            foldingSection.Title = Indent(sectionModel.Title, sectionModel.Indent);
+
+            foldingSection.Tag = sectionModel;
+        }
+
+
+        private static string Indent(string value, int indent)
+        {
+            return string.Format("{0}{1}", new String(' ', indent * 2), value);
+        }
+
+        public void FlagSectionAsSuccessful(Guid key, string newTitle)
+        {
+            var section = FoldingManager.AllFoldings.SingleOrDefault(s => IsSection(s, key));
+            if (section == null)
+            {
+                return;
+            }
+
+            var model = section.Tag as SectionModel;
+            if (model == null)
+            {
+                return;
+            }
+
+            section.Title = Indent(newTitle, model.Indent);
+            section.IsFolded = true;
+        }
+
+        private static bool IsSection(FoldingSection section, Guid key)
+        {
+            var model = section.Tag as SectionModel;
+            if (model == null)
+            {
+                return false;
+            }
+
+            return model.Key.Equals(key);
         }
     }
 }

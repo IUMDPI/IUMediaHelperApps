@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NLog.Targets;
-using Packager.Models;
+using System.Linq;
 using Packager.Observers;
 
 namespace Packager.Extensions
@@ -16,14 +15,7 @@ namespace Packager.Extensions
             }
         }
 
-        public static void LogHeader(this IEnumerable<IObserver> observers, string baseMessage, params object[] elements)
-        {
-            foreach (var observer in observers)
-            {
-                observer.LogHeader(baseMessage, elements);
-            }
-        }
-
+        
         public static void LogError(this IEnumerable<IObserver> observers, string baseMessage, params object[] elements)
         {
             foreach (var observer in observers)
@@ -32,18 +24,15 @@ namespace Packager.Extensions
             }
         }
 
-        public static void LogExternal(this IEnumerable<IObserver> observers, string text)
+        private static IEnumerable<IViewModelObserver> ViewModelObservers(this IEnumerable<IObserver> observers)
         {
-            foreach (var observer in observers)
-            {
-                observer.LogExternal(text);
-            }
+            return observers.Select(o => (o as IViewModelObserver)).Where(o => o != null);
         }
 
         public static Guid BeginSection(this IEnumerable<IObserver> observers, string baseMessage, params object[] elements)
         {
             var sectionKey = Guid.NewGuid();
-            foreach (var observer in observers)
+            foreach (var observer in observers.ViewModelObservers())
             {
                 observer.BeginSection(sectionKey, baseMessage, elements);
             }
@@ -52,9 +41,17 @@ namespace Packager.Extensions
 
         public static void EndSection(this IEnumerable<IObserver> observers, Guid sectionKey)
         {
-            foreach (var observer in observers)
+            foreach (var observer in observers.ViewModelObservers())
             {
                 observer.EndSection(sectionKey);
+            }
+        }
+
+        public static void FlagAsSuccessful(this IEnumerable<IObserver> observers, Guid sectionKey, string newTitle)
+        {
+            foreach (var observer in observers.ViewModelObservers())
+            {
+                observer.FlagAsSuccessful(sectionKey, newTitle);
             }
         }
     }

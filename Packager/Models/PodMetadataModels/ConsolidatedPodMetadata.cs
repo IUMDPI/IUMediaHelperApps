@@ -1,4 +1,6 @@
-﻿using Packager.Attributes;
+﻿using System.Collections.Generic;
+using Packager.Attributes;
+using Packager.Observers;
 using Packager.Providers;
 using RestSharp.Deserializers;
 
@@ -12,7 +14,7 @@ namespace Packager.Models.PodMetadataModels
         [DeserializeAs(Name = "message")]
         public string Message { get; set; }
 
-        [DeserializeAs(Name = "call-number")]
+        [DeserializeAs(Name = "call_number")]
         public string CallNumber { get; set; }
 
         [DeserializeAs(Name = "title")]
@@ -21,7 +23,7 @@ namespace Packager.Models.PodMetadataModels
         [DeserializeAsLookup(Name = "unit", LookupTable = LookupTables.Units)]
         public string Unit { get; set; }
 
-        [DeserializeAs(Name = "mdpi-barcode")]
+        [DeserializeAs(Name = "mdpi_barcode")]
         public string Barcode { get; set; }
 
         [DeserializeAs(Name = "tape_stock_brand")]
@@ -36,16 +38,17 @@ namespace Packager.Models.PodMetadataModels
         [DeserializeAs(Name = "directions_recorded")]
         public string DirectionsRecorded { get; set; }
 
-        [DeserializeAsLookup(Name = "playback-speed", LookupTable = LookupTables.PlaybackSpeeds)]
+        [DeserializeAsLookup(Name = "playback_speed", LookupTable = LookupTables.PlaybackSpeeds)]
         public string[] PlaybackSpeeds { get; set; }
 
-        [DeserializeAsLookup(Name = "track-configuration", LookupTable = LookupTables.TrackConfigurations)]
+        [DeserializeAsLookup(Name = "track_configuration", LookupTable = LookupTables.TrackConfigurations)]
         public string[] TrackConfigurations { get; set; }
 
-        [DeserializeAsLookup(Name = "sound-field", LookupTable = LookupTables.SoundFields)]
+        [DeserializeAsLookup(Name = "sound_field", LookupTable = LookupTables.SoundFields)]
         public string[] SoundFields { get; set; }
 
-        [DeserializeAsLookup(Name = "tape-thickness", LookupTable = LookupTables.TapeThicknesses)]
+        [DeserializeAsLookup(Name = "tape_thickness", LookupTable = LookupTables.TapeThicknesses)]
         public string[] TapeThicknesses { get; set; }
+
     }
 }

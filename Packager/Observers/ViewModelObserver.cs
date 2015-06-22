@@ -16,15 +16,10 @@ namespace Packager.Observers
         {
             ViewModel.InsertLine(string.Format(baseMessage, elements));
         }
-
-        public void LogHeader(string baseMessage, params object[] elements)
+        
+        public void LogError(Exception issue)
         {
-            Log(baseMessage, elements);
-        }
-
-        public void LogError(string baseMessage, object[] elements)
-        {
-            Log(baseMessage, elements);
+            ViewModel.LogError(issue);
         }
 
         public void BeginSection(Guid sectionKey, string baseMessage, params object[] elements)

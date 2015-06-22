@@ -179,10 +179,11 @@ namespace Packager.Processors
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {
-            var sectionId = Guid.Empty;
+            var sectionKey = Guid.Empty;
+            var success = false;
             try
             {
-                sectionId = Observers.BeginSection("Adding BEXT metadata");
+                sectionKey = Observers.BeginSection("Adding BEXT metadata");
                 var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel)m)
                 .Where(m => m.IsAccessVersion() == false).ToList();
@@ -196,10 +197,15 @@ namespace Packager.Processors
                     .Get(filesToAddMetadata, podMetadata);
 
                 await AddMetadata(xml);
+                success = true;
             }
             finally
             {
-                Observers.EndSection(sectionId);
+                Observers.EndSection(sectionKey);
+                if (success)
+                {
+                    Observers.FlagAsSuccessful(sectionKey, "BEXT metadata added successfully");
+                }
             }
             
         }

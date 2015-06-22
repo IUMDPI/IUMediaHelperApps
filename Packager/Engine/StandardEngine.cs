@@ -81,7 +81,7 @@ namespace Packager.Engine
             }
             catch (Exception ex)
             {
-                Observers.LogError("Fatal Exception Occurred: {0}", ex);
+                Observers.LogError(ex);
             }
         }
 

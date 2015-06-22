@@ -1,4 +1,6 @@
-﻿namespace Packager.Extensions
+﻿using System.Text.RegularExpressions;
+
+namespace Packager.Extensions
 {
     public static class StringExtensions
     {
@@ -44,6 +46,13 @@
             }
 
             return result;
+        }
+
+        public static string FromCamelCaseToSpaces(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value) 
+                ? string.Empty 
+                : Regex.Replace(value, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
         }
     }
 }

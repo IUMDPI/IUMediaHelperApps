@@ -52,6 +52,14 @@ namespace Packager.UserInterface
             }
         }
 
+        public void LogError(Exception e)
+        {
+            var sectionKey = Guid.NewGuid();
+            BeginSection(sectionKey, string.Format("ERROR: {0}", e.Message));
+            InsertLine(e.StackTrace);
+            EndSection(sectionKey);
+        }
+
         private int GetIndents(string value)
         {
             return _sections
@@ -155,4 +163,7 @@ namespace Packager.UserInterface
             return model.Key.Equals(key);
         }
     }
+
+
+    
 }

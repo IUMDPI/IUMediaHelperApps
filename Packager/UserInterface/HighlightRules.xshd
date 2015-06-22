@@ -6,7 +6,7 @@
   <Color name="Header" foreground="Blue" fontWeight="bold" />
   
   <RuleSet>
-    <Span color="Error" begin="An issue occurred while processing object " />
+    <Span color="Error" begin="ERROR: " />
     <Span color="Error" begin="   at "/>
     <Span color="Error" begin="--- " />
     

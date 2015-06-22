@@ -103,7 +103,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogError("An issue occurred while processing object {0}: {1}", Barcode, e);
+                Observers.LogError(e);
                 MoveToErrorFolder();
                 return false;
             }
@@ -124,6 +124,7 @@ namespace Packager.Processors
         protected async Task CopyToDropbox(IEnumerable<AbstractFileModel> fileList)
         {
             var sectionId = Guid.Empty;
+            var success = false;
             try
             {
                 sectionId = Observers.BeginSection("Copying objects to dropbox");
@@ -138,13 +139,16 @@ namespace Packager.Processors
                         Path.Combine(ProcessingDirectory, fileName),
                         Path.Combine(DropBoxDirectory, fileName));
                 }
+                success = true;
             }
             finally
             {
                 Observers.EndSection(sectionId);
+                if (success)
+                {
+                    Observers.FlagAsSuccessful(sectionId, string.Format("{0} files copied to dropbox folder successfully", Barcode));
+                }
             }
-
-            
         }
 
         private void MoveToErrorFolder()
@@ -272,15 +276,32 @@ namespace Packager.Processors
 
         protected async Task<ConsolidatedPodMetadata> GetMetadata()
         {
-            Observers.Log("Requesting metadata for object: {0}", Barcode);
-
-            var metadata = await MetadataProvider.Get(Barcode);
-            if (!metadata.Success)
+            var sectionKey = Guid.Empty;
+            var success = false;
+            try
             {
-                throw new PodMetadataException("Could not retrieve metadata: {0}", metadata.Message.ToDefaultIfEmpty("[no error message present]"));
-            }
+                sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
+                var metadata = await MetadataProvider.Get(Barcode);
+                if (!metadata.Success)
+                {
+                    throw new PodMetadataException(
+                        "Could not retrieve metadata: {0}",
+                        metadata.Message.ToDefaultIfEmpty("[no error message present]"));
+                }
 
-            return metadata;
+                Observers.LogObjectProperties(metadata);
+
+                success = true;
+                return metadata;
+            }
+            finally
+            {
+                Observers.EndSection(sectionKey);
+                if (success)
+                {
+                    Observers.FlagAsSuccessful(sectionKey, string.Format("Retrieved metadata for object: {0}", Barcode));
+                }
+            }
         }
         
         protected void AddObjectProcessingObserver()
@@ -298,7 +319,5 @@ namespace Packager.Processors
         {
             Observers.RemoveAll(o => o is ObjectProcessingNLogObserver);
         }
-
-        
     }
 }

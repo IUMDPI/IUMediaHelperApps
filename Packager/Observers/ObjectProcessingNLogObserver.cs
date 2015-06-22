@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using System;
+using NLog;
 using Packager.Processors;
 
 namespace Packager.Observers
@@ -27,9 +28,9 @@ namespace Packager.Observers
             Log(baseMessage, elements);
         }
 
-        public override void LogError(string baseMessage, object[] elements)
+        public override void LogError(Exception issue)
         {
-            Log(baseMessage, elements);
+            Log(issue.ToString());
         }
 
         protected override string LoggerName

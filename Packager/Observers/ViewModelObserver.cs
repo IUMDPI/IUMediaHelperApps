@@ -1,4 +1,5 @@
 ﻿using System;
+using Packager.Exceptions;
 using Packager.UserInterface;
 
 namespace Packager.Observers
@@ -16,9 +17,14 @@ namespace Packager.Observers
         {
             ViewModel.InsertLine(string.Format(baseMessage, elements));
         }
-        
+
         public void LogError(Exception issue)
         {
+            if (issue is LoggedException)
+            {
+                return;
+            }
+
             ViewModel.LogError(issue);
         }
 
@@ -27,10 +33,9 @@ namespace Packager.Observers
             ViewModel.BeginSection(sectionKey, string.Format(baseMessage, elements));
         }
 
-        public void EndSection(Guid sectionKey)
+        public void EndSection(Guid sectionKey, string newTitle = "", bool collapse = true)
         {
-            ViewModel.EndSection(sectionKey);
-           
+            ViewModel.EndSection(sectionKey, newTitle, collapse);
         }
 
         public void FlagAsSuccessful(Guid sectionKey, string newTitle)

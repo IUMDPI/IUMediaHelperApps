@@ -18,7 +18,7 @@ namespace Packager.Processors
     public class AudioProcessor : AbstractProcessor
     {
         // todo: figure out how to get this
-        private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
+        //private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
 
         public AudioProcessor(string barcode, IDependencyProvider dependencyProvider)
             : base(barcode, dependencyProvider)
@@ -62,11 +62,7 @@ namespace Packager.Processors
                 .ToList();
 
             // now move them to processing
-            foreach (var fileModel in filesToProcess)
-            {
-                Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
-                await MoveFileToProcessing(fileModel.ToFileName());
-            }
+            await MoveFilesToProcessing(filesToProcess);
 
             // fetch metadata
             var metadata = await GetMetadata();
@@ -102,7 +98,7 @@ namespace Packager.Processors
             await CopyToDropbox(processedList);
         }
 
-        public override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
+        protected override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
             var prodModel = await CreateDerivative(
                 fileModel,
@@ -193,7 +189,7 @@ namespace Packager.Processors
                     throw new AddMetadataException("Could not add metadata: no eligible files");
                 }
 
-                var xml = new ConformancePointDocumentFactory(FileProvider, ProcessingDirectory, DigitizingEntity, TempInstitution)
+                var xml = new ConformancePointDocumentFactory(FileProvider, ProcessingDirectory, DigitizingEntity)
                     .Get(filesToAddMetadata, podMetadata);
 
                 await AddMetadata(xml);

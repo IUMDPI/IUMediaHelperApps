@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Packager.Exceptions;
 using Packager.Observers;
 
 namespace Packager.Extensions
@@ -19,6 +20,11 @@ namespace Packager.Extensions
         
         public static void LogError(this IEnumerable<IObserver> observers, Exception issue)
         {
+            if (issue is LoggedException)
+            {
+                return;
+            }
+
             foreach (var observer in observers)
             {
                 observer.LogError(issue);
@@ -40,11 +46,11 @@ namespace Packager.Extensions
             return sectionKey;
         }
 
-        public static void EndSection(this IEnumerable<IObserver> observers, Guid sectionKey)
+        public static void EndSection(this IEnumerable<IObserver> observers, Guid sectionKey, string newTitle ="", bool collapse=false)
         {
             foreach (var observer in observers.ViewModelObservers())
             {
-                observer.EndSection(sectionKey);
+                observer.EndSection(sectionKey, newTitle, collapse);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using NLog;
+using Packager.Exceptions;
 
 namespace Packager.Observers
 {
@@ -26,6 +27,11 @@ namespace Packager.Observers
 
         public override void LogError(Exception issue)
         {
+            if (issue is LoggedException)
+            {
+                return;
+            }
+
             Log(issue.ToString());
         }
 

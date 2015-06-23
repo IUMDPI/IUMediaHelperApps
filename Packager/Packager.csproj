@@ -78,6 +78,7 @@
     <Compile Include="Exceptions\DeserializeValueException.cs" />
     <Compile Include="Exceptions\DetermineProcessorException.cs" />
     <Compile Include="Exceptions\GenerateDerivativeException.cs" />
+    <Compile Include="Exceptions\LoggedException.cs" />
     <Compile Include="Exceptions\LookupException.cs" />
     <Compile Include="Exceptions\OutputXmlException.cs" />
     <Compile Include="Exceptions\ResolverException.cs" />

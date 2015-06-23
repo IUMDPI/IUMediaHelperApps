@@ -12,14 +12,12 @@ namespace Packager.Models.BextModels
         private IFileProvider Provider { get; set; }
         private string ProcessingDirectory { get; set; }
         private string DigitizingEntity { get; set; }
-        private string Institution { get; set; }
-
-        public ConformancePointDocumentFactory(IFileProvider fileProvider, string processingDirectory, string digitizingEntity, string institution)
+    
+        public ConformancePointDocumentFactory(IFileProvider fileProvider, string processingDirectory, string digitizingEntity)
         {
             Provider = fileProvider;
             ProcessingDirectory = processingDirectory;
             DigitizingEntity = digitizingEntity;
-            Institution = institution;
         }
 
         public ConformancePointDocument Get(IEnumerable<ObjectFileModel> filesToAddMetadata, ConsolidatedPodMetadata metadata)
@@ -38,7 +36,7 @@ namespace Packager.Models.BextModels
                             OriginatorReference = Path.GetFileNameWithoutExtension(fileModel.ToFileName()),
                             Description = GetBextDescription(metadata, fileModel),
                             ICMT = GetBextDescription(metadata, fileModel),
-                            IARL = string.Format("{0}.", Institution),
+                            IARL = string.Format("{0}.",metadata.Unit),
                             OriginationDate = fileInfo.CreationTime.ToString("yyyy-MM-dd"),
                             OriginationTime = fileInfo.CreationTime.ToString("HH:mm:ss"),
                             TimeReference = "0",
@@ -52,10 +50,10 @@ namespace Packager.Models.BextModels
             
         }
 
-        private string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
+        private static string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
         {
             return string.Format("{0}. {1}. File use: {2}. {3}",
-                Institution,
+                metadata.Unit,
                 metadata.CallNumber,
                 fileModel.FullFileUse, Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
         }

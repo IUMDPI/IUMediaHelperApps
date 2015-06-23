@@ -66,9 +66,7 @@ namespace Packager.Engine
                 Observers.Log("Found {0} objects to process", objectGroups.Count());
 
                 var results = new Dictionary<string, bool>();
-
-                // todo: catch exception and prompt user to retry, ignore, or cancel
-                // todo: if retry move group files back to input and start over
+                
                 // now we want to get the processor for each group
                 // and process the files for the group
                 foreach (var group in objectGroups)
@@ -99,13 +97,7 @@ namespace Packager.Engine
         {
             var processor = GetProcessor(group);
 
-            var result = await processor.ProcessFile(group);
-            if (result)
-            {
-                Observers.FlagAsSuccessful(processor.SectionKey, string.Format("Object processed succesfully: {0}", processor.Barcode));
-            }
-
-            return result;
+            return await processor.ProcessFile(group);
         }
 
         private IProcessor GetProcessor(IGrouping<string, AbstractFileModel> group)

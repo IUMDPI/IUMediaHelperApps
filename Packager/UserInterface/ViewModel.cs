@@ -104,7 +104,7 @@ namespace Packager.UserInterface
             return sectionModel;
         }
 
-        public void EndSection(Guid sectionKey)
+        public void EndSection(Guid sectionKey,string newTitle="", bool collapse=false)
         {
             if (sectionKey == Guid.Empty)
             {
@@ -122,13 +122,17 @@ namespace Packager.UserInterface
             sectionModel.EndOffset = TextLength - 1;
             sectionModel.Completed = true;
 
+            if (string.IsNullOrWhiteSpace(newTitle) == false)
+            {
+                sectionModel.Title = newTitle;
+            }
+
             var foldingSection = FoldingManager.CreateFolding(sectionModel.StartOffset, sectionModel.EndOffset);
             foldingSection.Title = Indent(sectionModel.Title, sectionModel.Indent);
-
             foldingSection.Tag = sectionModel;
+            foldingSection.IsFolded = collapse;
         }
-
-
+        
         private static string Indent(string value, int indent)
         {
             return string.Format("{0}{1}", new String(' ', indent * 2), value);
@@ -162,6 +166,7 @@ namespace Packager.UserInterface
 
             return model.Key.Equals(key);
         }
+
     }
 
 

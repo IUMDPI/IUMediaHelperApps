@@ -71,7 +71,12 @@ namespace Packager.Processors
             // and add them to a list of files that have
             // been processed
             var processedList = new List<AbstractFileModel>();
-            processedList = processedList.Concat(filesToProcess).ToList();
+            
+            // add two lists together, but remove duplicates
+            // duplicate file entries might happen if a .prod version already exists
+            // because it was create by an audio engineer
+            processedList = processedList.Concat(filesToProcess)
+                .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
 
             // first group by sequence
             // then determine which file to use to create derivatives

@@ -58,7 +58,7 @@ namespace Packager.Processors
             var filesToProcess = fileModels
                 .Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
-                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion())
+                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion())
                 .ToList();
 
             // now move them to processing
@@ -100,6 +100,8 @@ namespace Packager.Processors
 
         protected override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
+            var result = new List<ObjectFileModel>();
+            
             var prodModel = await CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
@@ -126,28 +128,30 @@ namespace Packager.Processors
 
         private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
-            var sectionKey = Guid.Empty;
-            var success = false;
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
             try
             {
-                sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
-
                 var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
                 var outputPath = Path.Combine(ProcessingDirectory, newModel.ToFileName());
+
+                if (FileProvider.FileExists(outputPath))
+                {
+                    Observers.Log("{0} already exists. Will not generate derivate", newModel.FullFileUse);
+                    return newModel;
+                }
 
                 var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
 
                 await CreateDerivative(args);
-                success = true;
+
+                Observers.EndSection(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()), true);
                 return newModel;
             }
-            finally
+            catch (Exception e)
             {
+                Observers.LogError(e);
                 Observers.EndSection(sectionKey);
-                if (success)
-                {
-                    Observers.FlagAsSuccessful(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()));
-                }
+                throw new LoggedException(e);
             }
         }
 

@@ -74,6 +74,7 @@
     <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />
     <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />
     <Compile Include="Models\FileModels\XmlFileModelTests.cs" />
+    <Compile Include="Processors\AbstractProcessorTests.cs" />
     <Compile Include="Processors\AudioProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

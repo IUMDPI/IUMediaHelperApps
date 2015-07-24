@@ -66,18 +66,20 @@ namespace Packager.Processors
             get { return Path.Combine(RootProcessingDirectory, ObjectDirectoryName); }
         }
 
-        protected string DropBoxDirectory
+        private string DropBoxDirectory
         {
             get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode)); }
         }
-        
-        public string Barcode { get; private set; }
+
+        protected string Barcode { get; private set; }
 
         public virtual async Task<bool> ProcessFile(IGrouping<string,AbstractFileModel> fileModels)
         {
             Barcode = fileModels.Key;
 
-            AddObjectProcessingObserver();
+            // todo: is this needed?
+            //AddObjectProcessingObserver();
+
             var sectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
             try
             {

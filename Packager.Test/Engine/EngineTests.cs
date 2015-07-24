@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Engine;
@@ -14,134 +15,117 @@ using Packager.Test.Mocks;
 
 namespace Packager.Test.Engine
 {
+    
     [TestFixture]
     public class EngineTests
     {
-        protected const string ProjectCode = "mdpi";
-        protected const string BarCode1 = "4890764553278906";
-        protected const string BarCode2 = "7890764553278907";
+        private const string MockWavProcessorExtension = ".wav";
+        private const string MockMpegProcessorExtension = ".mpeg";
 
-        protected string GetFileNameForBarCode(string projectCode, string barcode, string extension)
+        private const string ProjectCode = "mdpi";
+        private const string BarCode1 = "4890764553278906";
+        private const string BarCode2 = "7890764553278907";
+
+        private static string GetFileNameForBarCode(string projectCode, string barcode, string extension)
         {
             return string.Format("{0}_{1}_01_pres{2}", projectCode, barcode, extension);
         }
 
-        private static StandardEngine GetEngine(
-            IProgramSettings settings = null,
-            Dictionary<string, IProcessor> processors = null,
-            IDependencyProvider dependencyProvider = null,
-            List<IObserver> observers = null)
+        private StandardEngine Engine { get; set; }
+        private IObserver Observer { get; set; }
+        private IDependencyProvider DependencyProvider { get; set; }
+        private IProcessor MockWavProcessor { get; set; }
+        private IProcessor MockMpegProcessor { get; set; }
+        private IProgramSettings ProgramSettings { get; set; }
+        private IDirectoryProvider DirectoryProvider { get; set; }
+
+        [SetUp]
+        public virtual void BeforeEach()
         {
-            if (settings == null)
-            {
-                settings = Substitute.For<IProgramSettings>();
-                settings.ProjectCode.ReturnsForAnyArgs(ProjectCode);
-            }
-
-            if (processors == null)
-            {
-                var mockProcessor = Substitute.For<IProcessor>();
-                processors = new Dictionary<string, IProcessor> { { ".wav", mockProcessor } };
-            }
+            ProgramSettings = Substitute.For<IProgramSettings>();
+            ProgramSettings.ProjectCode.Returns(ProjectCode);
             
+            MockWavProcessor = Substitute.For<IProcessor>();
+            MockMpegProcessor = Substitute.For<IProcessor>();
 
-            if (observers == null)
-            {
-                var mockObserver = Substitute.For<IObserver>();
-                observers = new List<IObserver> { mockObserver };
-            }
+            MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(true));
+            MockMpegProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(true));
 
-            if (dependencyProvider == null)
-            {
-                dependencyProvider = MockDependencyProvider.Get(observers: observers, programSettings: settings);
-            }
+            Observer = Substitute.For<IObserver>();
 
-            
-            return new StandardEngine(processors, dependencyProvider);
+            DirectoryProvider = Substitute.For<IDirectoryProvider>();
+
+            DependencyProvider = MockDependencyProvider.Get(observers: new List<IObserver> {Observer}, programSettings: ProgramSettings, directoryProvider: DirectoryProvider);
+            Engine = new StandardEngine(
+                new Dictionary<string, IProcessor>
+                {
+                    {MockWavProcessorExtension, MockWavProcessor}, 
+                    {MockMpegProcessorExtension, MockMpegProcessor}
+                }, DependencyProvider);
         }
 
         public class WhenEngineRunsWithoutIssues : EngineTests
         {
-            [Test]
-            public void ItShouldVerifyProgramSettings()
+            public async override void BeforeEach()
             {
-                var settings = Substitute.For<IProgramSettings>();
+                base.BeforeEach();
 
-                var engine = GetEngine(settings);
-                engine.Start();
-
-                settings.Received().Verify();
-            }
-
-            [Test]
-            public void ItShouldWriteHelloMessage()
-            {
-                var mockObserver = Substitute.For<IObserver>();
-                var engine = GetEngine(observers: new List<IObserver> { mockObserver });
-                engine.Start();
-
-                mockObserver.Received().Log(Arg.Is("Starting {0}"), Arg.Any<DateTime>());
-            }
-
-            [Test]
-            public void ItShouldWriteGoodbyeMessage()
-            {
-                var mockObserver = Substitute.For<IObserver>();
-                var engine = GetEngine(observers: new List<IObserver> { mockObserver });
-                engine.Start();
-
-                mockObserver.Received().Log(Arg.Is("Completed {0}"), Arg.Any<DateTime>());
-            }
-
-            [Test]
-            public void ItShouldCallProcessorForEachKnownExtension()
-            {
-                var mockWavProcessor = Substitute.For<IProcessor>();
-                var mockMpegProcessor = Substitute.For<IProcessor>();
-
-                var processors = new Dictionary<string, IProcessor>
-                {
-                    {".wav", mockWavProcessor},
-                    {".mpeg", mockMpegProcessor}
-                };
-
-                var directoryProvider = Substitute.For<IDirectoryProvider>();
-                directoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(
-                    new List<string>
+                DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(
+                   new List<string>
                     {
                         GetFileNameForBarCode(ProjectCode, BarCode1, ".wav"),
                         GetFileNameForBarCode(ProjectCode, BarCode2, ".mpeg")
                     });
 
-                var utilityProvider = MockDependencyProvider.Get(directoryProvider: directoryProvider);
 
-                var engine = GetEngine(processors: processors, dependencyProvider: utilityProvider);
-                engine.Start();
+                await Engine.Start();
+            }
 
-                mockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode1)));
-                mockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode2)));
+            [Test]
+            public void ItShouldVerifyProgramSettings()
+            {
+                ProgramSettings.Received().Verify();
+            }
+
+            [Test]
+            public void ItShouldWriteHelloMessage()
+            {
+                Observer.Received().Log(Arg.Is("Starting {0}"), Arg.Any<DateTime>());
+            }
+
+            [Test]
+            public void ItShouldWriteGoodbyeMessage()
+            {
+                Observer.Received().Log(Arg.Is("Completed {0}"), Arg.Any<DateTime>());
+            }
+
+            [Test]
+            public void ItShouldCallProcessorForEachKnownExtension()
+            {
+                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode1)));
+                MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode2)));
             }
         }
 
         public class WhenEngineEncountersAnIssue : EngineTests
         {
+            private Exception Exception { get; set; }
+
+            public async override void BeforeEach()
+            {
+                base.BeforeEach();
+
+                Exception = new DirectoryNotFoundException("invalid path");
+
+                DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(r => { throw Exception; });
+
+                await Engine.Start();
+            }
+
             [Test]
             public void ItShouldWriteErrorMessage()
             {
-                var mockObserver = Substitute.For<IObserver>();
-
-                var exception = new DirectoryNotFoundException("invalid path");
-                var directoryProvider = Substitute.For<IDirectoryProvider>();
-
-                directoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(r => { throw exception; });
-
-                var utilityProvider = MockDependencyProvider.Get(directoryProvider, observers: new List<IObserver> {mockObserver});        
-
-                var engine = GetEngine(observers: new List<IObserver> { mockObserver }, dependencyProvider: utilityProvider);
-                
-                engine.Start();
-
-                mockObserver.Received().Log(Arg.Is("Fatal Exception Occurred: {0}"), Arg.Is(exception));
+                Observer.Received().LogError(Exception);
             }
         }
     }

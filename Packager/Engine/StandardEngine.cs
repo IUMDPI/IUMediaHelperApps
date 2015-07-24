@@ -101,7 +101,7 @@ namespace Packager.Engine
             return await processor.ProcessFile(group);
         }
 
-        private IProcessor GetProcessor(IGrouping<string, AbstractFileModel> group)
+        private IProcessor GetProcessor(IEnumerable<AbstractFileModel> group)
         {
             // for each model in the group
             // take those that have extensions associated with a processor

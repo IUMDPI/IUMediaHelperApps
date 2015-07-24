@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ICSharpCode.AvalonEdit.Editing;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Engine;
@@ -15,7 +16,7 @@ using Packager.Test.Mocks;
 
 namespace Packager.Test.Engine
 {
-    
+
     [TestFixture]
     public class EngineTests
     {
@@ -26,9 +27,14 @@ namespace Packager.Test.Engine
         private const string BarCode1 = "4890764553278906";
         private const string BarCode2 = "7890764553278907";
 
-        private static string GetFileNameForBarCode(string projectCode, string barcode, string extension)
+        private static string GetPresFileNameForBarCode(string barcode, string extension)
         {
-            return string.Format("{0}_{1}_01_pres{2}", projectCode, barcode, extension);
+            return string.Format("{0}_{1}_01_pres{2}", ProjectCode, barcode, extension);
+        }
+
+        private static string GetProdFileNameForBarCode(string barcode, string extension)
+        {
+            return string.Format("{0}_{1}_01_prod{2}", ProjectCode, barcode, extension);
         }
 
         private StandardEngine Engine { get; set; }
@@ -39,12 +45,16 @@ namespace Packager.Test.Engine
         private IProgramSettings ProgramSettings { get; set; }
         private IDirectoryProvider DirectoryProvider { get; set; }
 
+        private string Grouping1PresFileName { get; set; }
+        private string Grouping1ProdFileName { get; set; }
+        private string Grouping2PresFileName { get; set; }
+
         [SetUp]
         public virtual void BeforeEach()
         {
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.ProjectCode.Returns(ProjectCode);
-            
+
             MockWavProcessor = Substitute.For<IProcessor>();
             MockMpegProcessor = Substitute.For<IProcessor>();
 
@@ -53,9 +63,20 @@ namespace Packager.Test.Engine
 
             Observer = Substitute.For<IObserver>();
 
-            DirectoryProvider = Substitute.For<IDirectoryProvider>();
+            Grouping1PresFileName = GetPresFileNameForBarCode(BarCode1, MockWavProcessorExtension);
+            Grouping1ProdFileName = GetProdFileNameForBarCode(BarCode1, MockWavProcessorExtension);
+            Grouping2PresFileName = GetPresFileNameForBarCode(BarCode2, MockMpegProcessorExtension);
 
-            DependencyProvider = MockDependencyProvider.Get(observers: new List<IObserver> {Observer}, programSettings: ProgramSettings, directoryProvider: DirectoryProvider);
+            DirectoryProvider = Substitute.For<IDirectoryProvider>();
+            DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(
+                 new List<string>
+                    {
+                        Grouping1PresFileName,
+                        Grouping1ProdFileName,
+                        Grouping2PresFileName
+                    });
+
+            DependencyProvider = MockDependencyProvider.Get(observers: new List<IObserver> { Observer }, programSettings: ProgramSettings, directoryProvider: DirectoryProvider);
             Engine = new StandardEngine(
                 new Dictionary<string, IProcessor>
                 {
@@ -69,14 +90,6 @@ namespace Packager.Test.Engine
             public async override void BeforeEach()
             {
                 base.BeforeEach();
-
-                DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(
-                   new List<string>
-                    {
-                        GetFileNameForBarCode(ProjectCode, BarCode1, ".wav"),
-                        GetFileNameForBarCode(ProjectCode, BarCode2, ".mpeg")
-                    });
-
 
                 await Engine.Start();
             }
@@ -94,6 +107,18 @@ namespace Packager.Test.Engine
             }
 
             [Test]
+            public void ItShouldReportResultsCorrectly()
+            {
+                Observer.Received().Log("Successfully processed {0} objects.", 2);
+            }
+
+            [Test]
+            public void ItShouldLogObjectCountCorrectly()
+            {
+                Observer.Received().Log("Found {0} objects to process", 2);
+            }
+
+            [Test]
             public void ItShouldWriteGoodbyeMessage()
             {
                 Observer.Received().Log(Arg.Is("Completed {0}"), Arg.Any<DateTime>());
@@ -104,6 +129,35 @@ namespace Packager.Test.Engine
             {
                 MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode1)));
                 MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode2)));
+            }
+
+            [Test]
+            public void ItShouldSendCorrectGroupingsToProcessors()
+            {
+                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Count() == 2));
+                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.AsEnumerable().SingleOrDefault(m=>m.OriginalFileName.Equals(Grouping1PresFileName))!=null));
+                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.AsEnumerable().SingleOrDefault(m => m.OriginalFileName.Equals(Grouping1ProdFileName)) != null));
+                
+                MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Count() == 1));
+                MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.AsEnumerable().SingleOrDefault(m => m.OriginalFileName.Equals(Grouping2PresFileName)) != null));
+            }
+        }
+
+        public class WhenProcessorEncountersAnIssue : EngineTests
+        {
+            public async override void BeforeEach()
+            {
+                base.BeforeEach();
+
+                MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(false));
+
+                await Engine.Start();
+            }
+
+            [Test]
+            public void ShouldReportFailureCorrectly()
+            {
+                Observer.Received().Log("Could not process {0}", BarCode1);
             }
         }
 

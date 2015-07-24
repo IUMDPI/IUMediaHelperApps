@@ -97,7 +97,6 @@ namespace Packager.Engine
         private async Task<bool> ProcessFile(IGrouping<string, AbstractFileModel> group)
         {
             var processor = GetProcessor(group);
-
             return await processor.ProcessFile(group);
         }
 

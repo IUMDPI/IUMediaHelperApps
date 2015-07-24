@@ -105,8 +105,6 @@ namespace Packager.Processors
 
         protected override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
-            var result = new List<ObjectFileModel>();
-            
             var prodModel = await CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),

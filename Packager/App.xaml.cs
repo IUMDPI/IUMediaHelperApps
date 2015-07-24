@@ -47,9 +47,9 @@ namespace Packager
             // initialize utility provider
             var dependencyProvider = new DefaultDependencyProvider(programSettings, observers);
             // initialize processors
-            var processors = new Dictionary<string, Type>
+            var processors = new Dictionary<string, IProcessor>
             {
-                {".wav", typeof (AudioProcessor)}
+                {".wav", new AudioProcessor(dependencyProvider)}
             };
 
             // initialize engine

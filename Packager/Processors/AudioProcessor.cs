@@ -20,8 +20,8 @@ namespace Packager.Processors
         // todo: figure out how to get this
         //private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
 
-        public AudioProcessor(string barcode, IDependencyProvider dependencyProvider)
-            : base(barcode, dependencyProvider)
+        public AudioProcessor(IDependencyProvider dependencyProvider)
+            : base(dependencyProvider)
         {
         }
 

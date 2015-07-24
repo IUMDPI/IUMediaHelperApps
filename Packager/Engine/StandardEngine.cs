@@ -14,14 +14,15 @@ namespace Packager.Engine
 {
     public class StandardEngine : IEngine
     {
+        private readonly Dictionary<string, IProcessor> _processors;
         private readonly IDependencyProvider _dependencyProvider;
-        private readonly Dictionary<string, Type> _processorsTypes;
+        
 
         public StandardEngine(
-            Dictionary<string, Type> processorsTypes,
+            Dictionary<string, IProcessor> processors,
             IDependencyProvider dependencyProvider)
         {
-            _processorsTypes = processorsTypes;
+            _processors = processors;
             _dependencyProvider = dependencyProvider;
         }
 
@@ -50,7 +51,7 @@ namespace Packager.Engine
 
                 // this factory will assign each extension
                 // to the appropriate file model
-                var factory = new FileModelFactory(_processorsTypes.Keys);
+                var factory = new FileModelFactory(_processors.Keys);
 
                 // want to get all files in the input directory
                 // and convert them to file models (via out file model factory)
@@ -106,7 +107,7 @@ namespace Packager.Engine
             // take those that have extensions associated with a processor
             // and group them by that extension
             var validExtensions = group
-                .Where(m => _processorsTypes.Keys.Contains(m.Extension))
+                .Where(m => _processors.Keys.Contains(m.Extension))
                 .GroupBy(m => m.Extension).ToList();
 
             // if we have no groups or if we have more than one group, we have a problem
@@ -115,9 +116,7 @@ namespace Packager.Engine
                 throw new DetermineProcessorException("Can not determine extension for file batch");
             }
 
-            var type = _processorsTypes[validExtensions.First().Key];
-
-            return (IProcessor) Activator.CreateInstance(type, group.Key, _dependencyProvider);
+            return _processors[validExtensions.First().Key];
         }
 
         private void WriteHelloMessage()

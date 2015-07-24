@@ -52,7 +52,7 @@ namespace Packager.Test.Processors
                         fileProvider: fileProvider);
             }
 
-            return new AudioProcessor(BarCode1, dependencyProvider);
+            return new AudioProcessor(dependencyProvider);
         }
 
         [TestFixture]

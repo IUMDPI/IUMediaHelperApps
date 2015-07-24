@@ -18,10 +18,9 @@ namespace Packager.Processors
     {
         private readonly IDependencyProvider _dependencyProvider;
         // constructor
-        protected AbstractProcessor(string barcode, IDependencyProvider dependencyProvider)
+        protected AbstractProcessor(IDependencyProvider dependencyProvider)
         {
             _dependencyProvider = dependencyProvider;
-            Barcode = barcode;
         }
 
         private IProgramSettings ProgramSettings
@@ -74,8 +73,10 @@ namespace Packager.Processors
         
         public string Barcode { get; private set; }
 
-        public virtual async Task<bool> ProcessFile(IEnumerable<AbstractFileModel> fileModels)
+        public virtual async Task<bool> ProcessFile(IGrouping<string,AbstractFileModel> fileModels)
         {
+            Barcode = fileModels.Key;
+
             AddObjectProcessingObserver();
             var sectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
             try

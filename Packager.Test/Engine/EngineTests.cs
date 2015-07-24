@@ -56,8 +56,8 @@ namespace Packager.Test.Engine
                 dependencyProvider = MockDependencyProvider.Get(observers: observers, programSettings: settings);
             }
 
-            throw new NotImplementedException();
-            //return new StandardEngine(processors, dependencyProvider);
+            
+            return new StandardEngine(processors, dependencyProvider);
         }
 
         public class WhenEngineRunsWithoutIssues : EngineTests
@@ -135,11 +135,10 @@ namespace Packager.Test.Engine
 
                 directoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(r => { throw exception; });
 
-                var utilityProvider = MockDependencyProvider.Get(
-                    directoryProvider: directoryProvider, 
-                    observers: new List<IObserver> {mockObserver});        
+                var utilityProvider = MockDependencyProvider.Get(directoryProvider, observers: new List<IObserver> {mockObserver});        
 
                 var engine = GetEngine(observers: new List<IObserver> { mockObserver }, dependencyProvider: utilityProvider);
+                
                 engine.Start();
 
                 mockObserver.Received().Log(Arg.Is("Fatal Exception Occurred: {0}"), Arg.Is(exception));

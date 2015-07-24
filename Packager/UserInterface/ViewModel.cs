@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
+using Packager.Exceptions;
 using Packager.Models.UserInterfaceModels;
 
 namespace Packager.UserInterface
@@ -56,7 +57,10 @@ namespace Packager.UserInterface
         {
             var sectionKey = Guid.NewGuid();
             BeginSection(sectionKey, string.Format("ERROR: {0}", e.Message));
-            InsertLine(e.StackTrace);
+            if (!(e is AbstractEngineException))
+            {
+                InsertLine(e.StackTrace);    
+            }
             EndSection(sectionKey);
         }
 

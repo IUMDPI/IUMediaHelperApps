@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager", "Packager\Packager.csproj", "{C29CEACF-32EB-45CF-818F-87590A0EFDC0}"
 EndProject
@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{
 		reference\ReferenceInformation.txt = reference\ReferenceInformation.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager.Test", "Packager.Test\Packager.Test.csproj", "{52D5A6E9-5667-4163-B97A-4DB1AC4500F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager.Tests", "Packager.Test\Packager.Tests.csproj", "{52D5A6E9-5667-4163-B97A-4DB1AC4500F0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{6A78B265-0208-4EFA-BDBA-C6A03136DBF1}"
 	ProjectSection(SolutionItems) = preProject

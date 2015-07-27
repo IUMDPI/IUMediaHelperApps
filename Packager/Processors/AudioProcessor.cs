@@ -152,7 +152,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogError(e);
+                Observers.LogIssue(e);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -204,10 +204,13 @@ namespace Packager.Processors
             }
             finally
             {
-                Observers.EndSection(sectionKey);
                 if (success)
                 {
-                    Observers.FlagAsSuccessful(sectionKey, "BEXT metadata added successfully");
+                    Observers.EndSection(sectionKey, "BEXT metadata added successfully", true);
+                }
+                else
+                {
+                    Observers.EndSection(sectionKey);
                 }
             }
             

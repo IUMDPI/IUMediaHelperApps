@@ -91,14 +91,10 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogError(e);
+                Observers.LogIssue(e);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
                 return false;
-            }
-            finally
-            {
-                RemoveObjectProcessingObservers();
             }
         }
         
@@ -196,7 +192,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogError(e);
+                Observers.LogIssue(e);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -214,7 +210,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogError(e);
+                Observers.LogIssue(e);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -238,7 +234,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogError(e);
+                Observers.LogIssue(e);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -291,28 +287,12 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogError(e);
+                Observers.LogIssue(e);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
         }
-
-        private void AddObjectProcessingObserver()
-        {
-            RemoveObjectProcessingObservers();
-
-            Observers.Add(new ObjectProcessingNLogObserver(
-                Barcode,
-                ProjectCode,
-                ProgramSettings.LogDirectoryName,
-                ProgramSettings.ProcessingDirectory));
-        }
-
-        private void RemoveObjectProcessingObservers()
-        {
-            //Observers.RemoveAll(o => o is ObjectProcessingNLogObserver);
-        }
-
+        
         protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
         {
             return original.ToAccessFileModel(AccessFileExtension);

@@ -85,7 +85,6 @@
     <Compile Include="Exceptions\PodMetadataException.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\FileModelExtensions.cs" />
-    <Compile Include="Extensions\ObserverExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XElementExtensions.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocument.cs" />

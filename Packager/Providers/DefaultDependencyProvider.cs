@@ -20,6 +20,7 @@ namespace Packager.Providers
             Observers = observers;
             LookupsProvider = new AppConfigLookupsProvider();
             MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider);
+            BextProcessor = new BextProcessor(programSettings, FileProvider, ProcessRunner, XmlExporter, observers);
         }
 
         public IHasher Hasher { get; private set; }
@@ -33,5 +34,6 @@ namespace Packager.Providers
         public IObserverCollection Observers { get; private set; }
         public IPodMetadataProvider MetadataProvider { get; private set; }
         public ILookupsProvider LookupsProvider { get; private set; }
+        public IBextProcessor BextProcessor { get; private set; }
     }
 }

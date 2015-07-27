@@ -127,6 +127,7 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\AppConfigLookupsProvider.cs" />
+    <Compile Include="Providers\IBextProvider.cs" />
     <Compile Include="Providers\IDirectoryProvider.cs" />
     <Compile Include="Processors\AbstractProcessor.cs" />
     <Compile Include="Processors\AudioProcessor.cs" />

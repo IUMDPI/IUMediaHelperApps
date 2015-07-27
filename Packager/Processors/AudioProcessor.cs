@@ -183,10 +183,8 @@ namespace Packager.Processors
                     throw new AddMetadataException("Could not add metadata: no eligible files");
                 }
 
-                var xml = new ConformancePointDocumentFactory(FileProvider, ProcessingDirectory, DigitizingEntity)
-                    .Get(filesToAddMetadata, podMetadata);
-
-                await AddMetadata(xml);
+                await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata, ProcessingDirectory);
+                
                 success = true;
             }
             finally
@@ -202,38 +200,7 @@ namespace Packager.Processors
             }
             
         }
-
-        private async Task AddMetadata(ConformancePointDocument xml)
-        {
-            var xmlPath = Path.Combine(ProcessingDirectory, "core.xml");
-            XmlExporter.ExportToFile(xml, xmlPath);
-
-            var args = string.Format("--verbose --Append --in-core={0}", xmlPath.ToQuoted());
-
-            var startInfo = new ProcessStartInfo(BWFMetaEditPath)
-            {
-                Arguments = args,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            var result = await ProcessRunner.Run(startInfo);
-
-            Observers.Log(result.StandardOutput);
-
-            var verifier = new BwfMetaEditResultsVerifier(
-                result.StandardOutput.ToLowerInvariant(),
-                xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(),
-                Observers);
-
-            if (!verifier.Verify())
-            {
-                throw new AddMetadataException("Could not add metadata to one or more files!");
-            }
-        }
-
+        
         private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };

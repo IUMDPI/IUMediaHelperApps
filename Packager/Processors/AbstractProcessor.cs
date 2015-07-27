@@ -183,6 +183,11 @@ namespace Packager.Processors
             get { return _dependencyProvider.MetadataGenerator; }
         }
 
+        protected IBextProcessor BextProcessor
+        {
+            get { return _dependencyProvider.BextProcessor; }
+        }
+
         protected async Task MoveFilesToProcessing(IEnumerable<ObjectFileModel> filesToProcess)
         {
             var sectionKey = Observers.BeginSection("Initializing");

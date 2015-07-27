@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Packager.Models;
+﻿using Packager.Models;
 using Packager.Observers;
 using Packager.Utilities;
 
@@ -16,8 +15,8 @@ namespace Packager.Providers
         IMetadataGenerator MetadataGenerator { get; }
         IProgramSettings ProgramSettings { get; }
         IObserverCollection Observers { get; }
-        IPodMetadataProvider MetadataProvider { get;}
+        IPodMetadataProvider MetadataProvider { get; }
         ILookupsProvider LookupsProvider { get; }
-        
+        IBextProcessor BextProcessor { get; }
     }
 }

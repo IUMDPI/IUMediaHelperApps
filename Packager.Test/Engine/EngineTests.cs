@@ -24,7 +24,7 @@ namespace Packager.Test.Engine
         private const string BarCode1 = "4890764553278906";
         private const string BarCode2 = "7890764553278907";
         private StandardEngine Engine { get; set; }
-        private IObserver Observer { get; set; }
+        private IObserverCollection Observer { get; set; }
         private IDependencyProvider DependencyProvider { get; set; }
         private IProcessor MockWavProcessor { get; set; }
         private IProcessor MockMpegProcessor { get; set; }
@@ -56,7 +56,7 @@ namespace Packager.Test.Engine
             MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(true));
             MockMpegProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(true));
 
-            Observer = Substitute.For<IObserver>();
+            Observer = Substitute.For<IObserverCollection>();
 
             Grouping1PresFileName = GetPresFileNameForBarCode(BarCode1, MockWavProcessorExtension);
             Grouping1ProdFileName = GetProdFileNameForBarCode(BarCode1, MockWavProcessorExtension);
@@ -71,7 +71,7 @@ namespace Packager.Test.Engine
                     Grouping2PresFileName
                 });
 
-            DependencyProvider = MockDependencyProvider.Get(observers: new List<IObserver> {Observer}, programSettings: ProgramSettings, directoryProvider: DirectoryProvider);
+            DependencyProvider = MockDependencyProvider.Get(observers: Observer, programSettings: ProgramSettings, directoryProvider: DirectoryProvider);
             Engine = new StandardEngine(
                 new Dictionary<string, IProcessor>
                 {
@@ -177,7 +177,7 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldWriteErrorMessage()
             {
-                Observer.Received().LogError(Exception);
+                Observer.Received().LogIssue(Exception);
             }
         }
     }

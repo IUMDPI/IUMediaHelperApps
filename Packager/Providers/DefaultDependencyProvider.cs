@@ -7,7 +7,7 @@ namespace Packager.Providers
 {
     public class DefaultDependencyProvider : IDependencyProvider
     {
-        public DefaultDependencyProvider(IProgramSettings programSettings, List<IObserver> observers)
+        public DefaultDependencyProvider(IProgramSettings programSettings, IObserverCollection observers)
         {
             Hasher = new Hasher();
             UserInfoResolver = new DomainUserResolver();
@@ -30,7 +30,7 @@ namespace Packager.Providers
         public IProcessRunner ProcessRunner { get; private set; }
         public IMetadataGenerator MetadataGenerator { get; private set; }
         public IProgramSettings ProgramSettings { get; private set; }
-        public List<IObserver> Observers { get; private set; }
+        public IObserverCollection Observers { get; private set; }
         public IPodMetadataProvider MetadataProvider { get; private set; }
         public ILookupsProvider LookupsProvider { get; private set; }
     }

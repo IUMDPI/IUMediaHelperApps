@@ -18,7 +18,7 @@ namespace Packager.Test.Mocks
             IProgramSettings programSettings = null,
             IUserInfoResolver userResolver = null,
             IXmlExporter xmlExporter = null,
-            List<IObserver> observers = null)
+            IObserverCollection observers = null)
         {
             if (directoryProvider == null)
             {
@@ -57,7 +57,7 @@ namespace Packager.Test.Mocks
 
             if (observers == null)
             {
-                observers = new List<IObserver>();
+                observers = Substitute.For<IObserverCollection>();
             }
 
             var result = Substitute.For<IDependencyProvider>();

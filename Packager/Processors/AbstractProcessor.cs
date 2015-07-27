@@ -28,7 +28,7 @@ namespace Packager.Processors
             get { return _dependencyProvider.ProgramSettings; }
         }
 
-        protected List<IObserver> Observers
+        protected IObserverCollection Observers
         {
             get { return _dependencyProvider.Observers; }
         }
@@ -310,7 +310,7 @@ namespace Packager.Processors
 
         private void RemoveObjectProcessingObservers()
         {
-            Observers.RemoveAll(o => o is ObjectProcessingNLogObserver);
+            //Observers.RemoveAll(o => o is ObjectProcessingNLogObserver);
         }
 
         protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)

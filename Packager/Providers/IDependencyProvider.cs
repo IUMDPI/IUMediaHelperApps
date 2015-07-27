@@ -15,8 +15,9 @@ namespace Packager.Providers
         IProcessRunner ProcessRunner { get; }
         IMetadataGenerator MetadataGenerator { get; }
         IProgramSettings ProgramSettings { get; }
-        List<IObserver> Observers { get; }
+        IObserverCollection Observers { get; }
         IPodMetadataProvider MetadataProvider { get;}
         ILookupsProvider LookupsProvider { get; }
+        
     }
 }

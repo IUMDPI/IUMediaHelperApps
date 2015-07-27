@@ -52,7 +52,7 @@ namespace Packager.Test.Processors
             
 
 
-            DependencyProvider = MockDependencyProvider.Get(DirectoryProvider, FileProvider, Hasher, ProcessRunner, ProgramSettings, UserInfoResolver, XmlExporter, new List<IObserver>() {Observer});
+            DependencyProvider = MockDependencyProvider.Get(DirectoryProvider, FileProvider, Hasher, ProcessRunner, ProgramSettings, UserInfoResolver, XmlExporter, new ObserverCollection {Observer});
         }
 
         public class WhenProcessingFiles : AbstractProcessorTests

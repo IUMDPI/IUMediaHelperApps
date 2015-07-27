@@ -38,7 +38,7 @@ namespace Packager
 
 
             // initialize observers
-            var observers = new List<IObserver>
+            var observers = new ObserverCollection
             {
                 new GeneralNLogObserver(programSettings.LogDirectoryName, programSettings.ProcessingDirectory),
                 new ViewModelObserver(viewModel)

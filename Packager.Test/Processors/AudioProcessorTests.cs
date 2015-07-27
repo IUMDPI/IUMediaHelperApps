@@ -40,7 +40,7 @@ namespace Packager.Test.Processors
         private static AudioProcessor GetProcessor(
             IProgramSettings settings = null,
             IDependencyProvider dependencyProvider = null,
-            List<IObserver> observers = null,
+            IObserverCollection observers = null,
             IFileProvider fileProvider = null)
         {
             if (dependencyProvider == null)
@@ -78,35 +78,35 @@ namespace Packager.Test.Processors
             [Test]
             public async void ItShouldLogBatchProcessingHeader()
             {
-                var mockObserver = Substitute.For<IObserver>();
-                var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
+                var observers = Substitute.For<IObserverCollection>();
+                var processor = GetProcessor(observers: observers);
 
                 await processor.ProcessFile(GetGrouping());
 
-                mockObserver.Received().Log(Arg.Is("Processing object {0}"), Arg.Is(BarCode1));
+                observers.Received().Log(Arg.Is("Processing object {0}"), Arg.Is(BarCode1));
             }
 
             [Test]
             public async void ItShouldLogExcelSpreadsheet()
             {
-                var mockObserver = Substitute.For<IObserver>();
-                var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
+                var observers = Substitute.For<IObserverCollection>();
+                var processor = GetProcessor(observers: observers);
 
                 await processor.ProcessFile(GetGrouping());
 
-                mockObserver.Received().Log(Arg.Is("Spreadsheet: {0}"), Arg.Is(ExcelFileName));
+                observers.Received().Log(Arg.Is("Spreadsheet: {0}"), Arg.Is(ExcelFileName));
             }
 
             [Test]
             public async void ItShouldLogFilesMovedToProcessingDirectory()
             {
-                var mockObserver = Substitute.For<IObserver>();
-                var processor = GetProcessor(observers: new List<IObserver> { mockObserver });
+                var observers = Substitute.For<IObserverCollection>();
+                var processor = GetProcessor(observers: observers);
 
                 await processor.ProcessFile(GetGrouping());
 
-                mockObserver.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(PreservationFileName1));
-                mockObserver.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(PreservationFileName2));
+                observers.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(PreservationFileName1));
+                observers.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(PreservationFileName2));
             }
 
             [Test]

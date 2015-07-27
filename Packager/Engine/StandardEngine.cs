@@ -26,7 +26,7 @@ namespace Packager.Engine
             _dependencyProvider = dependencyProvider;
         }
 
-        private List<IObserver> Observers
+        private IObserverCollection Observers
         {
             get { return _dependencyProvider.Observers; }
         }

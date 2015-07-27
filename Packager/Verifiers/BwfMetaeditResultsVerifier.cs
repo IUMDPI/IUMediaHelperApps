@@ -7,7 +7,7 @@ namespace Packager.Verifiers
 {
     public class BwfMetaEditResultsVerifier : IVerifier
     {
-        public BwfMetaEditResultsVerifier(string output, List<string> targetPaths, List<IObserver> observers)
+        public BwfMetaEditResultsVerifier(string output, List<string> targetPaths, IObserverCollection observers)
         {
             Output = output;
             TargetPaths = targetPaths;
@@ -16,7 +16,7 @@ namespace Packager.Verifiers
 
         private string Output { get; set; }
         private List<string> TargetPaths { get; set; }
-        private List<IObserver> Observers { get; set; }
+        private IObserverCollection Observers { get; set; }
 
         public bool Verify()
         {

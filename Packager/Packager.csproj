@@ -115,6 +115,7 @@
     <Compile Include="Models\UserInterfaceModels\SectionModel.cs" />
     <Compile Include="Observers\AbstractNLogObserver.cs" />
     <Compile Include="Observers\GeneralNLogObserver.cs" />
+    <Compile Include="Observers\IObserverCollection.cs" />
     <Compile Include="Observers\LayoutRenderers\BarcodeLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\ProjectCodeLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\ProcessingDirectoryNameLayoutRenderer.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Observers\ObjectProcessingNLogObserver.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Observers\IObserver.cs" />
+    <Compile Include="Observers\ObserverCollection.cs" />
     <Compile Include="Observers\ViewModelObserver.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

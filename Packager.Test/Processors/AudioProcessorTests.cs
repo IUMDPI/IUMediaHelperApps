@@ -215,9 +215,14 @@ namespace Packager.Test.Processors
 
             public class WhenEmbeddingMetadata : WhenProcessingFiles
             {
+
+                [Test]
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Adding BEXT metadata");
+                }
                 
 
-                
 
                
 

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
@@ -50,7 +49,7 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
-        protected override async Task<IEnumerable<AbstractFileModel>>  ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels)
+        protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels)
         {
             var filesToProcess = fileModels
                 .Where(m => m.IsObjectModel())
@@ -68,7 +67,7 @@ namespace Packager.Processors
             // and add them to a list of files that have
             // been processed
             var processedList = new List<AbstractFileModel>();
-            
+
             // add two lists together, but remove duplicates
             // duplicate file entries might happen if a .prod version already exists
             // because it was create by an audio engineer
@@ -115,7 +114,7 @@ namespace Packager.Processors
             // return models for files
             return new List<ObjectFileModel> {prodModel, accessModel};
         }
-        
+
         private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
@@ -131,9 +130,9 @@ namespace Packager.Processors
                 else
                 {
                     var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
-                    await CreateDerivative(args);    
+                    await CreateDerivative(args);
                 }
-                
+
                 Observers.EndSection(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()), true);
                 return newModel;
             }
@@ -175,8 +174,8 @@ namespace Packager.Processors
             {
                 sectionKey = Observers.BeginSection("Adding BEXT metadata");
                 var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel)m)
-                .Where(m => m.IsAccessVersion() == false).ToList();
+                    .Select(m => (ObjectFileModel) m)
+                    .Where(m => m.IsAccessVersion() == false).ToList();
 
                 if (!filesToAddMetadata.Any())
                 {
@@ -184,7 +183,7 @@ namespace Packager.Processors
                 }
 
                 await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata, ProcessingDirectory);
-                
+
                 success = true;
             }
             finally
@@ -198,18 +197,15 @@ namespace Packager.Processors
                     Observers.EndSection(sectionKey);
                 }
             }
-            
-        }
-        
-        private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
-        {
-            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
-            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(metadata, filesToProcess, ProcessingDirectory)};
-            XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
-            
-            return result;
         }
 
-        
+        private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
+        {
+            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
+            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(metadata, filesToProcess, ProcessingDirectory)};
+            XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
+
+            return result;
+        }
     }
 }

@@ -40,6 +40,8 @@ namespace Packager.Test.Processors
         protected ObjectFileModel ProdObjectFileModel { get; set; }
         protected ObjectFileModel AccessObjectFileModel { get; set; }
 
+        protected IBextProcessor BextProcessor { get; set; }
+
         protected IGrouping<string, AbstractFileModel> GetGrouping()
         {
             var list = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel };
@@ -71,7 +73,8 @@ namespace Packager.Test.Processors
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
-          
+            BextProcessor = Substitute.For<IBextProcessor>();
+
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);
             DependencyProvider.DirectoryProvider.Returns(DirectoryProvider);
@@ -82,6 +85,7 @@ namespace Packager.Test.Processors
             DependencyProvider.UserInfoResolver.Returns(UserInfoResolver);
             DependencyProvider.Observers.Returns(Observers);
             DependencyProvider.XmlExporter.Returns(XmlExporter);
+            DependencyProvider.BextProcessor.Returns(BextProcessor);
 
             DoCustomSetup();
 

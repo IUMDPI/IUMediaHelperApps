@@ -1,148 +1,261 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
-using Packager.Models;
 using Packager.Models.FileModels;
-using Packager.Observers;
+using Packager.Models.PodMetadataModels;
 using Packager.Processors;
-using Packager.Providers;
-using Packager.Test.Mocks;
 
 namespace Packager.Test.Processors
 {
     [TestFixture]
-    public class AudioProcessorTests
+    public abstract class AudioProcessorTests : AbstractProcessorTests
     {
-        protected const string ProjectCode = "mdpi";
-        protected const string BarCode1 = "4890764553278906";
-        protected const string BarCode2 = "7890764553278907";
-
-        private const string ExcelFileName = "MDPI_4890764553278906.xlxs";
-        private const string PreservationFileName1 = "MDPI_4890764553278906_01_pres.wav";
-        private const string PreservationIntFileName = "MDPI_4890764553278906_01_pres-int.wav";
-        private const string PreservationFileName2 = "MDPI_4890764553278906_02_pres.wav";
-
-        private const string InvalidFileName = "MDPI_4890764553278906_pres.wav";
-
-        private readonly ObjectFileModel _wavModel1 = new ObjectFileModel(PreservationFileName1);
-        private readonly ObjectFileModel _wavModel2 = new ObjectFileModel(PreservationFileName2);
-        private readonly ObjectFileModel _invalidFileModel = new ObjectFileModel(InvalidFileName);
-
-        private IGrouping<string, AbstractFileModel> GetGrouping()
+        public class WhenProcessingFiles : AudioProcessorTests
         {
-            var list = new List<AbstractFileModel> {_wavModel1, _wavModel2 };
-            return list.GroupBy(m => m.BarCode).First();
+            private Guid SectionGuid { get; set; }
+
+            private const string ProdCommandLineArgs = "-c:a pcm_s24le -b:a 128k -strict -2 -ar 96000";
+            private const string AccessCommandLineArgs = "-c:a aac -b:a 128k -strict -2 -ar 48000";
+            private const string FFMPEGPath = "ffmpeg.exe";
+
+            protected override void DoCustomSetup()
+            {
+                SectionGuid = Guid.NewGuid();
+                Observers.BeginSection("Processing Object: {0}", BarCode).Returns(SectionGuid);
+
+                ProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode, BarCode);
+                PreservationFileName = string.Format("{0}_{1}_01_pres.wav", ProjectCode, BarCode);
+                AccessFileName = string.Format("{0}_{1}_01_access.mp4", ProjectCode, BarCode);
+
+                PresObjectFileModel = new ObjectFileModel(PreservationFileName);
+                ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
+                AccessObjectFileModel = new ObjectFileModel(AccessFileName);
+
+                ProcessingDirectory = string.Format("{0}_{1}", ProjectCode, BarCode);
+
+                DependencyProvider.MetadataProvider.Get(BarCode).Returns(Task.FromResult(new ConsolidatedPodMetadata { Success = true }));
+
+                Metadata = new ConsolidatedPodMetadata
+                {
+                    Barcode = BarCode,
+                    Success = true
+                };
+
+                MetadataProvider.Get(BarCode).Returns(Task.FromResult(Metadata));
+
+                Processor = new AudioProcessor(DependencyProvider);
+
+                ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
+                ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
+                ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
+
+            }
+            
+            public class WhenInitializing : WhenProcessingFiles
+            {
+                [Test]
+                public void ItShouldCallBeginSectionCorrectly()
+                {
+                    Observers.Received().BeginSection("Processing Object: {0}", BarCode);
+                }
+
+                [Test]
+                public void ItShouldCreateProcessingDirectory()
+                {
+                    DirectoryProvider.Received().CreateDirectory(ProcessingDirectory);
+                }
+
+                [Test]
+                public void ItShouldMoveFilesToProcessingDirectory()
+                {
+                    FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, ProductionFileName), Path.Combine(ProcessingDirectory, ProductionFileName));
+                    FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ProcessingDirectory, PreservationFileName));
+                }
+
+                [Test]
+                public void ItShouldOpenInitializingSection()
+                {
+                    Observers.Received().BeginSection("Initializing");
+                }
+
+                [Test]
+                public void ItShouldCloseInitializingSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<Guid>(), "Initialization successful", true);
+                }
+
+            }
+
+            public class WhenGettingMetadata : WhenProcessingFiles
+            {
+                [Test]
+                public void ItShouldGetPodMetadata()
+                {
+                    MetadataProvider.Received().Get(BarCode);
+                }
+
+                [Test]
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Requesting metadata for object: {0}", BarCode);
+                }
+
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("Retrieved metadata for object: {0}", BarCode), true);
+                }
+
+                [Test]
+                public void ItShouldLogMetadataResults()
+                {
+                    Observers.Received().LogObjectProperties(Arg.Is<ConsolidatedPodMetadata>(m => m.Barcode.Equals(BarCode)));
+                }
+            }
+
+            public class WhenCreatingDerivatives : WhenProcessingFiles
+            {
+                public class WhenProductionFileAlreadyExists : WhenCreatingDerivatives
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        FileProvider.FileExists(Path.Combine(ProcessingDirectory, ProductionFileName)).Returns(true);
+                    }
+
+                    [Test]
+                    public void ItShouldNotCreateDerivative()
+                    {
+                        AssertNotCalled(PreservationFileName, ProductionFileName, ProdCommandLineArgs);
+                    }
+
+                    [Test]
+                    public void ItShouldLogDerivativeAlreadyExists()
+                    {
+                        Observers.Received().Log("{0} already exists. Will not generate derivate", ProdObjectFileModel.FullFileUse);
+                    }
+                }
+
+                public class WhenProductionFileDoesNotExist : WhenCreatingDerivatives
+                {
+                    [Test]
+                    public void ItShouldCreateDerivative()
+                    {
+                        AssertCalled(PreservationFileName, ProductionFileName, ProdCommandLineArgs);
+                    }
+                 }
+
+                [Test]
+                public void ItShouldCreateAccessFileCorrectly()
+                {
+                    AssertCalled(ProductionFileName, AccessFileName, AccessCommandLineArgs);
+                }
+
+                [Test]
+                public void ItShouldCloseProductionSection()
+                {
+                    var expected = string.Format("{0} generated successfully: {1}", ProdObjectFileModel.FullFileUse, ProductionFileName);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), expected, true);
+                }
+
+                [Test]
+                public void ItShouldOpenProductionSection()
+                {
+                    Observers.Received().BeginSection("Generating {0}: {1}", ProdObjectFileModel.FullFileUse, ProductionFileName);
+                }
+                
+                [Test]
+                public void ItShouldOpenAccessSection()
+                {
+                    Observers.Received().BeginSection("Generating {0}: {1}", AccessObjectFileModel.FullFileUse, AccessFileName);
+                }
+
+                [Test]
+                public void ItShouldCloseAccessSection()
+                {
+                    var expected = string.Format("{0} generated successfully: {1}", AccessObjectFileModel.FullFileUse, AccessFileName);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), expected, true);
+                }
+
+                private void AssertCalled(string originalFileName, string newFileName, string settingsArgs)
+                {
+                    var expectedArgs = string.Format("-i {0} {1} {2}",
+                        Path.Combine(ProcessingDirectory, originalFileName),
+                        settingsArgs,
+                        Path.Combine(ProcessingDirectory, newFileName));
+
+                    ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(
+                        i => i.FileName.Equals(FFMPEGPath) &&
+                             i.Arguments.Equals(expectedArgs) &&
+                             i.RedirectStandardError &&
+                             i.RedirectStandardOutput &&
+                             i.CreateNoWindow &&
+                             i.UseShellExecute == false));
+                }
+
+                private void AssertNotCalled(string originalFileName, string newFileName, string settingsArgs)
+                {
+                    var expectedArgs = string.Format("-i {0} {1} {2}",
+                        Path.Combine(ProcessingDirectory, originalFileName),
+                        settingsArgs,
+                        Path.Combine(ProcessingDirectory, newFileName));
+
+                    ProcessRunner.DidNotReceive().Run(Arg.Is<ProcessStartInfo>(
+                        i => i.FileName.Equals(FFMPEGPath) &&
+                             i.Arguments.Equals(expectedArgs) &&
+                             i.RedirectStandardError &&
+                             i.RedirectStandardOutput &&
+                             i.CreateNoWindow &&
+                             i.UseShellExecute == false));
+                }
+            }
+
+            public class WhenEmbeddingMetadata : WhenProcessingFiles
+            {
+                
+
+                
+
+               
+
+            }
+
+            public class WhenFinalizing : WhenProcessingFiles
+            {
+                public class IfSuccessful : WhenFinalizing
+                {
+                    [Test]
+                    public void ItShouldCopyFilesToDropbox()
+                    {
+                    }
+
+                    [Test]
+                    public void ItShouldMoveFilesToSuccessFolder()
+                    {
+                    }
+
+                    [Test]
+                    public void ItShouldCallEndSectionCorrectly()
+                    {
+                        Observers.Received().EndSection(SectionGuid, "Object processed succesfully: 4890764553278906", true);
+                    }
+                }
+
+                public class IfIssueOccurs : WhenFinalizing
+                {
+
+                }
+            }
+
+
+
+
+
         }
 
-        private static AudioProcessor GetProcessor(
-            IProgramSettings settings = null,
-            IDependencyProvider dependencyProvider = null,
-            IObserverCollection observers = null,
-            IFileProvider fileProvider = null)
-        {
-            if (dependencyProvider == null)
-            {
-                dependencyProvider =
-                    MockDependencyProvider.Get(
-                        programSettings: settings,
-                        observers: observers,
-                        fileProvider: fileProvider);
-            }
-
-            return new AudioProcessor(dependencyProvider);
-        }
-
-        [TestFixture]
-        public class WhenProcessorStarts : AudioProcessorTests
-        {
-            [Test]
-            public async void ItShouldCreateProcessingDirectoryWithUpperCaseProjectName()
-            {
-                var directoryProvider = Substitute.For<IDirectoryProvider>();
-                var dependencyProvider = MockDependencyProvider.Get(directoryProvider: directoryProvider);
-
-                var processor = GetProcessor(dependencyProvider: dependencyProvider);
-
-                await processor.ProcessFile(GetGrouping());
-
-                var expectedDirectory = Path.Combine(
-                    MockProgramSettings.ProcessingDirectory,
-                    string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), BarCode1));
-
-                directoryProvider.Received().CreateDirectory(Arg.Is(expectedDirectory));
-            }
-
-            [Test]
-            public async void ItShouldLogBatchProcessingHeader()
-            {
-                var observers = Substitute.For<IObserverCollection>();
-                var processor = GetProcessor(observers: observers);
-
-                await processor.ProcessFile(GetGrouping());
-
-                observers.Received().Log(Arg.Is("Processing object {0}"), Arg.Is(BarCode1));
-            }
-
-            [Test]
-            public async void ItShouldLogExcelSpreadsheet()
-            {
-                var observers = Substitute.For<IObserverCollection>();
-                var processor = GetProcessor(observers: observers);
-
-                await processor.ProcessFile(GetGrouping());
-
-                observers.Received().Log(Arg.Is("Spreadsheet: {0}"), Arg.Is(ExcelFileName));
-            }
-
-            [Test]
-            public async void ItShouldLogFilesMovedToProcessingDirectory()
-            {
-                var observers = Substitute.For<IObserverCollection>();
-                var processor = GetProcessor(observers: observers);
-
-                await processor.ProcessFile(GetGrouping());
-
-                observers.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(PreservationFileName1));
-                observers.Received().Log(Arg.Is("Moving file to processing: {0}"), Arg.Is(PreservationFileName2));
-            }
-
-            [Test]
-            public void ItShouldThrowExceptionIfNoSpreadSheetModelPresent()
-            {
-                var processor = GetProcessor();
-                var grouping = new List<AbstractFileModel> { _wavModel1, _wavModel2 }
-                    .GroupBy(m => m.BarCode).First();
-
-                var exception = Assert.Throws<Exception>(async () => await processor.ProcessFile(grouping));
-                Assert.That(exception.Message, Is.EqualTo("No input data spreadsheet in batch"));
-
-            }
-
-            [Test]
-            public async void ItShouldMoveExcelSpreadsheetToProcessingDirectory()
-            {
-                var fileProvider = Substitute.For<IFileProvider>();
-                var processor = GetProcessor(fileProvider: fileProvider);
-
-                await processor.ProcessFile(GetGrouping());
-
-                fileProvider.Received().Move(
-                    Arg.Is<string>(s => s.EndsWith(ExcelFileName)), 
-                    Arg.Is<string>(s => s.EndsWith(ExcelFileName)));
-
-            }
-        }
-
-
-
-
-
-
-
-
-
+       
     }
 }

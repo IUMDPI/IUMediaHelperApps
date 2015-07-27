@@ -39,7 +39,7 @@ namespace Packager.Processors
         protected abstract string PreservationFileExtension { get; }
         protected abstract string PreservationIntermediateFileExtenstion { get; }
         protected abstract Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel);
-        protected abstract Task ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels);
+        protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels);
 
         protected IPodMetadataProvider MetadataProvider
         {
@@ -77,13 +77,19 @@ namespace Packager.Processors
         {
             Barcode = fileModels.Key;
 
-            // todo: is this needed?
-            //AddObjectProcessingObserver();
-
             var sectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
             try
             {
-                await ProcessFileInternal(fileModels);
+                // make directory to hold processed files
+                DirectoryProvider.CreateDirectory(ProcessingDirectory);
+
+                // call internal implementation
+                var processedList = await ProcessFileInternal(fileModels);
+
+                // copy processed files to drop box
+                await CopyToDropbox(processedList);
+                
+                // move everything to success folder
                 await MoveToSuccessFolder();
 
                 Observers.EndSection(sectionKey, string.Format("Object processed succesfully: {0}", Barcode), true);
@@ -216,7 +222,7 @@ namespace Packager.Processors
             }
         }
 
-        protected async Task CopyToDropbox(IEnumerable<AbstractFileModel> fileList)
+        private async Task CopyToDropbox(IEnumerable<AbstractFileModel> fileList)
         {
             var sectionKey = Observers.BeginSection("Copying objects to dropbox");
             try

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
@@ -18,6 +20,10 @@ namespace Packager.Test.Processors
     
     public abstract class AbstractProcessorTests
     {
+        protected const string ProjectCode = "MDPI";
+        protected const string BarCode = "4890764553278906";
+        protected const string InputDirectory = "work";
+
         protected IProgramSettings ProgramSettings { get; set; }
         protected IDependencyProvider DependencyProvider { get; set; }
         protected IDirectoryProvider DirectoryProvider { get; set; }
@@ -26,58 +32,63 @@ namespace Packager.Test.Processors
         protected IProcessRunner ProcessRunner { get; set; }
         protected IUserInfoResolver UserInfoResolver { get; set; }
         protected IXmlExporter XmlExporter { get; set; }
-        protected IObserver Observer { get; set; }
+        protected IObserverCollection Observers { get; set; }
         protected IProcessor Processor { get; set; }
+        protected IPodMetadataProvider MetadataProvider { get; set; }
 
         protected ObjectFileModel PresObjectFileModel { get; set; }
         protected ObjectFileModel ProdObjectFileModel { get; set; }
+        protected ObjectFileModel AccessObjectFileModel { get; set; }
 
-        private IGrouping<string, AbstractFileModel> GetGrouping()
+        protected IGrouping<string, AbstractFileModel> GetGrouping()
         {
             var list = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel };
             return list.GroupBy(m => m.BarCode).First();
         }
 
+        protected string ProductionFileName { get; set; }
+        protected string PreservationFileName { get; set; }
+        protected string AccessFileName { get; set; }
+
+        protected string ProcessingDirectory { get; set; }
+
+        protected ConsolidatedPodMetadata Metadata { get; set; }
+
+        protected abstract void DoCustomSetup();
+
         [SetUp]
-        public virtual void BeforeEach()
+        public async virtual void BeforeEach()
         {
             ProgramSettings = Substitute.For<IProgramSettings>();
+            ProgramSettings.ProjectCode.Returns(ProjectCode);
+            ProgramSettings.InputDirectory.Returns(InputDirectory);
+
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();
             Hasher = Substitute.For<IHasher>();
             ProcessRunner = Substitute.For<IProcessRunner>();
             UserInfoResolver = Substitute.For<IUserInfoResolver>();
             XmlExporter = Substitute.For<IXmlExporter>();
-            Observer = Substitute.For<IObserver>();
-            
+            Observers = Substitute.For<IObserverCollection>();
+            MetadataProvider = Substitute.For<IPodMetadataProvider>();
+          
+            DependencyProvider = Substitute.For<IDependencyProvider>();
+            DependencyProvider.FileProvider.Returns(FileProvider);
+            DependencyProvider.DirectoryProvider.Returns(DirectoryProvider);
+            DependencyProvider.Hasher.Returns(Hasher);
+            DependencyProvider.MetadataProvider.Returns(MetadataProvider);
+            DependencyProvider.ProcessRunner.Returns(ProcessRunner);
+            DependencyProvider.ProgramSettings.Returns(ProgramSettings);
+            DependencyProvider.UserInfoResolver.Returns(UserInfoResolver);
+            DependencyProvider.Observers.Returns(Observers);
+            DependencyProvider.XmlExporter.Returns(XmlExporter);
 
+            DoCustomSetup();
 
-            DependencyProvider = MockDependencyProvider.Get(DirectoryProvider, FileProvider, Hasher, ProcessRunner, ProgramSettings, UserInfoResolver, XmlExporter, new ObserverCollection {Observer});
+            await Processor.ProcessFile(GetGrouping());
         }
 
-        public class WhenProcessingFiles : AbstractProcessorTests
-        {
-            protected const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
-            protected const string ProductionFileName = "MDPI_4890764553278906_01_pres.wav";
-
-            public async override void BeforeEach()
-            {
-                base.BeforeEach();
-
-                PresObjectFileModel = new ObjectFileModel(PreservationFileName);
-                ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
-
-                Processor = new AudioProcessor(DependencyProvider);
-                await Processor.ProcessFile(GetGrouping());
-            }
-
-            [Test]
-            public void ItShouldCallBeginSectionCorrectly()
-            {
-               
-            }
-        }
-
+        
 
     }
 }

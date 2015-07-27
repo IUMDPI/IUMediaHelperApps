@@ -50,11 +50,8 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
-        protected override async Task ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels)
+        protected override async Task<IEnumerable<AbstractFileModel>>  ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels)
         {
-            // make directory to hold processed files
-            DirectoryProvider.CreateDirectory(Path.Combine(ProcessingDirectory));
-
             var filesToProcess = fileModels
                 .Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
@@ -100,7 +97,7 @@ namespace Packager.Processors
 
             processedList.Add(xmlModel);
 
-            await CopyToDropbox(processedList);
+            return processedList;
         }
 
         protected override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
@@ -108,27 +105,17 @@ namespace Packager.Processors
             var prodModel = await CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
-                AddNoOverwriteToFfmpegCommand(FFMPEGAudioProductionArguments));
+                FFMPEGAudioProductionArguments);
 
             var accessModel = await CreateDerivative(
                 prodModel,
                 ToAccessFileModel(prodModel),
-                AddNoOverwriteToFfmpegCommand(FFMPEGAudioAccessArguments));
+                FFMPEGAudioAccessArguments);
 
             // return models for files
             return new List<ObjectFileModel> {prodModel, accessModel};
         }
-
-        private static string AddNoOverwriteToFfmpegCommand(string arguments)
-        {
-            if (arguments.ToLowerInvariant().Contains("-y") || arguments.ToLowerInvariant().Contains("-n"))
-            {
-                return arguments;
-            }
-
-            return arguments + " -n";
-        }
-
+        
         private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
@@ -140,13 +127,13 @@ namespace Packager.Processors
                 if (FileProvider.FileExists(outputPath))
                 {
                     Observers.Log("{0} already exists. Will not generate derivate", newModel.FullFileUse);
-                    return newModel;
                 }
-
-                var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
-
-                await CreateDerivative(args);
-
+                else
+                {
+                    var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
+                    await CreateDerivative(args);    
+                }
+                
                 Observers.EndSection(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()), true);
                 return newModel;
             }

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Models;
@@ -17,6 +19,8 @@ namespace Packager.Test.Processors
         protected const string Barcode = "4890764553278906";
         protected const string InputDirectory = "work";
         protected const string DropBoxRoot = "dropbox";
+        protected const string ErrorDirectory = "error";
+        protected const string ProcessingRoot = "processing";
         
         protected IProgramSettings ProgramSettings { get; set; }
         protected IDependencyProvider DependencyProvider { get; set; }
@@ -30,19 +34,34 @@ namespace Packager.Test.Processors
         protected IProcessor Processor { get; set; }
         protected IPodMetadataProvider MetadataProvider { get; set; }
         protected IMetadataGenerator MetadataGenerator { get; set; }
-        protected ObjectFileModel PresObjectFileModel { get; set; }
-        protected ObjectFileModel ProdObjectFileModel { get; set; }
-        protected ObjectFileModel AccessObjectFileModel { get; set; }
         protected IBextProcessor BextProcessor { get; set; }
-        protected IGrouping<string, AbstractFileModel> Grouping { get; set; }
-        protected string ProcessingDirectory { get; set; }
+       
+        protected string ExpectedProcessingDirectory { get { return Path.Combine(ProcessingRoot, ExpectedObjectFolderName); } }
+        
+        protected string ExpectedObjectFolderName { get; set; }
         protected ConsolidatedPodMetadata Metadata { get; set; }
         protected abstract void DoCustomSetup();
 
-        protected string ProductionFileName { get; set; }
         protected string PreservationFileName { get; set; }
+        protected string PreservationIntermediateFileName { get; set; }
+        protected string ProductionFileName { get; set; }
         protected string AccessFileName { get; set; }
+
+        protected ObjectFileModel PresObjectFileModel { get; set; }
+        protected ObjectFileModel ProdObjectFileModel { get; set; }
+        protected ObjectFileModel PresIntObjectFileModel { get; set; }
+        protected ObjectFileModel AccessObjectFileModel { get; set; }
+        
         protected string XmlManifestFileName { get; set; }
+ 
+        public bool Result { get; set; }
+
+        protected IGrouping<string, AbstractFileModel> GetGrouping(IEnumerable<AbstractFileModel> models)
+        {
+            return models.GroupBy(m => m.BarCode).First();
+        }
+
+        protected List<AbstractFileModel> ModelList { get; set; }
 
         [SetUp]
         public virtual async void BeforeEach()
@@ -51,6 +70,8 @@ namespace Packager.Test.Processors
             ProgramSettings.ProjectCode.Returns(ProjectCode);
             ProgramSettings.InputDirectory.Returns(InputDirectory);
             ProgramSettings.DropBoxDirectoryName.Returns(DropBoxRoot);
+            ProgramSettings.ErrorDirectoryName.Returns(ErrorDirectory);
+            ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
 
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();
@@ -77,7 +98,10 @@ namespace Packager.Test.Processors
             DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
             DoCustomSetup();
 
-            await Processor.ProcessFile(Grouping);
+           Result =  await Processor.ProcessFile(GetGrouping(ModelList));
+            
         }
+
+       
     }
 }

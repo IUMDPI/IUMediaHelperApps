@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Models.FileModels;
+using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
 
@@ -34,6 +37,9 @@ namespace Packager.Test.Processors
                 ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
                 AccessObjectFileModel = new ObjectFileModel(AccessFileName);
 
+                Grouping = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel }
+                    .GroupBy(m => m.BarCode).First();
+
                 ProcessingDirectory = string.Format("{0}_{1}", ProjectCode, BarCode);
 
                 DependencyProvider.MetadataProvider.Get(BarCode).Returns(Task.FromResult(new ConsolidatedPodMetadata { Success = true }));
@@ -53,7 +59,7 @@ namespace Packager.Test.Processors
                 ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
 
             }
-            
+
             public class WhenInitializing : WhenProcessingFiles
             {
                 [Test]
@@ -146,7 +152,7 @@ namespace Packager.Test.Processors
                     {
                         AssertCalled(PreservationFileName, ProductionFileName, ProdCommandLineArgs);
                     }
-                 }
+                }
 
                 [Test]
                 public void ItShouldCreateAccessFileCorrectly()
@@ -166,7 +172,7 @@ namespace Packager.Test.Processors
                 {
                     Observers.Received().BeginSection("Generating {0}: {1}", ProdObjectFileModel.FullFileUse, ProductionFileName);
                 }
-                
+
                 [Test]
                 public void ItShouldOpenAccessSection()
                 {
@@ -215,16 +221,99 @@ namespace Packager.Test.Processors
 
             public class WhenEmbeddingMetadata : WhenProcessingFiles
             {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+
+                    Grouping = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel, AccessObjectFileModel }
+                        .GroupBy(m => m.BarCode).First();
+                }
+
                 [Test]
                 public void ItShouldOpenSection()
                 {
                     Observers.Received().BeginSection("Adding BEXT metadata");
                 }
-                
 
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<Guid>(), "BEXT metadata added successfully", true);
+                }
 
-               
+                [Test]
+                public void ItShouldPassSingleProductionModelToBextProcessor()
+                {
+                    BextProcessor.Received().EmbedBextMetadata(
+                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        ProcessingDirectory);
+                }
 
+                [Test]
+                public void ItShouldPassSinglePresentationModelToBextProcessor()
+                {
+                    BextProcessor.Received().EmbedBextMetadata(
+                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        ProcessingDirectory);
+                }
+
+                [Test]
+                public void ItShouldNotPassAccessModelToBextProcessor()
+                {
+                    BextProcessor.Received().EmbedBextMetadata(
+                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.Any(m => m.IsAccessVersion()) == false),
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        ProcessingDirectory);
+                }
+            }
+
+            public class WhenGeneratingXmlManifest : WhenProcessingFiles
+            {
+                private CarrierData CarrierData { get; set; }
+
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+
+                    CarrierData = new CarrierData();
+                    MetadataGenerator.GenerateMetadata(null, null, "").ReturnsForAnyArgs(CarrierData);
+                }
+
+                [Test]
+                public void ItShouldPassSingleProductionModelToMetadataGenerator()
+                {
+                    MetadataGenerator.Received().GenerateMetadata(
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
+                        ProcessingDirectory);
+                }
+
+                [Test]
+                public void ItShouldPassSinglePreservationModelToMetadataGenerator()
+                {
+                    MetadataGenerator.Received().GenerateMetadata(
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null),
+                        ProcessingDirectory);
+                }
+
+                [Test]
+                public void ItShouldPassAccessModelToMetadataGenerator()
+                {
+                    MetadataGenerator.Received().GenerateMetadata(
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null),
+                        ProcessingDirectory);
+                }
+
+                [Test]
+                public void ItShouldCallExportToFileCorrectly()
+                {
+                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
+                        Path.Combine(ProcessingDirectory, string.Format("{0}_{1}.xml", ProjectCode, BarCode)));
+                }
             }
 
             public class WhenFinalizing : WhenProcessingFiles
@@ -260,6 +349,6 @@ namespace Packager.Test.Processors
 
         }
 
-       
+
     }
 }

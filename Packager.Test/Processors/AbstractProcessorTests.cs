@@ -17,7 +17,7 @@ using Packager.Utilities;
 
 namespace Packager.Test.Processors
 {
-    
+
     public abstract class AbstractProcessorTests
     {
         protected const string ProjectCode = "MDPI";
@@ -35,6 +35,7 @@ namespace Packager.Test.Processors
         protected IObserverCollection Observers { get; set; }
         protected IProcessor Processor { get; set; }
         protected IPodMetadataProvider MetadataProvider { get; set; }
+        protected IMetadataGenerator MetadataGenerator { get; set; }
 
         protected ObjectFileModel PresObjectFileModel { get; set; }
         protected ObjectFileModel ProdObjectFileModel { get; set; }
@@ -42,11 +43,7 @@ namespace Packager.Test.Processors
 
         protected IBextProcessor BextProcessor { get; set; }
 
-        protected IGrouping<string, AbstractFileModel> GetGrouping()
-        {
-            var list = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel };
-            return list.GroupBy(m => m.BarCode).First();
-        }
+        protected IGrouping<string, AbstractFileModel> Grouping { get; set; }
 
         protected string ProductionFileName { get; set; }
         protected string PreservationFileName { get; set; }
@@ -73,6 +70,7 @@ namespace Packager.Test.Processors
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
+            MetadataGenerator = Substitute.For<IMetadataGenerator>();
             BextProcessor = Substitute.For<IBextProcessor>();
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
@@ -86,13 +84,13 @@ namespace Packager.Test.Processors
             DependencyProvider.Observers.Returns(Observers);
             DependencyProvider.XmlExporter.Returns(XmlExporter);
             DependencyProvider.BextProcessor.Returns(BextProcessor);
-
+            DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
             DoCustomSetup();
 
-            await Processor.ProcessFile(GetGrouping());
+            await Processor.ProcessFile(Grouping);
         }
 
-        
+
 
     }
 }

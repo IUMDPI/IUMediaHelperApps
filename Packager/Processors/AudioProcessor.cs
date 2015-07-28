@@ -86,6 +86,12 @@ namespace Packager.Processors
                 processedList = processedList.Concat(derivatives).ToList();
             }
 
+            // now remove duplicate entries -- this could happen if production master
+            // already exists
+            processedList = processedList
+                .GroupBy(o => o.ToFileName())
+                .Select(g => g.First()).ToList();
+
             // now add metadata to eligible objects
             await AddMetadata(processedList, metadata);
 

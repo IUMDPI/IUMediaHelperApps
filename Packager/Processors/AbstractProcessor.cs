@@ -68,7 +68,7 @@ namespace Packager.Processors
 
         private string DropBoxDirectory
         {
-            get { return Path.Combine(RootDropBoxDirectory, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode)); }
+            get { return Path.Combine(RootDropBoxDirectory, ObjectDirectoryName); }
         }
 
         protected string Barcode { get; private set; }

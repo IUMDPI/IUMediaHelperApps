@@ -14,58 +14,59 @@ using Packager.Processors;
 namespace Packager.Test.Processors
 {
     [TestFixture]
-    public abstract class AudioProcessorTests : AbstractProcessorTests
+    public class AudioProcessorTests : AbstractProcessorTests
     {
-        public class WhenProcessingFiles : AudioProcessorTests
+        private Guid SectionGuid { get; set; }
+
+        private const string ProdCommandLineArgs = "-c:a pcm_s24le -b:a 128k -strict -2 -ar 96000";
+        private const string AccessCommandLineArgs = "-c:a aac -b:a 128k -strict -2 -ar 48000";
+        private const string FFMPEGPath = "ffmpeg.exe";
+
+        protected override void DoCustomSetup()
         {
-            private Guid SectionGuid { get; set; }
+            SectionGuid = Guid.NewGuid();
+            Observers.BeginSection("Processing Object: {0}", Barcode).Returns(SectionGuid);
 
-            private const string ProdCommandLineArgs = "-c:a pcm_s24le -b:a 128k -strict -2 -ar 96000";
-            private const string AccessCommandLineArgs = "-c:a aac -b:a 128k -strict -2 -ar 48000";
-            private const string FFMPEGPath = "ffmpeg.exe";
+            ProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode, Barcode);
+            PreservationFileName = string.Format("{0}_{1}_01_pres.wav", ProjectCode, Barcode);
+            AccessFileName = string.Format("{0}_{1}_01_access.mp4", ProjectCode, Barcode);
+            XmlManifestFileName = string.Format("{0}_{1}.xml", ProjectCode, Barcode);
 
-            protected override void DoCustomSetup()
+            PresObjectFileModel = new ObjectFileModel(PreservationFileName);
+            ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
+            AccessObjectFileModel = new ObjectFileModel(AccessFileName);
+
+            Grouping = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel }
+                .GroupBy(m => m.BarCode).First();
+
+            ProcessingDirectory = string.Format("{0}_{1}", ProjectCode, Barcode);
+
+            DependencyProvider.MetadataProvider.Get(Barcode).Returns(Task.FromResult(new ConsolidatedPodMetadata { Success = true }));
+
+            Metadata = new ConsolidatedPodMetadata
             {
-                SectionGuid = Guid.NewGuid();
-                Observers.BeginSection("Processing Object: {0}", BarCode).Returns(SectionGuid);
+                Barcode = Barcode,
+                Success = true
+            };
 
-                ProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode, BarCode);
-                PreservationFileName = string.Format("{0}_{1}_01_pres.wav", ProjectCode, BarCode);
-                AccessFileName = string.Format("{0}_{1}_01_access.mp4", ProjectCode, BarCode);
+            MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
 
-                PresObjectFileModel = new ObjectFileModel(PreservationFileName);
-                ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
-                AccessObjectFileModel = new ObjectFileModel(AccessFileName);
+            Processor = new AudioProcessor(DependencyProvider);
 
-                Grouping = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel }
-                    .GroupBy(m => m.BarCode).First();
+            ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
+            ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
+            ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
 
-                ProcessingDirectory = string.Format("{0}_{1}", ProjectCode, BarCode);
+        }
 
-                DependencyProvider.MetadataProvider.Get(BarCode).Returns(Task.FromResult(new ConsolidatedPodMetadata { Success = true }));
-
-                Metadata = new ConsolidatedPodMetadata
-                {
-                    Barcode = BarCode,
-                    Success = true
-                };
-
-                MetadataProvider.Get(BarCode).Returns(Task.FromResult(Metadata));
-
-                Processor = new AudioProcessor(DependencyProvider);
-
-                ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
-                ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
-                ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
-
-            }
-
-            public class WhenInitializing : WhenProcessingFiles
+        public class WhenNothingGoesWrong : AudioProcessorTests
+        {
+            public class WhenInitializing : WhenNothingGoesWrong
             {
                 [Test]
                 public void ItShouldCallBeginSectionCorrectly()
                 {
-                    Observers.Received().BeginSection("Processing Object: {0}", BarCode);
+                    Observers.Received().BeginSection("Processing Object: {0}", Barcode);
                 }
 
                 [Test]
@@ -95,34 +96,34 @@ namespace Packager.Test.Processors
 
             }
 
-            public class WhenGettingMetadata : WhenProcessingFiles
+            public class WhenGettingMetadata : WhenNothingGoesWrong
             {
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
-                    MetadataProvider.Received().Get(BarCode);
+                    MetadataProvider.Received().Get(Barcode);
                 }
 
                 [Test]
                 public void ItShouldOpenSection()
                 {
-                    Observers.Received().BeginSection("Requesting metadata for object: {0}", BarCode);
+                    Observers.Received().BeginSection("Requesting metadata for object: {0}", Barcode);
                 }
 
                 [Test]
                 public void ItShouldCloseSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("Retrieved metadata for object: {0}", BarCode), true);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("Retrieved metadata for object: {0}", Barcode), true);
                 }
 
                 [Test]
                 public void ItShouldLogMetadataResults()
                 {
-                    Observers.Received().LogObjectProperties(Arg.Is<ConsolidatedPodMetadata>(m => m.Barcode.Equals(BarCode)));
+                    Observers.Received().LogObjectProperties(Arg.Is<ConsolidatedPodMetadata>(m => m.Barcode.Equals(Barcode)));
                 }
             }
 
-            public class WhenCreatingDerivatives : WhenProcessingFiles
+            public class WhenCreatingDerivatives : WhenNothingGoesWrong
             {
                 public class WhenProductionFileAlreadyExists : WhenCreatingDerivatives
                 {
@@ -219,7 +220,7 @@ namespace Packager.Test.Processors
                 }
             }
 
-            public class WhenEmbeddingMetadata : WhenProcessingFiles
+            public class WhenEmbeddingMetadata : WhenNothingGoesWrong
             {
                 protected override void DoCustomSetup()
                 {
@@ -239,6 +240,16 @@ namespace Packager.Test.Processors
                 public void ItShouldCloseSection()
                 {
                     Observers.Received().EndSection(Arg.Any<Guid>(), "BEXT metadata added successfully", true);
+                }
+
+
+                [Test]
+                public void ItShouldPassTwoFileObjectsToBextProcessor()
+                {
+                    BextProcessor.Received().EmbedBextMetadata(
+                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.Count() == 2),
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        ProcessingDirectory);
                 }
 
                 [Test]
@@ -269,7 +280,7 @@ namespace Packager.Test.Processors
                 }
             }
 
-            public class WhenGeneratingXmlManifest : WhenProcessingFiles
+            public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private CarrierData CarrierData { get; set; }
 
@@ -282,7 +293,16 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldPassSingleProductionModelToMetadataGenerator()
+                public void ItShouldPassThreeFileObjectsToGenerator()
+                {
+                    MetadataGenerator.Received().GenerateMetadata(
+                       Arg.Any<ConsolidatedPodMetadata>(),
+                       Arg.Is<IEnumerable<ObjectFileModel>>(l => l.Count()==3),
+                       ProcessingDirectory);
+                }
+
+                [Test]
+                public void ItShouldPassSingleProductionModelToGenerator()
                 {
                     MetadataGenerator.Received().GenerateMetadata(
                         Arg.Any<ConsolidatedPodMetadata>(),
@@ -291,7 +311,7 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldPassSinglePreservationModelToMetadataGenerator()
+                public void ItShouldPassSinglePreservationModelToGenerator()
                 {
                     MetadataGenerator.Received().GenerateMetadata(
                         Arg.Any<ConsolidatedPodMetadata>(),
@@ -300,7 +320,7 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldPassAccessModelToMetadataGenerator()
+                public void ItShouldPassSingleAccessModelToGenerator()
                 {
                     MetadataGenerator.Received().GenerateMetadata(
                         Arg.Any<ConsolidatedPodMetadata>(),
@@ -312,38 +332,121 @@ namespace Packager.Test.Processors
                 public void ItShouldCallExportToFileCorrectly()
                 {
                     XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
-                        Path.Combine(ProcessingDirectory, string.Format("{0}_{1}.xml", ProjectCode, BarCode)));
+                        Path.Combine(ProcessingDirectory, XmlManifestFileName));
                 }
             }
 
-            public class WhenFinalizing : WhenProcessingFiles
+            public class WhenCopyingFilesToDropBoxFolder : WhenNothingGoesWrong
             {
-                public class IfSuccessful : WhenFinalizing
+                private string ExpectedDropboxDirectory { get; set; }
+
+                protected override void DoCustomSetup()
                 {
-                    [Test]
-                    public void ItShouldCopyFilesToDropbox()
-                    {
-                    }
+                    base.DoCustomSetup();
 
-                    [Test]
-                    public void ItShouldMoveFilesToSuccessFolder()
-                    {
-                    }
-
-                    [Test]
-                    public void ItShouldCallEndSectionCorrectly()
-                    {
-                        Observers.Received().EndSection(SectionGuid, "Object processed succesfully: 4890764553278906", true);
-                    }
+                    ExpectedDropboxDirectory = Path.Combine(DropBoxRoot, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode));
                 }
 
-                public class IfIssueOccurs : WhenFinalizing
+                [Test]
+                public void ItShouldOpenSection()
                 {
-
+                    Observers.Received().BeginSection("Copying objects to dropbox");
                 }
+
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(
+                        Arg.Any<Guid>(), 
+                        string.Format("{0} files copied to dropbox folder successfully", Barcode), 
+                        true);
+                }
+
+                [Test]
+                public void ItShouldCreateFolderInDropBox()
+                {
+                    DirectoryProvider.Received().CreateDirectory(ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldCopyFourFilesToDropBox()
+                {
+                    FileProvider.Received(4).CopyFileAsync(Arg.Any<string>(), Arg.Any<string>());
+                }
+
+                [Test]
+                public void ItShouldCopyPreservationMasterToDropbox()
+                {
+                    var sourcePath = Path.Combine(ProcessingDirectory, PreservationFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+                [Test]
+                public void ItShouldLogPreservationMasterCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", PreservationFileName, ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldLogProductionMasterCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", PreservationFileName, ExpectedDropboxDirectory);
+                }
+                
+                [Test]
+                public void ItShouldLogAccessMasterCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", AccessFileName, ExpectedDropboxDirectory);
+                }
+                
+                [Test]
+                public void ItShouldLogXmlManifestCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", XmlManifestFileName, ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldCopyProductionMasterToDropbox()
+                {
+                    var sourcePath = Path.Combine(ProcessingDirectory, ProductionFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, ProductionFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+                [Test]
+                public void ItShouldCopyAccessMasterToDropbox()
+                {
+                    var sourcePath = Path.Combine(ProcessingDirectory, AccessFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, AccessFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+                [Test]
+                public void ItShouldCopyXmlManifestToDropbox()
+                {
+                    var sourcePath = Path.Combine(ProcessingDirectory, XmlManifestFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, XmlManifestFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+               
+
             }
 
+            public class WhenFinalizing : WhenNothingGoesWrong
+            {
+                [Test]
+                public void ItShouldMoveFilesToSuccessFolder()
+                {
+                }
 
+                [Test]
+                public void ItShouldCallEndSectionCorrectly()
+                {
+                    Observers.Received().EndSection(SectionGuid, "Object processed succesfully: 4890764553278906", true);
+                }
+            }
 
 
 

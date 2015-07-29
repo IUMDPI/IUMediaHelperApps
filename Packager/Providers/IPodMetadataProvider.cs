@@ -33,19 +33,12 @@ namespace Packager.Providers
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password),
                };
 
-
-            // use custom deserializer
-            var serializer = new PodMetadataDeserializer(LookupsProvider);
-            client.AddHandler("text/xml", serializer);
-            client.AddHandler("application/xml", serializer);
-
             var request = new RestRequest {DateFormat = "yyyy-MM-ddTHH:mm:sszzz"};
-
-            var response = await client.ExecuteGetTaskAsync<ConsolidatedPodMetadata>(request);
+            var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
 
             VerifyResponse(response);
 
-            return response.Data;
+            return new ConsolidatedPodMetadata(response.Data);
         }
 
         private static void VerifyResponse(IRestResponse response)

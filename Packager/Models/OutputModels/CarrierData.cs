@@ -58,7 +58,14 @@ namespace Packager.Models.OutputModels
                 DirectionsRecorded = podMetadata.DirectionsRecorded,
                 Identifier = podMetadata.Identifier,
                 Configuration = ConfigurationData.FromPodMetadata(podMetadata),
-                Thickness = string.Join(",", podMetadata.TapeThicknesses)
+                Thickness = podMetadata.TapeThicknesses,
+                Baking = new BakingData { Date = podMetadata.BakingDate},
+                Cleaning = new CleaningData { Date = podMetadata.CleaningDate},
+                Repaired = podMetadata.Repaired? "Yes":"No",
+                PhysicalCondition = new PhysicalConditionData
+                {
+                    
+                }
             };
         }
     }

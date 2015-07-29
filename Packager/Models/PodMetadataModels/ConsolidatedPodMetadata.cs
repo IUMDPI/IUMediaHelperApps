@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.CodeDom;
+using System.Collections.Generic;
+using System.Linq;
 using Packager.Attributes;
 using Packager.Observers;
 using Packager.Providers;
@@ -8,47 +10,66 @@ namespace Packager.Models.PodMetadataModels
 {
     public class ConsolidatedPodMetadata
     {
-        [DeserializeAs(Name = "success")]
-        public bool Success { get; set; }
+        private PodMetadata Metadata { get; set; }
+        private Details Details { get; set; }
+        private Assignment Assignment { get; set; }
+        private TechnicalMetadata TechnicalMetadata { get; set; }
 
-        [DeserializeAs(Name = "message")]
-        public string Message { get; set; }
+        public ConsolidatedPodMetadata(PodMetadata metadata)
+        {
+            Metadata = metadata;
+            Details = metadata.Data != null ? metadata.Data.Object.Details : null;
+            Assignment = metadata.Data != null ? metadata.Data.Object.Assignment : null;
+            TechnicalMetadata = metadata.Data != null ? metadata.Data.Object.TechnicalMetadata : null;
+            DigitalProvenance = metadata.Data != null ? metadata.Data.Object.DigitalProvenance : null;
+        }
 
-        [DeserializeAs(Name = "call_number")]
-        public string CallNumber { get; set; }
+        public DigitalProvenance DigitalProvenance { get; set; }
 
-        [DeserializeAs(Name = "title")]
-        public string Title { get; set; }
+        public string Identifier { get { return Metadata.Data.Object.Details.Id; } }
+        public bool Success { get { return Metadata.Success; } }
+        public string Message { get { return Metadata.Message; } }
+        public string CallNumber { get { return Details.CallNumber; } }
+        public string Title { get { return Details.Title; } }
+        public string Unit { get { return Assignment.Unit; } }
+        public string Barcode { get { return Details.MdpiBarcode; } }
+        public string Brand { get { return TechnicalMetadata.TapeStockBrand; } }
+        public string CarrierType { get { return TechnicalMetadata.Format; } }
+        public string DirectionsRecorded { get { return TechnicalMetadata.DirectionsRecorded; } }
 
-        [DeserializeAsLookup(Name = "unit", LookupTable = LookupTables.Units)]
-        public string Unit { get; set; }
+        public string CleaningDate { get { return DigitalProvenance.CleaningDate; } }
+        public string CleaningComment { get { return DigitalProvenance.CleaningComment; } }
+        public string BakingDate { get { return DigitalProvenance.Baking; } }
+        public bool Repaired { get { return DigitalProvenance.Repaired; } }
 
-        [DeserializeAs(Name = "mdpi_barcode")]
-        public string Barcode { get; set; }
+        public string DigitizingEntity { get { return DigitalProvenance.DigitizingEntity; } }
 
-        [DeserializeAs(Name = "tape_stock_brand")]
-        public string Brand { get; set; }
+        public string PlaybackSpeeds
+        {
+            get { return GetBoolValuesAsList(TechnicalMetadata.PlaybackSpeed); }
+        }
 
-        [DeserializeAs(Name = "id")]
-        public string Identifier { get; set; }
+        public string TrackConfigurations
+        {
+            get { return GetBoolValuesAsList(TechnicalMetadata.TrackConfiguration); }
+        }
 
-        [DeserializeAs(Name = "format")]
-        public string CarrierType { get; set; }
+        public string SoundFields { get { return GetBoolValuesAsList(TechnicalMetadata.SoundField); } }
 
-        [DeserializeAs(Name = "directions_recorded")]
-        public string DirectionsRecorded { get; set; }
+        public string TapeThicknesses { get { return GetBoolValuesAsList(TechnicalMetadata.TapeThickness); } }
 
-        [DeserializeAsLookup(Name = "playback_speed", LookupTable = LookupTables.PlaybackSpeeds)]
-        public string[] PlaybackSpeeds { get; set; }
 
-        [DeserializeAsLookup(Name = "track_configuration", LookupTable = LookupTables.TrackConfigurations)]
-        public string[] TrackConfigurations { get; set; }
+        private static string GetBoolValuesAsList(object instance)
+        {
+            if (instance == null)
+            {
+                return string.Empty;
+            }
 
-        [DeserializeAsLookup(Name = "sound_field", LookupTable = LookupTables.SoundFields)]
-        public string[] SoundFields { get; set; }
-
-        [DeserializeAsLookup(Name = "tape_thickness", LookupTable = LookupTables.TapeThicknesses)]
-        public string[] TapeThicknesses { get; set; }
-
+            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof(bool));
+            var results = (properties.Where(property => (bool)property.GetValue(instance))
+                .Select(property => property.Name)).Distinct().ToList();
+            return string.Join(", ", results);
+        }
     }
 }

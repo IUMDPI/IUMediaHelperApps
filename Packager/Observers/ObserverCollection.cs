@@ -54,9 +54,7 @@ namespace Packager.Observers
             foreach (var property in instance.GetType().GetProperties())
             {
                 var name = property.Name.FromCamelCaseToSpaces();
-                var value = property.PropertyType.IsArray
-                    ? string.Join(", ", GetArrayValues(property.GetValue(instance) as IEnumerable<object>))
-                    : property.GetValue(instance).ToString();
+                var value = property.GetValue(instance);
                 builder.AppendFormat("{0}: {1}\n", name, value);
             }
             Log(builder.ToString());

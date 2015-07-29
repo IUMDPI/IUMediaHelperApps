@@ -39,19 +39,27 @@ namespace Packager.Test.Processors
             ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
             AccessObjectFileModel = new ObjectFileModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
+            ModelList = new List<AbstractFileModel> { PresObjectFileModel };
 
             ExpectedObjectFolderName = string.Format("{0}_{1}", ProjectCode, Barcode);
 
-            DependencyProvider.MetadataProvider.Get(Barcode).Returns(Task.FromResult(new ConsolidatedPodMetadata {Success = true}));
-
-            Metadata = new ConsolidatedPodMetadata
+            Metadata = new PodMetadata
             {
-                Barcode = Barcode,
-                Success = true
+                Success = true, 
+                Data = new Data
+                {
+                    Object = new DataObject
+                    {
+                        Details = new Details {MdpiBarcode = Barcode},
+                        Assignment = new Assignment(), 
+                        Basics = new Basics(),
+                        DigitalProvenance = new DigitalProvenance(), 
+                        TechnicalMetadata = new TechnicalMetadata()
+                    }
+                }
             };
 
-            MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
+            MetadataProvider.Get(Barcode).Returns(Task.FromResult(new ConsolidatedPodMetadata(Metadata)));
 
             Processor = new AudioProcessor(DependencyProvider);
 
@@ -106,7 +114,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                     }
 
                     [Test]
@@ -123,7 +131,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
                     }
 
                     [Test]
@@ -243,7 +251,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
                         FileProvider.FileExists(Path.Combine(ExpectedProcessingDirectory, ProductionFileName)).Returns(true);
                     }
 
@@ -274,7 +282,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                             ExpectedMasterFileName = PreservationIntermediateFileName;
                         }
                     }
@@ -345,7 +353,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedModelCount = 3; // pres master, pres-int master, prod-master
                     }
 
@@ -423,7 +431,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedModelCount = 4; // pres master, pres-int master, prod-master, access master
                     }
 
@@ -441,7 +449,7 @@ namespace Packager.Test.Processors
             public class WhenCopyingFilesToDropBoxFolder : WhenNothingGoesWrong
             {
                 private int ExpectedFiles { get; set; }
-                
+
                 public class WhenPreservationIntermediateModelPresent : WhenCopyingFilesToDropBoxFolder
                 {
                     protected override void DoCustomSetup()
@@ -467,7 +475,7 @@ namespace Packager.Test.Processors
                         Observers.Received().Log("copying {0} to {1}", PreservationIntermediateFileName, ExpectedDropboxDirectory);
                     }
                 }
-                
+
                 private string ExpectedDropboxDirectory { get; set; }
 
                 protected override void DoCustomSetup()
@@ -589,7 +597,7 @@ namespace Packager.Test.Processors
                 {
                     Assert.That(Result, Is.EqualTo(false));
                 }
-                
+
                 [Test]
                 public void ShouldLogException()
                 {
@@ -632,7 +640,7 @@ namespace Packager.Test.Processors
                 {
                     base.DoCustomSetup();
                     IssueMessage = "Create processing directory failed";
-                    DirectoryProvider.CreateDirectory(ExpectedProcessingDirectory).Returns(x=> { throw new Exception(IssueMessage); });
+                    DirectoryProvider.CreateDirectory(ExpectedProcessingDirectory).Returns(x => { throw new Exception(IssueMessage); });
 
                 }
             }
@@ -651,7 +659,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ShouldThrowLoggedException()
                 {
-                    Observers.Received().LogIssue(Arg.Is<LoggedException>(e=>e.InnerException.Message.Equals(IssueMessage)));
+                    Observers.Received().LogIssue(Arg.Is<LoggedException>(e => e.InnerException.Message.Equals(IssueMessage)));
                 }
             }
         }

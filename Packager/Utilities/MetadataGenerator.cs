@@ -1,54 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Principal;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Providers;
 
 namespace Packager.Utilities
 {
     public class MetadataGenerator : IMetadataGenerator
     {
-        public MetadataGenerator(IFileProvider fileProvider, IHasher hasher, IProgramSettings programSettings, IUserInfoResolver userInfoResolver)
+        public MetadataGenerator(IHasher hasher)
         {
-            FileProvider = fileProvider;
             Hasher = hasher;
-            ProgramSettings = programSettings;
-            UserInfoResolver = userInfoResolver;
-        }
-
-        private IUserInfoResolver UserInfoResolver { get; set; }
-        private IFileProvider FileProvider { get; set; }
-        private IProgramSettings ProgramSettings { get; set; }
-
-        private string DateFormat
-        {
-            get { return ProgramSettings.DateFormat; }
         }
 
         private IHasher Hasher { get; set; }
 
         public CarrierData GenerateMetadata(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
         {
-            var result = CarrierData.FromPodMetadata(podMetadata);
-            result.Parts = new PartsData
+            var result = new CarrierData
             {
-                DigitizingEntity = ProgramSettings.DigitizingEntity,
-                Sides = GenerateSideData(filesToProcess, processingDirectory)
-            };
+                Barcode = podMetadata.Barcode,
+                Brand = podMetadata.Brand,
+                CarrierType = podMetadata.CarrierType,
+                DirectionsRecorded = podMetadata.DirectionsRecorded,
+                Identifier = podMetadata.Identifier,
+                Thickness = podMetadata.TapeThicknesses,
+                Baking = new BakingData {Date = podMetadata.BakingDate},
+                Cleaning = new CleaningData {Date = podMetadata.CleaningDate},
+                Repaired = podMetadata.Repaired ? "Yes" : "No",
+                Parts = GeneratePartsData(podMetadata, filesToProcess, processingDirectory),
+                Configuration = ConfigurationData.FromPodMetadata(podMetadata)
+            }; //.FromPodMetadata(podMetadata);
+
 
             return result;
         }
-        
-        private SideData[] GenerateSideData(IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+
+        private PartsData GeneratePartsData(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+        {
+            return new PartsData
+            {
+                DigitizingEntity = podMetadata.DigitizingEntity,
+                Sides = GenerateSideData(podMetadata, filesToProcess, processingDirectory)
+            };
+        }
+
+        private SideData[] GenerateSideData(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator.ToInteger()).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -64,9 +66,13 @@ namespace Packager.Utilities
                     throw new OutputXmlException("One or more groupings has an invalid sequence value");
                 }
 
-                var sideData = ImportSideData(grouping.Key.Value);
-                AddIngestMetadata(sideData, grouping.GetPreservationOrIntermediateModel(), processingDirectory);
-                sideData.Files = grouping.Select(m => GetFileData(m, processingDirectory)).ToList();
+                var sideData = new SideData
+                {
+                    Side = grouping.Key.Value.ToString(CultureInfo.InvariantCulture),
+                    Files = grouping.Select(m => GetFileData(m, processingDirectory)).ToList(),
+                    Ingest = GenerateIngestMetadata(podMetadata, grouping.GetPreservationOrIntermediateModel()),
+                    ManualCheck = "No" //todo: where to get value from?
+                };
 
                 result.Add(sideData);
             }
@@ -74,34 +80,28 @@ namespace Packager.Utilities
             return result.ToArray();
         }
 
-        private void AddIngestMetadata(SideData sideData, ObjectFileModel preservationObjectFileModel, string processingDirectory)
+        private static IngestData GenerateIngestMetadata(ConsolidatedPodMetadata podMetadata, ObjectFileModel masterFileModel)
         {
-            var targetPath = Path.Combine(processingDirectory, preservationObjectFileModel.ToFileName());
-            var info = FileProvider.GetFileInfo(targetPath);
-            info.Refresh();
-
-            sideData.Ingest.Date = info.CreationTime.ToString(DateFormat, CultureInfo.InvariantCulture);
-
-            var owner = info.GetAccessControl().GetOwner(typeof (NTAccount)).Value;
-            var userInfo = UserInfoResolver.Resolve(owner);
-
-            sideData.Ingest.CreatedBy = userInfo.DisplayName;
-
-            sideData.Ingest.ExtractionWorkstation = Environment.MachineName;
-        }
-
-        private static SideData ImportSideData(int sideValue)
-        {
-            return new SideData
+            var digitalFileProvenance = podMetadata.DigitalProvenance.DigitalFileProvenances
+                .SingleOrDefault(f => f.Filename.Equals(masterFileModel.ToFileName(), StringComparison.InvariantCultureIgnoreCase));
+            if (digitalFileProvenance == null)
             {
-                Side = sideValue.ToString(CultureInfo.InvariantCulture),
-                Files = new List<FileData>(),
-                ManualCheck = "Unknown",
-                Ingest = new IngestData
-                {
-                    SpeedUsed = "Unknown",
-                    Comments = "Unknown"
-                }
+                throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.ToFileName());
+            }
+
+            return new IngestData
+            {
+                AdManufacturer = digitalFileProvenance.AdManufacturer,
+                AdModel = digitalFileProvenance.AdModel,
+                AdSerialNumber = digitalFileProvenance.AdSerialNumber,
+                Comments = digitalFileProvenance.Comment,
+                CreatedBy = digitalFileProvenance.CreatedBy,
+                PlayerManufacturer = digitalFileProvenance.PlayerManufacturer,
+                PlayerModel = digitalFileProvenance.PlayerModel,
+                PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
+                ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
+                SpeedUsed = digitalFileProvenance.SpeedUsed,
+                Date = digitalFileProvenance.CreatedAt,
             };
         }
 

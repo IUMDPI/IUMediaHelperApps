@@ -103,6 +103,8 @@
     <Compile Include="Models\OutputModels\IngestData.cs" />
     <Compile Include="Models\PodAuth.cs" />
     <Compile Include="Models\PodMetadataModels\ConsolidatedPodMetadata.cs" />
+    <Compile Include="Models\PodMetadataModels\PodMetadata.cs" />
+    <Compile Include="Models\PodMetadataModels\PodMetadataSchema.cs" />
     <Compile Include="Models\ProcessResults\ProcessResult.cs" />
     <Compile Include="Models\ProcessResults\IAbstractProcessResult.cs" />
     <Compile Include="Models\OutputModels\SideData.cs" />
@@ -180,7 +182,6 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>

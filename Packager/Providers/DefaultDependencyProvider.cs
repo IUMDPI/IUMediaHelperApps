@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Packager.Models;
+﻿using Packager.Models;
 using Packager.Observers;
 using Packager.Utilities;
 
@@ -16,7 +15,7 @@ namespace Packager.Providers
             FileProvider = new FileProvider();
             ProcessRunner = new ProcessRunner();
             ProgramSettings = programSettings;
-            MetadataGenerator = new MetadataGenerator(FileProvider, Hasher, ProgramSettings, UserInfoResolver);
+            MetadataGenerator = new MetadataGenerator(Hasher);
             Observers = observers;
             LookupsProvider = new AppConfigLookupsProvider();
             MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider);

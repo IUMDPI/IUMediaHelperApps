@@ -39,7 +39,7 @@ namespace Packager.Test.Processors
         protected string ExpectedProcessingDirectory { get { return Path.Combine(ProcessingRoot, ExpectedObjectFolderName); } }
         
         protected string ExpectedObjectFolderName { get; set; }
-        protected ConsolidatedPodMetadata Metadata { get; set; }
+        protected PodMetadata Metadata { get; set; }
         protected abstract void DoCustomSetup();
 
         protected string PreservationFileName { get; set; }

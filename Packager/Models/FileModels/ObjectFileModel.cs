@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using Packager.Extensions;
 
@@ -11,7 +12,6 @@ namespace Packager.Models.FileModels
         private const string AccessFileUse = "access";
         private const string MezzanineFileUse = "mezz";
         private const string ProductionFileUse = "prod";
-
         private const string PreservationFileUseLongName = "Preservation Master";
         private const string ProductionFileUseLongName = "Production Master";
         private const string PreservationIntermediateFileUseLongName = "Preservation Master - Intermediate";
@@ -27,12 +27,11 @@ namespace Packager.Models.FileModels
         {
             var parts = GetPathParts(path);
 
-            SequenceIndicator = parts.FromIndex(2, string.Empty).ToLowerInvariant();
+            SequenceIndicator = GetSequenceIndicator(parts.FromIndex(2, string.Empty));
             FileUse = parts.FromIndex(3, string.Empty).ToLowerInvariant();
         }
 
-        public string SequenceIndicator { get; set; }
-
+        public int SequenceIndicator { get; set; }
         private string FileUse { get; set; }
 
         public string FullFileUse
@@ -66,6 +65,14 @@ namespace Packager.Models.FileModels
 
                 return "Unknown";
             }
+        }
+
+        private static int GetSequenceIndicator(string value)
+        {
+            int result;
+            return Int32.TryParse(value, out result) 
+                ? result
+                : 0;
         }
 
         private ObjectFileModel ToNewModel(string newFileUse, string newExension)
@@ -125,7 +132,7 @@ namespace Packager.Models.FileModels
 
         public override string ToFileName()
         {
-            var parts = new[] { ProjectCode, BarCode, SequenceIndicator, FileUse };
+            var parts = new[] {ProjectCode, BarCode, SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture), FileUse};
 
             var fileName = string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
             return string.Format("{0}{1}", fileName, Extension);
@@ -138,7 +145,7 @@ namespace Packager.Models.FileModels
                 return false;
             }
 
-            if (String.IsNullOrWhiteSpace(SequenceIndicator))
+            if (SequenceIndicator < 1)
             {
                 return false;
             }

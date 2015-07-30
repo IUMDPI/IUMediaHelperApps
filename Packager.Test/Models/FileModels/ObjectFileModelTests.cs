@@ -16,7 +16,7 @@ namespace Packager.Test.Models.FileModels
 
         private const string Barcode = "4890764553278906";
         private const string ProjectCode = "MDPI";
-        private const string SequenceIndicator = "01";
+        private const int SequenceIndicator = 1;
         private const string Extension = ".wav";
         private const string GoodPreservationFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string GoodProductionFileName = "MDPI_4890764553278906_01_prod.wav";

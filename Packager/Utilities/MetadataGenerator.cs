@@ -69,8 +69,7 @@ namespace Packager.Utilities
 
         private static IngestData GenerateIngestMetadata(ConsolidatedPodMetadata podMetadata, AbstractFileModel masterFileModel)
         {
-            var digitalFileProvenance = podMetadata.DigitalProvenance.DigitalFileProvenances
-                .SingleOrDefault(f => masterFileModel.IsSameAs(f.Filename));
+            var digitalFileProvenance = podMetadata.DigitalProvenance.GetFileProvenance(masterFileModel);
             if (digitalFileProvenance == null)
             {
                 throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.ToFileName());

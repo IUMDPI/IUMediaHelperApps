@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Packager.Models.FileModels;
 
 namespace Packager.Extensions
@@ -25,6 +26,14 @@ namespace Packager.Extensions
         {
             var preservationIntermediate = grouping.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
             return preservationIntermediate ?? grouping.SingleOrDefault(m => m.IsPreservationVersion());
+        }
+
+        public static ObjectFileModel GetPreservationOrIntermediateModel(this IEnumerable<ObjectFileModel> models)
+        {
+            var list = models.ToList();
+
+            var preservationIntermediate = list.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
+            return preservationIntermediate ?? list.SingleOrDefault(m => m.IsPreservationVersion());
         }
 
     }

@@ -357,7 +357,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassCorrectNumberOfObjectsToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.Count() == ExpectedModelCount),
+                        Arg.Is<List<ObjectFileModel>>(l => l.Count() == ExpectedModelCount),
                         Arg.Any<ConsolidatedPodMetadata>(),
                         ExpectedProcessingDirectory);
                 }
@@ -366,7 +366,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassSingleProductionModelToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
                         Arg.Any<ConsolidatedPodMetadata>(),
                         ExpectedProcessingDirectory);
                 }
@@ -375,7 +375,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassSinglePresentationModelToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
                         Arg.Any<ConsolidatedPodMetadata>(),
                         ExpectedProcessingDirectory);
                 }
@@ -384,7 +384,7 @@ namespace Packager.Test.Processors
                 public void ItShouldNotPassAccessModelToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.Any(m => m.IsAccessVersion()) == false),
+                        Arg.Is<List<ObjectFileModel>>(l => l.Any(m => m.IsAccessVersion()) == false),
                         Arg.Any<ConsolidatedPodMetadata>(),
                         ExpectedProcessingDirectory);
                 }
@@ -403,7 +403,7 @@ namespace Packager.Test.Processors
                     public void ItShouldPassSinglePresentationIntermediateModelToBextProcessor()
                     {
                         BextProcessor.Received().EmbedBextMetadata(
-                            Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
+                            Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
                             Arg.Any<ConsolidatedPodMetadata>(),
                             ExpectedProcessingDirectory);
                     }

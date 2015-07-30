@@ -23,10 +23,10 @@ namespace Packager.Providers
 
     public class BextProcessor : IBextProcessor
     {
-        public BextProcessor(IProgramSettings settings, IFileProvider fileProvider, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers,
+        public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers,
             ILookupsProvider lookupsProvider)
         {
-            FileProvider = fileProvider;
+            
             BWFMetaEditPath = settings.BWFMetaEditPath;
             ProcessRunner = processRunner;
             XmlExporter = xmlExporter;
@@ -34,7 +34,6 @@ namespace Packager.Providers
             LookupsProvider = lookupsProvider;
         }
 
-        private IFileProvider FileProvider { get; set; }
         private string BWFMetaEditPath { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }

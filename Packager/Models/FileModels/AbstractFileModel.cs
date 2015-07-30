@@ -6,11 +6,13 @@ namespace Packager.Models.FileModels
 {
     public abstract class AbstractFileModel
     {
+        private string _projectCode;
+
         protected AbstractFileModel()
         {
         }
 
-        private string _projectCode;
+        public abstract bool IsSameAs(string filename);
 
         protected AbstractFileModel(string path)
         {
@@ -28,29 +30,28 @@ namespace Packager.Models.FileModels
             BarCode = parts.FromIndex(1, string.Empty).ToLowerInvariant();
         }
 
-        protected static string[] GetPathParts(string path)
-        {
-            return Path.GetFileNameWithoutExtension(path)
-                .ToDefaultIfEmpty()
-                .ToLowerInvariant()
-                .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
-        }
-
         public string ProjectCode
         {
             get
             {
-                return string.IsNullOrWhiteSpace(_projectCode) 
-                    ? string.Empty 
+                return string.IsNullOrWhiteSpace(_projectCode)
+                    ? string.Empty
                     : _projectCode.ToUpperInvariant();
             }
             set { _projectCode = value; }
         }
 
         public string OriginalFileName { get; set; }
-
         public string BarCode { get; set; }
         public string Extension { get; set; }
+
+        protected static string[] GetPathParts(string path)
+        {
+            return Path.GetFileNameWithoutExtension(path)
+                .ToDefaultIfEmpty()
+                .ToLowerInvariant()
+                .Split(new[] {'_'}, StringSplitOptions.RemoveEmptyEntries);
+        }
 
         public abstract string ToFileName();
 
@@ -83,5 +84,7 @@ namespace Packager.Models.FileModels
 
             return true;
         }
+
+        
     }
 }

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Models.FileModels;
@@ -39,21 +38,21 @@ namespace Packager.Test.Processors
             ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
             AccessObjectFileModel = new ObjectFileModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> { PresObjectFileModel };
+            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
 
             ExpectedObjectFolderName = string.Format("{0}_{1}", ProjectCode, Barcode);
 
             Metadata = new PodMetadata
             {
-                Success = true, 
+                Success = true,
                 Data = new Data
                 {
                     Object = new DataObject
                     {
                         Details = new Details {MdpiBarcode = Barcode},
-                        Assignment = new Assignment(), 
+                        Assignment = new Assignment(),
                         Basics = new Basics(),
-                        DigitalProvenance = new DigitalProvenance(), 
+                        DigitalProvenance = new DigitalProvenance(),
                         TechnicalMetadata = new TechnicalMetadata()
                     }
                 }
@@ -90,11 +89,7 @@ namespace Packager.Test.Processors
                     DirectoryProvider.Received().CreateDirectory(ExpectedProcessingDirectory);
                 }
 
-                [Test]
-                public void ItShouldMovePresentationFileToProcessingDirectory()
-                {
-                    FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
-                }
+             
 
                 [Test]
                 public void ItShouldOpenInitializingSection()
@@ -107,40 +102,87 @@ namespace Packager.Test.Processors
                 {
                     Observers.Received().EndSection(Arg.Any<Guid>(), "Initialization successful", true);
                 }
+            }
 
-                public class WhenPreservationIntermediateMasterPresent : WhenInitializing
+            public class WhenMovingFilesToProcessingDirectory : WhenNothingGoesWrong
+            {
+                public class WhenFileNamesNotNormalized : WhenMovingFilesToProcessingDirectory
                 {
+                    private string NonNormalPresFileName { get; set; }
+                    private string NonNormalPresIntFileName { get; set; }
+                    private string NonNormalProductionFileName { get; set; }
+                    
                     protected override void DoCustomSetup()
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        NonNormalPresFileName = string.Format("{0}_{1}_1_pres.wav", ProjectCode.ToLowerInvariant(), Barcode);
+                        NonNormalPresIntFileName  = string.Format("{0}_{1}_001_pres-int.wav", ProjectCode.ToLowerInvariant(), Barcode);
+                        NonNormalProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode.ToLowerInvariant(), Barcode);
+
+                        ModelList = new List<AbstractFileModel>{new ObjectFileModel(NonNormalPresFileName), new ObjectFileModel(NonNormalPresIntFileName), new ObjectFileModel(NonNormalProductionFileName)};
                     }
 
                     [Test]
-                    public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
+                    public void ItShouldNormalizeFileNamesOnMove()
                     {
-                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationIntermediateFileName),
+                        FileProvider.Received().MoveFileAsync(
+                            Path.Combine(InputDirectory, NonNormalPresFileName),
+                            Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+
+                        FileProvider.Received().MoveFileAsync(
+                            Path.Combine(InputDirectory, NonNormalPresIntFileName),
                             Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName));
-                    }
-                }
 
-                public class WhenProductionMasterPresent : WhenInitializing
-                {
-                    protected override void DoCustomSetup()
-                    {
-                        base.DoCustomSetup();
-
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
-                    }
-
-                    [Test]
-                    public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
-                    {
-                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, ProductionFileName),
+                        FileProvider.Received().MoveFileAsync(
+                            Path.Combine(InputDirectory, NonNormalProductionFileName),
                             Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
                     }
                 }
+
+                public class WhenFileNamesAreNormal : WhenMovingFilesToProcessingDirectory
+                {
+                    public class WhenPreservationIntermediateMasterPresent : WhenMovingFilesToProcessingDirectory
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+
+                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        }
+
+                        [Test]
+                        public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
+                        {
+                            FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationIntermediateFileName),
+                                Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName));
+                        }
+                    }
+
+                    public class WhenProductionMasterPresent : WhenMovingFilesToProcessingDirectory
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+
+                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
+                        }
+
+                        [Test]
+                        public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
+                        {
+                            FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, ProductionFileName),
+                                Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
+                        }
+                    }
+
+                    [Test]
+                    public void ItShouldMovePresentationFileToProcessingDirectory()
+                    {
+                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+                    }
+                }
+                
             }
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
@@ -251,7 +293,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
                         FileProvider.FileExists(Path.Combine(ExpectedProcessingDirectory, ProductionFileName)).Returns(true);
                     }
 
@@ -282,7 +324,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                             ExpectedMasterFileName = PreservationIntermediateFileName;
                         }
                     }
@@ -353,7 +395,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedModelCount = 3; // pres master, pres-int master, prod-master
                     }
 
@@ -431,7 +473,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedModelCount = 4; // pres master, pres-int master, prod-master, access master
                     }
 
@@ -449,33 +491,6 @@ namespace Packager.Test.Processors
             public class WhenCopyingFilesToDropBoxFolder : WhenNothingGoesWrong
             {
                 private int ExpectedFiles { get; set; }
-
-                public class WhenPreservationIntermediateModelPresent : WhenCopyingFilesToDropBoxFolder
-                {
-                    protected override void DoCustomSetup()
-                    {
-                        base.DoCustomSetup();
-
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
-                        ExpectedFiles = 5; // prod master, pres master, pres-int master, access, xml manifest
-                    }
-
-                    [Test]
-                    public void ItShouldCopyPreservationIntermidateMasterToDropbox()
-                    {
-                        var sourcePath = Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName);
-                        var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationIntermediateFileName);
-                        FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
-                    }
-
-
-                    [Test]
-                    public void ItShouldLogPreservationIntermediateMasterCopied()
-                    {
-                        Observers.Received().Log("copying {0} to {1}", PreservationIntermediateFileName, ExpectedDropboxDirectory);
-                    }
-                }
-
                 private string ExpectedDropboxDirectory { get; set; }
 
                 protected override void DoCustomSetup()
@@ -568,6 +583,31 @@ namespace Packager.Test.Processors
                     var targetPath = Path.Combine(ExpectedDropboxDirectory, XmlManifestFileName);
                     FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
                 }
+
+                public class WhenPreservationIntermediateModelPresent : WhenCopyingFilesToDropBoxFolder
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ExpectedFiles = 5; // prod master, pres master, pres-int master, access, xml manifest
+                    }
+
+                    [Test]
+                    public void ItShouldCopyPreservationIntermidateMasterToDropbox()
+                    {
+                        var sourcePath = Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName);
+                        var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationIntermediateFileName);
+                        FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                    }
+
+                    [Test]
+                    public void ItShouldLogPreservationIntermediateMasterCopied()
+                    {
+                        Observers.Received().Log("copying {0} to {1}", PreservationIntermediateFileName, ExpectedDropboxDirectory);
+                    }
+                }
             }
 
             public class WhenFinalizing : WhenNothingGoesWrong
@@ -641,7 +681,6 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
                     IssueMessage = "Create processing directory failed";
                     DirectoryProvider.CreateDirectory(ExpectedProcessingDirectory).Returns(x => { throw new Exception(IssueMessage); });
-
                 }
             }
 

@@ -67,10 +67,10 @@ namespace Packager.Utilities
             }).ToArray();
         }
 
-        private static IngestData GenerateIngestMetadata(ConsolidatedPodMetadata podMetadata, ObjectFileModel masterFileModel)
+        private static IngestData GenerateIngestMetadata(ConsolidatedPodMetadata podMetadata, AbstractFileModel masterFileModel)
         {
             var digitalFileProvenance = podMetadata.DigitalProvenance.DigitalFileProvenances
-                .SingleOrDefault(f => f.Filename.Equals(masterFileModel.ToFileName(), StringComparison.InvariantCultureIgnoreCase));
+                .SingleOrDefault(f => masterFileModel.IsSameAs(f.Filename));
             if (digitalFileProvenance == null)
             {
                 throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.ToFileName());

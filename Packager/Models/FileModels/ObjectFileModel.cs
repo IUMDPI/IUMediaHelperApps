@@ -130,6 +130,37 @@ namespace Packager.Models.FileModels
             return ToNewModel(ProductionFileUse, extension);
         }
 
+        public override bool IsSameAs(string filename)
+        {
+            var model = new ObjectFileModel(filename);
+            if (model.ProjectCode != ProjectCode)
+            {
+                return false;
+            }
+
+            if (model.BarCode != BarCode)
+            {
+                return false;
+            }
+
+            if (model.SequenceIndicator != SequenceIndicator)
+            {
+                return false;
+            }
+
+            if (model.FileUse != FileUse)
+            {
+                return false;
+            }
+
+            if (model.Extension != Extension)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public override string ToFileName()
         {
             var parts = new[] {ProjectCode, BarCode, SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture), FileUse};

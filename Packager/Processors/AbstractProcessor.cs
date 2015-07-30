@@ -196,7 +196,7 @@ namespace Packager.Processors
                 foreach (var fileModel in filesToProcess)
                 {
                     Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
-                    await MoveFileToProcessing(fileModel.ToFileName());
+                    await MoveFileToProcessing(fileModel);
                 }
 
                 Observers.EndSection(sectionKey, "Initialization successful", true);
@@ -266,15 +266,10 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<string> MoveFileToProcessing(string fileName)
+        private async Task<string> MoveFileToProcessing(AbstractFileModel fileModel)
         {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                throw new ArgumentException("Invalid file name", "fileName");
-            }
-
-            var sourcePath = Path.Combine(InputDirectory, fileName);
-            var targetPath = Path.Combine(ProcessingDirectory, fileName);
+            var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
+            var targetPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName()); // ToFileName will normalize the filename when we move the file
             await FileProvider.MoveFileAsync(sourcePath, targetPath);
             return targetPath;
         }

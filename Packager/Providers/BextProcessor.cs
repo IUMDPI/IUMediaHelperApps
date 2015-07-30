@@ -16,11 +16,6 @@ using Packager.Verifiers;
 
 namespace Packager.Providers
 {
-    public interface IBextProcessor
-    {
-        Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory);
-    }
-
     public class BextProcessor : IBextProcessor
     {
         public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers,

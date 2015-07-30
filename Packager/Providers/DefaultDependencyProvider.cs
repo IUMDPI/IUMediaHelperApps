@@ -9,7 +9,6 @@ namespace Packager.Providers
         public DefaultDependencyProvider(IProgramSettings programSettings, IObserverCollection observers)
         {
             Hasher = new Hasher();
-            UserInfoResolver = new DomainUserResolver();
             XmlExporter = new XmlExporter();
             DirectoryProvider = new DirectoryProvider();
             FileProvider = new FileProvider();
@@ -23,7 +22,6 @@ namespace Packager.Providers
         }
 
         public IHasher Hasher { get; private set; }
-        public IUserInfoResolver UserInfoResolver { get; private set; }
         public IXmlExporter XmlExporter { get; private set; }
         public IDirectoryProvider DirectoryProvider { get; private set; }
         public IFileProvider FileProvider { get; private set; }

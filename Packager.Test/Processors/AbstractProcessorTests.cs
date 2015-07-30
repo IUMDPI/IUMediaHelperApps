@@ -28,7 +28,6 @@ namespace Packager.Test.Processors
         protected IFileProvider FileProvider { get; set; }
         protected IHasher Hasher { get; set; }
         protected IProcessRunner ProcessRunner { get; set; }
-        protected IUserInfoResolver UserInfoResolver { get; set; }
         protected IXmlExporter XmlExporter { get; set; }
         protected IObserverCollection Observers { get; set; }
         protected IProcessor Processor { get; set; }
@@ -77,7 +76,6 @@ namespace Packager.Test.Processors
             FileProvider = Substitute.For<IFileProvider>();
             Hasher = Substitute.For<IHasher>();
             ProcessRunner = Substitute.For<IProcessRunner>();
-            UserInfoResolver = Substitute.For<IUserInfoResolver>();
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
@@ -91,7 +89,6 @@ namespace Packager.Test.Processors
             DependencyProvider.MetadataProvider.Returns(MetadataProvider);
             DependencyProvider.ProcessRunner.Returns(ProcessRunner);
             DependencyProvider.ProgramSettings.Returns(ProgramSettings);
-            DependencyProvider.UserInfoResolver.Returns(UserInfoResolver);
             DependencyProvider.Observers.Returns(Observers);
             DependencyProvider.XmlExporter.Returns(XmlExporter);
             DependencyProvider.BextProcessor.Returns(BextProcessor);

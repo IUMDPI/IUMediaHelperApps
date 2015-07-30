@@ -16,7 +16,6 @@ namespace Packager.Test.Mocks
             IHasher hasher = null,
             IProcessRunner processRunner = null,
             IProgramSettings programSettings = null,
-            IUserInfoResolver userResolver = null,
             IXmlExporter xmlExporter = null,
             IObserverCollection observers = null)
         {
@@ -33,11 +32,6 @@ namespace Packager.Test.Mocks
             if (hasher == null)
             {
                 hasher = Substitute.For<IHasher>();
-            }
-
-            if (userResolver == null)
-            {
-                userResolver = Substitute.For<IUserInfoResolver>();
             }
 
             if (xmlExporter == null)
@@ -65,7 +59,6 @@ namespace Packager.Test.Mocks
             result.DirectoryProvider.Returns(directoryProvider);
             result.FileProvider.Returns(fileProvider);
             result.Hasher.Returns(hasher);
-            result.UserInfoResolver.Returns(userResolver);
             result.XmlExporter.Returns(xmlExporter);
             result.ProcessRunner.Returns(processRunner);
             result.ProgramSettings.Returns(programSettings);

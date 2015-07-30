@@ -7,7 +7,6 @@ namespace Packager.Providers
     public interface IDependencyProvider
     {
         IHasher Hasher { get; }
-        IUserInfoResolver UserInfoResolver { get; }
         IXmlExporter XmlExporter { get; }
         IDirectoryProvider DirectoryProvider { get; }
         IFileProvider FileProvider { get; }

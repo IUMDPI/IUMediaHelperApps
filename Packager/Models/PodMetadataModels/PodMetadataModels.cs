@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Packager.Models.PodMetadataModels
 {
@@ -128,7 +127,6 @@ namespace Packager.Models.PodMetadataModels
         public TapeBase TapeBase { get; set; }
         public TrackConfiguration TrackConfiguration { get; set; }
         public TapeThickness TapeThickness { get; set; }
-
         public string CassetteSize { get; set; }
         public string Coating { get; set; }
         public string CountryOfOrigin { get; set; }
@@ -164,39 +162,79 @@ namespace Packager.Models.PodMetadataModels
 
     public class PlaybackSpeed
     {
+        [Description(".9375 ips")]
         public bool ZeroPoint9375Ips { get; set; }
+
+        [Description("1.875 ips")]
         public bool OnePoint875Ips { get; set; }
+
+        [Description("3.75 ips")]
         public bool ThreePoint75Ips { get; set; }
+        
+        [Description("7.5 ips")]
         public bool SevenPoint5Ips { get; set; }
+
+        [Description("15 ips")]
         public bool FifteenIps { get; set; }
+
+        [Description("30 ips")]
         public bool ThirtyIps { get; set; }
+
+        [Description("Unknown")]
         public bool UnknownPlaybackSpeed { get; set; }
     }
 
     public class PreservationProblems
     {
+        [Description("Breakdown of materials")]
         public bool BreakdownOfMaterials { get; set; }
+
+        [Description("Delamination")]
         public bool Delamination { get; set; }
+
+        [Description("Exudation")]
         public bool Exudation { get; set; }
+
+        [Description("Fungus")]
         public bool Fungus { get; set; }
+
+        [Description("Other contaminants")]
         public bool OtherContaminants { get; set; }
+
+        [Description("Oxidation")]
         public bool Oxidation { get; set; }
+
+        [Description("Soft binder syndrome")]
         public bool SoftBinderSyndrome { get; set; }
+
+        [Description("Vinegar syndrome")]
         public bool VinegarSyndrome { get; set; }
     }
 
     public class SampleRate
     {
+        [Description("32k")]
         public bool SampleRate32K { get; set; }
+
+        [Description("44.1k")]
         public bool SampleRate441K { get; set; }
+
+        [Description("48k")]
         public bool SampleRate48K { get; set; }
+
+        [Description("96k")]
         public bool SampleRate96K { get; set; }
     }
 
     public class SoundField
     {
+        [Description("Mono")]
         public bool Mono { get; set; }
+
+        [Description("Stereo")]
         public bool Stereo { get; set; }
+
+        [Description("Unknown")]
         public bool UnknownSoundField { get; set; }
     }
 
@@ -210,20 +248,33 @@ namespace Packager.Models.PodMetadataModels
 
     public class TapeThickness
     {
+        
+        [Description(".5")]
         public bool ZeroPoint5Mils { get; set; }
+
+        [Description("1.0")]
         public bool OneMils { get; set; }
+
+        [Description("1.5")]
         public bool OnePoint5Mils { get; set; }
     }
 
     public class TrackConfiguration
     {
+        [Description("Full track")]
         public bool FullTrack { get; set; }
+
+        [Description("Full track")]
         public bool HalfTrack { get; set; }
+
+        [Description("Full track")]
         public bool QuarterTrack { get; set; }
+
+        [Description("Unknown")]
         public bool UnknownTrack { get; set; }
     }
 
-   
+
     public class DigitalProvenance
     {
         public string DigitizingEntity { get; set; }
@@ -233,8 +284,7 @@ namespace Packager.Models.PodMetadataModels
         public bool Repaired { get; set; }
         public string CleaningComment { get; set; }
         public string Duration { get; set; }
-        public List<DigitalFileProvenance> DigitalFileProvenances { get; set; } 
-
+        public List<DigitalFileProvenance> DigitalFileProvenances { get; set; }
     }
 
     public class DigitalFileProvenance
@@ -253,8 +303,5 @@ namespace Packager.Models.PodMetadataModels
         public string CreatedAt { get; set; }
         public string UpdatedAt { get; set; }
         public string Filename { get; set; }
-
     }
-
-    
 }

@@ -103,8 +103,7 @@
     <Compile Include="Models\OutputModels\IngestData.cs" />
     <Compile Include="Models\PodAuth.cs" />
     <Compile Include="Models\PodMetadataModels\ConsolidatedPodMetadata.cs" />
-    <Compile Include="Models\PodMetadataModels\PodMetadata.cs" />
-    <Compile Include="Models\PodMetadataModels\PodMetadataSchema.cs" />
+    <Compile Include="Models\PodMetadataModels\PodMetadataModels.cs" />
     <Compile Include="Models\ProcessResults\ProcessResult.cs" />
     <Compile Include="Models\ProcessResults\IAbstractProcessResult.cs" />
     <Compile Include="Models\OutputModels\SideData.cs" />
@@ -121,7 +120,6 @@
     <Compile Include="Observers\LayoutRenderers\ProjectCodeLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\ProcessingDirectoryNameLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\LoggingDirectoryLayoutRenderer.cs" />
-    <Compile Include="Observers\ObjectProcessingNLogObserver.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Observers\IObserver.cs" />
     <Compile Include="Observers\ObserverCollection.cs" />
@@ -136,7 +134,6 @@
     <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Providers\IPodMetadataProvider.cs" />
     <Compile Include="Providers\ILookupsProvider.cs" />
-    <Compile Include="UserInterface\Strategies\IndentationStrategy.cs" />
     <Compile Include="UserInterface\View.xaml.cs">
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>
@@ -148,7 +145,6 @@
     <Compile Include="Utilities\IProcessRunner.cs" />
     <Compile Include="Utilities\MetadataGenerator.cs" />
     <Compile Include="Processors\IProcessor.cs" />
-    <Compile Include="Utilities\IUserInfoResolver.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />
     <Compile Include="Providers\DefaultDependencyProvider.cs" />
     <Compile Include="Verifiers\BwfMetaeditResultsVerifier.cs" />

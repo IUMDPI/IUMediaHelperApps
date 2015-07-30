@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -47,7 +48,8 @@ namespace Packager.Providers
             var xml = new ConformancePointDocument
             {
                 File = (from model in instances
-                    let digitizedOn = GetOriginationDateTime(podMetadata, model, defaultProvenance)
+                    let provenance = podMetadata.DigitalProvenance.GetFileProvenance(model, defaultProvenance)
+                    let digitizedOn = GetOriginationDateTime(podMetadata, model, provenance)
                     let description = GetBextDescription(podMetadata, model)
                     select new ConformancePointDocumentFile
                     {
@@ -63,7 +65,8 @@ namespace Packager.Providers
                             OriginationTime = digitizedOn.ToString("HH:mm:ss"),
                             TimeReference = "0",
                             ICRD = digitizedOn.ToString("yyyy-MM-dd"),
-                            INAM = podMetadata.Title
+                            INAM = podMetadata.Title,
+                            CodingHistory = new CodingHistory(podMetadata,provenance).ToString()
                         }
                     }).ToArray()
             };
@@ -71,10 +74,8 @@ namespace Packager.Providers
             await AddMetadata(xml, processingDirectory);
         }
 
-        private static DateTime GetOriginationDateTime(ConsolidatedPodMetadata podMetadata, AbstractFileModel model, DigitalFileProvenance defaultProvenance)
+        private static DateTime GetOriginationDateTime(ConsolidatedPodMetadata podMetadata, AbstractFileModel model, DigitalFileProvenance provenance)
         {
-            var provenance = podMetadata.DigitalProvenance.GetFileProvenance(model, defaultProvenance);
-            
             DateTime result;
             if (DateTime.TryParse(provenance.DateDigitized, out result) == false)
             {
@@ -97,6 +98,12 @@ namespace Packager.Providers
                 fileModel.FullFileUse, 
                 Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
         }
+
+      
+
+        
+        
+
 
         private async Task AddMetadata(ConformancePointDocument xml, string processingDirectory)
         {

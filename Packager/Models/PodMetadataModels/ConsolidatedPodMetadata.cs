@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 
 namespace Packager.Models.PodMetadataModels
 {
@@ -36,6 +37,17 @@ namespace Packager.Models.PodMetadataModels
         public string Identifier
         {
             get { return Metadata.Data.Object.Details.Id; }
+        }
+
+        public string Format
+        {
+            get { return Details.Format; }
+        }
+
+        public bool IsDigitalFormat()
+        {
+            return Format.ToLowerInvariant().Equals("cd-r") ||
+                   Format.ToLowerInvariant().Equals("dat");
         }
 
         public bool Success
@@ -135,8 +147,8 @@ namespace Packager.Models.PodMetadataModels
                 return string.Empty;
             }
 
-            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof (bool));
-            var results = (properties.Where(property => (bool) property.GetValue(instance))
+            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof(bool));
+            var results = (properties.Where(property => (bool)property.GetValue(instance))
                 .Select(GetNameOrDescription)).Distinct().ToList();
             return string.Join(", ", results);
         }

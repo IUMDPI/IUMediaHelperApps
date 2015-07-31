@@ -90,20 +90,14 @@ namespace Packager.Providers
             return string.Format("{0}.", LookupsProvider.LookupValue(LookupTables.Units, value));
         }
 
-        private static string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
+        private string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
         {
             return string.Format("{0}. {1}. File use: {2}. {3}",
-                metadata.Unit,
+                LookupsProvider.LookupValue(LookupTables.Units, metadata.Unit),
                 metadata.CallNumber,
                 fileModel.FullFileUse, 
                 Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
         }
-
-      
-
-        
-        
-
 
         private async Task AddMetadata(ConformancePointDocument xml, string processingDirectory)
         {

@@ -42,23 +42,9 @@ namespace Packager.Test.Processors
 
             ExpectedObjectFolderName = string.Format("{0}_{1}", ProjectCode, Barcode);
 
-            Metadata = new PodMetadata
-            {
-                Success = true,
-                Data = new Data
-                {
-                    Object = new DataObject
-                    {
-                        Details = new Details {MdpiBarcode = Barcode},
-                        Assignment = new Assignment(),
-                        Basics = new Basics(),
-                        DigitalProvenance = new DigitalProvenance(),
-                        TechnicalMetadata = new TechnicalMetadata()
-                    }
-                }
-            };
+            Metadata = new ConsolidatedPodMetadata{Barcode = Barcode};
 
-            MetadataProvider.Get(Barcode).Returns(Task.FromResult(new ConsolidatedPodMetadata(Metadata)));
+            MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
 
             Processor = new AudioProcessor(DependencyProvider);
 

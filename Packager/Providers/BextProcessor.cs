@@ -39,7 +39,7 @@ namespace Packager.Providers
         public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory)
         {
             var masterFileModel = instances.GetPreservationOrIntermediateModel();
-            var defaultProvenance = podMetadata.DigitalProvenance.GetFileProvenance(masterFileModel);
+            var defaultProvenance = podMetadata.FileProvenances.GetFileProvenance(masterFileModel);
             if (defaultProvenance == null)
             {
                 throw new AddMetadataException("No digital file provenance in metadata for {0}", masterFileModel.ToFileName());
@@ -48,7 +48,7 @@ namespace Packager.Providers
             var xml = new ConformancePointDocument
             {
                 File = (from model in instances
-                    let provenance = podMetadata.DigitalProvenance.GetFileProvenance(model, defaultProvenance)
+                    let provenance = podMetadata.FileProvenances.GetFileProvenance(model, defaultProvenance)
                     let digitizedOn = GetOriginationDateTime(podMetadata, model, provenance)
                     let description = GetBextDescription(podMetadata, model)
                     select new ConformancePointDocumentFile

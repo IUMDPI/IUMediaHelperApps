@@ -48,25 +48,5 @@ namespace Packager.Models.OutputModels
         [XmlElement(Order = 12)]
         public PartsData Parts { get; set; }
 
-        public static CarrierData FromPodMetadata(ConsolidatedPodMetadata podMetadata)
-        {
-            return new CarrierData
-            {
-                Barcode = podMetadata.Barcode,
-                Brand = podMetadata.Brand,
-                CarrierType = podMetadata.CarrierType,
-                DirectionsRecorded = podMetadata.DirectionsRecorded,
-                Identifier = podMetadata.Identifier,
-                Configuration = ConfigurationData.FromPodMetadata(podMetadata),
-                Thickness = podMetadata.TapeThicknesses,
-                Baking = new BakingData { Date = podMetadata.BakingDate},
-                Cleaning = new CleaningData { Date = podMetadata.CleaningDate},
-                Repaired = podMetadata.Repaired? "Yes":"No",
-                PhysicalCondition = new PhysicalConditionData
-                {
-                    
-                }
-            };
-        }
     }
 }

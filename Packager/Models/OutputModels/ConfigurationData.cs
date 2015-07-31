@@ -14,9 +14,9 @@ namespace Packager.Models.OutputModels
         {
             return new ConfigurationData
             {
-                Track = podMetadata.TrackConfigurations,
-                SoundField = podMetadata.SoundFields,
-                Speed = podMetadata.PlaybackSpeeds
+                Track = podMetadata.TrackConfiguration,
+                SoundField = podMetadata.SoundField,
+                Speed = podMetadata.PlaybackSpeed
             };
         }
     }

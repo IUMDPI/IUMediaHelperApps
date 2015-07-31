@@ -24,15 +24,15 @@ namespace Packager.Models.BextModels
 
             builder.AppendFormat(Line1Format,
                 PodMetadata.IsDigitalFormat() ? "DIGITAL" : "ANALOG",
-                PodMetadata.SoundFields,
+                PodMetadata.SoundField,
                 Provenance.PlayerManufacturer,
                 Provenance.PlayerModel,
                 Provenance.PlayerSerialNumber,
-                PodMetadata.PlaybackSpeeds,
+                PodMetadata.PlaybackSpeed,
                 PodMetadata.Format);
 
             builder.AppendFormat(Line2Format,
-                PodMetadata.SoundFields,
+                PodMetadata.SoundField,
                 Provenance.AdManufacturer,
                 Provenance.AdModel,
                 Provenance.AdSerialNumber);

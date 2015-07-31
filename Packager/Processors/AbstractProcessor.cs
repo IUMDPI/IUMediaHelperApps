@@ -280,13 +280,7 @@ namespace Packager.Processors
             try
             {
                 var metadata = await MetadataProvider.Get(Barcode);
-                if (!metadata.Success)
-                {
-                    throw new PodMetadataException(
-                        "Could not retrieve metadata: {0}",
-                        metadata.Message.ToDefaultIfEmpty("[no error message present]"));
-                }
-
+               
                 Observers.LogObjectProperties(metadata);
                 Observers.EndSection(sectionKey,string.Format("Retrieved metadata for object: {0}", Barcode), true);
                 return metadata;

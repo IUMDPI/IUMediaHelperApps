@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -26,13 +25,13 @@ namespace Packager.Utilities
             {
                 Barcode = podMetadata.Barcode,
                 Brand = podMetadata.Brand,
-                CarrierType = podMetadata.CarrierType,
+                CarrierType = podMetadata.Format,
                 DirectionsRecorded = podMetadata.DirectionsRecorded,
                 Identifier = podMetadata.Identifier,
-                Thickness = podMetadata.TapeThicknesses,
+                Thickness = podMetadata.TapeThickness,
                 Baking = new BakingData {Date = podMetadata.BakingDate},
                 Cleaning = new CleaningData {Date = podMetadata.CleaningDate},
-                Repaired = podMetadata.Repaired ? "Yes" : "No",
+                Repaired = podMetadata.Repaired,
                 Parts = GeneratePartsData(podMetadata, filesToProcess, processingDirectory),
                 Configuration = ConfigurationData.FromPodMetadata(podMetadata)
             }; //.FromPodMetadata(podMetadata);
@@ -60,16 +59,16 @@ namespace Packager.Utilities
 
             return sideGroupings.Select(grouping => new SideData
             {
-                Side = grouping.Key.ToString("D2", CultureInfo.InvariantCulture), 
-                Files = grouping.Select(m => GetFileData(m, processingDirectory)).ToList(), 
-                Ingest = GenerateIngestMetadata(podMetadata, grouping.GetPreservationOrIntermediateModel()), 
+                Side = grouping.Key.ToString("D2", CultureInfo.InvariantCulture),
+                Files = grouping.Select(m => GetFileData(m, processingDirectory)).ToList(),
+                Ingest = GenerateIngestMetadata(podMetadata, grouping.GetPreservationOrIntermediateModel()),
                 ManualCheck = "No" //todo: where to get value from?
             }).ToArray();
         }
 
         private static IngestData GenerateIngestMetadata(ConsolidatedPodMetadata podMetadata, AbstractFileModel masterFileModel)
         {
-            var digitalFileProvenance = podMetadata.DigitalProvenance.GetFileProvenance(masterFileModel);
+            var digitalFileProvenance = podMetadata.FileProvenances.GetFileProvenance(masterFileModel);
             if (digitalFileProvenance == null)
             {
                 throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.ToFileName());
@@ -87,7 +86,7 @@ namespace Packager.Utilities
                 PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
                 ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
                 SpeedUsed = digitalFileProvenance.SpeedUsed,
-                Date = digitalFileProvenance.CreatedAt,
+                Date = digitalFileProvenance.CreatedAt
             };
         }
 

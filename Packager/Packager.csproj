@@ -88,6 +88,7 @@
     <Compile Include="Extensions\PodMetadataExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XElementExtensions.cs" />
+    <Compile Include="Models\BextModels\CodingHistory.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFactory.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />

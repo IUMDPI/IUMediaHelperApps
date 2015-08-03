@@ -1,5 +1,6 @@
 ﻿using Packager.Models;
 using Packager.Observers;
+using Packager.Processors;
 using Packager.Utilities;
 
 namespace Packager.Providers

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
 using Packager.Exceptions;
@@ -16,7 +15,6 @@ namespace Packager.UserInterface
         public ViewModel()
         {
             Document = new TextDocument();
-            Document.Changed += DocumentChangedHandler;
         }
 
         public TextDocument Document { get; private set; }
@@ -35,11 +33,11 @@ namespace Packager.UserInterface
             FoldingManager = FoldingManager.Install(outputWindow.OutputText.TextArea);
         }
 
-        private void DocumentChangedHandler(object sender, DocumentChangeEventArgs e)
+        private void InsertLine()
         {
-            var test = 0;
+            Document.Insert(TextLength, "\n");
         }
-
+        
         public void InsertLine(string value)
         {
             value = value.TrimEnd('\n');
@@ -59,7 +57,7 @@ namespace Packager.UserInterface
             BeginSection(sectionKey, string.Format("ERROR: {0}", e.Message));
             if (!(e is AbstractEngineException))
             {
-                InsertLine(e.StackTrace);    
+                InsertLine(e.StackTrace);
             }
             EndSection(sectionKey);
         }
@@ -83,7 +81,10 @@ namespace Packager.UserInterface
                 return;
             }
 
-            InsertLine("");
+            if (Document.Text.EndsWith("\n\n") == false)
+            {
+                InsertLine();
+            }
 
             var sectionModel = GetOrCreateSectionModel(sectionKey);
 
@@ -91,6 +92,7 @@ namespace Packager.UserInterface
             sectionModel.Title = text;
 
             InsertLine(text);
+            InsertLine();
         }
 
         private SectionModel GetOrCreateSectionModel(Guid key)
@@ -108,7 +110,7 @@ namespace Packager.UserInterface
             return sectionModel;
         }
 
-        public void EndSection(Guid sectionKey,string newTitle="", bool collapse=false)
+        public void EndSection(Guid sectionKey, string newTitle = "", bool collapse = false)
         {
             if (sectionKey == Guid.Empty)
             {
@@ -121,7 +123,7 @@ namespace Packager.UserInterface
                 return;
             }
 
-            InsertLine("");
+            InsertLine();
 
             sectionModel.EndOffset = TextLength - 1;
             sectionModel.Completed = true;
@@ -135,11 +137,15 @@ namespace Packager.UserInterface
             foldingSection.Title = Indent(sectionModel.Title, sectionModel.Indent);
             foldingSection.Tag = sectionModel;
             foldingSection.IsFolded = collapse;
+
+            InsertLine();
         }
-        
+
         private static string Indent(string value, int indent)
         {
-            return string.Format("{0}{1}", new String(' ', indent * 2), value);
+            return indent == 0 
+                ? value 
+                : string.Format("{0}{1}", new String(' ', indent*2), value);
         }
 
         public void FlagSectionAsSuccessful(Guid key, string newTitle)
@@ -170,9 +176,5 @@ namespace Packager.UserInterface
 
             return model.Key.Equals(key);
         }
-
     }
-
-
-    
 }

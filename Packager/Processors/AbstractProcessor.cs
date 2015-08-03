@@ -38,14 +38,12 @@ namespace Packager.Processors
         protected abstract string MezzanineFileExtension { get; }
         protected abstract string PreservationFileExtension { get; }
         protected abstract string PreservationIntermediateFileExtenstion { get; }
-        protected abstract Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel);
-        protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels);
 
         protected IPodMetadataProvider MetadataProvider
         {
             get { return _dependencyProvider.MetadataProvider; }
         }
-        
+
         protected IXmlExporter XmlExporter
         {
             get { return _dependencyProvider.XmlExporter; }
@@ -73,22 +71,25 @@ namespace Packager.Processors
 
         protected string Barcode { get; private set; }
 
-        public virtual async Task<bool> ProcessFile(IGrouping<string,AbstractFileModel> fileModels)
+        public virtual async Task<bool> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
             Barcode = fileModels.Key;
 
             var sectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
             try
             {
-                // make directory to hold processed files
-                DirectoryProvider.CreateDirectory(ProcessingDirectory);
+                // figure out what files we need to touch
+                var filesToProcess = GetFilesToProcess(fileModels);
+
+                // now move them to processing
+                await CreateProcessingDirectoryAndMoveFiles(filesToProcess);
 
                 // call internal implementation
-                var processedList = await ProcessFileInternal(fileModels);
+                var processedList = await ProcessFileInternal(filesToProcess);
 
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
-                
+
                 // move everything to success folder
                 await MoveToSuccessFolder();
 
@@ -103,6 +104,18 @@ namespace Packager.Processors
                 return false;
             }
         }
+
+        private static List<ObjectFileModel> GetFilesToProcess(IEnumerable<AbstractFileModel> fileModels)
+        {
+            return fileModels
+                .Where(m => m.IsObjectModel())
+                .Select(m => (ObjectFileModel)m)
+                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion())
+                .ToList();
+        } 
+
+        protected abstract Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel);
+        protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
         
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath
@@ -188,11 +201,15 @@ namespace Packager.Processors
             get { return _dependencyProvider.BextProcessor; }
         }
 
-        protected async Task MoveFilesToProcessing(IEnumerable<ObjectFileModel> filesToProcess)
+        private async Task CreateProcessingDirectoryAndMoveFiles(IEnumerable<ObjectFileModel> filesToProcess)
         {
             var sectionKey = Observers.BeginSection("Initializing");
             try
             {
+                // make directory to hold processed files
+                Observers.Log("Creating directory: {0}", ProcessingDirectory);
+                DirectoryProvider.CreateDirectory(ProcessingDirectory);
+                
                 foreach (var fileModel in filesToProcess)
                 {
                     Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
@@ -280,9 +297,9 @@ namespace Packager.Processors
             try
             {
                 var metadata = await MetadataProvider.Get(Barcode);
-               
-                Observers.Log("{0}",metadata);
-                Observers.EndSection(sectionKey,string.Format("Retrieved metadata for object: {0}", Barcode), true);
+
+                Observers.Log("{0}", metadata);
+                Observers.EndSection(sectionKey, string.Format("Retrieved metadata for object: {0}", Barcode), true);
                 return metadata;
             }
             catch (Exception e)
@@ -292,7 +309,7 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
-        
+
         protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
         {
             return original.ToAccessFileModel(AccessFileExtension);

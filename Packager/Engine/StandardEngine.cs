@@ -65,7 +65,7 @@ namespace Packager.Engine
                     .GroupBy(f => f.BarCode).ToList();
                 
                 Observers.Log("Found {0} objects to process", objectGroups.Count());
-
+               
                 var results = new Dictionary<string, bool>();
                 
                 // now we want to get the processor for each group

@@ -3,18 +3,28 @@
 
   <Color name="Success" foreground="Blue" />
   <Color name="Error" foreground="Red" />
-  <Color name="Header" foreground="Blue" fontWeight="bold" />
+  <Color name="SubHeader" foreground="Blue" />
+  <Color name="ObjectHeader" foreground="DarkBlue" fontWeight="bold" />
   
   <RuleSet>
     <Span color="Error" begin="ERROR: " />
     <Span color="Error" begin="   at "/>
     <Span color="Error" begin="--- " />
     
-    <Span color="Header" begin="Generating " end=": " />
-    <Span color="Header" begin="Adding BEXT metadata" />
+    <Span color="SubHeader" begin="Generating "/>
+    <Span color="SubHeader" begin="Requesting metadata" />
+    <Span color="SubHeader" begin="Adding BEXT metadata" />
+    <Span color="SubHeader" begin="Copying objects to dropbox" />
+    <Span color="SubHeader" begin="Cleaning up" />
+    <Span color="SubHeader" begin="Initializing" />
+    <Span color="ObjectHeader" begin="Processing Object" end=": " />
     
     <Rule fontWeight="bold" foreground="Purple">
       \b\d{14}x\b|\b\d{14}\b #barcode
+    </Rule>
+
+    <Rule fontWeight="bold" foreground="Orange">
+      \[not\ set\] #notsetWarning
     </Rule>
   </RuleSet>
 

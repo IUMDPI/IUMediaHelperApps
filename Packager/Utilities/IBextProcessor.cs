@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 
-namespace Packager.Providers
+namespace Packager.Utilities
 {
     public interface IBextProcessor
     {

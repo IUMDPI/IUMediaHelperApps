@@ -49,17 +49,8 @@ namespace Packager.Processors
             get { return ".wav"; }
         }
 
-        protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(IEnumerable<AbstractFileModel> fileModels)
+        protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
-            var filesToProcess = fileModels
-                .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel) m)
-                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion())
-                .ToList();
-
-            // now move them to processing
-            await MoveFilesToProcessing(filesToProcess);
-
             // fetch metadata
             var metadata = await GetMetadata();
 

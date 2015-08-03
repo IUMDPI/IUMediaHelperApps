@@ -12,10 +12,9 @@ using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
-using Packager.Utilities;
 using Packager.Verifiers;
 
-namespace Packager.Providers
+namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
@@ -82,7 +81,7 @@ namespace Packager.Providers
             return result;
         }
 
-        private string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
+        private static string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
         {
             return string.Format("{0}. {1}. File use: {2}. {3}",
                 metadata.Unit,
@@ -109,7 +108,7 @@ namespace Packager.Providers
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.Log(result.StandardOutput);
+            Observers.Log(FormatOutput(result.StandardOutput));
 
             var verifier = new BwfMetaEditResultsVerifier(
                 result.StandardOutput.ToLowerInvariant(),
@@ -120,6 +119,23 @@ namespace Packager.Providers
             {
                 throw new AddMetadataException("Could not add metadata to one or more files!");
             }
+        }
+
+        private static string FormatOutput(string output)
+        {
+            var builder = new StringBuilder();
+            var lines = output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            for (var index = 0; index < lines.Count(); index++)
+            {
+                if (index>0 && lines[index].EndsWith(": Is open"))
+                {
+                    builder.Append('\n');
+                }
+
+                 builder.AppendFormat("{0}\n", lines[index]);
+            }
+
+            return builder.ToString();
         }
     }
 }

@@ -19,23 +19,20 @@ namespace Packager.Providers
 {
     public class BextProcessor : IBextProcessor
     {
-        public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers,
-            ILookupsProvider lookupsProvider)
+        public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers)
         {
             
             BWFMetaEditPath = settings.BWFMetaEditPath;
             ProcessRunner = processRunner;
             XmlExporter = xmlExporter;
             Observers = observers;
-            LookupsProvider = lookupsProvider;
         }
 
         private string BWFMetaEditPath { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }
         private IObserverCollection Observers { get; set; }
-        private ILookupsProvider LookupsProvider { get; set; }
-
+        
         public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory)
         {
             var masterFileModel = instances.GetPreservationOrIntermediateModel();
@@ -60,7 +57,7 @@ namespace Packager.Providers
                             OriginatorReference = Path.GetFileNameWithoutExtension(model.ToFileName()),
                             Description = description,
                             ICMT = description,
-                            IARL = GenerateIarl(podMetadata.Unit),
+                            IARL =podMetadata.Unit,
                             OriginationDate = digitizedOn.ToString("yyyy-MM-dd"),
                             OriginationTime = digitizedOn.ToString("HH:mm:ss"),
                             TimeReference = "0",
@@ -85,15 +82,10 @@ namespace Packager.Providers
             return result;
         }
 
-        private string GenerateIarl(string value)
-        {
-            return string.Format("{0}.", LookupsProvider.LookupValue(LookupTables.Units, value));
-        }
-
         private string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
         {
             return string.Format("{0}. {1}. File use: {2}. {3}",
-                LookupsProvider.LookupValue(LookupTables.Units, metadata.Unit),
+                metadata.Unit,
                 metadata.CallNumber,
                 fileModel.FullFileUse, 
                 Path.GetFileNameWithoutExtension(fileModel.ToFileName()));

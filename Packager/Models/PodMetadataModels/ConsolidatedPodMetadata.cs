@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using System.Security.Policy;
 using System.Text;
+using Packager.Extensions;
 
 namespace Packager.Models.PodMetadataModels
 {
     public class ConsolidatedPodMetadata
     {
-
+        private const string NotSetText = "[not set]";
         public string Identifier { get; set; }
         public string Format { get; set; }
         public string CallNumber { get; set; }
@@ -23,14 +21,13 @@ namespace Packager.Models.PodMetadataModels
         public string BakingDate { get; set; }
         public string Repaired { get; set; }
         public string DigitizingEntity { get; set; }
-        
         public string PlaybackSpeed { get; set; }
         public string TrackConfiguration { get; set; }
         public string SoundField { get; set; }
         public string TapeThickness { get; set; }
-
         public List<DigitalFileProvenance> FileProvenances { get; set; }
-        
+        public string Damage { get; set; }
+        public string PreservationProblems { get; set; }
 
         public bool IsDigitalFormat()
         {
@@ -38,58 +35,36 @@ namespace Packager.Models.PodMetadataModels
                    Format.ToLowerInvariant().Equals("dat");
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
-        
-        
-
-        
-        
-
-        private static string GetBoolValuesAsList(object instance)
+        public override string ToString()
         {
-            if (instance == null)
+            var builder = new StringBuilder();
+
+            builder.Append(GetStringPropertiesAndValues(this));
+
+            foreach (var provenance in FileProvenances)
             {
-                return string.Empty;
+                builder.AppendLine();
+                builder.AppendFormat("File Provenance: {0}\n", provenance.Filename.ToDefaultIfEmpty(NotSetText));
+                builder.Append(GetStringPropertiesAndValues(provenance, "\t"));
             }
 
-            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof(bool));
-            var results = (properties.Where(property => (bool)property.GetValue(instance))
-                .Select(GetNameOrDescription)).Distinct().ToList();
-            return string.Join(", ", results);
+            return builder.ToString();
         }
 
-        private static string GetNameOrDescription(MemberInfo propertyInfo)
+        private static string GetStringPropertiesAndValues(object instance, string indent = "")
         {
-            var description = propertyInfo.GetCustomAttribute<DescriptionAttribute>();
-            return description == null ? propertyInfo.Name : description.Description;
+            var builder = new StringBuilder();
+            foreach (var property in instance.GetType()
+                .GetProperties()
+                .Where(p => p.PropertyType == typeof (string)))
+            {
+                builder.AppendFormat("{0}{1}: {2}\n",
+                    indent,
+                    property.Name.FromCamelCaseToSpaces(),
+                    (property.GetValue(instance)).ToDefaultIfEmpty(NotSetText));
+            }
+
+            return builder.ToString();
         }
     }
 }

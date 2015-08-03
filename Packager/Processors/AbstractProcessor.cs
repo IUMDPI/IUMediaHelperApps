@@ -281,7 +281,7 @@ namespace Packager.Processors
             {
                 var metadata = await MetadataProvider.Get(Barcode);
                
-                Observers.LogObjectProperties(metadata);
+                Observers.Log("{0}",metadata);
                 Observers.EndSection(sectionKey,string.Format("Retrieved metadata for object: {0}", Barcode), true);
                 return metadata;
             }

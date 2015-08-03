@@ -33,10 +33,19 @@ namespace Packager.Utilities
                 Cleaning = new CleaningData {Date = podMetadata.CleaningDate},
                 Repaired = podMetadata.Repaired,
                 Parts = GeneratePartsData(podMetadata, filesToProcess, processingDirectory),
-                Configuration = ConfigurationData.FromPodMetadata(podMetadata)
-            }; //.FromPodMetadata(podMetadata);
-
-
+                Configuration = new ConfigurationData
+                {
+                    Track = podMetadata.TrackConfiguration,
+                    SoundField = podMetadata.SoundField,
+                    Speed = podMetadata.PlaybackSpeed
+                },
+                PhysicalCondition = new PhysicalConditionData
+                {
+                    Damage = podMetadata.Damage,
+                    PreservationProblem = podMetadata.PreservationProblems
+                }
+            }; 
+            
             return result;
         }
 
@@ -86,7 +95,7 @@ namespace Packager.Utilities
                 PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
                 ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
                 SpeedUsed = digitalFileProvenance.SpeedUsed,
-                Date = digitalFileProvenance.CreatedAt
+                Date = digitalFileProvenance.DateDigitized
             };
         }
 

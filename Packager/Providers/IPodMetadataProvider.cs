@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Packager.Deserializers;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
@@ -34,17 +33,17 @@ namespace Packager.Providers
             var client = new RestClient(string.Format(ProgramSettings.BaseWebServiceUrlFormat, barcode))
             {
                 Authenticator =
-                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password),
-               };
+                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
+            };
 
-            var request = new RestRequest {DateFormat = "yyyy-MM-ddTHH:mm:sszzz"};
+            var request = new RestRequest { DateFormat = "yyyy-MM-ddTHH:mm:sszzz" };
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
 
             VerifyResponse(response);
+            VerifyMetadata(response.Data);
 
             return ConsolidateMetadata(response.Data);
         }
-
 
         private ConsolidatedPodMetadata ConsolidateMetadata(PodMetadata metadata)
         {
@@ -68,24 +67,27 @@ namespace Packager.Providers
                 SoundField = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.SoundField),
                 TapeThickness = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TapeThickness),
                 FileProvenances = metadata.Data.Object.DigitalProvenance.DigitalFileProvenances,
-
-
+                Damage = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.Damage, "None"),
+                PreservationProblems = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PreservationProblems)
             };
 
             return result;
         }
 
-        private static string GetBoolValuesAsList(object instance)
+        private static string GetBoolValuesAsList(object instance, string defaultValue = "")
         {
             if (instance == null)
             {
-                return string.Empty;
+                return defaultValue;
             }
 
             var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof(bool));
             var results = (properties.Where(property => (bool)property.GetValue(instance))
                 .Select(GetNameOrDescription)).Distinct().ToList();
-            return string.Join(", ", results);
+
+            return results.Any()
+                ? string.Join(", ", results)
+                : defaultValue;
         }
 
         private static string GetNameOrDescription(MemberInfo propertyInfo)
@@ -99,29 +101,44 @@ namespace Packager.Providers
             return value ? "Yes" : "No";
         }
 
-        private static void VerifyResponse(IRestResponse<PodMetadata> response)
+        private static void VerifyResponse(IRestResponse response)
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
-                throw new PodMetadataException("Could not retrieve metadata from Pod", response.ErrorException);  
+                throw new PodMetadataException("Could not retrieve metadata from Pod", response.ErrorException);
             }
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 throw new PodMetadataException("Could not retrieve metadata from Pod", new Exception(response.ErrorMessage));
             }
+        }
 
-            if (response.Data == null)
+        private static void VerifyMetadata(PodMetadata metadata)
+        {
+            if (metadata == null)
             {
                 throw new PodMetadataException("Could not retrieve metadata from Pod");
             }
 
-            if (response.Data.Success == false)
+            if (metadata.Success == false)
             {
                 throw new PodMetadataException(
                     "Could not retrieve metadata: {0}",
-                    response.Data.Message.ToDefaultIfEmpty("[no error message present]"));
+                    metadata.Message.ToDefaultIfEmpty("[no error message present]"));
             }
+
+            if (metadata.Data == null ||
+                metadata.Data.Object == null ||
+                metadata.Data.Object.Assignment == null ||
+                metadata.Data.Object.Basics == null ||
+                metadata.Data.Object.Details == null ||
+                metadata.Data.Object.DigitalProvenance == null ||
+                metadata.Data.Object.TechnicalMetadata == null)
+            {
+                throw new PodMetadataException("Could not retrieve metadata from Pod: required sub-section not present");
+            }
+                    
         }
     }
 }

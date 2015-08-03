@@ -93,7 +93,7 @@ namespace Packager.Processors
                 // move everything to success folder
                 await MoveToSuccessFolder();
 
-                Observers.EndSection(sectionKey, string.Format("Object processed succesfully: {0}", Barcode), true);
+                Observers.EndSection(sectionKey, string.Format("Object processed succesfully: {0}", Barcode));
                 return true;
             }
             catch (Exception e)
@@ -216,7 +216,7 @@ namespace Packager.Processors
                     await MoveFileToProcessing(fileModel);
                 }
 
-                Observers.EndSection(sectionKey, "Initialization successful", true);
+                Observers.EndSection(sectionKey, "Initialization successful");
             }
             catch (Exception e)
             {
@@ -234,7 +234,7 @@ namespace Packager.Processors
                 Observers.Log("Moving {0} to success directory", ObjectDirectoryName);
                 await DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory, SuccesDirectory);
 
-                Observers.EndSection(sectionKey, "Cleanup successful", true);
+                Observers.EndSection(sectionKey, "Cleanup successful");
             }
             catch (Exception e)
             {
@@ -258,7 +258,7 @@ namespace Packager.Processors
                         Path.Combine(ProcessingDirectory, fileName),
                         Path.Combine(DropBoxDirectory, fileName));
                 }
-                Observers.EndSection(sectionKey, string.Format("{0} files copied to dropbox folder successfully", Barcode), true);
+                Observers.EndSection(sectionKey, string.Format("{0} files copied to dropbox folder successfully", Barcode));
             }
             catch (Exception e)
             {
@@ -299,7 +299,7 @@ namespace Packager.Processors
                 var metadata = await MetadataProvider.Get(Barcode);
 
                 Observers.Log("{0}", metadata);
-                Observers.EndSection(sectionKey, string.Format("Retrieved metadata for object: {0}", Barcode), true);
+                Observers.EndSection(sectionKey, string.Format("Retrieved metadata for object: {0}", Barcode));
                 return metadata;
             }
             catch (Exception e)

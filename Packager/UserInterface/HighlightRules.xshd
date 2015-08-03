@@ -5,12 +5,12 @@
   <Color name="Error" foreground="Red" />
   <Color name="SubHeader" foreground="Blue" />
   <Color name="ObjectHeader" foreground="DarkBlue" fontWeight="bold" />
-  
+
   <RuleSet>
     <Span color="Error" begin="ERROR: " />
     <Span color="Error" begin="   at "/>
     <Span color="Error" begin="--- " />
-    
+
     <Span color="SubHeader" begin="Generating "/>
     <Span color="SubHeader" begin="Requesting metadata" />
     <Span color="SubHeader" begin="Adding BEXT metadata" />
@@ -18,14 +18,24 @@
     <Span color="SubHeader" begin="Cleaning up" />
     <Span color="SubHeader" begin="Initializing" />
     <Span color="ObjectHeader" begin="Processing Object" end=": " />
-    
-    <Rule fontWeight="bold" foreground="Purple">
-      \b\d{14}x\b|\b\d{14}\b #barcode
+
+    <Rule foreground="DarkBlue">
+      ...._\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|\d{14}|...._\d{14} #barcode
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">
       \[not\ set\] #notsetWarning
     </Rule>
+
+    <Rule foreground="DarkBlue">
+      (...._.*\.([A-Za-z0-9]{3,4})) #standard file name
+    </Rule>
+
+    <Rule foreground="DarkBlue">
+      ([a-zA-z]\:\\.*\\...._\d{14})(\\|$|\s)
+    </Rule>
+
+   
   </RuleSet>
 
 </SyntaxDefinition>

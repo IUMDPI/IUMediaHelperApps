@@ -130,7 +130,7 @@ namespace Packager.Processors
                     await CreateDerivative(args);
                 }
 
-                Observers.EndSection(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()), true);
+                Observers.EndSection(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()));
                 return newModel;
             }
             catch (Exception e)
@@ -187,7 +187,7 @@ namespace Packager.Processors
             {
                 if (success)
                 {
-                    Observers.EndSection(sectionKey, "BEXT metadata added successfully", true);
+                    Observers.EndSection(sectionKey, "BEXT metadata added successfully");
                 }
                 else
                 {

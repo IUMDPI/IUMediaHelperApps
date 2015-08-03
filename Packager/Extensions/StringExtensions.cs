@@ -9,13 +9,6 @@ namespace Packager.Extensions
             return string.Format("\"{0}\"", value);
         }
 
-        public static string ToDefaultIfEmpty(this string value, string defaultValue = "")
-        {
-            return string.IsNullOrWhiteSpace(value) 
-                ? defaultValue
-                : value;
-        }
-        
         public static int? ToInteger(this string value, int? defaultValue = null)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -50,9 +43,21 @@ namespace Packager.Extensions
 
         public static string FromCamelCaseToSpaces(this string value)
         {
-            return string.IsNullOrWhiteSpace(value) 
-                ? string.Empty 
+            return string.IsNullOrWhiteSpace(value)
+                ? string.Empty
                 : Regex.Replace(value, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
+        }
+
+        public static string ToDefaultIfEmpty(this object value, string defaultValue = "")
+        {
+            if (value == null)
+            {
+                return defaultValue;
+            }
+
+            return string.IsNullOrWhiteSpace(value.ToString()) == false
+                ? value.ToString()
+                : defaultValue;
         }
     }
 }

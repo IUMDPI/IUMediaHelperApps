@@ -20,7 +20,7 @@
     <Span color="ObjectHeader" begin="Processing Object" end=": " />
 
     <Rule foreground="DarkBlue">
-      ...._\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|\d{14}|...._\d{14} #barcode
+      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|\d{14}|.{4}_\d{14} #barcode, file name
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">
@@ -28,11 +28,7 @@
     </Rule>
 
     <Rule foreground="DarkBlue">
-      (...._.*\.([A-Za-z0-9]{3,4})) #standard file name
-    </Rule>
-
-    <Rule foreground="DarkBlue">
-      ([a-zA-z]\:\\.*\\...._\d{14})(\\|$|\s)
+      ([a-zA-z]\:\\.*\\...._\d{14})(\\|$|\s) # file path
     </Rule>
 
    

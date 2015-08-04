@@ -86,7 +86,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCloseInitializingSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>(), "Initialization successful", true);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), "Initialization successful");
                 }
             }
 
@@ -188,13 +188,13 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCloseSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("Retrieved metadata for object: {0}", Barcode), true);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("Retrieved metadata for object: {0}", Barcode));
                 }
 
                 [Test]
                 public void ItShouldLogMetadataResults()
                 {
-                    Observers.Received().LogObjectProperties(Arg.Is<ConsolidatedPodMetadata>(m => m.Barcode.Equals(Barcode)));
+                    Observers.Received().Log("{0}",Metadata);
                 }
             }
 
@@ -219,7 +219,7 @@ namespace Packager.Test.Processors
                 public void ItShouldCloseProductionSection()
                 {
                     var expected = string.Format("{0} generated successfully: {1}", ProdObjectFileModel.FullFileUse, ProductionFileName);
-                    Observers.Received().EndSection(Arg.Any<Guid>(), expected, true);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), expected);
                 }
 
                 [Test]
@@ -238,7 +238,7 @@ namespace Packager.Test.Processors
                 public void ItShouldCloseAccessSection()
                 {
                     var expected = string.Format("{0} generated successfully: {1}", AccessObjectFileModel.FullFileUse, AccessFileName);
-                    Observers.Received().EndSection(Arg.Any<Guid>(), expected, true);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), expected);
                 }
 
                 private void AssertCalled(string originalFileName, string newFileName, string settingsArgs)
@@ -336,7 +336,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCloseSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>(), "BEXT metadata added successfully", true);
+                    Observers.Received().EndSection(Arg.Any<Guid>(), "BEXT metadata added successfully");
                 }
 
                 [Test]
@@ -498,8 +498,7 @@ namespace Packager.Test.Processors
                 {
                     Observers.Received().EndSection(
                         Arg.Any<Guid>(),
-                        string.Format("{0} files copied to dropbox folder successfully", Barcode),
-                        true);
+                        string.Format("{0} files copied to dropbox folder successfully", Barcode));
                 }
 
                 [Test]
@@ -606,7 +605,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallEndSectionCorrectly()
                 {
-                    Observers.Received().EndSection(SectionGuid, "Object processed succesfully: 4890764553278906", true);
+                    Observers.Received().EndSection(SectionGuid, "Object processed succesfully: 4890764553278906");
                 }
             }
         }

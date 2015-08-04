@@ -26,7 +26,7 @@ namespace Packager.Test.Utilities
 
         private string ExpectedDigitalOrAnalog { get; set; }
 
-        public virtual void DoCustomSetup()
+        protected virtual void DoCustomSetup()
         {
             ExpectedDigitalOrAnalog = "ANALOG";
         }
@@ -168,7 +168,7 @@ namespace Packager.Test.Utilities
 
         public class WhenFormatIsCDR : ConformancePointDocumentFactoryTests
         {
-            public override void DoCustomSetup()
+            protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
                 Metadata.Format = "CD-R";
@@ -180,7 +180,7 @@ namespace Packager.Test.Utilities
 
         public class WhenFormatIsDAT : ConformancePointDocumentFactoryTests
         {
-            public override void DoCustomSetup()
+            protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
                 Metadata.Format = "DAT";

@@ -156,8 +156,8 @@ namespace Packager.Processors
 
             Observers.Log(result.StandardError);
 
-            var verifier = new FFMPEGVerifier(result.ExitCode);
-            if (!verifier.Verify())
+            var verifier = new FFMPEGVerifier();
+            if (!verifier.Verify(result.ExitCode))
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }

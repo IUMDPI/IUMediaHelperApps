@@ -1,7 +1,7 @@
-﻿namespace Packager.Verifiers
+﻿using System.Collections.Generic;
+using Packager.Observers;
+
+namespace Packager.Verifiers
 {
-    public interface IVerifier
-    {
-        bool Verify();
-    }
+    
 }

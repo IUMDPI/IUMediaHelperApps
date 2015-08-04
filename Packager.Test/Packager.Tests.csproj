@@ -77,6 +77,8 @@
     <Compile Include="Processors\AbstractProcessorTests.cs" />
     <Compile Include="Processors\AudioProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\BextProcessorTests.cs" />
+    <Compile Include="Utilities\ConformancePointDocumentFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

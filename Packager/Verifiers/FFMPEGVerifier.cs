@@ -1,17 +1,15 @@
 ﻿namespace Packager.Verifiers
 {
-    public class FFMPEGVerifier : IVerifier
+    public interface IFFMPEGVerifier
     {
-        public FFMPEGVerifier(int exitCode)
-        {
-            ExitCode = exitCode;
-        }
+        bool Verify(int exitCode);
+    }
 
-        private int ExitCode { get; set; }
-
-        public bool Verify()
+    public class FFMPEGVerifier : IFFMPEGVerifier
+    {
+        public bool Verify(int exitCode)
         {
-            return ExitCode == 0;
+            return exitCode == 0;
         }
     }
 }

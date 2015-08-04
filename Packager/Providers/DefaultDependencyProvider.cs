@@ -1,7 +1,7 @@
 ﻿using Packager.Models;
 using Packager.Observers;
-using Packager.Processors;
 using Packager.Utilities;
+using Packager.Verifiers;
 
 namespace Packager.Providers
 {
@@ -19,7 +19,8 @@ namespace Packager.Providers
             Observers = observers;
             LookupsProvider = new AppConfigLookupsProvider();
             MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider);
-            BextProcessor = new BextProcessor(programSettings, ProcessRunner, XmlExporter, observers);
+            BextProcessor = new BextProcessor(programSettings, ProcessRunner, XmlExporter, observers,
+                new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory());
         }
 
         public IHasher Hasher { get; private set; }

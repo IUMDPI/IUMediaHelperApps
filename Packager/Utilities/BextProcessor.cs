@@ -18,20 +18,26 @@ namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
-        public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers)
+        public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier, IConformancePointDocumentFactory conformancePointDocumentFactory)
         {
             
             BWFMetaEditPath = settings.BWFMetaEditPath;
             ProcessRunner = processRunner;
             XmlExporter = xmlExporter;
             Observers = observers;
+            Verifier = verifier;
+            ConformancePointDocumentFactory = conformancePointDocumentFactory;
+        
         }
 
         private string BWFMetaEditPath { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }
         private IObserverCollection Observers { get; set; }
+        private IBwfMetaEditResultsVerifier Verifier { get; set; }
+        private IConformancePointDocumentFactory ConformancePointDocumentFactory { get; set; }
         
+
         public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory)
         {
             var masterFileModel = instances.GetPreservationOrIntermediateModel();
@@ -40,37 +46,21 @@ namespace Packager.Utilities
             {
                 throw new AddMetadataException("No digital file provenance in metadata for {0}", masterFileModel.ToFileName());
             }
-
+            
+            var files = (from model in instances 
+                         let provenance = podMetadata.FileProvenances.GetFileProvenance(model, defaultProvenance) 
+                         select ConformancePointDocumentFactory.Generate(model, provenance, podMetadata, processingDirectory)).
+                         ToArray();
+            
             var xml = new ConformancePointDocument
             {
-                File = (from model in instances
-                    let provenance = podMetadata.FileProvenances.GetFileProvenance(model, defaultProvenance)
-                    let digitizedOn = GetOriginationDateTime(podMetadata, model, provenance)
-                    let description = GetBextDescription(podMetadata, model)
-                    select new ConformancePointDocumentFile
-                    {
-                        Name = Path.Combine(processingDirectory, model.ToFileName()),
-                        Core = new ConformancePointDocumentFileCore
-                        {
-                            Originator = podMetadata.DigitizingEntity,
-                            OriginatorReference = Path.GetFileNameWithoutExtension(model.ToFileName()),
-                            Description = description,
-                            ICMT = description,
-                            IARL =podMetadata.Unit,
-                            OriginationDate = digitizedOn.ToString("yyyy-MM-dd"),
-                            OriginationTime = digitizedOn.ToString("HH:mm:ss"),
-                            TimeReference = "0",
-                            ICRD = digitizedOn.ToString("yyyy-MM-dd"),
-                            INAM = podMetadata.Title,
-                            CodingHistory = new CodingHistory(podMetadata,provenance).ToString()
-                        }
-                    }).ToArray()
+                File = files
             };
 
             await AddMetadata(xml, processingDirectory);
         }
 
-        private static DateTime GetOriginationDateTime(ConsolidatedPodMetadata podMetadata, AbstractFileModel model, DigitalFileProvenance provenance)
+        /*private static DateTime GetOriginationDateTime(DigitalFileProvenance provenance)
         {
             DateTime result;
             if (DateTime.TryParse(provenance.DateDigitized, out result) == false)
@@ -88,7 +78,7 @@ namespace Packager.Utilities
                 metadata.CallNumber,
                 fileModel.FullFileUse, 
                 Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
-        }
+        }*/
 
         private async Task AddMetadata(ConformancePointDocument xml, string processingDirectory)
         {
@@ -109,13 +99,9 @@ namespace Packager.Utilities
             var result = await ProcessRunner.Run(startInfo);
 
             Observers.Log(FormatOutput(result.StandardOutput));
-
-            var verifier = new BwfMetaEditResultsVerifier(
-                result.StandardOutput.ToLowerInvariant(),
-                xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(),
-                Observers);
-
-            if (!verifier.Verify())
+            
+            if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(), 
+                xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(), Observers))
             {
                 throw new AddMetadataException("Could not add metadata to one or more files!");
             }

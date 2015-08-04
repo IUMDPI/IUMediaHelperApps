@@ -29,12 +29,6 @@ namespace Packager.Models.PodMetadataModels
         public string Damage { get; set; }
         public string PreservationProblems { get; set; }
 
-        public bool IsDigitalFormat()
-        {
-            return Format.ToLowerInvariant().Equals("cd-r") ||
-                   Format.ToLowerInvariant().Equals("dat");
-        }
-
         public override string ToString()
         {
             var builder = new StringBuilder();

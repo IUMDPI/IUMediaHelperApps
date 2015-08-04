@@ -88,9 +88,7 @@
     <Compile Include="Extensions\PodMetadataExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XElementExtensions.cs" />
-    <Compile Include="Models\BextModels\CodingHistory.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
-    <Compile Include="Models\BextModels\ConformancePointDocumentFactory.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFileCore.cs" />
     <Compile Include="Models\FileModels\FileModelFactory.cs" />
@@ -148,6 +146,7 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\AppConfigLookupsProvider.cs" />
+    <Compile Include="Utilities\ConformancePointDocumentFactory.cs" />
     <Compile Include="Utilities\IBextProcessor.cs" />
     <Compile Include="Utilities\BextProcessor.cs" />
     <Compile Include="Providers\IDirectoryProvider.cs" />
@@ -160,6 +159,7 @@
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\ViewModel.cs" />
+    <Compile Include="Utilities\IConformancePointDocumentFactory.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />

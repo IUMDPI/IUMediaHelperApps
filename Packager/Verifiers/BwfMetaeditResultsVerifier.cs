@@ -1,33 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Packager.Extensions;
 using Packager.Observers;
 
 namespace Packager.Verifiers
 {
-    public class BwfMetaEditResultsVerifier : IVerifier
+    public interface IBwfMetaEditResultsVerifier
     {
-        public BwfMetaEditResultsVerifier(string output, List<string> targetPaths, IObserverCollection observers)
-        {
-            Output = output;
-            TargetPaths = targetPaths;
-            Observers = observers;
-        }
+        bool Verify(string output, List<string> targetPaths, IObserverCollection observers);
+    }
 
-        private string Output { get; set; }
-        private List<string> TargetPaths { get; set; }
-        private IObserverCollection Observers { get; set; }
-
-        public bool Verify()
+    public class BwfMetaEditResultsVerifier : IBwfMetaEditResultsVerifier
+    {
+        public bool Verify(string output, List<string> targetPaths, IObserverCollection observers)
         {
             var hasError = false;
-            foreach (var path in TargetPaths)
+            foreach (var path in targetPaths)
             {
                 var fileName = Path.GetFileName(path);
 
-                if (IsModifiedOrNothingToDo(Output, path)) continue; // no error continue
+                if (IsModifiedOrNothingToDo(output, path)) continue; // no error continue
 
-                Observers.Log("Could not add metadata to {0}", fileName);
+                observers.Log("Could not add metadata to {0}", fileName);
                 hasError = true;
             }
 

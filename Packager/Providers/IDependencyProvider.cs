@@ -17,6 +17,8 @@ namespace Packager.Providers
         IObserverCollection Observers { get; }
         IPodMetadataProvider MetadataProvider { get; }
         ILookupsProvider LookupsProvider { get; }
+        ISystemInfoProvider SystemInfoProvider { get; }
         IBextProcessor BextProcessor { get; }
+        IEmailSender EmailSender { get; }
     }
 }

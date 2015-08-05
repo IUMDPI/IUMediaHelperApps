@@ -7,7 +7,7 @@ namespace Packager.Providers
 {
     public class DefaultDependencyProvider : IDependencyProvider
     {
-        public DefaultDependencyProvider(IProgramSettings programSettings, IObserverCollection observers)
+        public DefaultDependencyProvider(IProgramSettings programSettings)
         {
             Hasher = new Hasher();
             XmlExporter = new XmlExporter();
@@ -16,13 +16,16 @@ namespace Packager.Providers
             ProcessRunner = new ProcessRunner();
             ProgramSettings = programSettings;
             MetadataGenerator = new MetadataGenerator(Hasher);
-            Observers = observers;
+            SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
+            Observers = new ObserverCollection();
             LookupsProvider = new AppConfigLookupsProvider();
             MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider);
-            BextProcessor = new BextProcessor(programSettings, ProcessRunner, XmlExporter, observers,
+            BextProcessor = new BextProcessor(programSettings, ProcessRunner, XmlExporter, Observers,
                 new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory());
+            EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
         }
 
+        public ISystemInfoProvider SystemInfoProvider { get; private set; }
         public IHasher Hasher { get; private set; }
         public IXmlExporter XmlExporter { get; private set; }
         public IDirectoryProvider DirectoryProvider { get; private set; }
@@ -34,5 +37,6 @@ namespace Packager.Providers
         public IPodMetadataProvider MetadataProvider { get; private set; }
         public ILookupsProvider LookupsProvider { get; private set; }
         public IBextProcessor BextProcessor { get; private set; }
+        public IEmailSender EmailSender { get; private set; }
     }
 }

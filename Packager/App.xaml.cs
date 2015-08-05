@@ -10,6 +10,7 @@ using Packager.Observers.LayoutRenderers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
+using Packager.Utilities;
 
 namespace Packager
 {
@@ -32,20 +33,15 @@ namespace Packager
 
             // create the window
             var window = new OutputWindow();
-            
+
             // initialize the view model with the window
             viewModel.Initialize(window);
 
+            // initialize dependency provider
+            var dependencyProvider = new DefaultDependencyProvider(programSettings);
 
-            // initialize observers
-            var observers = new ObserverCollection
-            {
-                new GeneralNLogObserver(programSettings.LogDirectoryName, programSettings.ProcessingDirectory),
-                new ViewModelObserver(viewModel)
-            };
+            AddObservers(dependencyProvider, viewModel);
 
-            // initialize utility provider
-            var dependencyProvider = new DefaultDependencyProvider(programSettings, observers);
             // initialize processors
             var processors = new Dictionary<string, IProcessor>
             {
@@ -54,17 +50,32 @@ namespace Packager
 
             // initialize engine
             var engine = new StandardEngine(processors, dependencyProvider);
-            
+
             // start the engine
             await engine.Start();
         }
 
+
+        private static void AddObservers(IDependencyProvider dependencyProvider, ViewModel viewModel)
+        {
+            dependencyProvider.Observers.Add(new GeneralNLogObserver(
+                dependencyProvider.ProgramSettings.LogDirectoryName,
+                dependencyProvider.ProgramSettings.ProcessingDirectory));
+
+            dependencyProvider.Observers.Add(new ViewModelObserver(viewModel));
+
+            dependencyProvider.Observers.Add(new IssueEmailerObserver(
+                dependencyProvider.ProgramSettings,
+                dependencyProvider.SystemInfoProvider, 
+                dependencyProvider.EmailSender));
+        }
+
         private static void ConfigureNLog()
         {
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName", typeof (LoggingDirectoryLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProcessingDirectoryName", typeof (ProcessingDirectoryNameLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode", typeof (BarcodeLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode", typeof (ProjectCodeLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName", typeof(LoggingDirectoryLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProcessingDirectoryName", typeof(ProcessingDirectoryNameLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode", typeof(BarcodeLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode", typeof(ProjectCodeLayoutRenderer));
         }
     }
 }

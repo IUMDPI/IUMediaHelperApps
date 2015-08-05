@@ -98,7 +98,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogIssue(e);
+                Observers.LogProcessingIssue(e, Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
                 return false;
@@ -220,7 +220,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogIssue(e);
+                Observers.LogProcessingIssue(e, Barcode);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -238,7 +238,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogIssue(e);
+                Observers.LogProcessingIssue(e, Barcode);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -262,7 +262,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogIssue(e);
+                Observers.LogProcessingIssue(e, Barcode);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -304,7 +304,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogIssue(e);
+                Observers.LogProcessingIssue(e, Barcode);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }

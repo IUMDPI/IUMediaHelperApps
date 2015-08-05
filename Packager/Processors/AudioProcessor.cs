@@ -135,7 +135,7 @@ namespace Packager.Processors
             }
             catch (Exception e)
             {
-                Observers.LogIssue(e);
+                Observers.LogProcessingIssue(e, Barcode);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
@@ -182,6 +182,11 @@ namespace Packager.Processors
                 await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata, ProcessingDirectory);
 
                 success = true;
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
             }
             finally
             {

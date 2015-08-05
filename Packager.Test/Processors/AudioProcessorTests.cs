@@ -626,7 +626,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ShouldLogException()
                 {
-                    Observers.Received().LogIssue(Arg.Is<Exception>(e => e.Message.Equals(IssueMessage)));
+                    Observers.Received().LogProcessingIssue(Arg.Is<Exception>(e => e.Message.Equals(IssueMessage)), Barcode);
                 }
 
                 [Test]
@@ -683,7 +683,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ShouldThrowLoggedException()
                 {
-                    Observers.Received().LogIssue(Arg.Is<LoggedException>(e => e.InnerException.Message.Equals(IssueMessage)));
+                    Observers.Received().LogProcessingIssue(Arg.Is<LoggedException>(e => e.InnerException.Message.Equals(IssueMessage)), Barcode);
                 }
             }
         }

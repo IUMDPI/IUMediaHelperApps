@@ -80,7 +80,7 @@ namespace Packager.Engine
             }
             catch (Exception ex)
             {
-                Observers.LogIssue(ex);
+                Observers.LogEngineIssue(ex);
             }
         }
 

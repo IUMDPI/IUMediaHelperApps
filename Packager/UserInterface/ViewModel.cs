@@ -53,12 +53,15 @@ namespace Packager.UserInterface
 
         public void LogError(Exception e)
         {
+            if (e is AbstractEngineException)
+            {
+                InsertLine(string.Format("ERROR: {0}", e.Message));
+                return;
+            }
+            
             var sectionKey = Guid.NewGuid();
             BeginSection(sectionKey, string.Format("ERROR: {0}", e.Message));
-            if (!(e is AbstractEngineException))
-            {
-                InsertLine(e.StackTrace);
-            }
+            InsertLine(e.StackTrace);
             EndSection(sectionKey);
         }
 

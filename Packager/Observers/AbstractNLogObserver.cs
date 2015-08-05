@@ -1,5 +1,6 @@
 ﻿using System;
 using NLog;
+using Packager.Exceptions;
 
 namespace Packager.Observers
 {
@@ -7,9 +8,18 @@ namespace Packager.Observers
     {
         
         public abstract void Log(string baseMessage, params object[] elements);
-        public abstract void LogHeader(string baseMessage, params object[] elements);
-        public abstract void LogError(Exception issue);
+        public abstract void LogProcessingError(Exception issue, string barcode);
         
+        public void LogEngineError(Exception issue)
+        {
+            if (issue is LoggedException)
+            {
+                return;
+            }
+
+            Log(issue.ToString());
+        }
+
         public void LogExternal(string text)
         {
             Log(text);

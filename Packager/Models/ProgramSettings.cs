@@ -1,35 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
+using Packager.Extensions;
 
 namespace Packager.Models
 {
-    public interface IProgramSettings
-    {
-        // ReSharper disable once InconsistentNaming
-        string BWFMetaEditPath { get; }
-        // ReSharper disable once InconsistentNaming
-        string FFMPEGPath { get; }
-        string InputDirectory { get; }
-        string ProcessingDirectory { get; }
-        // ReSharper disable once InconsistentNaming
-        string FFMPEGAudioProductionArguments { get; }
-        // ReSharper disable once InconsistentNaming
-        string FFMPEGAudioAccessArguments { get; }
-        string ProjectCode { get; }
-        string DropBoxDirectoryName { get; }
-        string DateFormat { get; }
-        PodAuth PodAuth { get; }
-        string BaseWebServiceUrlFormat { get; }
-        string DigitizingEntity { get; }
-        string ErrorDirectoryName { get; }
-        string SuccessDirectoryName { get; }
-        string LogDirectoryName { get; }
-      
-        void Verify();
-    }
-
     public class ProgramSettings : IProgramSettings
     {
         public ProgramSettings(NameValueCollection settings)
@@ -48,6 +25,10 @@ namespace Packager.Models
             SuccessDirectoryName = settings["SuccessDirectoryName"];
             LogDirectoryName = settings["LogDirectoryName"];
             PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
+            SmtpServer = settings["SmtpServer"];
+            FromEmailAddress = settings["FromEmailAddress"];
+            IssueNotifyEmailAddresses = settings["IssueNotifyEmailAddresses"].ToDefaultIfEmpty()
+                .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToArray();
         }
 
         public string BWFMetaEditPath { get; private set; }
@@ -58,18 +39,25 @@ namespace Packager.Models
         public string FFMPEGAudioAccessArguments { get; private set; }
         public string ProjectCode { get; private set; }
         public string DropBoxDirectoryName { get; private set; }
-         public PodAuth PodAuth { get; private set; }
+        public PodAuth PodAuth { get; private set; }
         public string DigitizingEntity { get; private set; }
         public string ErrorDirectoryName { get; private set; }
         public string SuccessDirectoryName { get; private set; }
         public string LogDirectoryName { get; private set; }
-        public Dictionary<string, string> UnitLookupTable { get; private set; }
+        public string[] IssueNotifyEmailAddresses { get; private set; }
+        public string SmtpServer { get; private set; }
+        public string FromEmailAddress { get; private set; }
+
+        public string MachineName
+        {
+            get { return Environment.MachineName; }
+        }
 
         public string DateFormat
         {
             get { return "yyyy-MM-dd HH:mm:ss \"GMT\"zzz"; }
         }
-        
+
         public void Verify()
         {
             if (!Directory.Exists(InputDirectory))

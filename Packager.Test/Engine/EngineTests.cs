@@ -177,7 +177,7 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldWriteErrorMessage()
             {
-                Observer.Received().LogIssue(Exception);
+                Observer.Received().LogEngineIssue(Exception);
             }
         }
     }

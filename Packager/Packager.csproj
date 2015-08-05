@@ -91,8 +91,10 @@
     <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFileCore.cs" />
+    <Compile Include="Models\EmailMessageModels\EngineIssueMessage.cs" />
     <Compile Include="Models\FileModels\FileModelFactory.cs" />
     <Compile Include="Models\FileModels\AbstractFileModel.cs" />
+    <Compile Include="Models\IProgramSettings.cs" />
     <Compile Include="Models\OutputModels\BakingData.cs" />
     <Compile Include="Models\FileModels\ObjectFileModel.cs" />
     <Compile Include="Models\FileModels\XmlFileModel.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="Observers\AbstractNLogObserver.cs" />
     <Compile Include="Observers\GeneralNLogObserver.cs" />
     <Compile Include="Observers\IObserverCollection.cs" />
+    <Compile Include="Observers\IssueEmailerObserver.cs" />
     <Compile Include="Observers\LayoutRenderers\BarcodeLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\ProjectCodeLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\ProcessingDirectoryNameLayoutRenderer.cs" />
@@ -146,7 +149,12 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\AppConfigLookupsProvider.cs" />
+    <Compile Include="Models\EmailMessageModels\AbstractEmailMessage.cs" />
+    <Compile Include="Providers\ISystemInfoProvider.cs" />
+    <Compile Include="Providers\SystemInfoProvider.cs" />
     <Compile Include="Utilities\ConformancePointDocumentFactory.cs" />
+    <Compile Include="Utilities\EmailSender.cs" />
+    <Compile Include="Utilities\Hasher.cs" />
     <Compile Include="Utilities\IBextProcessor.cs" />
     <Compile Include="Utilities\BextProcessor.cs" />
     <Compile Include="Providers\IDirectoryProvider.cs" />
@@ -160,6 +168,7 @@
     </Compile>
     <Compile Include="UserInterface\ViewModel.cs" />
     <Compile Include="Utilities\IConformancePointDocumentFactory.cs" />
+    <Compile Include="Utilities\IEmailSender.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
@@ -169,6 +178,9 @@
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />
     <Compile Include="Providers\DefaultDependencyProvider.cs" />
+    <Compile Include="Models\EmailMessageModels\ProcessingIssueMessage.cs" />
+    <Compile Include="Utilities\ProcessRunner.cs" />
+    <Compile Include="Utilities\XmlExporter.cs" />
     <Compile Include="Verifiers\BwfMetaeditResultsVerifier.cs" />
     <Compile Include="Verifiers\FFMPEGVerifier.cs" />
     <Compile Include="Verifiers\IVerifier.cs" />

@@ -18,7 +18,12 @@ namespace Packager.Observers
             ViewModel.InsertLine(string.Format(baseMessage, elements));
         }
 
-        public void LogError(Exception issue)
+        public void LogProcessingError(Exception issue, string barcode)
+        {
+            LogEngineError(issue);
+        }
+
+        public void LogEngineError(Exception issue)
         {
             if (issue is LoggedException)
             {

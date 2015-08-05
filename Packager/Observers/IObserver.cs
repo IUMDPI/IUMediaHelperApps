@@ -5,7 +5,8 @@ namespace Packager.Observers
     public interface IObserver
     {
         void Log(string baseMessage, params object[] elements);
-        void LogError(Exception issue);
+        void LogProcessingError(Exception issue, string barcode);
+        void LogEngineError(Exception issue);
     }
 
     public interface IViewModelObserver : IObserver

@@ -17,7 +17,8 @@ namespace Packager.Observers
             }
         }
 
-        public void LogIssue(Exception issue)
+        
+        public void LogProcessingIssue(Exception issue, string barcode)
         {
             if (issue is LoggedException)
             {
@@ -26,7 +27,7 @@ namespace Packager.Observers
 
             foreach (var observer in this)
             {
-                observer.LogError(issue);
+                observer.LogProcessingError(issue, barcode);
             }
         }
 
@@ -58,6 +59,11 @@ namespace Packager.Observers
                 builder.AppendFormat("{0}: {1}\n", name, value);
             }
             Log(builder.ToString());
+        }
+
+        public void LogEngineIssue(Exception exception)
+        {
+            throw new NotImplementedException();
         }
 
         private static string[] GetArrayValues(IEnumerable<object> values)

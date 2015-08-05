@@ -60,26 +60,6 @@ namespace Packager.Utilities
             await AddMetadata(xml, processingDirectory);
         }
 
-        /*private static DateTime GetOriginationDateTime(DigitalFileProvenance provenance)
-        {
-            DateTime result;
-            if (DateTime.TryParse(provenance.DateDigitized, out result) == false)
-            {
-                throw new AddMetadataException("Could not convert {0} to date time object", provenance.DateDigitized);
-            }
-
-            return result;
-        }
-
-        private static string GetBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
-        {
-            return string.Format("{0}. {1}. File use: {2}. {3}",
-                metadata.Unit,
-                metadata.CallNumber,
-                fileModel.FullFileUse, 
-                Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
-        }*/
-
         private async Task AddMetadata(ConformancePointDocument xml, string processingDirectory)
         {
             var xmlPath = Path.Combine(processingDirectory, "core.xml");

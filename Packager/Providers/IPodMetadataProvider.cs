@@ -96,9 +96,13 @@ namespace Packager.Providers
             return description == null ? propertyInfo.Name : description.Description;
         }
 
-        private static string ToYesNo(bool value)
+        private static string ToYesNo(bool? value)
         {
-            return value ? "Yes" : "No";
+            if (value.HasValue == false)
+            {
+                return "No";
+            }
+            return value.Value ? "Yes" : "No";
         }
 
         private static void VerifyResponse(IRestResponse response)

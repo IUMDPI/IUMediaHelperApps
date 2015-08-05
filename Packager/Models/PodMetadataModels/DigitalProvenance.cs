@@ -8,7 +8,7 @@ namespace Packager.Models.PodMetadataModels
         public string Comments { get; set; }
         public string CleaningDate { get; set; }
         public string Baking { get; set; }
-        public bool Repaired { get; set; }
+        public bool? Repaired { get; set; }
         public string CleaningComment { get; set; }
         public string Duration { get; set; }
         public List<DigitalFileProvenance> DigitalFileProvenances { get; set; }

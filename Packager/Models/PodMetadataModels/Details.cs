@@ -32,7 +32,7 @@ namespace Packager.Models.PodMetadataModels
         public bool Audio { get; set; }
         public bool Video { get; set; }
         public bool MemnonQcCompleted { get; set; }
-        public int GroupTotal { get; set; }
+        public long GroupTotal { get; set; }
         public string CarrierStreamIndex { get; set; }
         public string CurrentWorkflowStatus { get; set; }
         public List<WorkflowStatus> WorkflowStatuses { get; set; }

@@ -125,6 +125,7 @@
     <Compile Include="Models\PodMetadataModels\TechnicalMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\TrackConfiguration.cs" />
     <Compile Include="Models\PodMetadataModels\WorkflowStatus.cs" />
+    <Compile Include="Models\ResultModels\BooleanReason.cs" />
     <Compile Include="Models\ResultModels\ProcessResult.cs" />
     <Compile Include="Models\ResultModels\IProcessResult.cs" />
     <Compile Include="Models\OutputModels\SideData.cs" />

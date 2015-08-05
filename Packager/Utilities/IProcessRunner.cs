@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
-using Packager.Models.ProcessResults;
+using Packager.Models.ResultModels;
 
 namespace Packager.Utilities
 {

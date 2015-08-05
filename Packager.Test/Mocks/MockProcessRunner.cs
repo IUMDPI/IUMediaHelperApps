@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute;
-using Packager.Models.ProcessResults;
+using Packager.Models.ResultModels;
 using Packager.Utilities;
 
 namespace Packager.Test.Mocks

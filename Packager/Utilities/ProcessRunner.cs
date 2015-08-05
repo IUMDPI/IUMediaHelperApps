@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
-using Packager.Models.ProcessResults;
+using Packager.Models.ResultModels;
 
 namespace Packager.Utilities
 {

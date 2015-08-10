@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Xml.Serialization;
-using Packager.Models.PodMetadataModels;
 
 namespace Packager.Models.OutputModels
 {
@@ -10,6 +8,9 @@ namespace Packager.Models.OutputModels
     {
         [XmlAttribute("type")]
         public string CarrierType { get; set; }
+
+        [XmlAttribute("xsi:type")]
+        public string XsiType { get; set; }
 
         // todo: figure out where to get this from
         [XmlElement(Order = 1)]
@@ -47,6 +48,5 @@ namespace Packager.Models.OutputModels
 
         [XmlElement(Order = 12)]
         public PartsData Parts { get; set; }
-
     }
 }

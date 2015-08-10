@@ -6,6 +6,9 @@ namespace Packager.Models.OutputModels
     [Serializable]
     public class IngestData
     {
+        [XmlAttribute(AttributeName = "xsi:type")]
+        public string XsiType { get; set; }
+        
         [XmlElement(Order = 1)]
         public string Date { get; set; }
 
@@ -38,5 +41,11 @@ namespace Packager.Models.OutputModels
 
         [XmlElement("Speed_used", Order = 11)]
         public string SpeedUsed { get; set; }
+
+        [XmlElement("Preamp", Order = 12)]
+        public string PreAmp { get; set; }
+
+        [XmlElement("Preamp_serial_number", Order = 13)]
+        public string PreAmpSerialNumber { get; set; }
     }
 }

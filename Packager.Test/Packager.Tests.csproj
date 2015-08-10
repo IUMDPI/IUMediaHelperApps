@@ -79,6 +79,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\BextProcessorTests.cs" />
     <Compile Include="Utilities\ConformancePointDocumentFactoryTests.cs" />
+    <Compile Include="Utilities\MetadataGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

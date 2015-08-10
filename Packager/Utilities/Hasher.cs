@@ -13,8 +13,16 @@ namespace Packager.Utilities
                 using (content)
                 {
                     var hash = md5.ComputeHash(content);
-                    return hash.Aggregate(string.Empty, (current, b) => current + string.Format((string) "{0:x2}", (object) b));
+                    return hash.Aggregate(string.Empty, (current, b) => current + string.Format("{0:x2}", b));
                 }
+            }
+        }
+
+        public string Hash(string path)
+        {
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                return Hash(stream);
             }
         }
     }

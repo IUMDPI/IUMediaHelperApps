@@ -3,8 +3,11 @@
 namespace Packager.Models.OutputModels
 {
     [Serializable]
-    public class BakingData
+    public class CleaningData
     {
         public string Date { get; set; }
+        public string Comment { get; set; }
     }
+
+
 }

@@ -26,15 +26,17 @@ namespace Packager.Utilities
                 Barcode = podMetadata.Barcode,
                 Brand = podMetadata.Brand,
                 CarrierType = podMetadata.Format,
+                XsiType = string.Format("{0}Carrier", podMetadata.Format),
                 DirectionsRecorded = podMetadata.DirectionsRecorded,
                 Identifier = podMetadata.Identifier,
                 Thickness = podMetadata.TapeThickness,
-                Baking = new BakingData {Date = podMetadata.BakingDate},
-                Cleaning = new CleaningData {Date = podMetadata.CleaningDate},
+                Baking = new BakingData { Date = podMetadata.BakingDate },
+                Cleaning = new CleaningData { Date = podMetadata.CleaningDate },
                 Repaired = podMetadata.Repaired,
                 Parts = GeneratePartsData(podMetadata, filesToProcess, processingDirectory),
                 Configuration = new ConfigurationData
                 {
+                    XsiType = string.Format("Configuration{0}", podMetadata.Format),
                     Track = podMetadata.TrackConfiguration,
                     SoundField = podMetadata.SoundField,
                     Speed = podMetadata.PlaybackSpeed
@@ -44,8 +46,8 @@ namespace Packager.Utilities
                     Damage = podMetadata.Damage,
                     PreservationProblem = podMetadata.PreservationProblems
                 }
-            }; 
-            
+            };
+
             return result;
         }
 
@@ -71,7 +73,7 @@ namespace Packager.Utilities
                 Side = grouping.Key.ToString("D2", CultureInfo.InvariantCulture),
                 Files = grouping.Select(m => GetFileData(m, processingDirectory)).ToList(),
                 Ingest = GenerateIngestMetadata(podMetadata, grouping.GetPreservationOrIntermediateModel()),
-                ManualCheck = "No" //todo: where to get value from?
+                ManualCheck = "No"
             }).ToArray();
         }
 
@@ -85,6 +87,7 @@ namespace Packager.Utilities
 
             return new IngestData
             {
+                XsiType = string.Format("{0}Ingest", podMetadata.Format),
                 AdManufacturer = digitalFileProvenance.AdManufacturer,
                 AdModel = digitalFileProvenance.AdModel,
                 AdSerialNumber = digitalFileProvenance.AdSerialNumber,
@@ -102,14 +105,13 @@ namespace Packager.Utilities
         private FileData GetFileData(AbstractFileModel objectFileModel, string processingDirectory)
         {
             var filePath = Path.Combine(processingDirectory, objectFileModel.ToFileName());
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+
+            return new FileData
             {
-                return new FileData
-                {
-                    Checksum = Hasher.Hash(stream),
-                    FileName = Path.GetFileName(filePath)
-                };
-            }
+                Checksum = Hasher.Hash(filePath),
+                FileName = Path.GetFileName(filePath)
+            };
+
         }
     }
 }

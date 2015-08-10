@@ -17,6 +17,7 @@ using Packager.Verifiers;
 
 namespace Packager.Test.Utilities
 {
+    
     [TestFixture]
     public class BextProcessorTests
     {
@@ -99,62 +100,65 @@ namespace Packager.Test.Utilities
             return null;
         }
 
-        [Test]
-        public void ItShouldCallXmlExporterWithCorrectPath()
+        public abstract class CommonBextProcessorTests : BextProcessorTests
         {
-            XmlExporter.Received().ExportToFile(Arg.Any<ConformancePointDocument>(), Path.Combine(ProcessingDirectory, "core.xml"));
-        }
-
-        [Test]
-        public void ItShouldCallXmlExporterWithValidConformancePointDocument()
-        {
-            Assert.That(GetConformancePointDocument(), Is.Not.Null);
-        }
-
-        [Test]
-        public void ConformancePointObjectShouldHaveCorrectNumberOfFiles()
-        {
-            Assert.That(GetConformancePointDocument().File.Count(), Is.EqualTo(Instances.Count));
-        }
-
-        [Test]
-        public void ShouldCallProcessRunnerCorrectly()
-        {
-            var expectedArgs = string.Format("--verbose --Append --in-core={0}", Path.Combine(ProcessingDirectory, "core.xml").ToQuoted());
-            ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i =>
-                i.Arguments.Equals(expectedArgs) &&
-                i.RedirectStandardError &&
-                i.RedirectStandardOutput &&
-                i.UseShellExecute == false &&
-                i.CreateNoWindow));
-        }
-
-        [Test]
-        public void ShouldCallVerifierCorrectly()
-        {
-            Verifier.Received().Verify(Output.ToLowerInvariant(),
-                Arg.Is<List<string>>(l => l.Count() == Instances.Count), Observers);
-
-            foreach (var instance in Instances)
+            [Test]
+            public void ItShouldCallXmlExporterWithCorrectPath()
             {
-                var path = Path.Combine(ProcessingDirectory, instance.ToFileName()).ToLowerInvariant();
-                Verifier.Received().Verify(Output.ToLowerInvariant(), Arg.Is<List<string>>(l => l.Contains(path)), Observers);
+                XmlExporter.Received().ExportToFile(Arg.Any<ConformancePointDocument>(), Path.Combine(ProcessingDirectory, "core.xml"));
             }
-        }
 
-        [Test]
-        public void ConformancePointDocumentShouldIncludeExpectedFileEntries()
-        {
-            foreach (var file in Instances.Select(instance =>
-                GetConformancePointDocument().File.SingleOrDefault(
-                    f => f.Name.Equals(Path.Combine(ProcessingDirectory, instance.ToFileName())))))
+            [Test]
+            public void ItShouldCallXmlExporterWithValidConformancePointDocument()
             {
-                Assert.That(file, Is.Not.Null);
+                Assert.That(GetConformancePointDocument(), Is.Not.Null);
+            }
+
+            [Test]
+            public void ConformancePointObjectShouldHaveCorrectNumberOfFiles()
+            {
+                Assert.That(GetConformancePointDocument().File.Count(), Is.EqualTo(Instances.Count));
+            }
+
+            [Test]
+            public void ShouldCallProcessRunnerCorrectly()
+            {
+                var expectedArgs = string.Format("--verbose --Append --in-core={0}", Path.Combine(ProcessingDirectory, "core.xml").ToQuoted());
+                ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i =>
+                    i.Arguments.Equals(expectedArgs) &&
+                    i.RedirectStandardError &&
+                    i.RedirectStandardOutput &&
+                    i.UseShellExecute == false &&
+                    i.CreateNoWindow));
+            }
+
+            [Test]
+            public void ShouldCallVerifierCorrectly()
+            {
+                Verifier.Received().Verify(Output.ToLowerInvariant(),
+                    Arg.Is<List<string>>(l => l.Count() == Instances.Count), Observers);
+
+                foreach (var instance in Instances)
+                {
+                    var path = Path.Combine(ProcessingDirectory, instance.ToFileName()).ToLowerInvariant();
+                    Verifier.Received().Verify(Output.ToLowerInvariant(), Arg.Is<List<string>>(l => l.Contains(path)), Observers);
+                }
+            }
+
+            [Test]
+            public void ConformancePointDocumentShouldIncludeExpectedFileEntries()
+            {
+                foreach (var file in Instances.Select(instance =>
+                    GetConformancePointDocument().File.SingleOrDefault(
+                        f => f.Name.Equals(Path.Combine(ProcessingDirectory, instance.ToFileName())))))
+                {
+                    Assert.That(file, Is.Not.Null);
+                }
             }
         }
 
         [TestFixture]
-        public class WhenOnlyPresMasterProvenancePresent : BextProcessorTests
+        public class WhenOnlyPresMasterProvenancePresent : CommonBextProcessorTests
         {
             protected override void DoCustomSetup()
             {
@@ -173,7 +177,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenPresAndProdProvenancesPresent : BextProcessorTests
+        public class WhenPresAndProdProvenancesPresent : CommonBextProcessorTests
         {
             protected override void DoCustomSetup()
             {
@@ -192,7 +196,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenPresIntAndPresProvenancesPresent : BextProcessorTests
+        public class WhenPresIntAndPresProvenancesPresent : CommonBextProcessorTests
         {
             protected override void DoCustomSetup()
             {
@@ -212,7 +216,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenPresIntAndPresAndProdProvenancesPresent : BextProcessorTests
+        public class WhenPresIntAndPresAndProdProvenancesPresent : CommonBextProcessorTests
         {
             protected override void DoCustomSetup()
             {

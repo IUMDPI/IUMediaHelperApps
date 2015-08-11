@@ -40,7 +40,8 @@ namespace Packager.Test.Utilities
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
         private ConsolidatedPodMetadata PodMetadata { get; set; }
-        private IHasher Hasher { get; set; }
+        private ISideDataFactory SideDataFactory { get; set; }
+
         private CarrierData Result { get; set; }
 
         private DigitalFileProvenance GenerateFileProvenance(string fileName)
@@ -110,13 +111,11 @@ namespace Packager.Test.Utilities
             };
 
 
-            Hasher = Substitute.For<IHasher>();
-            Hasher.Hash(Arg.Any<string>()).ReturnsForAnyArgs(x=> 
-                string.Format("{0} hash value", Path.GetFileName(x.Arg<string>())));
+            SideDataFactory = Substitute.For<ISideDataFactory>();
             
             DoCustomSetup();
 
-            var generator = new MetadataGenerator(Hasher);
+            var generator = new MetadataGenerator(SideDataFactory);
             Result = generator.GenerateMetadata(PodMetadata, FilesToProcess, ProcessingDirectory);
         }
 
@@ -264,23 +263,6 @@ namespace Packager.Test.Utilities
         
         public class WhenSettingPartsData : MetadataGeneratorTests
         {
-            
-            
-            
-            private void VerifySideData (SideData side, int expectedSide)
-            {
-                Assert.That(side.Side, Is.EqualTo(string.Format("{0:d2}", expectedSide)));
-                Assert.That(side.ManualCheck, Is.EqualTo("No"));
-                Assert.That(side.Ingest, Is.Not.Null);
-
-                foreach (var model in FilesToProcess.Where(m => m.SequenceIndicator.Equals(expectedSide)))
-                {
-                    var file = side.Files.SingleOrDefault(f => f.FileName.Equals(model.ToFileName()));
-                    Assert.That(file, Is.Not.Null);
-                    Assert.That(string.IsNullOrWhiteSpace(file.Checksum), Is.False);
-                }
-            }
-            
             [Test]
             public void ItShouldSetPartsDataObjectCorrectly()
             {
@@ -294,35 +276,10 @@ namespace Packager.Test.Utilities
             }
 
             [Test]
-            public void ThereShouldBeTheCorrectNumberOfSides()
+            public void ItShouldCallSideDataFactoryCorrectly()
             {
-                Assert.That(Result.Parts.Sides.Length, Is.EqualTo(ExpectedSides));
+                SideDataFactory.Received().Generate(PodMetadata, FilesToProcess, ProcessingDirectory);
             }
-
-            [Test]
-            public void ItShouldSetSideDataCorrectly()
-            {
-                for (var i = 0; i < ExpectedSides; i++)
-                {
-                    var side = Result.Parts.Sides[i];
-                    
-                    VerifySideData(side, i+1);
-                }
-            }
-
-            [Test]
-            public void ItShouldCallHasherForEveryFileModel()
-            {
-                foreach (var file in FilesToProcess)
-                {
-                    Hasher.Received().Hash(Path.Combine(ProcessingDirectory, file.ToFileName()));
-                }
-            }
-
-           
-
-        
-
             
         }
     }

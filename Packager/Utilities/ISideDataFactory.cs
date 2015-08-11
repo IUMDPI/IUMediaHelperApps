@@ -17,6 +17,12 @@ namespace Packager.Utilities
 
     public class SideDataFactory : ISideDataFactory
     {
+        public SideDataFactory(IHasher hasher, IIngestDataFactory ingestDataFactory)
+        {
+            Hasher = hasher;
+            IngestDataFactory = ingestDataFactory;
+        }
+
         private IHasher Hasher { get; set; }
         private IIngestDataFactory IngestDataFactory { get; set; }
 

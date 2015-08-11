@@ -15,7 +15,9 @@ namespace Packager.Providers
             FileProvider = new FileProvider();
             ProcessRunner = new ProcessRunner();
             ProgramSettings = programSettings;
-            MetadataGenerator = new MetadataGenerator(Hasher);
+            IngestDataFactory = new IngestDataFactory();
+            SideDataFactory = new SideDataFactory(Hasher, IngestDataFactory);
+            MetadataGenerator = new MetadataGenerator(SideDataFactory);
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             LookupsProvider = new AppConfigLookupsProvider();
@@ -38,5 +40,7 @@ namespace Packager.Providers
         public ILookupsProvider LookupsProvider { get; private set; }
         public IBextProcessor BextProcessor { get; private set; }
         public IEmailSender EmailSender { get; private set; }
+        public ISideDataFactory SideDataFactory { get; private set; }
+        public IIngestDataFactory IngestDataFactory { get; private set; }
     }
 }

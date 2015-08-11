@@ -172,8 +172,10 @@
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
+    <Compile Include="Utilities\IIngestDataFactory.cs" />
     <Compile Include="Utilities\IMetadataGenerator.cs" />
     <Compile Include="Utilities\IProcessRunner.cs" />
+    <Compile Include="Utilities\ISideDataFactory.cs" />
     <Compile Include="Utilities\MetadataGenerator.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />

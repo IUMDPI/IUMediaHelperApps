@@ -34,7 +34,9 @@ namespace Packager.Utilities
                 PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
                 ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
                 SpeedUsed = digitalFileProvenance.SpeedUsed,
-                Date = digitalFileProvenance.DateDigitized
+                Date = digitalFileProvenance.DateDigitized, 
+                PreAmp = digitalFileProvenance.PreAmp, 
+                PreAmpSerialNumber = digitalFileProvenance.PreAmpSerialNumber
             };
         }
     }

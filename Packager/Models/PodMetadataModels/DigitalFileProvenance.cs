@@ -16,5 +16,7 @@ namespace Packager.Models.PodMetadataModels
         public string CreatedAt { get; set; }
         public string UpdatedAt { get; set; }
         public string Filename { get; set; }
+        public string PreAmpSerialNumber { get; set; }
+        public string PreAmp { get; set; }
     }
 }

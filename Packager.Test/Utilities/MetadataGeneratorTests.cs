@@ -16,39 +16,19 @@ namespace Packager.Test.Utilities
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
         private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
         private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
-     
+
         private ObjectFileModel PreservationSide1FileModel { get; set; }
         private ObjectFileModel ProductionSide1FileModel { get; set; }
         private ObjectFileModel AccessSide1FileModel { get; set; }
-     
-        private DigitalFileProvenance PreservationSide1Provenance { get; set; }
-        
+
+       
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
         private ConsolidatedPodMetadata PodMetadata { get; set; }
         private ISideDataFactory SideDataFactory { get; set; }
         private CarrierData Result { get; set; }
 
-        private DigitalFileProvenance GenerateFileProvenance(string fileName)
-        {
-            return new DigitalFileProvenance
-            {
-                Filename = fileName,
-                AdManufacturer = "Ad Manufacturer",
-                AdModel = "Ad Model",
-                AdSerialNumber = "Ad Serial Number",
-                Comment = "File provenance comment",
-                CreatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
-                CreatedBy = "Test user",
-                DateDigitized = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
-                ExtractionWorkstation = "Extraction workstation",
-                PlayerManufacturer = "Player manufacturer",
-                PlayerModel = "Player model",
-                PlayerSerialNumber = "Player serial number",
-                SpeedUsed = "7.5 ips",
-                UpdatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture)
-            };
-        }
+       
 
         [SetUp]
         public void BeforeEach()
@@ -59,12 +39,9 @@ namespace Packager.Test.Utilities
             ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
             AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
             
-
-            PreservationSide1Provenance = GenerateFileProvenance(PreservationSide1FileName);
-            
             PodMetadata = new ConsolidatedPodMetadata
             {
-                Barcode = "11111111",
+                Barcode = "4890764553278906",
                 Brand = "Brand",
                 BakingDate = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
                 CleaningDate = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
@@ -77,18 +54,13 @@ namespace Packager.Test.Utilities
                 PlaybackSpeed = "7.5 ips",
                 Identifier = "1",
                 TapeThickness = "1 mm",
-                Repaired = "Yes"
+                Repaired = "Yes",
             };
-
-
+            
             SideDataFactory = Substitute.For<ISideDataFactory>();
 
             FilesToProcess = new List<ObjectFileModel> { PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel };
-            PodMetadata.FileProvenances = new List<DigitalFileProvenance>
-            {
-                PreservationSide1Provenance
-            };
-
+            
             var generator = new MetadataGenerator(SideDataFactory);
             Result = generator.GenerateMetadata(PodMetadata, FilesToProcess, ProcessingDirectory);
         }

@@ -7,7 +7,7 @@ using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 
-namespace Packager.Utilities
+namespace Packager.Factories
 {
     public class ConformancePointDocumentFactory : IConformancePointDocumentFactory
     {

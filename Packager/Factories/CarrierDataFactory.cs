@@ -3,18 +3,18 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 
-namespace Packager.Utilities
+namespace Packager.Factories
 {
-    public class MetadataGenerator : IMetadataGenerator
+    public class CarrierDataFactory : ICarrierDataFactory
     {
-        public MetadataGenerator(ISideDataFactory sideDataFactory)
+        public CarrierDataFactory(ISideDataFactory sideDataFactory)
         {
             SideDataFactory = sideDataFactory;
         }
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public CarrierData GenerateMetadata(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+        public CarrierData Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
         {
             var result = new CarrierData
             {

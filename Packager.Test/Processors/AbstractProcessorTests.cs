@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -32,7 +33,7 @@ namespace Packager.Test.Processors
         protected IObserverCollection Observers { get; set; }
         protected IProcessor Processor { get; set; }
         protected IPodMetadataProvider MetadataProvider { get; set; }
-        protected IMetadataGenerator MetadataGenerator { get; set; }
+        protected ICarrierDataFactory MetadataGenerator { get; set; }
         protected IBextProcessor BextProcessor { get; set; }
        
         protected string ExpectedProcessingDirectory { get { return Path.Combine(ProcessingRoot, ExpectedObjectFolderName); } }
@@ -79,7 +80,7 @@ namespace Packager.Test.Processors
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
-            MetadataGenerator = Substitute.For<IMetadataGenerator>();
+            MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
 
             DependencyProvider = Substitute.For<IDependencyProvider>();

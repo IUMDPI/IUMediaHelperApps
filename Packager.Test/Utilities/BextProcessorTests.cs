@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;

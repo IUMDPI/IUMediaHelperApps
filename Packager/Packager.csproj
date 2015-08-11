@@ -88,6 +88,8 @@
     <Compile Include="Extensions\PodMetadataExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XElementExtensions.cs" />
+    <Compile Include="Factories\IngestDataFactory.cs" />
+    <Compile Include="Factories\SideDataFactory.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />
     <Compile Include="Models\BextModels\ConformancePointDocumentFileCore.cs" />
@@ -152,7 +154,7 @@
     <Compile Include="Models\EmailMessageModels\AbstractEmailMessage.cs" />
     <Compile Include="Providers\ISystemInfoProvider.cs" />
     <Compile Include="Providers\SystemInfoProvider.cs" />
-    <Compile Include="Utilities\ConformancePointDocumentFactory.cs" />
+    <Compile Include="Factories\ConformancePointDocumentFactory.cs" />
     <Compile Include="Utilities\EmailSender.cs" />
     <Compile Include="Utilities\Hasher.cs" />
     <Compile Include="Utilities\IBextProcessor.cs" />
@@ -167,16 +169,16 @@
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\ViewModel.cs" />
-    <Compile Include="Utilities\IConformancePointDocumentFactory.cs" />
+    <Compile Include="Factories\IConformancePointDocumentFactory.cs" />
     <Compile Include="Utilities\IEmailSender.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
-    <Compile Include="Utilities\IIngestDataFactory.cs" />
-    <Compile Include="Utilities\IMetadataGenerator.cs" />
+    <Compile Include="Factories\IIngestDataFactory.cs" />
+    <Compile Include="Factories\ICarrierDataFactory.cs" />
     <Compile Include="Utilities\IProcessRunner.cs" />
-    <Compile Include="Utilities\ISideDataFactory.cs" />
-    <Compile Include="Utilities\MetadataGenerator.cs" />
+    <Compile Include="Factories\ISideDataFactory.cs" />
+    <Compile Include="Factories\CarrierDataFactory.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\IXmlExporter.cs" />
     <Compile Include="Providers\DefaultDependencyProvider.cs" />

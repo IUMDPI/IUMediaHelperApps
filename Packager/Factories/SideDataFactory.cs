@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -7,14 +7,10 @@ using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Utilities;
 
-namespace Packager.Utilities
+namespace Packager.Factories
 {
-    public interface ISideDataFactory
-    {
-        SideData[] Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory);
-    }
-
     public class SideDataFactory : ISideDataFactory
     {
         public SideDataFactory(IHasher hasher, IIngestDataFactory ingestDataFactory)

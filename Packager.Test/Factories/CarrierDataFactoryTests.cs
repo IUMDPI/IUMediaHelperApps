@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Utilities;
 
-namespace Packager.Test.Utilities
+namespace Packager.Test.Factories
 {
     [TestFixture]
-    public class MetadataGeneratorTests
+    public class CarrierDataFactoryTests
     {
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
         private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
@@ -61,11 +61,11 @@ namespace Packager.Test.Utilities
 
             FilesToProcess = new List<ObjectFileModel> { PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel };
             
-            var generator = new MetadataGenerator(SideDataFactory);
-            Result = generator.GenerateMetadata(PodMetadata, FilesToProcess, ProcessingDirectory);
+            var generator = new CarrierDataFactory(SideDataFactory);
+            Result = generator.Generate(PodMetadata, FilesToProcess, ProcessingDirectory);
         }
 
-        public class WhenSettingBasicProperties : MetadataGeneratorTests
+        public class WhenSettingBasicProperties : CarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetBarCodeCorrectly()
@@ -116,7 +116,7 @@ namespace Packager.Test.Utilities
             }
         }
 
-        public class WhenSettingCleaningData : MetadataGeneratorTests
+        public class WhenSettingCleaningData : CarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetCleaningObject()
@@ -137,7 +137,7 @@ namespace Packager.Test.Utilities
             }
         }
 
-        public class WhenSettingBakingData : MetadataGeneratorTests
+        public class WhenSettingBakingData : CarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetBakingObject()
@@ -152,7 +152,7 @@ namespace Packager.Test.Utilities
             }
         }
 
-        public class WhenSettingConfigurationData : MetadataGeneratorTests
+        public class WhenSettingConfigurationData : CarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetConfigurationObject()
@@ -185,7 +185,7 @@ namespace Packager.Test.Utilities
             }
         }
 
-        public class WhenSettingPhysicalConditionData : MetadataGeneratorTests
+        public class WhenSettingPhysicalConditionData : CarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetPhysicalConditionObject()
@@ -206,7 +206,7 @@ namespace Packager.Test.Utilities
             }
         }
 
-        public class WhenSettingPartsData : MetadataGeneratorTests
+        public class WhenSettingPartsData : CarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetPartsDataObjectCorrectly()

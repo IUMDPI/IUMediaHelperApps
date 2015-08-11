@@ -1,4 +1,5 @@
-﻿using Packager.Models;
+﻿using Packager.Factories;
+using Packager.Models;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Utilities;
@@ -12,7 +13,7 @@ namespace Packager.Providers
         IDirectoryProvider DirectoryProvider { get; }
         IFileProvider FileProvider { get; }
         IProcessRunner ProcessRunner { get; }
-        IMetadataGenerator MetadataGenerator { get; }
+        ICarrierDataFactory MetadataGenerator { get; }
         IProgramSettings ProgramSettings { get; }
         IObserverCollection Observers { get; }
         IPodMetadataProvider MetadataProvider { get; }

@@ -1,4 +1,5 @@
-﻿using Packager.Models;
+﻿using Packager.Factories;
+using Packager.Models;
 using Packager.Observers;
 using Packager.Utilities;
 using Packager.Verifiers;
@@ -17,7 +18,7 @@ namespace Packager.Providers
             ProgramSettings = programSettings;
             IngestDataFactory = new IngestDataFactory();
             SideDataFactory = new SideDataFactory(Hasher, IngestDataFactory);
-            MetadataGenerator = new MetadataGenerator(SideDataFactory);
+            MetadataGenerator = new CarrierDataFactory(SideDataFactory);
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             LookupsProvider = new AppConfigLookupsProvider();
@@ -33,7 +34,7 @@ namespace Packager.Providers
         public IDirectoryProvider DirectoryProvider { get; private set; }
         public IFileProvider FileProvider { get; private set; }
         public IProcessRunner ProcessRunner { get; private set; }
-        public IMetadataGenerator MetadataGenerator { get; private set; }
+        public ICarrierDataFactory MetadataGenerator { get; private set; }
         public IProgramSettings ProgramSettings { get; private set; }
         public IObserverCollection Observers { get; private set; }
         public IPodMetadataProvider MetadataProvider { get; private set; }

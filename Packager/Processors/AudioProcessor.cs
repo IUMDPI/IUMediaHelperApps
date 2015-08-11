@@ -204,7 +204,7 @@ namespace Packager.Processors
         private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
-            var wrapper = new IU {Carrier = MetadataGenerator.GenerateMetadata(metadata, filesToProcess, ProcessingDirectory)};
+            var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess, ProcessingDirectory)};
             XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
 
             return result;

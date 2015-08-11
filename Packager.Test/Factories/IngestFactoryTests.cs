@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using NUnit.Framework;
+using Packager.Exceptions;
+using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Utilities;
-using Packager.Exceptions;
 
-namespace Packager.Test.Utilities
+namespace Packager.Test.Factories
 {
     [TestFixture]
     public class IngestFactoryTests

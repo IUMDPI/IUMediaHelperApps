@@ -406,14 +406,14 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     CarrierData = new CarrierData();
-                    MetadataGenerator.GenerateMetadata(null, null, "").ReturnsForAnyArgs(CarrierData);
+                    MetadataGenerator.Generate(null, null, "").ReturnsForAnyArgs(CarrierData);
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
                 [Test]
                 public void ItShouldPassExpectedNumberOfObjectsToGenerator()
                 {
-                    MetadataGenerator.Received().GenerateMetadata(
+                    MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
                         Arg.Is<IEnumerable<ObjectFileModel>>(l => l.Count() == ExpectedModelCount),
                         ExpectedProcessingDirectory);
@@ -422,7 +422,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSingleProductionModelToGenerator()
                 {
-                    MetadataGenerator.Received().GenerateMetadata(
+                    MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
                         Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
                         ExpectedProcessingDirectory);
@@ -431,7 +431,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
-                    MetadataGenerator.Received().GenerateMetadata(
+                    MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
                         Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null),
                         ExpectedProcessingDirectory);
@@ -440,7 +440,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSingleAccessModelToGenerator()
                 {
-                    MetadataGenerator.Received().GenerateMetadata(
+                    MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
                         Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null),
                         ExpectedProcessingDirectory);
@@ -466,7 +466,7 @@ namespace Packager.Test.Processors
                     [Test]
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
-                        MetadataGenerator.Received().GenerateMetadata(
+                        MetadataGenerator.Received().Generate(
                             Arg.Any<ConsolidatedPodMetadata>(),
                             Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
                             ExpectedProcessingDirectory);

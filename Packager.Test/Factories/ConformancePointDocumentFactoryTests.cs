@@ -2,12 +2,12 @@
 using System.Globalization;
 using System.IO;
 using NUnit.Framework;
+using Packager.Factories;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Utilities;
 
-namespace Packager.Test.Utilities
+namespace Packager.Test.Factories
 {
     [TestFixture]
     public class ConformancePointDocumentFactoryTests

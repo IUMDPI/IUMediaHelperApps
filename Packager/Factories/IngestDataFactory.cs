@@ -4,13 +4,8 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 
-namespace Packager.Utilities
+namespace Packager.Factories
 {
-    public interface IIngestDataFactory
-    {
-        IngestData Generate(ConsolidatedPodMetadata podMetadata, AbstractFileModel masterFileModel);
-    }
-
     public class IngestDataFactory : IIngestDataFactory
     {
         public IngestData Generate(ConsolidatedPodMetadata podMetadata, AbstractFileModel masterFileModel)

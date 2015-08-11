@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Utilities;
 
-namespace Packager.Test.Utilities
+namespace Packager.Test.Factories
 {
     [TestFixture]
     public class SideDataFactoryTests

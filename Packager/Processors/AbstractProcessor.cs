@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -191,7 +192,7 @@ namespace Packager.Processors
             get { return _dependencyProvider.ProcessRunner; }
         }
 
-        protected IMetadataGenerator MetadataGenerator
+        protected ICarrierDataFactory MetadataGenerator
         {
             get { return _dependencyProvider.MetadataGenerator; }
         }

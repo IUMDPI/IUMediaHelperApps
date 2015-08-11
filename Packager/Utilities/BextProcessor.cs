@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;

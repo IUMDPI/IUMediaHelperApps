@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using NSubstitute;
-using NSubstitute.Exceptions;
 using NUnit.Framework;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -19,29 +16,17 @@ namespace Packager.Test.Utilities
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
         private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
         private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
-        private const string PreservationSide2FileName = "MDPI_4890764553278906_02_pres.wav";
-        private const string ProductionSide2FileName = "MDPI_4890764553278906_02_prod.wav";
-        private const string AccessSide2FileName = "MDPI_4890764553278906_02_access.mp4";
-
-        private int ExpectedSides { get; set; }
-
+     
         private ObjectFileModel PreservationSide1FileModel { get; set; }
         private ObjectFileModel ProductionSide1FileModel { get; set; }
         private ObjectFileModel AccessSide1FileModel { get; set; }
-        private ObjectFileModel PreservationSide2FileModel { get; set; }
-        private ObjectFileModel ProductionSide2FileModel { get; set; }
-        private ObjectFileModel AccessSide2FileModel { get; set; }
-
+     
         private DigitalFileProvenance PreservationSide1Provenance { get; set; }
-        private DigitalFileProvenance ProductionSide1Provenance { get; set; }
-        private DigitalFileProvenance PreservationSide2Provenance { get; set; }
-        private DigitalFileProvenance ProductionSide2Provenance { get; set; }
-
+        
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
         private ConsolidatedPodMetadata PodMetadata { get; set; }
         private ISideDataFactory SideDataFactory { get; set; }
-
         private CarrierData Result { get; set; }
 
         private DigitalFileProvenance GenerateFileProvenance(string fileName)
@@ -65,33 +50,18 @@ namespace Packager.Test.Utilities
             };
         }
 
-        protected virtual void DoCustomSetup()
-        {
-            FilesToProcess = new List<ObjectFileModel> { PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel };
-            ExpectedSides = 1;
-            PodMetadata.FileProvenances = new List<DigitalFileProvenance>
-            {
-               PreservationSide1Provenance
-            };
-        }
-
         [SetUp]
         public void BeforeEach()
         {
             ProcessingDirectory = "test folder";
 
             PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName);
-            PreservationSide2FileModel = new ObjectFileModel(PreservationSide2FileName);
             ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
-            ProductionSide2FileModel = new ObjectFileModel(ProductionSide2FileName);
             AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
-            AccessSide2FileModel = new ObjectFileModel(AccessSide2FileName);
+            
 
             PreservationSide1Provenance = GenerateFileProvenance(PreservationSide1FileName);
-            PreservationSide2Provenance = GenerateFileProvenance(PreservationSide2FileName);
-            ProductionSide1Provenance = GenerateFileProvenance(ProductionSide1FileName);
-            ProductionSide2Provenance = GenerateFileProvenance(ProductionSide2FileName);
-
+            
             PodMetadata = new ConsolidatedPodMetadata
             {
                 Barcode = "11111111",
@@ -107,13 +77,17 @@ namespace Packager.Test.Utilities
                 PlaybackSpeed = "7.5 ips",
                 Identifier = "1",
                 TapeThickness = "1 mm",
-                Repaired = "Yes",
+                Repaired = "Yes"
             };
 
 
             SideDataFactory = Substitute.For<ISideDataFactory>();
-            
-            DoCustomSetup();
+
+            FilesToProcess = new List<ObjectFileModel> { PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel };
+            PodMetadata.FileProvenances = new List<DigitalFileProvenance>
+            {
+                PreservationSide1Provenance
+            };
 
             var generator = new MetadataGenerator(SideDataFactory);
             Result = generator.GenerateMetadata(PodMetadata, FilesToProcess, ProcessingDirectory);
@@ -237,7 +211,6 @@ namespace Packager.Test.Utilities
             {
                 Assert.That(Result.Configuration.Speed, Is.EqualTo(PodMetadata.PlaybackSpeed));
             }
-
         }
 
         public class WhenSettingPhysicalConditionData : MetadataGeneratorTests
@@ -260,7 +233,7 @@ namespace Packager.Test.Utilities
                 Assert.That(Result.PhysicalCondition.PreservationProblem, Is.EqualTo(PodMetadata.PreservationProblems));
             }
         }
-        
+
         public class WhenSettingPartsData : MetadataGeneratorTests
         {
             [Test]
@@ -280,7 +253,6 @@ namespace Packager.Test.Utilities
             {
                 SideDataFactory.Received().Generate(PodMetadata, FilesToProcess, ProcessingDirectory);
             }
-            
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using NSubstitute;
 using NSubstitute.Exceptions;
 using NUnit.Framework;
@@ -15,14 +16,26 @@ namespace Packager.Test.Utilities
     [TestFixture]
     public class MetadataGeneratorTests
     {
-        private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
-        private const string ProductionFileName = "MDPI_4890764553278906_01_prod.wav";
-        private const string AccessFileName = "MDPI_4890764553278906_01_access.mp4";
+        private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
+        private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
+        private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
+        private const string PreservationSide2FileName = "MDPI_4890764553278906_02_pres.wav";
+        private const string ProductionSide2FileName = "MDPI_4890764553278906_02_prod.wav";
+        private const string AccessSide2FileName = "MDPI_4890764553278906_02_access.mp4";
 
+        private int ExpectedSides { get; set; }
 
-        private ObjectFileModel PreservationFileModel { get; set; }
-        private ObjectFileModel ProductionFileModel { get; set; }
-        private ObjectFileModel AccessFileModel { get; set; }
+        private ObjectFileModel PreservationSide1FileModel { get; set; }
+        private ObjectFileModel ProductionSide1FileModel { get; set; }
+        private ObjectFileModel AccessSide1FileModel { get; set; }
+        private ObjectFileModel PreservationSide2FileModel { get; set; }
+        private ObjectFileModel ProductionSide2FileModel { get; set; }
+        private ObjectFileModel AccessSide2FileModel { get; set; }
+
+        private DigitalFileProvenance PreservationSide1Provenance { get; set; }
+        private DigitalFileProvenance ProductionSide1Provenance { get; set; }
+        private DigitalFileProvenance PreservationSide2Provenance { get; set; }
+        private DigitalFileProvenance ProductionSide2Provenance { get; set; }
 
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
@@ -30,18 +43,53 @@ namespace Packager.Test.Utilities
         private IHasher Hasher { get; set; }
         private CarrierData Result { get; set; }
 
+        private DigitalFileProvenance GenerateFileProvenance(string fileName)
+        {
+            return new DigitalFileProvenance
+            {
+                Filename = fileName,
+                AdManufacturer = "Ad Manufacturer",
+                AdModel = "Ad Model",
+                AdSerialNumber = "Ad Serial Number",
+                Comment = "File provenance comment",
+                CreatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
+                CreatedBy = "Test user",
+                DateDigitized = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
+                ExtractionWorkstation = "Extraction workstation",
+                PlayerManufacturer = "Player manufacturer",
+                PlayerModel = "Player model",
+                PlayerSerialNumber = "Player serial number",
+                SpeedUsed = "7.5 ips",
+                UpdatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture)
+            };
+        }
+
+        protected virtual void DoCustomSetup()
+        {
+            FilesToProcess = new List<ObjectFileModel> { PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel };
+            ExpectedSides = 1;
+            PodMetadata.FileProvenances = new List<DigitalFileProvenance>
+            {
+               PreservationSide1Provenance
+            };
+        }
+
         [SetUp]
         public void BeforeEach()
         {
             ProcessingDirectory = "test folder";
 
-            PreservationFileModel = new ObjectFileModel(PreservationFileName);
-            ProductionFileModel = new ObjectFileModel(ProductionFileName);
-            AccessFileModel = new ObjectFileModel(AccessFileName);
+            PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName);
+            PreservationSide2FileModel = new ObjectFileModel(PreservationSide2FileName);
+            ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
+            ProductionSide2FileModel = new ObjectFileModel(ProductionSide2FileName);
+            AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
+            AccessSide2FileModel = new ObjectFileModel(AccessSide2FileName);
 
-
-
-            FilesToProcess = new List<ObjectFileModel> { PreservationFileModel, ProductionFileModel, AccessFileModel };
+            PreservationSide1Provenance = GenerateFileProvenance(PreservationSide1FileName);
+            PreservationSide2Provenance = GenerateFileProvenance(PreservationSide2FileName);
+            ProductionSide1Provenance = GenerateFileProvenance(ProductionSide1FileName);
+            ProductionSide2Provenance = GenerateFileProvenance(ProductionSide2FileName);
 
             PodMetadata = new ConsolidatedPodMetadata
             {
@@ -59,29 +107,14 @@ namespace Packager.Test.Utilities
                 Identifier = "1",
                 TapeThickness = "1 mm",
                 Repaired = "Yes",
-
-                FileProvenances = new List<DigitalFileProvenance>{new DigitalFileProvenance
-                {
-                    Filename = PreservationFileName, 
-                    AdManufacturer = "Ad Manufacturer", 
-                    AdModel = "Ad Model", 
-                    AdSerialNumber = "Ad Serial Number", Comment = "File provenance comment", 
-                    CreatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
-                    CreatedBy = "Test user",
-                    DateDigitized = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture), 
-                    ExtractionWorkstation = "Extraction workstation", 
-                    PlayerManufacturer = "Player manufacturer", 
-                    PlayerModel = "Player model", 
-                    PlayerSerialNumber = "Player serial number", SpeedUsed = "7.5 ips",
-                    UpdatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture)
-                }}
-
             };
 
+
             Hasher = Substitute.For<IHasher>();
-            Hasher.Hash(Path.Combine(ProcessingDirectory, PreservationFileName)).Returns("Preservation model hash value");
-            Hasher.Hash(Path.Combine(ProcessingDirectory, ProductionFileName)).Returns("Production model hash value");
-            Hasher.Hash(Path.Combine(ProcessingDirectory, AccessFileName)).Returns("Access model hash value");
+            Hasher.Hash(Arg.Any<string>()).ReturnsForAnyArgs(x=> 
+                string.Format("{0} hash value", Path.GetFileName(x.Arg<string>())));
+            
+            DoCustomSetup();
 
             var generator = new MetadataGenerator(Hasher);
             Result = generator.GenerateMetadata(PodMetadata, FilesToProcess, ProcessingDirectory);
@@ -231,6 +264,23 @@ namespace Packager.Test.Utilities
         
         public class WhenSettingPartsData : MetadataGeneratorTests
         {
+            
+            
+            
+            private void VerifySideData (SideData side, int expectedSide)
+            {
+                Assert.That(side.Side, Is.EqualTo(string.Format("{0:d2}", expectedSide)));
+                Assert.That(side.ManualCheck, Is.EqualTo("No"));
+                Assert.That(side.Ingest, Is.Not.Null);
+
+                foreach (var model in FilesToProcess.Where(m => m.SequenceIndicator.Equals(expectedSide)))
+                {
+                    var file = side.Files.SingleOrDefault(f => f.FileName.Equals(model.ToFileName()));
+                    Assert.That(file, Is.Not.Null);
+                    Assert.That(string.IsNullOrWhiteSpace(file.Checksum), Is.False);
+                }
+            }
+            
             [Test]
             public void ItShouldSetPartsDataObjectCorrectly()
             {
@@ -242,6 +292,38 @@ namespace Packager.Test.Utilities
             {
                 Assert.That(Result.Parts.DigitizingEntity, Is.EqualTo(PodMetadata.DigitizingEntity));
             }
+
+            [Test]
+            public void ThereShouldBeTheCorrectNumberOfSides()
+            {
+                Assert.That(Result.Parts.Sides.Length, Is.EqualTo(ExpectedSides));
+            }
+
+            [Test]
+            public void ItShouldSetSideDataCorrectly()
+            {
+                for (var i = 0; i < ExpectedSides; i++)
+                {
+                    var side = Result.Parts.Sides[i];
+                    
+                    VerifySideData(side, i+1);
+                }
+            }
+
+            [Test]
+            public void ItShouldCallHasherForEveryFileModel()
+            {
+                foreach (var file in FilesToProcess)
+                {
+                    Hasher.Received().Hash(Path.Combine(ProcessingDirectory, file.ToFileName()));
+                }
+            }
+
+           
+
+        
+
+            
         }
     }
 }

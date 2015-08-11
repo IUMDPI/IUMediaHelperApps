@@ -31,7 +31,7 @@ namespace Packager.Utilities
                 Identifier = podMetadata.Identifier,
                 Thickness = podMetadata.TapeThickness,
                 Baking = new BakingData { Date = podMetadata.BakingDate },
-                Cleaning = new CleaningData { Date = podMetadata.CleaningDate },
+                Cleaning = new CleaningData { Date = podMetadata.CleaningDate, Comment = podMetadata.CleaningComment},
                 Repaired = podMetadata.Repaired,
                 Parts = GeneratePartsData(podMetadata, filesToProcess, processingDirectory),
                 Configuration = new ConfigurationData

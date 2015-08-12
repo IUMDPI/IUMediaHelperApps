@@ -16,8 +16,7 @@
         string DropBoxDirectoryName { get; }
         string DateFormat { get; }
         PodAuth PodAuth { get; }
-        string BaseWebServiceUrlFormat { get; }
-        string DigitizingEntity { get; }
+        string WebServiceUrl { get; }
         string ErrorDirectoryName { get; }
         string SuccessDirectoryName { get; }
         string LogDirectoryName { get; }

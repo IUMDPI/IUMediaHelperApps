@@ -3,6 +3,7 @@
 
   <Color name="Success" foreground="Blue" />
   <Color name="Error" foreground="Red" />
+  <Color name="Warning" foreground="Orange" fontWeight="bold" />
   <Color name="SubHeader" foreground="Blue" />
   <Color name="ObjectHeader" foreground="DarkBlue" fontWeight="bold" />
 
@@ -10,7 +11,9 @@
     <Span color="Error" begin="ERROR: " />
     <Span color="Error" begin="   at "/>
     <Span color="Error" begin="--- " />
+    <Span color="Warning" begin="Found 0 objects to process" />
 
+    <Span color="SubHeader" begin="Configuration:"/>
     <Span color="SubHeader" begin="Generating "/>
     <Span color="SubHeader" begin="Requesting metadata" />
     <Span color="SubHeader" begin="Adding BEXT metadata" />
@@ -26,6 +29,8 @@
     <Rule fontWeight="bold" foreground="Orange">
       \[not\ set\] #notsetWarning
     </Rule>
+
+   
 
     <Rule foreground="DarkBlue">
       ([a-zA-z]\:\\.*\\...._\d{14})(\\|$|\s) # file path

@@ -63,7 +63,15 @@ namespace Packager.Observers
 
         public void LogEngineIssue(Exception exception)
         {
-            throw new NotImplementedException();
+            if (exception is LoggedException)
+            {
+                return;
+            }
+
+            foreach (var observer in this)
+            {
+                observer.LogEngineError(exception);
+            }
         }
 
         private static string[] GetArrayValues(IEnumerable<object> values)

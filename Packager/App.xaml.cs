@@ -35,7 +35,7 @@ namespace Packager
             var window = new OutputWindow();
 
             // initialize the view model with the window
-            viewModel.Initialize(window);
+            viewModel.Initialize(window, programSettings);
 
             // initialize dependency provider
             var dependencyProvider = new DefaultDependencyProvider(programSettings);

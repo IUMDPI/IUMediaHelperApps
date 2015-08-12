@@ -16,6 +16,7 @@ namespace Packager.Utilities
             startInfo.CreateNoWindow = true;
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
+            startInfo.UseShellExecute = false;
 
             var standardOutput = new StringBuilder();
             var standardError = new StringBuilder();
@@ -23,7 +24,7 @@ namespace Packager.Utilities
             var process = new Process
             {
                 StartInfo = startInfo,
-                EnableRaisingEvents = true
+                EnableRaisingEvents = true,
             };
 
             process.ErrorDataReceived += new DataReceivedHandler(standardError).OnDataReceived;

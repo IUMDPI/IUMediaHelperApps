@@ -30,13 +30,17 @@ namespace Packager.Providers
 
         public async Task<ConsolidatedPodMetadata> Get(string barcode)
         {
-            var client = new RestClient(string.Format(ProgramSettings.BaseWebServiceUrlFormat, barcode))
+            var client = new RestClient(ProgramSettings.WebServiceUrl)
             {
                 Authenticator =
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
             };
 
-            var request = new RestRequest { DateFormat = "yyyy-MM-ddTHH:mm:sszzz" };
+
+            var request = new RestRequest(string.Format("responses/objects/{0}/metadata/full/", barcode))
+            {
+                DateFormat = "yyyy-MM-ddTHH:mm:sszzz"
+            };
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
 
             VerifyResponse(response);
@@ -81,8 +85,8 @@ namespace Packager.Providers
                 return defaultValue;
             }
 
-            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof(bool));
-            var results = (properties.Where(property => (bool)property.GetValue(instance))
+            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof (bool));
+            var results = (properties.Where(property => (bool) property.GetValue(instance))
                 .Select(GetNameOrDescription)).Distinct().ToList();
 
             return results.Any()
@@ -142,7 +146,6 @@ namespace Packager.Providers
             {
                 throw new PodMetadataException("Could not retrieve metadata from Pod: required sub-section not present");
             }
-                    
         }
     }
 }

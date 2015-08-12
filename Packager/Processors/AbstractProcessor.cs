@@ -161,12 +161,7 @@ namespace Packager.Processors
         {
             get { return ProgramSettings.FFMPEGAudioAccessArguments; }
         }
-
-        protected string DigitizingEntity
-        {
-            get { return ProgramSettings.DigitizingEntity; }
-        }
-
+        
         protected string SuccesDirectory
         {
             get { return Path.Combine(ProgramSettings.SuccessDirectoryName, ObjectDirectoryName); }

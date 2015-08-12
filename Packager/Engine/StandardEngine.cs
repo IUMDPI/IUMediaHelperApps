@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -9,6 +11,7 @@ using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
+using Packager.Utilities;
 
 namespace Packager.Engine
 {
@@ -41,14 +44,23 @@ namespace Packager.Engine
             get { return _dependencyProvider.DirectoryProvider; }
         }
 
+        private IFileProvider FileProvider
+        {
+            get { return _dependencyProvider.FileProvider; }
+        }
+
+        private IProcessRunner ProcessRunner { get { return _dependencyProvider.ProcessRunner; } }
+
         public async Task Start()
         {
             try
             {
                 WriteHelloMessage();
 
-                ProgramSettings.Verify();
+                await LogConfiguration();
 
+                ProgramSettings.Verify();
+                
                 // this factory will assign each extension
                 // to the appropriate file model
                 var factory = new FileModelFactory(_processors.Keys);
@@ -120,7 +132,7 @@ namespace Packager.Engine
 
         private void WriteHelloMessage()
         {
-            Observers.Log("Starting {0}", DateTime.Now);
+            Observers.Log("Starting {0} (version {1})", DateTime.Now, Assembly.GetExecutingAssembly().GetName().Version);
         }
 
         private void WriteGoodbyeMessage()
@@ -128,8 +140,57 @@ namespace Packager.Engine
             Observers.Log("Completed {0}", DateTime.Now);
         }
 
+        private async Task LogConfiguration()
+        {
+            var sectionKey = Observers.BeginSection("Configuration:");
+            Observers.Log("Project code: {0}", ProgramSettings.ProjectCode.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("Web-service host: {0}", ProgramSettings.WebServiceUrl.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("");
+            Observers.Log("Input folder: {0}", ProgramSettings.InputDirectory.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("Processing folder: {0}", ProgramSettings.ProcessingDirectory.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("Dropbox folder: {0}", ProgramSettings.DropBoxDirectoryName.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("");
+            Observers.Log("BWF MetaEdit path: {0}", ProgramSettings.BWFMetaEditPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("BWF MetaEdit version: {0}", FileProvider.GetFileVersion(ProgramSettings.BWFMetaEditPath).ToDefaultIfEmpty("[not available]") );
+            Observers.Log("");
+            Observers.Log("FFMPEG path: {0}", ProgramSettings.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPEG version: {0}", (await GetFfmpegVersion(ProgramSettings.FFMPEGPath)).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFMPeg audio production args: {0}", ProgramSettings.FFMPEGAudioProductionArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg audio access args: {0}", ProgramSettings.FFMPEGAudioAccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.EndSection(sectionKey);
+        }
+
+        private async Task<string> GetFfmpegVersion(string path)
+        {
+            try
+            {
+                if (!FileProvider.FileExists(path))
+                {
+                    return "";
+                }
+
+                var info = new ProcessStartInfo(ProgramSettings.FFMPEGPath) { Arguments = "-version"};
+                var result = await ProcessRunner.Run(info);
+                
+                var parts = result.StandardOutput.Split(' ');
+                return parts[2];
+            }
+            catch (Exception e)
+            {
+                return "";
+            }
+        }
+
         private void WriteResultsMessage(Dictionary<string, bool> results)
         {
+            Observers.Log("");
+            if (!results.Any())
+            {
+                return;
+            }
+            
             var inError = results.Where(r => r.Value == false).Select(r => r.Key).ToList();
             var success = results.Where(r => r.Value).Select(r => r.Key).ToList();
 

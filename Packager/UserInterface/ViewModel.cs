@@ -1,20 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
+using Packager.Annotations;
 using Packager.Exceptions;
+using Packager.Models;
 using Packager.Models.UserInterfaceModels;
 
 namespace Packager.UserInterface
 {
-    public class ViewModel
+    public class ViewModel:INotifyPropertyChanged
     {
         private readonly List<SectionModel> _sections = new List<SectionModel>();
+        private string _title;
 
         public ViewModel()
         {
             Document = new TextDocument();
+        }
+
+        public string Title
+        {
+            get { return _title; }
+            set
+            {
+                _title = value;
+                OnPropertyChanged();
+            }
         }
 
         public TextDocument Document { get; private set; }
@@ -25,10 +40,12 @@ namespace Packager.UserInterface
             get { return Document.TextLength; }
         }
 
-        public void Initialize(OutputWindow outputWindow)
+        public void Initialize(OutputWindow outputWindow, IProgramSettings programSettings)
         {
             outputWindow.DataContext = this;
             outputWindow.Show();
+
+            Title = string.Format("{0} Media Packager", programSettings.ProjectCode.ToUpperInvariant());
 
             FoldingManager = FoldingManager.Install(outputWindow.OutputText.TextArea);
         }
@@ -178,6 +195,15 @@ namespace Packager.UserInterface
             }
 
             return model.Key.Equals(key);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

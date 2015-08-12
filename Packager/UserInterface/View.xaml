@@ -1,14 +1,17 @@
 ﻿<Window x:Class="Packager.UserInterface.OutputWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="OutputWindow" Height="500" Width="650">
+        Title="{Binding Title}" Height="500" Width="650">
     <Grid>
-        <avalonEdit:TextEditor xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-            Name="OutputText"
-            Document="{Binding Document}"
-            FontFamily="Consolas" FontSize="10pt"
-            HorizontalScrollBarVisibility="Hidden" 
-            IsReadOnly="True"
-            SyntaxHighlighting=""/>
+        <Border BorderBrush="LightGray" BorderThickness="1">
+            <avalonEdit:TextEditor xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                Name="OutputText"
+                Document="{Binding Document}"
+                FontFamily="Consolas" FontSize="10pt"
+                HorizontalScrollBarVisibility="Hidden" 
+                IsReadOnly="True"
+                SyntaxHighlighting="" Padding="10px"/>
+        </Border>
+        
     </Grid>
 </Window>

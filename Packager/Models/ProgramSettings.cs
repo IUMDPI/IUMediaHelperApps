@@ -19,8 +19,7 @@ namespace Packager.Models
             FFMPEGAudioAccessArguments = settings["ffmpegAudioAccessArguments"];
             ProjectCode = settings["ProjectCode"];
             DropBoxDirectoryName = settings["DropBoxDirectoryName"];
-            BaseWebServiceUrlFormat = settings["BaseWebServiceUrlFormat"];
-            DigitizingEntity = settings["DigitizingEntity"];
+            WebServiceUrl = settings["BaseWebServiceUrlFormat"];
             ErrorDirectoryName = settings["ErrorDirectoryName"];
             SuccessDirectoryName = settings["SuccessDirectoryName"];
             LogDirectoryName = settings["LogDirectoryName"];
@@ -40,7 +39,7 @@ namespace Packager.Models
         public string ProjectCode { get; private set; }
         public string DropBoxDirectoryName { get; private set; }
         public PodAuth PodAuth { get; private set; }
-        public string DigitizingEntity { get; private set; }
+       
         public string ErrorDirectoryName { get; private set; }
         public string SuccessDirectoryName { get; private set; }
         public string LogDirectoryName { get; private set; }
@@ -101,7 +100,7 @@ namespace Packager.Models
             }
         }
 
-        public string BaseWebServiceUrlFormat { get; private set; }
+        public string WebServiceUrl { get; private set; }
 
         private static PodAuth GetAuthorization(string path)
         {

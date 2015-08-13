@@ -82,6 +82,10 @@
     <Compile Include="Factories\IngestFactoryTests.cs" />
     <Compile Include="Factories\CarrierDataFactoryTests.cs" />
     <Compile Include="Factories\SideDataFactoryTests.cs" />
+    <Compile Include="Validators\DirectoryValidatorTests.cs" />
+    <Compile Include="Validators\FileValidatorTests.cs" />
+    <Compile Include="Validators\UriValidatorTests.cs" />
+    <Compile Include="Validators\ValueRequiredValidatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

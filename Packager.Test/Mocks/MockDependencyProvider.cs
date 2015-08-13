@@ -4,6 +4,7 @@ using Packager.Models;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Validators;
 
 namespace Packager.Test.Mocks
 {
@@ -17,7 +18,8 @@ namespace Packager.Test.Mocks
             IProcessRunner processRunner = null,
             IProgramSettings programSettings = null,
             IXmlExporter xmlExporter = null,
-            IObserverCollection observers = null)
+            IObserverCollection observers = null,
+            IValidatorCollection validators = null)
         {
             if (directoryProvider == null)
             {
@@ -54,6 +56,12 @@ namespace Packager.Test.Mocks
                 observers = Substitute.For<IObserverCollection>();
             }
 
+            if (validators == null)
+            {
+                validators = Substitute.For<IValidatorCollection>();
+                validators.Validate(null).ReturnsForAnyArgs(new ValidationResults());
+            }
+
             var result = Substitute.For<IDependencyProvider>();
 
             result.DirectoryProvider.Returns(directoryProvider);
@@ -63,6 +71,7 @@ namespace Packager.Test.Mocks
             result.ProcessRunner.Returns(processRunner);
             result.ProgramSettings.Returns(programSettings);
             result.Observers.Returns(observers);
+            result.ValidatorCollection.Returns(validators);
 
             return result;
         }

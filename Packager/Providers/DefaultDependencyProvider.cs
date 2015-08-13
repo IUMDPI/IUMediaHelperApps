@@ -1,7 +1,9 @@
-﻿using Packager.Factories;
+﻿using System.Collections.Generic;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Observers;
 using Packager.Utilities;
+using Packager.Validators;
 using Packager.Verifiers;
 
 namespace Packager.Providers
@@ -26,6 +28,13 @@ namespace Packager.Providers
             BextProcessor = new BextProcessor(programSettings, ProcessRunner, XmlExporter, Observers,
                 new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory());
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
+            ValidatorCollection = new StandardValidatorCollection
+            {
+                new ValueRequiredValidator(),
+                new DirectoryExistsValidator(DirectoryProvider),
+                new FileExistsValidator(FileProvider),
+                new UriValidator()
+            };
         }
 
         public ISystemInfoProvider SystemInfoProvider { get; private set; }
@@ -43,5 +52,6 @@ namespace Packager.Providers
         public IEmailSender EmailSender { get; private set; }
         public ISideDataFactory SideDataFactory { get; private set; }
         public IIngestDataFactory IngestDataFactory { get; private set; }
+        public IValidatorCollection ValidatorCollection { get; private set; }
     }
 }

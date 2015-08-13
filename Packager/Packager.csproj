@@ -69,7 +69,15 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Attributes\DeserializeAsLookupAttribute.cs" />
+    <Compile Include="Attributes\FromConfigSettingAttribute.cs" />
+    <Compile Include="Attributes\FromConfigSettingListAttribute.cs" />
+    <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
+    <Compile Include="Validators\Attributes\ValidateFileAttribute.cs" />
+    <Compile Include="Validators\Attributes\ValidateFolderAttribute.cs" />
+    <Compile Include="Validators\Attributes\ValidateObjectAttribute.cs" />
+    <Compile Include="Validators\Attributes\ValidateUriAttribute.cs" />
     <Compile Include="Deserializers\PodMetadataDeserializer.cs" />
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
@@ -81,6 +89,7 @@
     <Compile Include="Exceptions\LoggedException.cs" />
     <Compile Include="Exceptions\LookupException.cs" />
     <Compile Include="Exceptions\OutputXmlException.cs" />
+    <Compile Include="Exceptions\ProgramSettingsException.cs" />
     <Compile Include="Exceptions\ResolverException.cs" />
     <Compile Include="Exceptions\PodMetadataException.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
@@ -185,6 +194,15 @@
     <Compile Include="Models\EmailMessageModels\ProcessingIssueMessage.cs" />
     <Compile Include="Utilities\ProcessRunner.cs" />
     <Compile Include="Utilities\XmlExporter.cs" />
+    <Compile Include="Validators\DirectoryExistsValidator.cs" />
+    <Compile Include="Validators\FileExistsValidator.cs" />
+    <Compile Include="Validators\StandardValidatorCollection.cs" />
+    <Compile Include="Validators\IValidator.cs" />
+    <Compile Include="Validators\IValidatorCollection.cs" />
+    <Compile Include="Validators\UriValidator.cs" />
+    <Compile Include="Validators\ValidationResult.cs" />
+    <Compile Include="Validators\ValidationResults.cs" />
+    <Compile Include="Validators\ValueRequiredValidator.cs" />
     <Compile Include="Verifiers\BwfMetaeditResultsVerifier.cs" />
     <Compile Include="Verifiers\FFMPEGVerifier.cs" />
     <Compile Include="Verifiers\IVerifier.cs" />

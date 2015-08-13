@@ -24,7 +24,5 @@
         string[] IssueNotifyEmailAddresses { get; }
         string SmtpServer { get; }
         string FromEmailAddress { get; }
-       
-        void Verify();
     }
 }

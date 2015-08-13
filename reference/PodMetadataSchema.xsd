@@ -426,6 +426,69 @@
   <xs:element name="pvc_base" type="xs:boolean"/>
   <xs:element name="paper_base" type="xs:boolean"/>
   <xs:element name="digital_provenance">
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="digitizing_entity"/>
+        <xs:element ref="comments"/>
+        <xs:element ref="cleaning_date"/>
+        <xs:element ref="baking"/>
+        <xs:element ref="repaired"/>
+        <xs:element ref="cleaning_comment"/>
+        <xs:element ref="digitization_time"/>
+        <xs:element ref="digital_files"/>
+      </xs:sequence>
+    </xs:complexType>
   </xs:element>
+  <xs:element name="digitizing_entity" type="xs:string"/>
+  <xs:element name="comments" type="xs:string"/>
+  <xs:element name="cleaning_date" type="xs:dateTime" />
+  <xs:element name="baking" type="xs:dateTime" />
+  <xs:element name="repaired" type="xs:boolean"/>
+  <xs:element name="cleaning_comment" type="xs:string" />
+  <xs:element name="digitization_time" type="xs:string" />
+  <xs:element name="digital_files">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="digital_file_provenance"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="digital_file_provenance">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="filename"/>
+        <xs:element ref="date_digitized"/>
+        <xs:element ref="comment"/>
+        <xs:element ref="created_by"/>
+        <xs:element ref="speed_used"/>
+        <xs:element ref="signal_chain"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="filename" type="xs:string"/>
+  <xs:element name="date_digitized" type="xs:dateTime"/>
+  <xs:element name="comment" type="xs:string"/>
+  <xs:element name="created_by" type="xs:string" />
+  <xs:element name="speed_used" type="xs:string" />
+  <xs:element name="signal_chain">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="device"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="device">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="device_type"/>
+        <xs:element ref="serial_number"/>
+        <xs:element ref="manufacturer"/>
+        <xs:element ref="model"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="device_type" type="xs:string"/>
+  <xs:element name="serial_number" type="xs:string"/>
+  <xs:element name="manufacturer" type="xs:string"/>
+  <xs:element name="model" type="xs:string"/>
 </xs:schema>

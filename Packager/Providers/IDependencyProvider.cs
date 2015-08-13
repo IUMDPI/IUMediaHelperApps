@@ -3,6 +3,7 @@ using Packager.Models;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Utilities;
+using Packager.Validators;
 
 namespace Packager.Providers
 {
@@ -23,5 +24,6 @@ namespace Packager.Providers
         IEmailSender EmailSender { get; }
         ISideDataFactory SideDataFactory { get; }
         IIngestDataFactory IngestDataFactory { get; }
+        IValidatorCollection ValidatorCollection { get; }
     }
 }

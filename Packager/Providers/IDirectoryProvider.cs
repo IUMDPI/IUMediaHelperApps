@@ -10,6 +10,7 @@ namespace Packager.Providers
         DirectoryInfo CreateDirectory(string path);
         Task MoveDirectoryAsync(string sourcePath, string destPath);
         void MoveDirectory(string sourcePath, string destPath);
+        bool DirectoryExists(string value);
     }
 
     internal class DirectoryProvider : IDirectoryProvider
@@ -32,6 +33,11 @@ namespace Packager.Providers
         public void MoveDirectory(string sourcePath, string destPath)
         {
             Directory.Move(sourcePath, destPath);
+        }
+
+        public bool DirectoryExists(string value)
+        {
+            return Directory.Exists(value);
         }
     }
 }

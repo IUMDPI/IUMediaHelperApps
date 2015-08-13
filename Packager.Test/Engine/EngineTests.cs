@@ -12,6 +12,7 @@ using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.Test.Mocks;
+using Packager.Validators;
 
 namespace Packager.Test.Engine
 {
@@ -34,6 +35,9 @@ namespace Packager.Test.Engine
         private string Grouping1ProdFileName { get; set; }
         private string Grouping2PresFileName { get; set; }
 
+        private IValidatorCollection Validators { get; set; }
+
+
         private static string GetPresFileNameForBarCode(string barcode, string extension)
         {
             return string.Format("{0}_{1}_01_pres{2}", ProjectCode, barcode, extension);
@@ -49,6 +53,9 @@ namespace Packager.Test.Engine
         {
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.ProjectCode.Returns(ProjectCode);
+
+            Validators = Substitute.For<IValidatorCollection>();
+            Validators.Validate(ProgramSettings).Returns(new ValidationResults());
 
             MockWavProcessor = Substitute.For<IProcessor>();
             MockMpegProcessor = Substitute.For<IProcessor>();
@@ -71,7 +78,7 @@ namespace Packager.Test.Engine
                     Grouping2PresFileName
                 });
 
-            DependencyProvider = MockDependencyProvider.Get(observers: Observer, programSettings: ProgramSettings, directoryProvider: DirectoryProvider);
+            DependencyProvider = MockDependencyProvider.Get(observers: Observer, programSettings: ProgramSettings, directoryProvider: DirectoryProvider, validators:Validators);
             Engine = new StandardEngine(
                 new Dictionary<string, IProcessor>
                 {
@@ -90,15 +97,15 @@ namespace Packager.Test.Engine
             }
 
             [Test]
-            public void ItShouldVerifyProgramSettings()
+            public void ItShouldValidateProgramSettings()
             {
-                ProgramSettings.Received().Verify();
+                Validators.Received().Validate(ProgramSettings);
             }
 
             [Test]
             public void ItShouldWriteHelloMessage()
             {
-                Observer.Received().Log(Arg.Is("Starting {0}"), Arg.Any<DateTime>());
+                Observer.Received().Log(Arg.Is("Starting {0} (version {1})"), Arg.Any<DateTime>(), Arg.Any<Version>());
             }
 
             [Test]

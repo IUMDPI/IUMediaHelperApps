@@ -12,6 +12,7 @@ using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Validators;
 
 namespace Packager.Engine
 {
@@ -49,6 +50,11 @@ namespace Packager.Engine
             get { return _dependencyProvider.FileProvider; }
         }
 
+        private IValidatorCollection ValidatorCollection
+        {
+            get { return _dependencyProvider.ValidatorCollection; }
+        }
+
         private IProcessRunner ProcessRunner { get { return _dependencyProvider.ProcessRunner; } }
 
         public async Task Start()
@@ -59,7 +65,13 @@ namespace Packager.Engine
 
                 await LogConfiguration();
 
-                ProgramSettings.Verify();
+                var result = ValidatorCollection.Validate(ProgramSettings);
+                if (result.Succeeded == false)
+                {
+                    throw new ProgramSettingsException(result.Issues);
+                }
+                
+                //ProgramSettings.Verify();
                 
                 // this factory will assign each extension
                 // to the appropriate file model
@@ -88,12 +100,14 @@ namespace Packager.Engine
                 }
 
                 WriteResultsMessage(results);
-                WriteGoodbyeMessage();
+               
             }
             catch (Exception ex)
             {
                 Observers.LogEngineIssue(ex);
             }
+
+            WriteGoodbyeMessage();
         }
 
         public void AddObserver(IObserver observer)
@@ -137,6 +151,7 @@ namespace Packager.Engine
 
         private void WriteGoodbyeMessage()
         {
+            Observers.Log("");
             Observers.Log("Completed {0}", DateTime.Now);
         }
 

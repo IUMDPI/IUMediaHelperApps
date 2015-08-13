@@ -11,6 +11,10 @@
     <Span color="Error" begin="ERROR: " />
     <Span color="Error" begin="   at "/>
     <Span color="Error" begin="--- " />
+    <Span color="Error" begin="  Value not set for " />
+    <Span color="Error" begin="  Invalid path specified for " />
+    <Span color="Error" begin="  Invalid uri specified for " />
+    
     <Span color="Warning" begin="Found 0 objects to process" />
 
     <Span color="SubHeader" begin="Configuration:"/>

@@ -32,8 +32,8 @@ namespace Packager.Extensions
         {
             var list = models.ToList();
 
-            var preservationIntermediate = list.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
-            return preservationIntermediate ?? list.SingleOrDefault(m => m.IsPreservationVersion());
+            var preservationIntermediate = list.FirstOrDefault(m => m.IsPreservationIntermediateVersion());
+            return preservationIntermediate ?? list.FirstOrDefault(m => m.IsPreservationVersion());
         }
 
     }

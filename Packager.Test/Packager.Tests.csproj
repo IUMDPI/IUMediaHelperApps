@@ -48,6 +48,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -69,6 +70,7 @@
     <Compile Include="Mocks\MockProcessRunner.cs" />
     <Compile Include="Mocks\MockGrouping.cs" />
     <Compile Include="Mocks\MockProgramSettings.cs" />
+    <Compile Include="Models\BextModels\ConformancePointDocumentFileCoreTests.cs" />
     <Compile Include="Models\FileModels\ObjectFileModelTests.cs" />
     <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
     <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />

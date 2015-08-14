@@ -51,9 +51,9 @@ namespace Packager.Processors
 
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
-            // fetch metadata
-            var metadata = await GetMetadata();
-
+            // fetch, log, and validate metadata
+            var metadata = await GetMetadata(filesToProcess);
+      
             // create derivatives for the various files
             // and add them to a list of files that have
             // been processed

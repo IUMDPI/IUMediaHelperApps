@@ -12,6 +12,7 @@ using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Validators;
 
 namespace Packager.Processors
 {
@@ -49,6 +50,8 @@ namespace Packager.Processors
         {
             get { return _dependencyProvider.XmlExporter; }
         }
+
+        protected IValidatorCollection Validators { get { return _dependencyProvider.ValidatorCollection; } }
 
         protected string ProjectCode
         {
@@ -287,15 +290,21 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected async Task<ConsolidatedPodMetadata> GetMetadata()
+        protected async Task<ConsolidatedPodMetadata> GetMetadata(List<ObjectFileModel> filesToProcess)
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
                 var metadata = await MetadataProvider.Get(Barcode);
 
-                Observers.Log("{0}", metadata);
+                // log metadata
+                MetadataProvider.Log(metadata);
+
+                // validate base metadata fields
+                MetadataProvider.Validate(metadata, filesToProcess);
+
                 Observers.EndSection(sectionKey, string.Format("Retrieved metadata for object: {0}", Barcode));
+                
                 return metadata;
             }
             catch (Exception e)
@@ -305,6 +314,8 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
+
+     
 
         protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
         {

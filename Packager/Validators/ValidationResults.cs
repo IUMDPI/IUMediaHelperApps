@@ -16,6 +16,11 @@ namespace Packager.Validators
             get { return this.Where(v => v.Result == false).Where(v => !string.IsNullOrWhiteSpace(v.Issue)).Select(v => v.Issue).ToList(); }
         }
 
+        public void Add(string issue, params object[] args)
+        {
+            Add(new ValidationResult(issue, args));
+        }
+
         public string GetIssues(string baseMessage)
         {
             var builder = new StringBuilder();

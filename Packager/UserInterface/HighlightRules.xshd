@@ -6,6 +6,7 @@
   <Color name="Warning" foreground="Orange" fontWeight="bold" />
   <Color name="SubHeader" foreground="Blue" />
   <Color name="ObjectHeader" foreground="DarkBlue" fontWeight="bold" />
+  <Color name="ProvenanceHeader" foreground="DarkBlue" />
 
   <RuleSet>
     <Span color="Error" begin="ERROR: " />
@@ -14,6 +15,7 @@
     <Span color="Error" begin="  Value not set for " />
     <Span color="Error" begin="  Invalid path specified for " />
     <Span color="Error" begin="  Invalid uri specified for " />
+    <Span color="Error" begin="  No digital file provenance found for " />
     
     <Span color="Warning" begin="Found 0 objects to process" />
 
@@ -25,7 +27,8 @@
     <Span color="SubHeader" begin="Cleaning up" />
     <Span color="SubHeader" begin="Initializing" />
     <Span color="ObjectHeader" begin="Processing Object" end=": " />
-
+    <Span color="ProvenanceHeader" begin="File Provenance:" end=": " />
+    
     <Rule foreground="DarkBlue">
       .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|\d{14}|.{4}_\d{14} #barcode, file name
     </Rule>

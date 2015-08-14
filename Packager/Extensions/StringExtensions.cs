@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Packager.Extensions
 {
@@ -58,6 +60,22 @@ namespace Packager.Extensions
             return string.IsNullOrWhiteSpace(value.ToString()) == false
                 ? value.ToString()
                 : defaultValue;
+        }
+
+        public static string GetStringPropertiesAndValues(this object instance, string indent = "")
+        {
+            var builder = new StringBuilder();
+            foreach (var property in instance.GetType()
+                .GetProperties()
+                .Where(p => p.PropertyType == typeof(string)))
+            {
+                builder.AppendFormat("{0}{1}: {2}\n",
+                    indent,
+                    property.Name.FromCamelCaseToSpaces(),
+                    (property.GetValue(instance)).ToDefaultIfEmpty("[not set]"));
+            }
+
+            return builder.ToString();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Packager.Factories;
+﻿using Packager.Factories;
 using Packager.Models;
 using Packager.Observers;
 using Packager.Utilities;
@@ -24,7 +23,6 @@ namespace Packager.Providers
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             LookupsProvider = new AppConfigLookupsProvider();
-            MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider);
             BextProcessor = new BextProcessor(programSettings, ProcessRunner, XmlExporter, Observers,
                 new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory());
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
@@ -35,6 +33,7 @@ namespace Packager.Providers
                 new FileExistsValidator(FileProvider),
                 new UriValidator()
             };
+            MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider, Observers, ValidatorCollection);
         }
 
         public ISystemInfoProvider SystemInfoProvider { get; private set; }

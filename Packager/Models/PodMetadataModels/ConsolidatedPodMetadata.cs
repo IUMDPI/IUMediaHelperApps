@@ -2,63 +2,56 @@
 using System.Linq;
 using System.Text;
 using Packager.Extensions;
+using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
 {
     public class ConsolidatedPodMetadata
     {
         private const string NotSetText = "[not set]";
+
+        [Required]
         public string Identifier { get; set; }
+
+        [Required]
         public string Format { get; set; }
+
+        [Required]
         public string CallNumber { get; set; }
+
+        [Required]
         public string Title { get; set; }
+
+        [Required]
         public string Unit { get; set; }
+
+        [Required]
         public string Barcode { get; set; }
+
         public string Brand { get; set; }
         public string DirectionsRecorded { get; set; }
+        
         public string CleaningDate { get; set; }
+        
         public string CleaningComment { get; set; }
+        
         public string BakingDate { get; set; }
+        
         public string Repaired { get; set; }
+        
+        [Required]
         public string DigitizingEntity { get; set; }
+
+        [Required]
         public string PlaybackSpeed { get; set; }
+
         public string TrackConfiguration { get; set; }
         public string SoundField { get; set; }
         public string TapeThickness { get; set; }
+
         public List<DigitalFileProvenance> FileProvenances { get; set; }
+
         public string Damage { get; set; }
         public string PreservationProblems { get; set; }
-
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-
-            builder.Append(GetStringPropertiesAndValues(this));
-
-            foreach (var provenance in FileProvenances)
-            {
-                builder.AppendLine();
-                builder.AppendFormat("File Provenance: {0}\n", provenance.Filename.ToDefaultIfEmpty(NotSetText));
-                builder.Append(GetStringPropertiesAndValues(provenance, "\t"));
-            }
-
-            return builder.ToString();
-        }
-
-        private static string GetStringPropertiesAndValues(object instance, string indent = "")
-        {
-            var builder = new StringBuilder();
-            foreach (var property in instance.GetType()
-                .GetProperties()
-                .Where(p => p.PropertyType == typeof (string)))
-            {
-                builder.AppendFormat("{0}{1}: {2}\n",
-                    indent,
-                    property.Name.FromCamelCaseToSpaces(),
-                    (property.GetValue(instance)).ToDefaultIfEmpty(NotSetText));
-            }
-
-            return builder.ToString();
-        }
     }
 }

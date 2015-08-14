@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
@@ -7,7 +9,10 @@ using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
+using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Observers;
+using Packager.Validators;
 using RestSharp;
 
 namespace Packager.Providers
@@ -15,18 +20,25 @@ namespace Packager.Providers
     public interface IPodMetadataProvider
     {
         Task<ConsolidatedPodMetadata> Get(string barcode);
+        void Validate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> models);
+        void Log(ConsolidatedPodMetadata podMetadata);
+
     }
 
     internal class PodMetadataProvider : IPodMetadataProvider
     {
-        public PodMetadataProvider(IProgramSettings programSettings, ILookupsProvider lookupsProvider)
+        public PodMetadataProvider(IProgramSettings programSettings, ILookupsProvider lookupsProvider, IObserverCollection observers, IValidatorCollection validators)
         {
             ProgramSettings = programSettings;
             LookupsProvider = lookupsProvider;
+            Observers = observers;
+            Validators = validators;
         }
 
         private IProgramSettings ProgramSettings { get; set; }
         private ILookupsProvider LookupsProvider { get; set; }
+        private IObserverCollection Observers { get; set; }
+        private IValidatorCollection Validators { get; set; }
 
         public async Task<ConsolidatedPodMetadata> Get(string barcode)
         {
@@ -44,9 +56,63 @@ namespace Packager.Providers
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
 
             VerifyResponse(response);
-            VerifyMetadata(response.Data);
+            VerifyResponseMetadata(response.Data);
 
             return ConsolidateMetadata(response.Data);
+        }
+
+        public void Validate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> models)
+        {
+            var results = ValidateMetadata(podMetadata);
+            results.AddRange(ValidateMetadataProvenances(podMetadata.FileProvenances, models));
+
+            if (results.Succeeded)
+            {
+                return;
+            }
+
+            throw new PodMetadataException(results);
+        }
+
+        private ValidationResults ValidateMetadata(ConsolidatedPodMetadata podMetadata)
+        {
+            return Validators.Validate(podMetadata);
+        }
+
+        private ValidationResults ValidateMetadataProvenances(List<DigitalFileProvenance> provenances, List<ObjectFileModel> filesToProcess)
+        {
+            var results = new ValidationResults();
+            if (provenances == null)
+            {
+                results.Add("Value not set for digital file provenances");
+                return results;
+            }
+            
+            foreach (var model in filesToProcess)
+            {
+                var provenance = provenances.GetFileProvenance(model);
+                if (provenance == null)
+                {
+                    results.Add("No digital file provenance found for {0}", model.ToFileName());
+                    continue;
+                }
+
+                results.AddRange(Validators.Validate(provenance));
+            }
+
+            return results;
+        }
+
+        public void Log(ConsolidatedPodMetadata podMetadata)
+        {
+            Observers.Log(podMetadata.GetStringPropertiesAndValues());
+
+            foreach (var provenance in podMetadata.FileProvenances)
+            {
+                var sectionKey = Observers.BeginSection("File Provenance: {0}", provenance.Filename.ToDefaultIfEmpty("[not set]"));
+                Observers.Log(provenance.GetStringPropertiesAndValues("\t"));
+                Observers.EndSection(sectionKey);
+            }
         }
 
         private ConsolidatedPodMetadata ConsolidateMetadata(PodMetadata metadata)
@@ -122,7 +188,7 @@ namespace Packager.Providers
             }
         }
 
-        private static void VerifyMetadata(PodMetadata metadata)
+        private static void VerifyResponseMetadata(PodMetadata metadata)
         {
             if (metadata == null)
             {

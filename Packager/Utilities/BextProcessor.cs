@@ -21,14 +21,14 @@ namespace Packager.Utilities
     {
         public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier, IConformancePointDocumentFactory conformancePointDocumentFactory)
         {
-            
+
             BWFMetaEditPath = settings.BWFMetaEditPath;
             ProcessRunner = processRunner;
             XmlExporter = xmlExporter;
             Observers = observers;
             Verifier = verifier;
             ConformancePointDocumentFactory = conformancePointDocumentFactory;
-        
+
         }
 
         private string BWFMetaEditPath { get; set; }
@@ -37,28 +37,42 @@ namespace Packager.Utilities
         private IObserverCollection Observers { get; set; }
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
         private IConformancePointDocumentFactory ConformancePointDocumentFactory { get; set; }
-        
+
 
         public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory)
         {
-            var masterFileModel = instances.GetPreservationOrIntermediateModel();
-            var defaultProvenance = podMetadata.FileProvenances.GetFileProvenance(masterFileModel);
-            if (defaultProvenance == null)
+            var files = new List<ConformancePointDocumentFile>();
+            foreach (var fileModel in instances)
             {
-                throw new AddMetadataException("No digital file provenance in metadata for {0}", masterFileModel.ToFileName());
+                var defaultProvenance = GetDefaultProvenance(instances, podMetadata, fileModel);
+                var provenance = podMetadata.FileProvenances.GetFileProvenance(fileModel, defaultProvenance);
+                files.Add(ConformancePointDocumentFactory.Generate(fileModel, provenance, podMetadata, processingDirectory));
             }
-            
-            var files = (from model in instances 
-                         let provenance = podMetadata.FileProvenances.GetFileProvenance(model, defaultProvenance) 
-                         select ConformancePointDocumentFactory.Generate(model, provenance, podMetadata, processingDirectory)).
-                         ToArray();
-            
+
             var xml = new ConformancePointDocument
             {
-                File = files
+                File = files.ToArray()
             };
 
             await AddMetadata(xml, processingDirectory);
+        }
+
+        private static DigitalFileProvenance GetDefaultProvenance(IEnumerable<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, ObjectFileModel model)
+        {
+            var sequenceInstances = instances.Where(m => m.SequenceIndicator.Equals(model.SequenceIndicator));
+            var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
+            if (sequenceMaster == null)
+            {
+                throw new AddMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
+            }
+
+            var defaultProvenance = podMetadata.FileProvenances.GetFileProvenance(sequenceMaster);
+            if (defaultProvenance == null)
+            {
+                throw new AddMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
+            }
+
+            return defaultProvenance;
         }
 
         private async Task AddMetadata(ConformancePointDocument xml, string processingDirectory)
@@ -80,8 +94,8 @@ namespace Packager.Utilities
             var result = await ProcessRunner.Run(startInfo);
 
             Observers.Log(FormatOutput(result.StandardOutput));
-            
-            if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(), 
+
+            if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(),
                 xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(), Observers))
             {
                 throw new AddMetadataException("Could not add metadata to one or more files!");
@@ -91,15 +105,15 @@ namespace Packager.Utilities
         private static string FormatOutput(string output)
         {
             var builder = new StringBuilder();
-            var lines = output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             for (var index = 0; index < lines.Count(); index++)
             {
-                if (index>0 && lines[index].EndsWith(": Is open"))
+                if (index > 0 && lines[index].EndsWith(": Is open"))
                 {
                     builder.Append('\n');
                 }
 
-                 builder.AppendFormat("{0}\n", lines[index]);
+                builder.AppendFormat("{0}\n", lines[index]);
             }
 
             return builder.ToString();

@@ -18,7 +18,7 @@ using Packager.Verifiers;
 
 namespace Packager.Test.Utilities
 {
-    
+
     [TestFixture]
     public class BextProcessorTests
     {
@@ -50,7 +50,7 @@ namespace Packager.Test.Utilities
 
         private static DigitalFileProvenance GetFileProvenance(string filename)
         {
-            return new DigitalFileProvenance {Filename = filename};
+            return new DigitalFileProvenance { Filename = filename };
         }
 
         [SetUp]
@@ -67,7 +67,7 @@ namespace Packager.Test.Utilities
             Verifier = Substitute.For<IBwfMetaEditResultsVerifier>();
             ProcessRunner = Substitute.For<IProcessRunner>();
             ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).Returns(
-                Task.FromResult((IProcessResult) new ProcessResult {ExitCode = 0, StandardError = Output, StandardOutput = Output}));
+                Task.FromResult((IProcessResult)new ProcessResult { ExitCode = 0, StandardError = Output, StandardOutput = Output }));
 
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
@@ -165,8 +165,8 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
-                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance};
+                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel };
+                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance };
             }
 
             [Test]
@@ -184,12 +184,12 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
-                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, ProductionProvenance};
+                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel };
+                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance, ProductionProvenance };
             }
 
             [Test]
-            public void ItShouldCallCodingHistoryCorrectly()
+            public void ItShouldCallConformancePointDocumentFactoryCorrectly()
             {
                 ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
                 ConformancePointDocumentFactory.Received().Generate(ProdFileModel, ProductionProvenance, Metadata, ProcessingDirectory);
@@ -203,12 +203,12 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
-                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance};
+                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel, PresIntFileModel };
+                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance, PreservationIntermediateProvenance };
             }
 
             [Test]
-            public void ItShouldCallCodingHistoryCorrectly()
+            public void ItShouldCallConformancePointDocumentFactoryCorrectly()
             {
                 ConformancePointDocumentFactory.Received().Generate(PresIntFileModel, PreservationIntermediateProvenance, Metadata, ProcessingDirectory);
                 ConformancePointDocumentFactory.Received().Generate(ProdFileModel, PreservationIntermediateProvenance, Metadata, ProcessingDirectory);
@@ -223,16 +223,40 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
-                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance, ProductionProvenance};
+                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel, PresIntFileModel };
+                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance, PreservationIntermediateProvenance, ProductionProvenance };
             }
 
             [Test]
-            public void ItShouldCallCodingHistoryCorrectly()
+            public void ItShouldCallConformancePointDocumentFactoryCorrectly()
             {
                 ConformancePointDocumentFactory.Received().Generate(PresIntFileModel, PreservationIntermediateProvenance, Metadata, ProcessingDirectory);
                 ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
                 ConformancePointDocumentFactory.Received().Generate(ProdFileModel, ProductionProvenance, Metadata, ProcessingDirectory);
+            }
+        }
+
+        [TestFixture]
+        public class WhenMultipleSequenceInstancesPresent : CommonBextProcessorTests
+        {
+            private const string PreservationFileNameS2 = "MDPI_4890764553278906_02_pres.wav";
+            private ObjectFileModel PresModelS2 { get; set; }
+            private DigitalFileProvenance PresModelS2Provenance { get; set; }
+
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                PresModelS2 = new ObjectFileModel(PreservationFileNameS2);
+                PresModelS2Provenance = new DigitalFileProvenance { Filename = PreservationFileNameS2 };
+                Instances = new List<ObjectFileModel> { PresFileModel, PresModelS2 };
+                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance,PresModelS2Provenance };
+            }
+
+            [Test]
+            public void ItShouldCallConformancePointDocumentFactoryCorrectly()
+            {
+                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
+                ConformancePointDocumentFactory.Received().Generate(PresModelS2, PresModelS2Provenance, Metadata, ProcessingDirectory);
             }
         }
     }

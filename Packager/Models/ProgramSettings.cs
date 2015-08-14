@@ -45,7 +45,7 @@ namespace Packager.Models
         [Required]
         public string FFMPEGAudioProductionArguments { get; private set; }
 
-        //[FromConfigSetting("ffmpegAudioAccessArguments")]
+        [FromConfigSetting("ffmpegAudioAccessArguments")]
         [Required]
         public string FFMPEGAudioAccessArguments { get; private set; }
 
@@ -61,11 +61,11 @@ namespace Packager.Models
         [ValidateObject]
         public PodAuth PodAuth { get; private set; }
 
-        //[FromConfigSetting("ErrorDirectoryName")]
+        [FromConfigSetting("ErrorDirectoryName")]
         [ValidateFolder]
         public string ErrorDirectoryName { get; private set; }
 
-        //[FromConfigSetting("SuccessDirectoryName")]
+        [FromConfigSetting("SuccessDirectoryName")]
         [ValidateFolder]
         public string SuccessDirectoryName { get; private set; }
 
@@ -83,7 +83,7 @@ namespace Packager.Models
         [FromConfigSetting("FromEmailAddress")]
         public string FromEmailAddress { get; private set; }
 
-        //[FromConfigSetting("WebServiceUrl")]
+        [FromConfigSetting("WebServiceUrl")]
         [ValidateUri]
         public string WebServiceUrl { get; private set; }
 
@@ -161,8 +161,6 @@ namespace Packager.Models
 
         private static PodAuth GetAuthorization(string path)
         {
-            return new PodAuth();
-
             var serializer = new XmlSerializer(typeof (PodAuth));
             using (var stream = new FileStream(path, FileMode.Open))
             {

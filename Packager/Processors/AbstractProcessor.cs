@@ -200,6 +200,9 @@ namespace Packager.Processors
             get { return _dependencyProvider.BextProcessor; }
         }
 
+        // ReSharper disable once InconsistentNaming
+        protected IFFMPEGRunner IffmpegRunner { get { return _dependencyProvider.FFMPEGRunner; } }
+
         private async Task CreateProcessingDirectoryAndMoveFiles(IEnumerable<ObjectFileModel> filesToProcess)
         {
             var sectionKey = Observers.BeginSection("Initializing");

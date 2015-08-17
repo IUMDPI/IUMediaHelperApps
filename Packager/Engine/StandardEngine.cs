@@ -168,34 +168,13 @@ namespace Packager.Engine
             Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.BextProcessor.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.BextProcessor.GetBwfMetaEditVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("");
-            Observers.Log("FFMPEG path: {0}", ProgramSettings.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPEG version: {0}", (await GetFfmpegVersion(ProgramSettings.FFMPEGPath)).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("FFMPeg audio production args: {0}", ProgramSettings.FFMPEGAudioProductionArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPeg audio access args: {0}", ProgramSettings.FFMPEGAudioAccessArguments.ToDefaultIfEmpty("[not set]"));
             Observers.EndSection(sectionKey);
         }
-
-        private async Task<string> GetFfmpegVersion(string path)
-        {
-            try
-            {
-                if (!FileProvider.FileExists(path))
-                {
-                    return "";
-                }
-
-                var info = new ProcessStartInfo(ProgramSettings.FFMPEGPath) { Arguments = "-version"};
-                var result = await ProcessRunner.Run(info);
-                
-                var parts = result.StandardOutput.Split(' ');
-                return parts[2];
-            }
-            catch (Exception e)
-            {
-                return "";
-            }
-        }
-
+        
         private void WriteResultsMessage(Dictionary<string, bool> results)
         {
             Observers.Log("");

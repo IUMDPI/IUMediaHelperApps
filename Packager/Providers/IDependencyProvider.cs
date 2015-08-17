@@ -20,6 +20,7 @@ namespace Packager.Providers
         ILookupsProvider LookupsProvider { get; }
         ISystemInfoProvider SystemInfoProvider { get; }
         IBextProcessor BextProcessor { get; }
+        IFFMPEGRunner FFMPEGRunner { get; }
         IEmailSender EmailSender { get; }
         ISideDataFactory SideDataFactory { get; }
         IIngestDataFactory IngestDataFactory { get; }

@@ -98,21 +98,21 @@ namespace Packager.Processors
 
         protected override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
-            var prodModel = await CreateDerivative(
+            var prodModel = await IffmpegRunner.CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
-                FFMPEGAudioProductionArguments);
+                FFMPEGAudioProductionArguments, ProcessingDirectory);
 
-            var accessModel = await CreateDerivative(
+            var accessModel = await IffmpegRunner.CreateDerivative(
                 prodModel,
                 ToAccessFileModel(prodModel),
-                FFMPEGAudioAccessArguments);
+                FFMPEGAudioAccessArguments, ProcessingDirectory);
 
             // return models for files
             return new List<ObjectFileModel> {prodModel, accessModel};
         }
 
-        private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
+       /* private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
             try
@@ -139,9 +139,9 @@ namespace Packager.Processors
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
-        }
+        }*/
 
-        private async Task CreateDerivative(string args)
+        /*private async Task CreateDerivative(string args)
         {
             var startInfo = new ProcessStartInfo(FFMPEGPath)
             {
@@ -161,7 +161,7 @@ namespace Packager.Processors
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
-        }
+        }*/
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {

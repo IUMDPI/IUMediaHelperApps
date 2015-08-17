@@ -38,11 +38,11 @@ namespace Packager.Test.Processors
             ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
             AccessObjectFileModel = new ObjectFileModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
+            ModelList = new List<AbstractFileModel> { PresObjectFileModel };
 
             ExpectedObjectFolderName = string.Format("{0}_{1}", ProjectCode, Barcode);
 
-            Metadata = new ConsolidatedPodMetadata{Barcode = Barcode};
+            Metadata = new ConsolidatedPodMetadata { Barcode = Barcode };
 
             MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
 
@@ -75,7 +75,7 @@ namespace Packager.Test.Processors
                     DirectoryProvider.Received().CreateDirectory(ExpectedProcessingDirectory);
                 }
 
-             
+
 
                 [Test]
                 public void ItShouldOpenInitializingSection()
@@ -97,16 +97,16 @@ namespace Packager.Test.Processors
                     private string NonNormalPresFileName { get; set; }
                     private string NonNormalPresIntFileName { get; set; }
                     private string NonNormalProductionFileName { get; set; }
-                    
+
                     protected override void DoCustomSetup()
                     {
                         base.DoCustomSetup();
 
                         NonNormalPresFileName = string.Format("{0}_{1}_1_pres.wav", ProjectCode.ToLowerInvariant(), Barcode);
-                        NonNormalPresIntFileName  = string.Format("{0}_{1}_001_pres-int.wav", ProjectCode.ToLowerInvariant(), Barcode);
+                        NonNormalPresIntFileName = string.Format("{0}_{1}_001_pres-int.wav", ProjectCode.ToLowerInvariant(), Barcode);
                         NonNormalProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode.ToLowerInvariant(), Barcode);
 
-                        ModelList = new List<AbstractFileModel>{new ObjectFileModel(NonNormalPresFileName), new ObjectFileModel(NonNormalPresIntFileName), new ObjectFileModel(NonNormalProductionFileName)};
+                        ModelList = new List<AbstractFileModel> { new ObjectFileModel(NonNormalPresFileName), new ObjectFileModel(NonNormalPresIntFileName), new ObjectFileModel(NonNormalProductionFileName) };
                     }
 
                     [Test]
@@ -168,7 +168,7 @@ namespace Packager.Test.Processors
                         FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
                     }
                 }
-                
+
             }
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
@@ -190,12 +190,6 @@ namespace Packager.Test.Processors
                 {
                     Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("Retrieved metadata for object: {0}", Barcode));
                 }
-
-                [Test]
-                public void ItShouldLogMetadataResults()
-                {
-                    Observers.Received().Log("{0}",Metadata);
-                }
             }
 
             public class WhenCreatingDerivatives : WhenNothingGoesWrong
@@ -215,106 +209,33 @@ namespace Packager.Test.Processors
                     AssertCalled(ProductionFileName, AccessFileName, AccessCommandLineArgs);
                 }
 
-                [Test]
-                public void ItShouldCloseProductionSection()
-                {
-                    var expected = string.Format("{0} generated successfully: {1}", ProdObjectFileModel.FullFileUse, ProductionFileName);
-                    Observers.Received().EndSection(Arg.Any<Guid>(), expected);
-                }
-
-                [Test]
-                public void ItShouldOpenProductionSection()
-                {
-                    Observers.Received().BeginSection("Generating {0}: {1}", ProdObjectFileModel.FullFileUse, ProductionFileName);
-                }
-
-                [Test]
-                public void ItShouldOpenAccessSection()
-                {
-                    Observers.Received().BeginSection("Generating {0}: {1}", AccessObjectFileModel.FullFileUse, AccessFileName);
-                }
-
-                [Test]
-                public void ItShouldCloseAccessSection()
-                {
-                    var expected = string.Format("{0} generated successfully: {1}", AccessObjectFileModel.FullFileUse, AccessFileName);
-                    Observers.Received().EndSection(Arg.Any<Guid>(), expected);
-                }
 
                 private void AssertCalled(string originalFileName, string newFileName, string settingsArgs)
                 {
-                    var expectedArgs = string.Format("-i {0} {1} {2}",
-                        Path.Combine(ExpectedProcessingDirectory, originalFileName),
-                        settingsArgs,
-                        Path.Combine(ExpectedProcessingDirectory, newFileName));
+                    FFMPEGRunner.Received()
+                        .CreateDerivative(Arg.Is<ObjectFileModel>(m => m.IsSameAs(originalFileName)),
+                            Arg.Is<ObjectFileModel>(m => m.IsSameAs(newFileName)), settingsArgs, ExpectedProcessingDirectory);
 
-                    ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(
-                        i => i.FileName.Equals(FFMPEGPath) &&
-                             i.Arguments.Equals(expectedArgs) &&
-                             i.RedirectStandardError &&
-                             i.RedirectStandardOutput &&
-                             i.CreateNoWindow &&
-                             i.UseShellExecute == false));
                 }
 
-                private void AssertNotCalled(string originalFileName, string newFileName, string settingsArgs)
+                [Test]
+                public void ItShouldCreateProductionDerivativeFromExpectedMaster()
                 {
-                    var expectedArgs = string.Format("-i {0} {1} {2}",
-                        Path.Combine(ExpectedProcessingDirectory, originalFileName),
-                        settingsArgs,
-                        Path.Combine(ExpectedProcessingDirectory, newFileName));
-
-                    ProcessRunner.DidNotReceive().Run(Arg.Is<ProcessStartInfo>(
-                        i => i.FileName.Equals(FFMPEGPath) &&
-                             i.Arguments.Equals(expectedArgs) &&
-                             i.RedirectStandardError &&
-                             i.RedirectStandardOutput &&
-                             i.CreateNoWindow &&
-                             i.UseShellExecute == false));
+                    AssertCalled(ExpectedMasterFileName, ProductionFileName, ProdCommandLineArgs);
                 }
 
-                public class WhenProductionFileAlreadyExists : WhenCreatingDerivatives
+
+                public class WhenPreservationIntermediateMasterPresent : WhenCreatingDerivatives
                 {
                     protected override void DoCustomSetup()
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
-                        FileProvider.FileExists(Path.Combine(ExpectedProcessingDirectory, ProductionFileName)).Returns(true);
-                    }
-
-                    [Test]
-                    public void ItShouldNotCreateDerivative()
-                    {
-                        AssertNotCalled(PreservationFileName, ProductionFileName, ProdCommandLineArgs);
-                    }
-
-                    [Test]
-                    public void ItShouldLogDerivativeAlreadyExists()
-                    {
-                        Observers.Received().Log("{0} already exists. Will not generate derivate", ProdObjectFileModel.FullFileUse);
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ExpectedMasterFileName = PreservationIntermediateFileName;
                     }
                 }
 
-                public class WhenProductionFileDoesNotExist : WhenCreatingDerivatives
-                {
-                    [Test]
-                    public void ItShouldCreateDerivativeFromExpectedMaster()
-                    {
-                        AssertCalled(ExpectedMasterFileName, ProductionFileName, ProdCommandLineArgs);
-                    }
-
-                    public class WhenPreservationIntermediateMasterPresent : WhenProductionFileDoesNotExist
-                    {
-                        protected override void DoCustomSetup()
-                        {
-                            base.DoCustomSetup();
-
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                            ExpectedMasterFileName = PreservationIntermediateFileName;
-                        }
-                    }
-                }
             }
 
             public class WhenEmbeddingMetadata : WhenNothingGoesWrong
@@ -381,7 +302,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedModelCount = 3; // pres master, pres-int master, prod-master
                     }
 
@@ -459,7 +380,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedModelCount = 4; // pres master, pres-int master, prod-master, access master
                     }
 
@@ -575,7 +496,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedFiles = 5; // prod master, pres master, pres-int master, access, xml manifest
                     }
 

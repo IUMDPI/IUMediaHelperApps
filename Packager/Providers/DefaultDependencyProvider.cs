@@ -26,6 +26,7 @@ namespace Packager.Providers
             LookupsProvider = new AppConfigLookupsProvider();
             BextProcessor = new BextProcessor(programSettings.BwfMetaEditPath, ProcessRunner, XmlExporter, Observers,
                 new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory());
+            FFMPEGRunner = new IffmpegRunner(ProgramSettings.FFMPEGPath, ProgramSettings.ProcessingDirectory, ProcessRunner, Observers, FileProvider);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ValidatorCollection = new StandardValidatorCollection
             {
@@ -72,6 +73,9 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IBextProcessor BextProcessor { get; private set; }
+
+        [ValidateObject]
+        public IFFMPEGRunner FFMPEGRunner {get; private set; }
 
         [ValidateObject]
         public IEmailSender EmailSender { get; private set; }

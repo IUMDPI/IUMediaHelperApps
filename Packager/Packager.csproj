@@ -69,6 +69,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\IDerivativeProcessor.cs" />
+    <Compile Include="Utilities\IFFMpegRunner.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Attributes\DeserializeAsLookupAttribute.cs" />
     <Compile Include="Attributes\FromConfigSettingAttribute.cs" />

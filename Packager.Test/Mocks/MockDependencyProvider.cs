@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models;
+using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
@@ -19,7 +21,8 @@ namespace Packager.Test.Mocks
             IProgramSettings programSettings = null,
             IXmlExporter xmlExporter = null,
             IObserverCollection observers = null,
-            IValidatorCollection validators = null)
+            IValidatorCollection validators = null,
+            IFFMPEGRunner ffmpegRunner = null)
         {
             if (directoryProvider == null)
             {
@@ -61,7 +64,13 @@ namespace Packager.Test.Mocks
                 validators = Substitute.For<IValidatorCollection>();
                 validators.Validate(null).ReturnsForAnyArgs(new ValidationResults());
             }
-
+            
+            if (ffmpegRunner == null)
+            {
+                ffmpegRunner = Substitute.For<IFFMPEGRunner>();
+                ffmpegRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>(), Arg.Any<string>())
+                    .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+            }
             var result = Substitute.For<IDependencyProvider>();
 
             result.DirectoryProvider.Returns(directoryProvider);
@@ -72,7 +81,7 @@ namespace Packager.Test.Mocks
             result.ProgramSettings.Returns(programSettings);
             result.Observers.Returns(observers);
             result.ValidatorCollection.Returns(validators);
-
+            result.FFMPEGRunner.Returns(ffmpegRunner);
             return result;
         }
     }

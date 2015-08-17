@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
@@ -35,7 +36,9 @@ namespace Packager.Test.Processors
         protected IPodMetadataProvider MetadataProvider { get; set; }
         protected ICarrierDataFactory MetadataGenerator { get; set; }
         protected IBextProcessor BextProcessor { get; set; }
-       
+
+        protected IFFMPEGRunner FFMPEGRunner { get; set; }
+
         protected string ExpectedProcessingDirectory { get { return Path.Combine(ProcessingRoot, ExpectedObjectFolderName); } }
         
         protected string ExpectedObjectFolderName { get; set; }
@@ -83,6 +86,10 @@ namespace Packager.Test.Processors
             MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
 
+            FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
+            FFMPEGRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>(), Arg.Any<string>())
+                .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);
             DependencyProvider.DirectoryProvider.Returns(DirectoryProvider);
@@ -94,6 +101,7 @@ namespace Packager.Test.Processors
             DependencyProvider.XmlExporter.Returns(XmlExporter);
             DependencyProvider.BextProcessor.Returns(BextProcessor);
             DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
+            DependencyProvider.FFMPEGRunner.Returns(FFMPEGRunner);
             DoCustomSetup();
 
            Result =  await Processor.ProcessFile(GetGrouping(ModelList));

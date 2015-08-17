@@ -55,8 +55,7 @@ namespace Packager.Test.Engine
             ProgramSettings.ProjectCode.Returns(ProjectCode);
 
             Validators = Substitute.For<IValidatorCollection>();
-            Validators.Validate(ProgramSettings).Returns(new ValidationResults());
-
+            
             MockWavProcessor = Substitute.For<IProcessor>();
             MockMpegProcessor = Substitute.For<IProcessor>();
 
@@ -79,6 +78,9 @@ namespace Packager.Test.Engine
                 });
 
             DependencyProvider = MockDependencyProvider.Get(observers: Observer, programSettings: ProgramSettings, directoryProvider: DirectoryProvider, validators:Validators);
+
+            Validators.Validate(DependencyProvider).Returns(new ValidationResults());
+
             Engine = new StandardEngine(
                 new Dictionary<string, IProcessor>
                 {
@@ -97,9 +99,9 @@ namespace Packager.Test.Engine
             }
 
             [Test]
-            public void ItShouldValidateProgramSettings()
+            public void ItShouldValidateDependencyProvider()
             {
-                Validators.Received().Validate(ProgramSettings);
+                Validators.Received().Validate(DependencyProvider);
             }
 
             [Test]

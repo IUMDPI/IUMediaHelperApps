@@ -6,6 +6,7 @@ using Packager.Exceptions;
 using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
+using Packager.Validators.Attributes;
 using Packager.Verifiers;
 
 namespace Packager.Utilities
@@ -27,6 +28,9 @@ namespace Packager.Utilities
         private IObserverCollection Observers { get; set; }
         public IFileProvider FileProvider { get; set; }
 
+        [ValidateFile]
+        public string FFMPEGPath { get; set; }
+
         public async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, string arguments, string outputFolder)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
@@ -37,7 +41,7 @@ namespace Packager.Utilities
 
                 if (FileProvider.FileExists(outputPath))
                 {
-                    Observers.Log("{0} already exists. Will not generate derivate", target.FullFileUse);
+                    Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
                 }
                 else
                 {
@@ -56,7 +60,7 @@ namespace Packager.Utilities
             }
         }
 
-        public string FFMPEGPath { get; set; }
+    
 
         public async Task<string> GetFFMPEGVersion()
         {

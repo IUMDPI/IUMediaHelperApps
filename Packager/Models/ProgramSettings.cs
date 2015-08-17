@@ -21,23 +21,19 @@ namespace Packager.Models
             PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
         }
 
-        [FromConfigSetting("PathToMetaEdit")]
-        [Required]
+        //[FromConfigSetting("PathToMetaEdit")]
         [ValidateFile]
-        public string BWFMetaEditPath { get; private set; }
+        public string BwfMetaEditPath { get; private set; }
 
         [FromConfigSetting("PathToFFMpeg")]
-        [Required]
         [ValidateFile]
         public string FFMPEGPath { get; private set; }
 
         [FromConfigSetting("WhereStaffWorkDirectoryName")]
-        [Required]
         [ValidateFolder]
         public string InputDirectory { get; private set; }
 
         [FromConfigSetting("ProcessingDirectoryName")]
-        [Required]
         [ValidateFolder]
         public string ProcessingDirectory { get; private set; }
 
@@ -55,7 +51,6 @@ namespace Packager.Models
 
         [FromConfigSetting("DropBoxDirectoryName")]
         [ValidateFolder]
-        [Required]
         public string DropBoxDirectoryName { get; private set; }
 
         [ValidateObject]
@@ -92,49 +87,6 @@ namespace Packager.Models
             get { return "yyyy-MM-dd HH:mm:ss \"GMT\"zzz"; }
         }
 
-        /*public void Verify()
-        {
-            if (!Directory.Exists(InputDirectory))
-            {
-                throw new DirectoryNotFoundException(InputDirectory);
-            }
-
-            if (!Directory.Exists(ProcessingDirectory))
-            {
-                throw new DirectoryNotFoundException(ProcessingDirectory);
-            }
-
-            if (!File.Exists(FFMPEGPath))
-            {
-                throw new FileNotFoundException(FFMPEGPath);
-            }
-
-            if (!File.Exists(BWFMetaEditPath))
-            {
-                throw new FileNotFoundException(BWFMetaEditPath);
-            }
-
-            if (!Directory.Exists(DropBoxDirectoryName))
-            {
-                throw new DirectoryNotFoundException(DropBoxDirectoryName);
-            }
-
-            if (!Directory.Exists(ErrorDirectoryName))
-            {
-                throw new DirectoryNotFoundException(ErrorDirectoryName);
-            }
-
-            if (!Directory.Exists(LogDirectoryName))
-            {
-                throw new DirectoryNotFoundException(LogDirectoryName);
-            }
-
-            if (!Directory.Exists(SuccessDirectoryName))
-            {
-                throw new DirectoryNotFoundException(SuccessDirectoryName);
-            }
-        }*/
-
         private void ImportMappedConfigStringSettings(NameValueCollection settings)
         {
             foreach (var property in GetType().GetProperties()
@@ -156,8 +108,6 @@ namespace Packager.Models
                 property.SetValue(this, value);
             }
         }
-
-        
 
         private static PodAuth GetAuthorization(string path)
         {

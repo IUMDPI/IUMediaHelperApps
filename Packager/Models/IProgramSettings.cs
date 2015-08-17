@@ -3,7 +3,7 @@
     public interface IProgramSettings
     {
         // ReSharper disable once InconsistentNaming
-        string BWFMetaEditPath { get; }
+        string BwfMetaEditPath { get; }
         // ReSharper disable once InconsistentNaming
         string FFMPEGPath { get; }
         string InputDirectory { get; }

@@ -8,36 +8,36 @@ using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
-using Packager.Models;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
+using Packager.Validators.Attributes;
 using Packager.Verifiers;
 
 namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
-        public BextProcessor(IProgramSettings settings, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier, IConformancePointDocumentFactory conformancePointDocumentFactory)
+        public BextProcessor(string bwfMetaEditPath, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
+            IConformancePointDocumentFactory conformancePointDocumentFactory)
         {
-
-            BWFMetaEditPath = settings.BWFMetaEditPath;
+            BwfMetaEditPath = bwfMetaEditPath;
             ProcessRunner = processRunner;
             XmlExporter = xmlExporter;
             Observers = observers;
             Verifier = verifier;
             ConformancePointDocumentFactory = conformancePointDocumentFactory;
-
         }
 
-        private string BWFMetaEditPath { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }
         private IObserverCollection Observers { get; set; }
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
         private IConformancePointDocumentFactory ConformancePointDocumentFactory { get; set; }
 
+        [ValidateFile]
+        public string BwfMetaEditPath { get; set; }
 
         public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory)
         {
@@ -55,6 +55,22 @@ namespace Packager.Utilities
             };
 
             await AddMetadata(xml, processingDirectory);
+        }
+
+        public async Task<string> GetBwfMetaEditVersion()
+        {
+            try
+            {
+                var startInfo = new ProcessStartInfo(BwfMetaEditPath) {Arguments = "--version"};
+                var result = await ProcessRunner.Run(startInfo);
+
+                var parts = result.StandardOutput.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+                return parts.Last();
+            }
+            catch (Exception)
+            {
+                return "";
+            }
         }
 
         private static DigitalFileProvenance GetDefaultProvenance(IEnumerable<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, ObjectFileModel model)
@@ -82,7 +98,7 @@ namespace Packager.Utilities
 
             var args = string.Format("--verbose --Append --in-core={0}", xmlPath.ToQuoted());
 
-            var startInfo = new ProcessStartInfo(BWFMetaEditPath)
+            var startInfo = new ProcessStartInfo(BwfMetaEditPath)
             {
                 Arguments = args,
                 RedirectStandardError = true,
@@ -105,7 +121,7 @@ namespace Packager.Utilities
         private static string FormatOutput(string output)
         {
             var builder = new StringBuilder();
-            var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             for (var index = 0; index < lines.Count(); index++)
             {
                 if (index > 0 && lines[index].EndsWith(": Is open"))

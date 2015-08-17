@@ -65,14 +65,12 @@ namespace Packager.Engine
 
                 await LogConfiguration();
 
-                var result = ValidatorCollection.Validate(ProgramSettings);
+                var result = ValidatorCollection.Validate(_dependencyProvider);
                 if (result.Succeeded == false)
                 {
                     throw new ProgramSettingsException(result.Issues);
                 }
-                
-                //ProgramSettings.Verify();
-                
+              
                 // this factory will assign each extension
                 // to the appropriate file model
                 var factory = new FileModelFactory(_processors.Keys);
@@ -167,8 +165,8 @@ namespace Packager.Engine
             Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
-            Observers.Log("BWF MetaEdit path: {0}", ProgramSettings.BWFMetaEditPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("BWF MetaEdit version: {0}", FileProvider.GetFileVersion(ProgramSettings.BWFMetaEditPath).ToDefaultIfEmpty("[not available]") );
+            Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.BextProcessor.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.BextProcessor.GetBwfMetaEditVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("");
             Observers.Log("FFMPEG path: {0}", ProgramSettings.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPEG version: {0}", (await GetFfmpegVersion(ProgramSettings.FFMPEGPath)).ToDefaultIfEmpty("[not available]"));

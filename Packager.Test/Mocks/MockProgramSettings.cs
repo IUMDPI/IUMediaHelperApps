@@ -27,7 +27,7 @@ namespace Packager.Test.Mocks
             result.InputDirectory.Returns(inputDirectory);
             result.ProcessingDirectory.Returns(processingDirectory);
             result.DropBoxDirectoryName.Returns(dropBoxDirectory);
-            result.BWFMetaEditPath.Returns(bwfMetadataPath);
+            result.BwfMetaEditPath.Returns(bwfMetadataPath);
             result.FFMPEGPath.Returns(ffmpegPath);
             return result;
         }

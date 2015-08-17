@@ -124,7 +124,7 @@ namespace Packager.Processors
         // ReSharper disable once InconsistentNaming
         protected string BWFMetaEditPath
         {
-            get { return ProgramSettings.BWFMetaEditPath; }
+            get { return ProgramSettings.BwfMetaEditPath; }
         }
 
         protected string DateFormat

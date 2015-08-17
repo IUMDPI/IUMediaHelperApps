@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Packager.Exceptions
 {
@@ -8,7 +9,8 @@ namespace Packager.Exceptions
         {
         }
 
-        public ProgramSettingsException(IEnumerable<string> issues) : base("One or more required settings is missing or invalid:\n  {0}", string.Join("\n  ", issues))
+        public ProgramSettingsException(IEnumerable<string> issues) : 
+            base("One or more required settings is missing or invalid:\n  {0}", string.Join("\n  ", issues.Distinct()))
         {
         }
     }

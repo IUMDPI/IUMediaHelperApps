@@ -8,5 +8,7 @@ namespace Packager.Utilities
     public interface IBextProcessor
     {
         Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory);
+        Task<string> GetBwfMetaEditVersion();
+        string BwfMetaEditPath { get; set; }
     }
 }

@@ -7,7 +7,6 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Extensions;
 using Packager.Factories;
-using Packager.Models;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -18,7 +17,6 @@ using Packager.Verifiers;
 
 namespace Packager.Test.Utilities
 {
-
     [TestFixture]
     public class BextProcessorTests
     {
@@ -29,7 +27,6 @@ namespace Packager.Test.Utilities
         private const string ProcessingDirectory = "MDPI_4890764553278906";
         private const string Output = "Output";
         private BextProcessor BextProcessor { get; set; }
-        private IProgramSettings ProgramSettings { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
@@ -50,7 +47,7 @@ namespace Packager.Test.Utilities
 
         private static DigitalFileProvenance GetFileProvenance(string filename)
         {
-            return new DigitalFileProvenance { Filename = filename };
+            return new DigitalFileProvenance {Filename = filename};
         }
 
         [SetUp]
@@ -67,13 +64,11 @@ namespace Packager.Test.Utilities
             Verifier = Substitute.For<IBwfMetaEditResultsVerifier>();
             ProcessRunner = Substitute.For<IProcessRunner>();
             ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).Returns(
-                Task.FromResult((IProcessResult)new ProcessResult { ExitCode = 0, StandardError = Output, StandardOutput = Output }));
+                Task.FromResult((IProcessResult) new ProcessResult {ExitCode = 0, StandardError = Output, StandardOutput = Output}));
 
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
 
-            ProgramSettings = Substitute.For<IProgramSettings>();
-            ProgramSettings.BWFMetaEditPath.Returns(BwfMetaEditPath);
 
             Metadata = new ConsolidatedPodMetadata();
 
@@ -86,7 +81,7 @@ namespace Packager.Test.Utilities
 
             DoCustomSetup();
 
-            BextProcessor = new BextProcessor(ProgramSettings, ProcessRunner, XmlExporter, Observers, Verifier, ConformancePointDocumentFactory);
+            BextProcessor = new BextProcessor(BwfMetaEditPath, ProcessRunner, XmlExporter, Observers, Verifier, ConformancePointDocumentFactory);
             await BextProcessor.EmbedBextMetadata(Instances, Metadata, ProcessingDirectory);
         }
 
@@ -165,8 +160,8 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel };
-                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance };
+                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
+                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance};
             }
 
             [Test]
@@ -184,8 +179,8 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel };
-                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance, ProductionProvenance };
+                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
+                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, ProductionProvenance};
             }
 
             [Test]
@@ -203,8 +198,8 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel, PresIntFileModel };
-                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance, PreservationIntermediateProvenance };
+                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
+                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance};
             }
 
             [Test]
@@ -223,8 +218,8 @@ namespace Packager.Test.Utilities
             {
                 Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
 
-                Instances = new List<ObjectFileModel> { PresFileModel, ProdFileModel, PresIntFileModel };
-                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance, PreservationIntermediateProvenance, ProductionProvenance };
+                Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
+                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance, ProductionProvenance};
             }
 
             [Test]
@@ -247,9 +242,9 @@ namespace Packager.Test.Utilities
             {
                 base.DoCustomSetup();
                 PresModelS2 = new ObjectFileModel(PreservationFileNameS2);
-                PresModelS2Provenance = new DigitalFileProvenance { Filename = PreservationFileNameS2 };
-                Instances = new List<ObjectFileModel> { PresFileModel, PresModelS2 };
-                Metadata.FileProvenances = new List<DigitalFileProvenance> { PreservationProvenance,PresModelS2Provenance };
+                PresModelS2Provenance = new DigitalFileProvenance {Filename = PreservationFileNameS2};
+                Instances = new List<ObjectFileModel> {PresFileModel, PresModelS2};
+                Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PresModelS2Provenance};
             }
 
             [Test]

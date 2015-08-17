@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Packager.Extensions;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -30,15 +27,11 @@ namespace Packager.Models.PodMetadataModels
 
         public string Brand { get; set; }
         public string DirectionsRecorded { get; set; }
-        
         public string CleaningDate { get; set; }
-        
         public string CleaningComment { get; set; }
-        
         public string BakingDate { get; set; }
-        
         public string Repaired { get; set; }
-        
+
         [Required]
         public string DigitizingEntity { get; set; }
 
@@ -46,11 +39,12 @@ namespace Packager.Models.PodMetadataModels
         public string PlaybackSpeed { get; set; }
 
         public string TrackConfiguration { get; set; }
+
+        [Required]
         public string SoundField { get; set; }
+
         public string TapeThickness { get; set; }
-
         public List<DigitalFileProvenance> FileProvenances { get; set; }
-
         public string Damage { get; set; }
         public string PreservationProblems { get; set; }
     }

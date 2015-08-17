@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,11 +37,11 @@ namespace Packager.Test.Processors
             ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
             AccessObjectFileModel = new ObjectFileModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> { PresObjectFileModel };
+            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
 
             ExpectedObjectFolderName = string.Format("{0}_{1}", ProjectCode, Barcode);
 
-            Metadata = new ConsolidatedPodMetadata { Barcode = Barcode };
+            Metadata = new ConsolidatedPodMetadata {Barcode = Barcode};
 
             MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
 
@@ -75,8 +74,6 @@ namespace Packager.Test.Processors
                     DirectoryProvider.Received().CreateDirectory(ExpectedProcessingDirectory);
                 }
 
-
-
                 [Test]
                 public void ItShouldOpenInitializingSection()
                 {
@@ -106,7 +103,12 @@ namespace Packager.Test.Processors
                         NonNormalPresIntFileName = string.Format("{0}_{1}_001_pres-int.wav", ProjectCode.ToLowerInvariant(), Barcode);
                         NonNormalProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode.ToLowerInvariant(), Barcode);
 
-                        ModelList = new List<AbstractFileModel> { new ObjectFileModel(NonNormalPresFileName), new ObjectFileModel(NonNormalPresIntFileName), new ObjectFileModel(NonNormalProductionFileName) };
+                        ModelList = new List<AbstractFileModel>
+                        {
+                            new ObjectFileModel(NonNormalPresFileName),
+                            new ObjectFileModel(NonNormalPresIntFileName),
+                            new ObjectFileModel(NonNormalProductionFileName)
+                        };
                     }
 
                     [Test]
@@ -128,13 +130,19 @@ namespace Packager.Test.Processors
 
                 public class WhenFileNamesAreNormal : WhenMovingFilesToProcessingDirectory
                 {
+                    [Test]
+                    public void ItShouldMovePresentationFileToProcessingDirectory()
+                    {
+                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+                    }
+
                     public class WhenPreservationIntermediateMasterPresent : WhenMovingFilesToProcessingDirectory
                     {
                         protected override void DoCustomSetup()
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         }
 
                         [Test]
@@ -151,7 +159,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
+                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
                         }
 
                         [Test]
@@ -161,14 +169,7 @@ namespace Packager.Test.Processors
                                 Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
                         }
                     }
-
-                    [Test]
-                    public void ItShouldMovePresentationFileToProcessingDirectory()
-                    {
-                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
-                    }
                 }
-
             }
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
@@ -209,13 +210,11 @@ namespace Packager.Test.Processors
                     AssertCalled(ProductionFileName, AccessFileName, AccessCommandLineArgs);
                 }
 
-
                 private void AssertCalled(string originalFileName, string newFileName, string settingsArgs)
                 {
                     FFMPEGRunner.Received()
                         .CreateDerivative(Arg.Is<ObjectFileModel>(m => m.IsSameAs(originalFileName)),
                             Arg.Is<ObjectFileModel>(m => m.IsSameAs(newFileName)), settingsArgs, ExpectedProcessingDirectory);
-
                 }
 
                 [Test]
@@ -224,18 +223,16 @@ namespace Packager.Test.Processors
                     AssertCalled(ExpectedMasterFileName, ProductionFileName, ProdCommandLineArgs);
                 }
 
-
                 public class WhenPreservationIntermediateMasterPresent : WhenCreatingDerivatives
                 {
                     protected override void DoCustomSetup()
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedMasterFileName = PreservationIntermediateFileName;
                     }
                 }
-
             }
 
             public class WhenEmbeddingMetadata : WhenNothingGoesWrong
@@ -302,7 +299,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedModelCount = 3; // pres master, pres-int master, prod-master
                     }
 
@@ -380,7 +377,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedModelCount = 4; // pres master, pres-int master, prod-master, access master
                     }
 
@@ -496,7 +493,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedFiles = 5; // prod master, pres master, pres-int master, access, xml manifest
                     }
 

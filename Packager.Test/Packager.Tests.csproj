@@ -84,6 +84,7 @@
     <Compile Include="Factories\IngestFactoryTests.cs" />
     <Compile Include="Factories\CarrierDataFactoryTests.cs" />
     <Compile Include="Factories\SideDataFactoryTests.cs" />
+    <Compile Include="Utilities\FFMPEGRunnerTests.cs" />
     <Compile Include="Validators\DirectoryValidatorTests.cs" />
     <Compile Include="Validators\FileValidatorTests.cs" />
     <Compile Include="Validators\UriValidatorTests.cs" />

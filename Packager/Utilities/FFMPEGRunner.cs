@@ -11,9 +11,9 @@ using Packager.Verifiers;
 namespace Packager.Utilities
 {
     // ReSharper disable once InconsistentNaming
-    public class IffmpegRunner : IFFMPEGRunner
+    public class FFMPEGRunner : IFFMPEGRunner
     {
-        public IffmpegRunner(string ffmpegPath, string baseProcessingDirectory, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider)
+        public FFMPEGRunner(string ffmpegPath, string baseProcessingDirectory, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider)
         {
             FFMPEGPath = ffmpegPath;
             BaseProcessingDirectory = baseProcessingDirectory;

@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Packager.Validators;
 
 namespace Packager.Exceptions
 {
     public class PodMetadataException : AbstractEngineException
     {
+        public PodMetadataException(Exception innerException, string baseMessage, params object[] parameters)
+            : base(innerException, baseMessage, parameters)
+        {
+        }
+
         public PodMetadataException(string baseMessage, params object[] parameters)
             : base(baseMessage, parameters)
         {

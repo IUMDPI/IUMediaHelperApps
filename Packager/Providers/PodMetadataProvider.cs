@@ -40,7 +40,7 @@ namespace Packager.Providers
             };
 
 
-            var request = new RestRequest(string.Format("responses/objects/{0}/metadata/full/", barcode))
+            var request = new RestRequest($"responses/objects/{barcode}/metadata/full/")
             {
                 DateFormat = "yyyy-MM-ddTHH:mm:sszzz"
             };
@@ -70,7 +70,7 @@ namespace Packager.Providers
             return Validators.Validate(podMetadata);
         }
 
-        private ValidationResults ValidateMetadataProvenances(List<DigitalFileProvenance> provenances, List<ObjectFileModel> filesToProcess)
+        private ValidationResults ValidateMetadataProvenances(List<DigitalFileProvenance> provenances, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var results = new ValidationResults();
             if (provenances == null)
@@ -172,12 +172,12 @@ namespace Packager.Providers
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
-                throw new PodMetadataException("Could not retrieve metadata from Pod", response.ErrorException);
+                throw new PodMetadataException(response.ErrorException, "Could not retrieve metadata from Pod");
             }
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new PodMetadataException("Could not retrieve metadata from Pod", new Exception(response.ErrorMessage));
+                throw new PodMetadataException(response.ErrorException, "Could not retrieve metadata from Pod: {0} ({1})", response.StatusCode, (int)response.StatusCode);
             }
         }
 

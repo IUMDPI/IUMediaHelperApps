@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Exceptions;
 using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
@@ -34,7 +35,7 @@ namespace Packager.Test.Utilities
         }
 
         [SetUp]
-        public async void BeforeEach()
+        public virtual async void BeforeEach()
         {
             MasterFileModel = new ObjectFileModel(MasterFileName);
             DerivativeFileModel = new ObjectFileModel(DerivativeFileName);
@@ -45,25 +46,32 @@ namespace Packager.Test.Utilities
             Runner = new FFMPEGRunner(FFMPEGPath, BaseProcessingDirectory, ProcessRunner, Observers, FileProvider);
 
             DoCustomSetup();
-
-            Result = await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder);
         }
 
         [Test]
         public void FFMPEGPathPropertyShouldHaveValidateAttribute()
         {
-            var info = typeof (FFMPEGRunner).GetProperty("FFMPEGPath");
+            var info = typeof(FFMPEGRunner).GetProperty("FFMPEGPath");
             Assert.That(info.GetCustomAttribute<ValidateFileAttribute>(), Is.Not.Null);
         }
 
-        [Test]
-        public void ItShouldCallBeginSectionCorrectly()
-        {
-            Observers.Received().BeginSection("Generating {0}: {1}", DerivativeFileModel.FullFileUse, DerivativeFileModel.ToFileName());
-        }
 
         public class WhenThingsGoWell : FFMPEGRunnerTests
         {
+            public override async void BeforeEach()
+            {
+                base.BeforeEach();
+                
+                Result = await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder);
+            }
+
+
+            [Test]
+            public void ItShouldCallBeginSectionCorrectly()
+            {
+                Observers.Received().BeginSection("Generating {0}: {1}", DerivativeFileModel.FullFileUse, DerivativeFileModel.ToFileName());
+            }
+
             [Test]
             public void ItShouldCallEndSectionCorrectly()
             {
@@ -124,5 +132,47 @@ namespace Packager.Test.Utilities
             }
         }
 
+
+        public class WhenIssuesOccurr : FFMPEGRunnerTests
+        {
+            private Exception Exception { get; set; }
+
+            private LoggedException FinalException { get; set; }
+            
+            public override void BeforeEach()
+            {
+                base.BeforeEach();
+
+                FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder));
+            }
+
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                Exception = new Exception("testing"); 
+                ProcessRunner.Run(null).ReturnsForAnyArgs(x => { throw Exception; });
+            }
+
+            [Test]
+            public void ItShouldLogIssue()
+            {
+                Observers.Received().LogProcessingIssue(Exception, MasterFileModel.BarCode);
+            }
+
+            [Test]
+            public void ItShouldCloseExceptionCorrectly()
+            {
+                Observers.Received().EndSection(Arg.Any<Guid>());
+            }
+
+            [Test]
+            public void ItShouldThrowCorrectLoggedException()
+            {
+                Assert.That(FinalException, Is.Not.Null);
+                Assert.That(FinalException.InnerException.Equals(Exception));
+            }
         }
+    }
+
+   
 }

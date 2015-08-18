@@ -4,11 +4,6 @@ using Packager.Observers;
 
 namespace Packager.Verifiers
 {
-    public interface IBwfMetaEditResultsVerifier
-    {
-        bool Verify(string output, List<string> targetPaths, IObserverCollection observers);
-    }
-
     public class BwfMetaEditResultsVerifier : IBwfMetaEditResultsVerifier
     {
         public bool Verify(string output, List<string> targetPaths, IObserverCollection observers)

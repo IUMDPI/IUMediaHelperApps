@@ -53,6 +53,11 @@ namespace Packager.Models.FileModels
                 .Split(new[] {'_'}, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public string GetFolderName()
+        {
+            return string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), BarCode);
+        }
+
         public abstract string ToFileName();
 
         public bool BelongsToProject(string projectCode)

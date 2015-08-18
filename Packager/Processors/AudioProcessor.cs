@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
-using Packager.Verifiers;
 
 namespace Packager.Processors
 {
@@ -53,7 +51,7 @@ namespace Packager.Processors
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata(filesToProcess);
-      
+
             // create derivatives for the various files
             // and add them to a list of files that have
             // been processed
@@ -101,67 +99,16 @@ namespace Packager.Processors
             var prodModel = await IffmpegRunner.CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
-                FFMPEGAudioProductionArguments, ProcessingDirectory);
+                FFMPEGAudioProductionArguments);
 
             var accessModel = await IffmpegRunner.CreateDerivative(
                 prodModel,
                 ToAccessFileModel(prodModel),
-                FFMPEGAudioAccessArguments, ProcessingDirectory);
+                FFMPEGAudioAccessArguments);
 
             // return models for files
             return new List<ObjectFileModel> {prodModel, accessModel};
         }
-
-       /* private async Task<ObjectFileModel> CreateDerivative(AbstractFileModel originalModel, ObjectFileModel newModel, string commandLineArgs)
-        {
-            var sectionKey = Observers.BeginSection("Generating {0}: {1}", newModel.FullFileUse, newModel.ToFileName());
-            try
-            {
-                var inputPath = Path.Combine(ProcessingDirectory, originalModel.ToFileName());
-                var outputPath = Path.Combine(ProcessingDirectory, newModel.ToFileName());
-
-                if (FileProvider.FileExists(outputPath))
-                {
-                    Observers.Log("{0} already exists. Will not generate derivate", newModel.FullFileUse);
-                }
-                else
-                {
-                    var args = string.Format("-i {0} {1} {2}", inputPath, commandLineArgs, outputPath);
-                    await CreateDerivative(args);
-                }
-
-                Observers.EndSection(sectionKey, string.Format("{0} generated successfully: {1}", newModel.FullFileUse, newModel.ToFileName()));
-                return newModel;
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                Observers.EndSection(sectionKey);
-                throw new LoggedException(e);
-            }
-        }*/
-
-        /*private async Task CreateDerivative(string args)
-        {
-            var startInfo = new ProcessStartInfo(FFMPEGPath)
-            {
-                Arguments = args,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            var result = await ProcessRunner.Run(startInfo);
-
-            Observers.Log(result.StandardError);
-
-            var verifier = new FFMPEGVerifier();
-            if (!verifier.Verify(result.ExitCode))
-            {
-                throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
-            }
-        }*/
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {

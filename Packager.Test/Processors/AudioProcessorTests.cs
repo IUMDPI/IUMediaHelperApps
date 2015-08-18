@@ -214,7 +214,7 @@ namespace Packager.Test.Processors
                 {
                     FFMPEGRunner.Received()
                         .CreateDerivative(Arg.Is<ObjectFileModel>(m => m.IsSameAs(originalFileName)),
-                            Arg.Is<ObjectFileModel>(m => m.IsSameAs(newFileName)), settingsArgs, ExpectedProcessingDirectory);
+                            Arg.Is<ObjectFileModel>(m => m.IsSameAs(newFileName)), settingsArgs);
                 }
 
                 [Test]

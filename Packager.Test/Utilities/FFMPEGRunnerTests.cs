@@ -20,8 +20,7 @@ namespace Packager.Test.Utilities
     {
         private const string FFMPEGPath = "ffmpeg.exe";
         private const string Arguments = "arguments";
-        private const string BaseProcessingDirectory = "base processing directory";
-        private const string OutputFolder = "output folder";
+        private const string BaseProcessingDirectory = "base";
         private const string MasterFileName = "MDPI_123456789_01_pres.wav";
         private const string DerivativeFileName = "MDPI_123456789_01_access.wav";
         private const string StandardErrorOutput = "Standard error output";
@@ -40,9 +39,8 @@ namespace Packager.Test.Utilities
         }
 
         [SetUp]
-        public virtual async void BeforeEach()
+        public virtual void BeforeEach()
         {
-
             ProcessRunnerResult = Substitute.For<IProcessResult>();
             ProcessRunnerResult.ExitCode.Returns(0);
             ProcessRunnerResult.StandardError.Returns(StandardErrorOutput);
@@ -79,7 +77,7 @@ namespace Packager.Test.Utilities
                     return Task.FromResult(ProcessRunnerResult);
                 });
 
-                Result = await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder);
+                Result = await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments);
             }
 
             [Test]
@@ -139,9 +137,9 @@ namespace Packager.Test.Utilities
                 public void ItShouldCallProcessRunnerCorrectly()
                 {
                     var expectedArgs = string.Format("-i {0} {1} {2}",
-                        Path.Combine(OutputFolder, MasterFileName),
+                        Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), MasterFileName),
                         Arguments,
-                        Path.Combine(OutputFolder, DerivativeFileName));
+                        Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), DerivativeFileName));
 
                     ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(
                         i => i.FileName.Equals(FFMPEGPath) &&
@@ -170,7 +168,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder));
+                    FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments));
                 }
                 
                 [Test]
@@ -189,7 +187,7 @@ namespace Packager.Test.Utilities
                     base.BeforeEach();
                     Exception = new Exception("testing");
                     ProcessRunner.Run(null).ReturnsForAnyArgs(x => { throw Exception; });
-                    FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder));
+                    FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments));
                 }
 
                 private Exception Exception { get; set; }

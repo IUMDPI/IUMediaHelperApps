@@ -68,7 +68,7 @@ namespace Packager.Test.Mocks
             if (ffmpegRunner == null)
             {
                 ffmpegRunner = Substitute.For<IFFMPEGRunner>();
-                ffmpegRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>(), Arg.Any<string>())
+                ffmpegRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>())
                     .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
             }
             var result = Substitute.For<IDependencyProvider>();

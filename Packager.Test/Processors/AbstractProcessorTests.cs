@@ -87,7 +87,7 @@ namespace Packager.Test.Processors
             BextProcessor = Substitute.For<IBextProcessor>();
 
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
-            FFMPEGRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>(), Arg.Any<string>())
+            FFMPEGRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>())
                 .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();

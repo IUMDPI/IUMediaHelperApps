@@ -7,7 +7,6 @@ using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Validators.Attributes;
-using Packager.Verifiers;
 
 namespace Packager.Utilities
 {
@@ -31,11 +30,13 @@ namespace Packager.Utilities
         [ValidateFile]
         public string FFMPEGPath { get; set; }
 
-        public async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, string arguments, string outputFolder)
+        public async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, string arguments)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
             try
             {
+                var outputFolder = Path.Combine(BaseProcessingDirectory, original.GetFolderName());
+
                 var inputPath = Path.Combine(outputFolder, original.ToFileName());
                 var outputPath = Path.Combine(outputFolder, target.ToFileName());
 
@@ -59,7 +60,7 @@ namespace Packager.Utilities
                 throw new LoggedException(e);
             }
         }
-        
+
         public async Task<string> GetFFMPEGVersion()
         {
             try

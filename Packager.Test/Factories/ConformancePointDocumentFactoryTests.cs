@@ -131,20 +131,7 @@ namespace Packager.Test.Factories
             var parts = Result.Core.CodingHistory.Split(new [] { "\r\n" }, StringSplitOptions.None);
             Assert.That(parts.Length, Is.EqualTo(3));
         }
-
-        [Test]
-        public void CodingHistoryLine1ShouldBeCorrect()
-        {
-            var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
-
-            var expected = string.Format("A={0}," +
-                                         "M=Mono," +
-                                         "T=Player manufacturer Player model;Player serial number;7.5 ips;{1},",
-                ExpectedDigitalOrAnalog, Metadata.Format);
-
-            Assert.That(parts[0], Is.EqualTo(expected));
-        }
-
+        
         [Test]
         public void CodingHistoryLine2ShouldBeCorrect()
         {
@@ -165,7 +152,7 @@ namespace Packager.Test.Factories
             Assert.That(parts[2], Is.EqualTo(expected));
         }
 
-
+        [TestFixture]
         public class WhenFormatIsCDR : ConformancePointDocumentFactoryTests
         {
             protected override void DoCustomSetup()
@@ -176,6 +163,7 @@ namespace Packager.Test.Factories
             }
         }
 
+        [TestFixture]
         public class WhenFormatIsDAT : ConformancePointDocumentFactoryTests
         {
             protected override void DoCustomSetup()
@@ -186,6 +174,100 @@ namespace Packager.Test.Factories
             }
 
 
+        }
+
+        [TestFixture]
+        public class WhenSpeedIsSetInProvenance : ConformancePointDocumentFactoryTests
+        {
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                Provenance.SpeedUsed = "8.5 ips";
+            }
+
+            [Test]
+            public void ItShouldUseProvenanceSpeed()
+            {
+                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+
+                var expected = string.Format("A={0}," +
+                                             "M=Mono," +
+                                             "T=Player manufacturer Player model;Player serial number;8.5ips;{1},",
+                    ExpectedDigitalOrAnalog, Metadata.Format);
+
+                Assert.That(parts[0], Is.EqualTo(expected));
+            }
+        }
+
+        [TestFixture]
+        public class WhenMultipleSpeedsSetInProvenance : ConformancePointDocumentFactoryTests
+        {
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                Provenance.SpeedUsed = "8.5 ips, 1.1 ips, 2.1 ips";
+            }
+
+            [Test]
+            public void ItShouldRenderSpeedsCorrectly()
+            {
+                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+
+                var expected = string.Format("A={0}," +
+                                             "M=Mono," +
+                                             "T=Player manufacturer Player model;Player serial number;8.5ips;1.1ips;2.1ips;{1},",
+                    ExpectedDigitalOrAnalog, Metadata.Format);
+
+                Assert.That(parts[0], Is.EqualTo(expected));
+            }
+        }
+
+        [TestFixture]
+        public class WhenSpeedNotSetInProvenance : ConformancePointDocumentFactoryTests
+        {
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                Provenance.SpeedUsed = "";
+            }
+
+            [Test]
+            public void ItShouldUseMetadataPlaybackSpeed()
+            {
+                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+
+                var expected = string.Format("A={0}," +
+                                             "M=Mono," +
+                                             "T=Player manufacturer Player model;Player serial number;{1};{2},",
+                    ExpectedDigitalOrAnalog, Metadata.PlaybackSpeed.Replace(" ",""), Metadata.Format);
+
+                Assert.That(parts[0], Is.EqualTo(expected));
+            }
+        }
+
+
+        [TestFixture]
+        public class WhenSpeedMissing : ConformancePointDocumentFactoryTests
+        {
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                Provenance.SpeedUsed = "";
+                Metadata.PlaybackSpeed = "";
+            }
+
+            [Test]
+            public void ItShouldNotRenderPlaybackSpeed()
+            {
+                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+
+                var expected = string.Format("A={0}," +
+                                             "M=Mono," +
+                                             "T=Player manufacturer Player model;Player serial number;{1},",
+                    ExpectedDigitalOrAnalog, Metadata.Format);
+
+                Assert.That(parts[0], Is.EqualTo(expected));
+            }
         }
 
 

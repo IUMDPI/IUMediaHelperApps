@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Packager.Exceptions;
 using Packager.Models.BextModels;
@@ -12,10 +14,6 @@ namespace Packager.Factories
     public class ConformancePointDocumentFactory : IConformancePointDocumentFactory
     {
         private string BaseProcessingDirectory { get; set; }
-
-        private const string CodingHistoryLine1Format = "A={0},M={1},T={2} {3};{4};{5};{6},\r\n";
-        private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1} {2};{3};A/D,\r\n";
-        private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
         
         private readonly List<string> _knownDigitalFormats = new List<string>{"cd-r", "dat"};
 
@@ -76,6 +74,34 @@ namespace Packager.Factories
                 : "ANALOG";
         }
 
+        private const string CodingHistoryLine1Format = "A={0},M={1},T={2},\r\n";
+        private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1};A/D,\r\n";
+        private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
+
+        private static string GenerateLine1TextField(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
+        {
+            var parts = new List<string>
+            {
+                string.Format("{0} {1}", provenance.PlayerManufacturer, provenance.PlayerModel),
+                provenance.PlayerSerialNumber,
+                DetermineSpeedUsed(metadata, provenance),
+                metadata.Format
+            };
+
+            return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+        }
+
+        private static string GenerateLine2TextField(DigitalFileProvenance provenance)
+        {
+            var parts = new List<string>
+            {
+                string.Format("{0} {1}", provenance.AdManufacturer, provenance.AdModel),
+                provenance.AdSerialNumber
+            };
+
+            return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+        }
+
         private string GenerateCodingHistory(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
         {
             var builder = new StringBuilder();
@@ -83,21 +109,32 @@ namespace Packager.Factories
             builder.AppendFormat(CodingHistoryLine1Format,
                 GetFormatText(metadata),
                 metadata.SoundField,
-                provenance.PlayerManufacturer,
-                provenance.PlayerModel,
-                provenance.PlayerSerialNumber,
-                metadata.PlaybackSpeed,
-                metadata.Format);
+                GenerateLine1TextField(metadata, provenance));
 
             builder.AppendFormat(CodingHistoryLine2Format,
                 metadata.SoundField,
-                provenance.AdManufacturer,
-                provenance.AdModel,
-                provenance.AdSerialNumber);
+                GenerateLine2TextField(provenance));
 
             builder.Append(CodingHistoryLine3);
 
             return builder.ToString();
+        }
+
+        // if provenance.speedUsed is present
+        // otherwise use metadata.playback speed
+        // finally, replace comma delimiters with semi-colons and remove spaces
+        private static string DetermineSpeedUsed(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
+        {
+            var result = string.IsNullOrWhiteSpace(provenance.SpeedUsed)
+                ? metadata.PlaybackSpeed
+                : provenance.SpeedUsed;
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                return result;
+            }
+
+            return result.Replace(",", ";").Replace(" ","");
         }
     }
 }

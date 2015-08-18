@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
@@ -21,7 +20,7 @@ namespace Packager.Models
             PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
         }
 
-        //[FromConfigSetting("PathToMetaEdit")]
+        [FromConfigSetting("PathToMetaEdit")]
         [ValidateFile]
         public string BwfMetaEditPath { get; private set; }
 

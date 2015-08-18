@@ -16,7 +16,6 @@ namespace Packager.Models.PodMetadataModels
         [Required]
         public string CallNumber { get; set; }
 
-        [Required]
         public string Title { get; set; }
 
         [Required]
@@ -35,7 +34,6 @@ namespace Packager.Models.PodMetadataModels
         [Required]
         public string DigitizingEntity { get; set; }
 
-        [Required]
         public string PlaybackSpeed { get; set; }
 
         public string TrackConfiguration { get; set; }

@@ -172,8 +172,6 @@ namespace Packager.Test.Factories
                 Metadata.Format = "DAT";
                 ExpectedDigitalOrAnalog = "DIGITAL";
             }
-
-
         }
 
         [TestFixture]
@@ -244,8 +242,7 @@ namespace Packager.Test.Factories
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
         }
-
-
+        
         [TestFixture]
         public class WhenSpeedMissing : ConformancePointDocumentFactoryTests
         {

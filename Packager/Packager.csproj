@@ -69,6 +69,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="Utilities\FFMPEGRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />

@@ -11,20 +11,27 @@ namespace Packager.Factories
 {
     public class ConformancePointDocumentFactory : IConformancePointDocumentFactory
     {
+        private string BaseProcessingDirectory { get; set; }
+
         private const string CodingHistoryLine1Format = "A={0},M={1},T={2} {3};{4};{5};{6},\r\n";
         private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1} {2};{3};A/D,\r\n";
         private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
         
-        private readonly List<string> _knownDigitalFormats = new List<string>{"cd-r", "dat"}; 
-        
-        public ConformancePointDocumentFile Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata, string processingDirectory)
+        private readonly List<string> _knownDigitalFormats = new List<string>{"cd-r", "dat"};
+
+        public ConformancePointDocumentFactory(string baseProcessingDirectory)
+        {
+            BaseProcessingDirectory = baseProcessingDirectory;
+        }
+
+        public ConformancePointDocumentFile Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
             var digitizedOn = GenerateOriginationDateTime(provenance);
             var description = GenerateBextDescription(metadata, model);
 
             return new ConformancePointDocumentFile
             {
-                Name = Path.Combine(processingDirectory, model.ToFileName()),
+                Name = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()),
                 Core = new ConformancePointDocumentFileCore
                 {
                     Originator = metadata.DigitizingEntity,

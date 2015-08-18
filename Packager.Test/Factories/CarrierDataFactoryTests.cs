@@ -62,7 +62,7 @@ namespace Packager.Test.Factories
             FilesToProcess = new List<ObjectFileModel> { PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel };
             
             var generator = new CarrierDataFactory(SideDataFactory);
-            Result = generator.Generate(PodMetadata, FilesToProcess, ProcessingDirectory);
+            Result = generator.Generate(PodMetadata, FilesToProcess);
         }
 
         public class WhenSettingBasicProperties : CarrierDataFactoryTests
@@ -223,7 +223,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldCallSideDataFactoryCorrectly()
             {
-                SideDataFactory.Received().Generate(PodMetadata, FilesToProcess, ProcessingDirectory);
+                SideDataFactory.Received().Generate(PodMetadata, FilesToProcess);
             }
         }
     }

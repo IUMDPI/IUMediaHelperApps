@@ -126,7 +126,7 @@ namespace Packager.Processors
                     throw new AddMetadataException("Could not add metadata: no eligible files");
                 }
 
-                await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata, ProcessingDirectory);
+                await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata);
 
                 success = true;
             }
@@ -148,10 +148,10 @@ namespace Packager.Processors
             }
         }
 
-        private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
+        private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
-            var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess, ProcessingDirectory)};
+            var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
             XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
 
             return result;

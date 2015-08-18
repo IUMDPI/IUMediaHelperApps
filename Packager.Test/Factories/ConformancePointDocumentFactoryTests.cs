@@ -12,7 +12,7 @@ namespace Packager.Test.Factories
     [TestFixture]
     public class ConformancePointDocumentFactoryTests
     {
-        private const string ProcessingDirectory = "MDPI_4890764553278906";
+        private const string BaseProcessDirectory = "base";
         private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string DigitizingEntity = "Test digitizing entity";
         private const string Unit = "Test unit";
@@ -50,7 +50,7 @@ namespace Packager.Test.Factories
 
             DoCustomSetup();
 
-            Result = new ConformancePointDocumentFactory().Generate(Model, Provenance, Metadata, ProcessingDirectory);
+            Result = new ConformancePointDocumentFactory(BaseProcessDirectory).Generate(Model, Provenance, Metadata);
         }
 
         private static DigitalFileProvenance GetFileProvenance()
@@ -174,8 +174,6 @@ namespace Packager.Test.Factories
                 Metadata.Format = "CD-R";
                 ExpectedDigitalOrAnalog = "DIGITAL";
             }
-
-
         }
 
         public class WhenFormatIsDAT : ConformancePointDocumentFactoryTests

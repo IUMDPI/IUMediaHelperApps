@@ -1,11 +1,19 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using Packager.Models.FileModels;
 
 namespace Packager.Utilities
 {
     public class Hasher : IHasher
     {
+        private string BaseProcessingFolder { get; set; }
+
+        public Hasher(string baseProcessingFolder)
+        {
+            BaseProcessingFolder = baseProcessingFolder;
+        }
+
         public string Hash(Stream content)
         {
             using (var md5 = MD5.Create())
@@ -24,6 +32,11 @@ namespace Packager.Utilities
             {
                 return Hash(stream);
             }
+        }
+
+        public string Hash(AbstractFileModel model)
+        {
+            return Hash(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName()));
         }
     }
 }

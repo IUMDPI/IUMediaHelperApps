@@ -12,7 +12,7 @@ namespace Packager.Providers
     {
         public DefaultDependencyProvider(IProgramSettings programSettings)
         {
-            Hasher = new Hasher();
+            Hasher = new Hasher(programSettings.ProcessingDirectory);
             XmlExporter = new XmlExporter();
             DirectoryProvider = new DirectoryProvider();
             FileProvider = new FileProvider();
@@ -24,8 +24,8 @@ namespace Packager.Providers
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             LookupsProvider = new AppConfigLookupsProvider();
-            BextProcessor = new BextProcessor(programSettings.BwfMetaEditPath, ProcessRunner, XmlExporter, Observers,
-                new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory());
+            BextProcessor = new BextProcessor(programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory, ProcessRunner, XmlExporter, Observers,
+                new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory(programSettings.ProcessingDirectory));
             FFMPEGRunner = new FFMPEGRunner(ProgramSettings.FFMPEGPath, ProgramSettings.ProcessingDirectory, ProcessRunner, Observers, FileProvider);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ValidatorCollection = new StandardValidatorCollection

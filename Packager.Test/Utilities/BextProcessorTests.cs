@@ -24,7 +24,8 @@ namespace Packager.Test.Utilities
         private const string ProductionFileName = "MDPI_4890764553278906_01_prod.wav";
         private const string PreservationIntermediateFileName = "MDPI_4890764553278906_01_pres-int.wav";
         private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
-        private const string ProcessingDirectory = "MDPI_4890764553278906";
+        private const string BaseProcessingFolder = "base";
+        private const string ExpectedProcessingFolder = "MDPI_4890764553278906";
         private const string Output = "Output";
         private BextProcessor BextProcessor { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
@@ -73,16 +74,16 @@ namespace Packager.Test.Utilities
             Metadata = new ConsolidatedPodMetadata();
 
             ConformancePointDocumentFactory = Substitute.For<IConformancePointDocumentFactory>();
-            ConformancePointDocumentFactory.Generate(Arg.Any<ObjectFileModel>(), Arg.Any<DigitalFileProvenance>(), Metadata, ProcessingDirectory)
+            ConformancePointDocumentFactory.Generate(Arg.Any<ObjectFileModel>(), Arg.Any<DigitalFileProvenance>(), Metadata)
                 .Returns(r => new ConformancePointDocumentFile
                 {
-                    Name = Path.Combine(ProcessingDirectory, r.Arg<ObjectFileModel>().ToFileName())
+                    Name = Path.Combine(ExpectedProcessingFolder, r.Arg<ObjectFileModel>().ToFileName())
                 });
 
             DoCustomSetup();
 
-            BextProcessor = new BextProcessor(BwfMetaEditPath, ProcessRunner, XmlExporter, Observers, Verifier, ConformancePointDocumentFactory);
-            await BextProcessor.EmbedBextMetadata(Instances, Metadata, ProcessingDirectory);
+            BextProcessor = new BextProcessor(BwfMetaEditPath, BaseProcessingFolder, ProcessRunner, XmlExporter, Observers, Verifier, ConformancePointDocumentFactory);
+            await BextProcessor.EmbedBextMetadata(Instances, Metadata);
         }
 
         private ConformancePointDocument GetConformancePointDocument()
@@ -101,7 +102,7 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldCallXmlExporterWithCorrectPath()
             {
-                XmlExporter.Received().ExportToFile(Arg.Any<ConformancePointDocument>(), Path.Combine(ProcessingDirectory, "core.xml"));
+                XmlExporter.Received().ExportToFile(Arg.Any<ConformancePointDocument>(), Path.Combine(BaseProcessingFolder, ExpectedProcessingFolder, "core.xml"));
             }
 
             [Test]
@@ -119,7 +120,7 @@ namespace Packager.Test.Utilities
             [Test]
             public void ShouldCallProcessRunnerCorrectly()
             {
-                var expectedArgs = string.Format("--verbose --Append --in-core={0}", Path.Combine(ProcessingDirectory, "core.xml").ToQuoted());
+                var expectedArgs = string.Format("--verbose --Append --in-core={0}", Path.Combine(BaseProcessingFolder,ExpectedProcessingFolder, "core.xml").ToQuoted());
                 ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i =>
                     i.Arguments.Equals(expectedArgs) &&
                     i.RedirectStandardError &&
@@ -136,7 +137,7 @@ namespace Packager.Test.Utilities
 
                 foreach (var instance in Instances)
                 {
-                    var path = Path.Combine(ProcessingDirectory, instance.ToFileName()).ToLowerInvariant();
+                    var path = Path.Combine(ExpectedProcessingFolder, instance.ToFileName()).ToLowerInvariant();
                     Verifier.Received().Verify(Output.ToLowerInvariant(), Arg.Is<List<string>>(l => l.Contains(path)), Observers);
                 }
             }
@@ -146,7 +147,7 @@ namespace Packager.Test.Utilities
             {
                 foreach (var file in Instances.Select(instance =>
                     GetConformancePointDocument().File.SingleOrDefault(
-                        f => f.Name.Equals(Path.Combine(ProcessingDirectory, instance.ToFileName())))))
+                        f => f.Name.Equals(Path.Combine(ExpectedProcessingFolder, instance.ToFileName())))))
                 {
                     Assert.That(file, Is.Not.Null);
                 }
@@ -167,8 +168,8 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldUsePresProvenanceToGenerateAllCodingHistories()
             {
-                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
-                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
+                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata);
+                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, PreservationProvenance, Metadata);
             }
         }
 
@@ -186,8 +187,8 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldCallConformancePointDocumentFactoryCorrectly()
             {
-                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
-                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, ProductionProvenance, Metadata, ProcessingDirectory);
+                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata);
+                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, ProductionProvenance, Metadata);
             }
         }
 
@@ -205,9 +206,9 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldCallConformancePointDocumentFactoryCorrectly()
             {
-                ConformancePointDocumentFactory.Received().Generate(PresIntFileModel, PreservationIntermediateProvenance, Metadata, ProcessingDirectory);
-                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, PreservationIntermediateProvenance, Metadata, ProcessingDirectory);
-                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
+                ConformancePointDocumentFactory.Received().Generate(PresIntFileModel, PreservationIntermediateProvenance, Metadata);
+                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, PreservationIntermediateProvenance, Metadata);
+                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata);
             }
         }
 
@@ -225,9 +226,9 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldCallConformancePointDocumentFactoryCorrectly()
             {
-                ConformancePointDocumentFactory.Received().Generate(PresIntFileModel, PreservationIntermediateProvenance, Metadata, ProcessingDirectory);
-                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
-                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, ProductionProvenance, Metadata, ProcessingDirectory);
+                ConformancePointDocumentFactory.Received().Generate(PresIntFileModel, PreservationIntermediateProvenance, Metadata);
+                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata);
+                ConformancePointDocumentFactory.Received().Generate(ProdFileModel, ProductionProvenance, Metadata);
             }
         }
 
@@ -250,8 +251,8 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldCallConformancePointDocumentFactoryCorrectly()
             {
-                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata, ProcessingDirectory);
-                ConformancePointDocumentFactory.Received().Generate(PresModelS2, PresModelS2Provenance, Metadata, ProcessingDirectory);
+                ConformancePointDocumentFactory.Received().Generate(PresFileModel, PreservationProvenance, Metadata);
+                ConformancePointDocumentFactory.Received().Generate(PresModelS2, PresModelS2Provenance, Metadata);
             }
         }
     }

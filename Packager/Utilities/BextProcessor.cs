@@ -19,10 +19,11 @@ namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
-        public BextProcessor(string bwfMetaEditPath, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
+        public BextProcessor(string bwfMetaEditPath, string baseProcessingDirectory, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
             IConformancePointDocumentFactory conformancePointDocumentFactory)
         {
             BwfMetaEditPath = bwfMetaEditPath;
+            BaseProcessingDirectory = baseProcessingDirectory;
             ProcessRunner = processRunner;
             XmlExporter = xmlExporter;
             Observers = observers;
@@ -39,14 +40,17 @@ namespace Packager.Utilities
         [ValidateFile]
         public string BwfMetaEditPath { get; set; }
 
-        public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, string processingDirectory)
+        [ValidateFolder]
+        private string BaseProcessingDirectory { get; set; }
+
+        public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata)
         {
             var files = new List<ConformancePointDocumentFile>();
             foreach (var fileModel in instances)
             {
                 var defaultProvenance = GetDefaultProvenance(instances, podMetadata, fileModel);
                 var provenance = podMetadata.FileProvenances.GetFileProvenance(fileModel, defaultProvenance);
-                files.Add(ConformancePointDocumentFactory.Generate(fileModel, provenance, podMetadata, processingDirectory));
+                files.Add(ConformancePointDocumentFactory.Generate(fileModel, provenance, podMetadata));
             }
 
             var xml = new ConformancePointDocument
@@ -54,7 +58,7 @@ namespace Packager.Utilities
                 File = files.ToArray()
             };
 
-            await AddMetadata(xml, processingDirectory);
+            await AddMetadata(xml, instances.First().GetFolderName());
         }
 
         public async Task<string> GetBwfMetaEditVersion()
@@ -91,9 +95,9 @@ namespace Packager.Utilities
             return defaultProvenance;
         }
 
-        private async Task AddMetadata(ConformancePointDocument xml, string processingDirectory)
+        private async Task AddMetadata(ConformancePointDocument xml, string objectFolder)
         {
-            var xmlPath = Path.Combine(processingDirectory, "core.xml");
+            var xmlPath = Path.Combine(BaseProcessingDirectory, objectFolder, "core.xml");
             XmlExporter.ExportToFile(xml, xmlPath);
 
             var args = string.Format("--verbose --Append --in-core={0}", xmlPath.ToQuoted());

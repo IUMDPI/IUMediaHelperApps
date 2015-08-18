@@ -262,8 +262,7 @@ namespace Packager.Test.Processors
                 {
                     BextProcessor.Received().EmbedBextMetadata(
                         Arg.Is<List<ObjectFileModel>>(l => l.Count() == ExpectedModelCount),
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        ExpectedProcessingDirectory);
+                        Arg.Any<ConsolidatedPodMetadata>());
                 }
 
                 [Test]
@@ -271,8 +270,7 @@ namespace Packager.Test.Processors
                 {
                     BextProcessor.Received().EmbedBextMetadata(
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        ExpectedProcessingDirectory);
+                        Arg.Any<ConsolidatedPodMetadata>());
                 }
 
                 [Test]
@@ -280,8 +278,7 @@ namespace Packager.Test.Processors
                 {
                     BextProcessor.Received().EmbedBextMetadata(
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        ExpectedProcessingDirectory);
+                        Arg.Any<ConsolidatedPodMetadata>());
                 }
 
                 [Test]
@@ -289,8 +286,7 @@ namespace Packager.Test.Processors
                 {
                     BextProcessor.Received().EmbedBextMetadata(
                         Arg.Is<List<ObjectFileModel>>(l => l.Any(m => m.IsAccessVersion()) == false),
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        ExpectedProcessingDirectory);
+                        Arg.Any<ConsolidatedPodMetadata>());
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenEmbeddingMetadata
@@ -308,8 +304,7 @@ namespace Packager.Test.Processors
                     {
                         BextProcessor.Received().EmbedBextMetadata(
                             Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
-                            Arg.Any<ConsolidatedPodMetadata>(),
-                            ExpectedProcessingDirectory);
+                            Arg.Any<ConsolidatedPodMetadata>());
                     }
                 }
             }
@@ -324,7 +319,7 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     CarrierData = new CarrierData();
-                    MetadataGenerator.Generate(null, null, "").ReturnsForAnyArgs(CarrierData);
+                    MetadataGenerator.Generate(null, null).ReturnsForAnyArgs(CarrierData);
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
@@ -333,8 +328,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.Count() == ExpectedModelCount),
-                        ExpectedProcessingDirectory);
+                        Arg.Is<List<ObjectFileModel>>(l => l.Count() == ExpectedModelCount));
                 }
 
                 [Test]
@@ -342,8 +336,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
-                        ExpectedProcessingDirectory);
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null));
                 }
 
                 [Test]
@@ -351,8 +344,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null),
-                        ExpectedProcessingDirectory);
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
 
                 [Test]
@@ -360,8 +352,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null),
-                        ExpectedProcessingDirectory);
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
                 }
 
                 [Test]
@@ -386,8 +377,7 @@ namespace Packager.Test.Processors
                     {
                         MetadataGenerator.Received().Generate(
                             Arg.Any<ConsolidatedPodMetadata>(),
-                            Arg.Is<IEnumerable<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
-                            ExpectedProcessingDirectory);
+                            Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
                 }
             }

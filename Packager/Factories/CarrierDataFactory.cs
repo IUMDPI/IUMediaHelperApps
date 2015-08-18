@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
@@ -14,7 +15,7 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public CarrierData Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+        public CarrierData Generate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
         {
             var result = new CarrierData
             {
@@ -28,7 +29,7 @@ namespace Packager.Factories
                 Baking = new BakingData {Date = podMetadata.BakingDate},
                 Cleaning = new CleaningData {Date = podMetadata.CleaningDate, Comment = podMetadata.CleaningComment},
                 Repaired = podMetadata.Repaired,
-                Parts = GeneratePartsData(podMetadata, filesToProcess, processingDirectory),
+                Parts = GeneratePartsData(podMetadata, filesToProcess),
                 Configuration = new ConfigurationData
                 {
                     XsiType = string.Format("Configuration{0}", podMetadata.Format),
@@ -46,12 +47,12 @@ namespace Packager.Factories
             return result;
         }
 
-        private PartsData GeneratePartsData(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+        private PartsData GeneratePartsData(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             return new PartsData
             {
                 DigitizingEntity = podMetadata.DigitizingEntity,
-                Sides = SideDataFactory.Generate(podMetadata, filesToProcess, processingDirectory)
+                Sides = SideDataFactory.Generate(podMetadata, filesToProcess)
             };
         }
     }

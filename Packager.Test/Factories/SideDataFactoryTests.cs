@@ -55,7 +55,7 @@ namespace Packager.Test.Factories
             PreservationIntermediateSide1FileModel = new ObjectFileModel(PreservationIntermediateSide1FileName);
 
             Hasher = Substitute.For<IHasher>();
-            Hasher.Hash(Arg.Any<string>()).Returns(x => string.Format("{0} hash value", Path.GetFileName(x.Arg<string>())));
+            Hasher.Hash(Arg.Any<AbstractFileModel>()).Returns(x => string.Format("{0} hash value", x.Arg<AbstractFileModel>().ToFileName()));
 
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
             IngestDataFactory.Generate(null, null).ReturnsForAnyArgs(new IngestData());
@@ -65,7 +65,7 @@ namespace Packager.Test.Factories
             DoCustomSetup();
 
             var factory = new SideDataFactory(Hasher, IngestDataFactory);
-            Results = factory.Generate(PodMetadata, FilesToProcess, ProcessingDirectory);
+            Results = factory.Generate(PodMetadata, FilesToProcess);
         }
 
         protected virtual void DoCustomSetup()
@@ -80,7 +80,7 @@ namespace Packager.Test.Factories
         {
             foreach (var model in FilesToProcess)
             {
-                Hasher.Received().Hash(Path.Combine(ProcessingDirectory, model.ToFileName()));
+                Hasher.Received().Hash(model);
             }
         }
 

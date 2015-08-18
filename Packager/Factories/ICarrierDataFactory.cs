@@ -7,6 +7,6 @@ namespace Packager.Factories
 {
     public interface ICarrierDataFactory
     {
-        CarrierData Generate(ConsolidatedPodMetadata excelModel, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory);
+        CarrierData Generate(ConsolidatedPodMetadata excelModel, List<ObjectFileModel> filesToProcess);
     }
 }

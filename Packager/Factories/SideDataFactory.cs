@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -22,7 +21,7 @@ namespace Packager.Factories
         private IHasher Hasher { get; set; }
         private IIngestDataFactory IngestDataFactory { get; set; }
 
-        public SideData[] Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess, string processingDirectory)
+        public SideData[] Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -33,20 +32,18 @@ namespace Packager.Factories
             return sideGroupings.Select(grouping => new SideData
             {
                 Side = grouping.Key.ToString("D2", CultureInfo.InvariantCulture),
-                Files = grouping.Select(m => GetFileData(m, processingDirectory)).ToList(),
+                Files = grouping.Select(GetFileData).ToList(),
                 Ingest = IngestDataFactory.Generate(podMetadata, grouping.GetPreservationOrIntermediateModel()),
                 ManualCheck = "No"
             }).ToArray();
         }
 
-        private FileData GetFileData(AbstractFileModel objectFileModel, string processingDirectory)
+        private FileData GetFileData(AbstractFileModel model)
         {
-            var filePath = Path.Combine(processingDirectory, objectFileModel.ToFileName());
-
             return new FileData
             {
-                Checksum = Hasher.Hash(filePath),
-                FileName = Path.GetFileName(filePath)
+                Checksum = Hasher.Hash(model),
+                FileName = model.ToFileName()
             };
         }
     }

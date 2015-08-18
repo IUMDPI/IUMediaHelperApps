@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Packager.Models.FileModels;
 
 namespace Packager.Utilities
 {
@@ -6,5 +7,6 @@ namespace Packager.Utilities
     {
         string Hash(Stream content);
         string Hash(string path);
+        string Hash(AbstractFileModel model);
     }
 }

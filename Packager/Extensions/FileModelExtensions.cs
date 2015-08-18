@@ -35,6 +35,5 @@ namespace Packager.Extensions
             var preservationIntermediate = list.FirstOrDefault(m => m.IsPreservationIntermediateVersion());
             return preservationIntermediate ?? list.FirstOrDefault(m => m.IsPreservationVersion());
         }
-
     }
 }

@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Mime;
 using System.Runtime.CompilerServices;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Folding;
+using ICSharpCode.AvalonEdit.Rendering;
 using Packager.Annotations;
 using Packager.Exceptions;
 using Packager.Models;
@@ -12,7 +19,7 @@ using Packager.Models.UserInterfaceModels;
 
 namespace Packager.UserInterface
 {
-    public class ViewModel:INotifyPropertyChanged
+    public class ViewModel : INotifyPropertyChanged
     {
         private readonly List<SectionModel> _sections = new List<SectionModel>();
         private string _title;
@@ -32,29 +39,72 @@ namespace Packager.UserInterface
             }
         }
 
+        private bool AutoScroll { get; set; }
+
         public TextDocument Document { get; private set; }
+
         private FoldingManager FoldingManager { get; set; }
 
-        private int TextLength
-        {
-            get { return Document.TextLength; }
-        }
+        private int TextLength => Document.TextLength;
+
+        private TextArea TextArea => TextEditor.TextArea;
+
+        private TextEditor TextEditor { get; set; }
 
         public void Initialize(OutputWindow outputWindow, IProgramSettings programSettings)
         {
+            AutoScroll = true;
+            TextEditor = outputWindow.OutputText;
+
             outputWindow.DataContext = this;
             outputWindow.Show();
+            
+            ((IScrollInfo)outputWindow.OutputText.TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
 
-            Title = string.Format("{0} Media Packager", programSettings.ProjectCode.ToUpperInvariant());
+            Document.PropertyChanged += DocumentPropertyChangedHandler;
+            Title = $"{programSettings.ProjectCode.ToUpperInvariant()} Media Packager";
 
             FoldingManager = FoldingManager.Install(outputWindow.OutputText.TextArea);
+        }
+
+        private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)
+        {
+            var viewer = sender as ScrollViewer;
+            if (viewer == null)
+            {
+                return;
+            }
+
+            if (!e.ExtentHeightChange.Equals(0))
+            {
+                return;
+            }
+
+            AutoScroll = viewer.VerticalOffset.Equals(viewer.ScrollableHeight);
+        }
+
+        private void DocumentPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        {
+            if (!e.PropertyName.Equals("LineCount"))
+            {
+                return;
+            }
+
+            if (!AutoScroll)
+            {
+                return;
+            }
+
+            var scrollTo = TextArea.TextView.GetVisualTopByDocumentLine(Document.LineCount);
+            TextEditor.ScrollToVerticalOffset(scrollTo);
+
         }
 
         private void InsertLine()
         {
             Document.Insert(TextLength, "\n");
         }
-        
+
         public void InsertLine(string value)
         {
             value = value.TrimEnd('\n');
@@ -64,7 +114,7 @@ namespace Packager.UserInterface
 
             foreach (var line in lines)
             {
-                Document.Insert(TextLength, string.Format("{0}\n", Indent(line, indent)));
+                Document.Insert(TextLength, $"{Indent(line, indent)}\n");
             }
         }
 
@@ -72,12 +122,12 @@ namespace Packager.UserInterface
         {
             if (e is AbstractEngineException)
             {
-                InsertLine(string.Format("ERROR: {0}", e.Message));
+                InsertLine($"ERROR: {e.Message}");
                 return;
             }
-            
+
             var sectionKey = Guid.NewGuid();
-            BeginSection(sectionKey, string.Format("ERROR: {0}", e.Message));
+            BeginSection(sectionKey, $"ERROR: {e.Message}");
             InsertLine(e.StackTrace);
             EndSection(sectionKey);
         }
@@ -163,20 +213,16 @@ namespace Packager.UserInterface
 
         private static string Indent(string value, int indent)
         {
-            return indent == 0 
-                ? value 
-                : string.Format("{0}{1}", new String(' ', indent*2), value);
+            return indent == 0
+                ? value
+                : $"{new string(' ', indent * 2)}{value}";
         }
 
         public void FlagSectionAsSuccessful(Guid key, string newTitle)
         {
             var section = FoldingManager.AllFoldings.SingleOrDefault(s => IsSection(s, key));
-            if (section == null)
-            {
-                return;
-            }
 
-            var model = section.Tag as SectionModel;
+            var model = section?.Tag as SectionModel;
             if (model == null)
             {
                 return;
@@ -203,7 +249,7 @@ namespace Packager.UserInterface
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             var handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

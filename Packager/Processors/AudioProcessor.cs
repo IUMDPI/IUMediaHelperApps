@@ -22,30 +22,11 @@ namespace Packager.Processors
         {
         }
 
-        protected override string ProductionFileExtension
-        {
-            get { return ".wav"; }
-        }
-
-        protected override string AccessFileExtension
-        {
-            get { return ".mp4"; }
-        }
-
-        protected override string MezzanineFileExtension
-        {
-            get { return ".aac"; }
-        }
-
-        protected override string PreservationFileExtension
-        {
-            get { return ".wav"; }
-        }
-
-        protected override string PreservationIntermediateFileExtenstion
-        {
-            get { return ".wav"; }
-        }
+        protected override string ProductionFileExtension => ".wav";
+        protected override string AccessFileExtension => ".mp4";
+        protected override string MezzanineFileExtension => ".aac";
+        protected override string PreservationFileExtension => ".wav";
+        protected override string PreservationIntermediateFileExtenstion => ".wav";
 
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {

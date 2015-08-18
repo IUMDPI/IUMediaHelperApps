@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,16 +10,14 @@ using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
-using Packager.Utilities;
 using Packager.Validators;
 
 namespace Packager.Engine
 {
     public class StandardEngine : IEngine
     {
-        private readonly Dictionary<string, IProcessor> _processors;
         private readonly IDependencyProvider _dependencyProvider;
-        
+        private readonly Dictionary<string, IProcessor> _processors;
 
         public StandardEngine(
             Dictionary<string, IProcessor> processors,
@@ -30,32 +27,10 @@ namespace Packager.Engine
             _dependencyProvider = dependencyProvider;
         }
 
-        private IObserverCollection Observers
-        {
-            get { return _dependencyProvider.Observers; }
-        }
-
-        private IProgramSettings ProgramSettings
-        {
-            get { return _dependencyProvider.ProgramSettings; }
-        }
-
-        private IDirectoryProvider DirectoryProvider
-        {
-            get { return _dependencyProvider.DirectoryProvider; }
-        }
-
-        private IFileProvider FileProvider
-        {
-            get { return _dependencyProvider.FileProvider; }
-        }
-
-        private IValidatorCollection ValidatorCollection
-        {
-            get { return _dependencyProvider.ValidatorCollection; }
-        }
-
-        private IProcessRunner ProcessRunner { get { return _dependencyProvider.ProcessRunner; } }
+        private IObserverCollection Observers => _dependencyProvider.Observers;
+        private IProgramSettings ProgramSettings => _dependencyProvider.ProgramSettings;
+        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
+        private IValidatorCollection ValidatorCollection => _dependencyProvider.ValidatorCollection;
 
         public async Task Start()
         {
@@ -70,7 +45,7 @@ namespace Packager.Engine
                 {
                     throw new ProgramSettingsException(result.Issues);
                 }
-              
+
                 // this factory will assign each extension
                 // to the appropriate file model
                 var factory = new FileModelFactory(_processors.Keys);
@@ -85,11 +60,11 @@ namespace Packager.Engine
                     .Where(f => f.IsValid())
                     .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
                     .GroupBy(f => f.BarCode).ToList();
-                
+
                 Observers.Log("Found {0} objects to process", objectGroups.Count());
-               
+
                 var results = new Dictionary<string, bool>();
-                
+
                 // now we want to get the processor for each group
                 // and process the files for the group
                 foreach (var group in objectGroups)
@@ -98,7 +73,6 @@ namespace Packager.Engine
                 }
 
                 WriteResultsMessage(results);
-               
             }
             catch (Exception ex)
             {
@@ -174,7 +148,7 @@ namespace Packager.Engine
             Observers.Log("FFMPeg audio access args: {0}", ProgramSettings.FFMPEGAudioAccessArguments.ToDefaultIfEmpty("[not set]"));
             Observers.EndSection(sectionKey);
         }
-        
+
         private void WriteResultsMessage(Dictionary<string, bool> results)
         {
             Observers.Log("");
@@ -182,7 +156,7 @@ namespace Packager.Engine
             {
                 return;
             }
-            
+
             var inError = results.Where(r => r.Value == false).Select(r => r.Key).ToList();
             var success = results.Where(r => r.Value).Select(r => r.Key).ToList();
 

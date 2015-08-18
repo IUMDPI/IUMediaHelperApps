@@ -10,7 +10,7 @@
                 FontFamily="Consolas" FontSize="10pt"
                 HorizontalScrollBarVisibility="Hidden" 
                 IsReadOnly="True"
-                SyntaxHighlighting="" Padding="10px"/>
+                Padding="10px"/>
         </Border>
         
     </Grid>

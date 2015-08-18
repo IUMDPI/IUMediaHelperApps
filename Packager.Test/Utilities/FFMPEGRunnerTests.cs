@@ -2,10 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Models.FileModels;
+using Packager.Models.ResultModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
@@ -22,6 +24,7 @@ namespace Packager.Test.Utilities
         private const string OutputFolder = "output folder";
         private const string MasterFileName = "MDPI_123456789_01_pres.wav";
         private const string DerivativeFileName = "MDPI_123456789_01_access.wav";
+        private const string StandardErrorOutput = "Standard error output";
         private ObjectFileModel MasterFileModel { get; set; }
         private ObjectFileModel DerivativeFileModel { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
@@ -29,6 +32,8 @@ namespace Packager.Test.Utilities
         private IFileProvider FileProvider { get; set; }
         private FFMPEGRunner Runner { get; set; }
         private ObjectFileModel Result { get; set; }
+        private IProcessResult ProcessRunnerResult { get; set; }
+
 
         protected virtual void DoCustomSetup()
         {
@@ -37,9 +42,15 @@ namespace Packager.Test.Utilities
         [SetUp]
         public virtual async void BeforeEach()
         {
+
+            ProcessRunnerResult = Substitute.For<IProcessResult>();
+            ProcessRunnerResult.ExitCode.Returns(0);
+            ProcessRunnerResult.StandardError.Returns(StandardErrorOutput);
+
             MasterFileModel = new ObjectFileModel(MasterFileName);
             DerivativeFileModel = new ObjectFileModel(DerivativeFileName);
             ProcessRunner = Substitute.For<IProcessRunner>();
+           
             Observers = Substitute.For<IObserverCollection>();
             FileProvider = Substitute.For<IFileProvider>();
 
@@ -61,10 +72,15 @@ namespace Packager.Test.Utilities
             public override async void BeforeEach()
             {
                 base.BeforeEach();
-                
+
+                ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                {
+                    ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
+                    return Task.FromResult(ProcessRunnerResult);
+                });
+
                 Result = await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder);
             }
-
 
             [Test]
             public void ItShouldCallBeginSectionCorrectly()
@@ -114,6 +130,12 @@ namespace Packager.Test.Utilities
                 }
 
                 [Test]
+                public void ItShouldLogProcessResultOutput()
+                {
+                    Observers.Received().Log(StandardErrorOutput);
+                }
+
+                [Test]
                 public void ItShouldCallProcessRunnerCorrectly()
                 {
                     var expectedArgs = string.Format("-i {0} {1} {2}",
@@ -132,47 +154,76 @@ namespace Packager.Test.Utilities
             }
         }
 
-
-        public class WhenIssuesOccurr : FFMPEGRunnerTests
+        public class WhenThingsGoWrong : FFMPEGRunnerTests
         {
-            private Exception Exception { get; set; }
-
             private LoggedException FinalException { get; set; }
-            
-            public override void BeforeEach()
-            {
-                base.BeforeEach();
 
-                FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder));
+            public class WhenProcessRunnerReturnsFailResult : WhenThingsGoWrong
+            {
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+                    ProcessRunnerResult.ExitCode.Returns(-1);
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    {
+                        ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
+                        return Task.FromResult(ProcessRunnerResult);
+                    });
+
+                    FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder));
+                }
+                
+                [Test]
+                public void FinalExceptionShouldBeCorrect()
+                {
+                    var innerException = FinalException.InnerException as GenerateDerivativeException;
+                    Assert.That(innerException, Is.Not.Null);
+                    Assert.That(innerException.Message, Is.EqualTo(string.Format("Could not generate derivative: {0}", -1)));
+                }
             }
 
-            protected override void DoCustomSetup()
+            public class WhenExceptionsOccurr : WhenThingsGoWrong
             {
-                base.DoCustomSetup();
-                Exception = new Exception("testing"); 
-                ProcessRunner.Run(null).ReturnsForAnyArgs(x => { throw Exception; });
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+                    Exception = new Exception("testing");
+                    ProcessRunner.Run(null).ReturnsForAnyArgs(x => { throw Exception; });
+                    FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments, OutputFolder));
+                }
+
+                private Exception Exception { get; set; }
+
+                [Test]
+                public void ItShouldLogIssue()
+                {
+                    Observers.Received().LogProcessingIssue(Exception, MasterFileModel.BarCode);
+                }
+
+                [Test]
+                public void ItShouldCloseExceptionCorrectly()
+                {
+                    Observers.Received().EndSection(Arg.Any<Guid>());
+                }
+
+                [Test]
+                public void ItShouldThrowCorrectLoggedException()
+                {
+                    Assert.That(FinalException, Is.Not.Null);
+                    Assert.That(FinalException.InnerException.Equals(Exception));
+                }
+
             }
 
-            [Test]
-            public void ItShouldLogIssue()
-            {
-                Observers.Received().LogProcessingIssue(Exception, MasterFileModel.BarCode);
-            }
 
-            [Test]
-            public void ItShouldCloseExceptionCorrectly()
-            {
-                Observers.Received().EndSection(Arg.Any<Guid>());
-            }
 
-            [Test]
-            public void ItShouldThrowCorrectLoggedException()
-            {
-                Assert.That(FinalException, Is.Not.Null);
-                Assert.That(FinalException.InnerException.Equals(Exception));
-            }
+
+
+
+
+
         }
     }
 
-   
+
 }

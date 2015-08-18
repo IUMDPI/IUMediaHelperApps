@@ -59,9 +59,7 @@ namespace Packager.Utilities
                 throw new LoggedException(e);
             }
         }
-
-    
-
+        
         public async Task<string> GetFFMPEGVersion()
         {
             try
@@ -93,8 +91,7 @@ namespace Packager.Utilities
 
             Observers.Log(result.StandardError);
 
-            var verifier = new FFMPEGVerifier();
-            if (!verifier.Verify(result.ExitCode))
+            if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }

@@ -206,7 +206,6 @@
     <Compile Include="Validators\ValidationResults.cs" />
     <Compile Include="Validators\ValueRequiredValidator.cs" />
     <Compile Include="Verifiers\BwfMetaeditResultsVerifier.cs" />
-    <Compile Include="Verifiers\FFMPEGVerifier.cs" />
     <Compile Include="Verifiers\IVerifier.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

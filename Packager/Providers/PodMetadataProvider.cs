@@ -129,7 +129,7 @@ namespace Packager.Providers
                 TrackConfiguration = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TrackConfiguration),
                 SoundField = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.SoundField),
                 TapeThickness = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TapeThickness),
-                FileProvenances = metadata.Data.Object.DigitalProvenance.DigitalFileProvenances,
+                FileProvenances = metadata.Data.Object.DigitalProvenance.DigitalFiles,
                 Damage = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.Damage, "None"),
                 PreservationProblems = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PreservationProblems)
             };

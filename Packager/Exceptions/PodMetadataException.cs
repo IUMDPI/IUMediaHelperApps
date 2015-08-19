@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Packager.Validators;
 
 namespace Packager.Exceptions
@@ -15,7 +16,7 @@ namespace Packager.Exceptions
         {
         }
 
-        public PodMetadataException(ValidationResults validationResults) : base("One or more required metadata properties is missing or invalid:\n  {0}", string.Join("\n  ", validationResults.Issues))
+        public PodMetadataException(ValidationResults validationResults) : base("One or more required metadata properties is missing or invalid:\n  {0}", string.Join("\n  ", validationResults.Issues.Distinct()))
         {
         }
     }

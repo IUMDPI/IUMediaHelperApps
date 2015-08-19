@@ -10,7 +10,7 @@ namespace Packager.Models.PodMetadataModels
         public string Baking { get; set; }
         public bool? Repaired { get; set; }
         public string CleaningComment { get; set; }
-        public string Duration { get; set; }
-        public List<DigitalFileProvenance> DigitalFileProvenances { get; set; }
+        public string DigitizationTime { get; set; }
+        public List<DigitalFileProvenance> DigitalFiles { get; set; }
     }
 }

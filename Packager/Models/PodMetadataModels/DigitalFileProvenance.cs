@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -12,38 +13,45 @@ namespace Packager.Models.PodMetadataModels
         [Required]
         public string CreatedBy { get; set; }
 
-        [Required]
-        public string PlayerSerialNumber { get; set; }
-
-        [Required]
-        public string PlayerManufacturer { get; set; }
-
-        [Required]
-        public string PlayerModel { get; set; }
-
-        [Required]
-        public string AdSerialNumber { get; set; }
-
-        [Required]
-        public string AdManufacturer { get; set; }
-
-        [Required]
-        public string AdModel { get; set; }
-
-        [Required]
-        public string ExtractionWorkstation { get; set; }
+        public List<Device> SignalChain { get; set; }
 
         [Required]
         public string SpeedUsed { get; set; }
 
         [Required]
+        public string Filename { get; set; }
+
+
+
+        //-----------------------------------------------------
+        // deprecated 
+
+        //[Required]
         public string CreatedAt { get; set; }
 
-        [Required]
+        //[Required]
         public string UpdatedAt { get; set; }
+        
+        //[Required]
+        public string PlayerSerialNumber { get; set; }
 
-        [Required]
-        public string Filename { get; set; }
+        //[Required]
+        public string PlayerManufacturer { get; set; }
+
+        //[Required]
+        public string PlayerModel { get; set; }
+
+        //[Required]
+        public string AdSerialNumber { get; set; }
+
+        //[Required]
+        public string AdManufacturer { get; set; }
+
+        //[Required]
+        public string AdModel { get; set; }
+
+        //[Required]
+        public string ExtractionWorkstation { get; set; }
 
         public string PreAmpSerialNumber { get; set; }
         public string PreAmp { get; set; }

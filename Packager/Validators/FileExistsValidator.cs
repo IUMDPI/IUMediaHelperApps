@@ -21,9 +21,6 @@ namespace Packager.Validators
                 : new ValidationResult("Invalid path specified for {0}: {1}", friendlyName, value.ToDefaultIfEmpty("[not set]"));
         }
 
-        public Type Supports
-        {
-            get { return typeof (ValidateFileAttribute); }
-        }
+        public Type Supports => typeof (ValidateFileAttribute);
     }
 }

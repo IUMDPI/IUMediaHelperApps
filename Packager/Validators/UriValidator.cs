@@ -13,9 +13,6 @@ namespace Packager.Validators
                 : new ValidationResult("Invalid uri specified for {0}: {1}", friendlyName, value.ToDefaultIfEmpty("[not set]"));
         }
 
-        public Type Supports
-        {
-            get { return typeof (ValidateUriAttribute); }
-        }
+        public Type Supports => typeof (ValidateUriAttribute);
     }
 }

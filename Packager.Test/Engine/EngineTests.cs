@@ -59,8 +59,8 @@ namespace Packager.Test.Engine
             MockWavProcessor = Substitute.For<IProcessor>();
             MockMpegProcessor = Substitute.For<IProcessor>();
 
-            MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(true));
-            MockMpegProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(true));
+            MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
+            MockMpegProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
 
             Observer = Substitute.For<IObserverCollection>();
 
@@ -156,7 +156,7 @@ namespace Packager.Test.Engine
             {
                 base.BeforeEach();
 
-                MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(false));
+                MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(new ValidationResult("issue")));
 
                 await Engine.Start();
             }

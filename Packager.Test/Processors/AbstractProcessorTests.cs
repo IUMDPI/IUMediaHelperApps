@@ -12,6 +12,7 @@ using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Validators;
 
 namespace Packager.Test.Processors
 {
@@ -57,7 +58,7 @@ namespace Packager.Test.Processors
         
         protected string XmlManifestFileName { get; set; }
  
-        public bool Result { get; set; }
+        public ValidationResult Result { get; set; }
 
         protected IGrouping<string, AbstractFileModel> GetGrouping(IEnumerable<AbstractFileModel> models)
         {
@@ -104,7 +105,7 @@ namespace Packager.Test.Processors
             DependencyProvider.FFMPEGRunner.Returns(FFMPEGRunner);
             DoCustomSetup();
 
-           Result =  await Processor.ProcessFile(GetGrouping(ModelList));
+            Result =  await Processor.ProcessFile(GetGrouping(ModelList));
             
         }
 

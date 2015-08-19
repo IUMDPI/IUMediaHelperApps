@@ -13,10 +13,7 @@ namespace Packager.Validators
             Result = success;
         }
 
-        public static ValidationResult Success
-        {
-            get { return new ValidationResult(true, ""); }
-        }
+        public static ValidationResult Success => new ValidationResult(true, "");
 
         public bool Result { get; set; }
         public string Issue { get; set; }

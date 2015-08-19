@@ -25,10 +25,7 @@ namespace Packager.Models.EmailMessageModels
             Issue = issue;
         }
 
-        public override string Title
-        {
-            get { return string.Format(TitleFormat, Barcode, MachineName); }
-        }
+        public override string Title => string.Format(TitleFormat, Barcode, MachineName);
 
         public override string Body
         {

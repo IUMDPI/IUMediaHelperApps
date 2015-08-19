@@ -75,7 +75,7 @@ namespace Packager.Processors
             return processedList;
         }
 
-        protected override async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
+        protected virtual async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
             var prodModel = await IffmpegRunner.CreateDerivative(
                 fileModel,

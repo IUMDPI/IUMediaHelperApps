@@ -13,9 +13,6 @@ namespace Packager.Validators
                 : new ValidationResult("Value not set for {0}", friendlyName);
         }
 
-        public Type Supports
-        {
-            get { return typeof (RequiredAttribute); }
-        }
+        public Type Supports => typeof (RequiredAttribute);
     }
 }

@@ -26,6 +26,7 @@
     <Span color="SubHeader" begin="Copying objects to dropbox" />
     <Span color="SubHeader" begin="Cleaning up" />
     <Span color="SubHeader" begin="Initializing" />
+    <Span color="SubHeader" begin="Results Summary:" />
     <Span color="ObjectHeader" begin="Processing Object" end=": " />
     <Span color="ProvenanceHeader" begin="File Provenance:" end=": " />
     

@@ -25,15 +25,9 @@ namespace Packager.Processors
             _dependencyProvider = dependencyProvider;
         }
 
-        private IProgramSettings ProgramSettings
-        {
-            get { return _dependencyProvider.ProgramSettings; }
-        }
+        private IProgramSettings ProgramSettings => _dependencyProvider.ProgramSettings;
 
-        protected IObserverCollection Observers
-        {
-            get { return _dependencyProvider.Observers; }
-        }
+        protected IObserverCollection Observers => _dependencyProvider.Observers;
 
         protected abstract string ProductionFileExtension { get; }
         protected abstract string AccessFileExtension { get; }
@@ -41,41 +35,21 @@ namespace Packager.Processors
         protected abstract string PreservationFileExtension { get; }
         protected abstract string PreservationIntermediateFileExtenstion { get; }
 
-        protected IPodMetadataProvider MetadataProvider
-        {
-            get { return _dependencyProvider.MetadataProvider; }
-        }
+        private IPodMetadataProvider MetadataProvider => _dependencyProvider.MetadataProvider;
 
-        protected IXmlExporter XmlExporter
-        {
-            get { return _dependencyProvider.XmlExporter; }
-        }
+        protected IXmlExporter XmlExporter => _dependencyProvider.XmlExporter;
 
-        protected IValidatorCollection Validators { get { return _dependencyProvider.ValidatorCollection; } }
+        protected string ProjectCode => ProgramSettings.ProjectCode;
 
-        protected string ProjectCode
-        {
-            get { return ProgramSettings.ProjectCode; }
-        }
+        private string ObjectDirectoryName => $"{ProjectCode.ToUpperInvariant()}_{Barcode}";
 
-        private string ObjectDirectoryName
-        {
-            get { return string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode); }
-        }
+        protected string ProcessingDirectory => Path.Combine(RootProcessingDirectory, ObjectDirectoryName);
 
-        protected string ProcessingDirectory
-        {
-            get { return Path.Combine(RootProcessingDirectory, ObjectDirectoryName); }
-        }
-
-        private string DropBoxDirectory
-        {
-            get { return Path.Combine(RootDropBoxDirectory, ObjectDirectoryName); }
-        }
+        private string DropBoxDirectory => Path.Combine(RootDropBoxDirectory, ObjectDirectoryName);
 
         protected string Barcode { get; private set; }
 
-        public virtual async Task<bool> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
+        public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
             Barcode = fileModels.Key;
 
@@ -97,15 +71,15 @@ namespace Packager.Processors
                 // move everything to success folder
                 await MoveToSuccessFolder();
 
-                Observers.EndSection(sectionKey, string.Format("Object processed succesfully: {0}", Barcode));
-                return true;
+                Observers.EndSection(sectionKey, $"Object processed succesfully: {Barcode}");
+                return ValidationResult.Success;
             }
             catch (Exception e)
             {
                 Observers.LogProcessingIssue(e, Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return false;
+                return new ValidationResult(e.Message);
             }
         }
 
@@ -116,92 +90,36 @@ namespace Packager.Processors
                 .Select(m => (ObjectFileModel)m)
                 .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion())
                 .ToList();
-        } 
+        }
 
-        protected abstract Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel);
         protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
         
-        // ReSharper disable once InconsistentNaming
-        protected string BWFMetaEditPath
-        {
-            get { return ProgramSettings.BwfMetaEditPath; }
-        }
+        private string InputDirectory => ProgramSettings.InputDirectory;
 
-        protected string DateFormat
-        {
-            get { return ProgramSettings.DateFormat; }
-        }
+        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
+
+        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
 
         // ReSharper disable once InconsistentNaming
-        protected string FFMPEGPath
-        {
-            get { return ProgramSettings.FFMPEGPath; }
-        }
-
-        private string InputDirectory
-        {
-            get { return ProgramSettings.InputDirectory; }
-        }
-
-        private string RootDropBoxDirectory
-        {
-            get { return ProgramSettings.DropBoxDirectoryName; }
-        }
-
-        private string RootProcessingDirectory
-        {
-            get { return ProgramSettings.ProcessingDirectory; }
-        }
+        protected string FFMPEGAudioProductionArguments => ProgramSettings.FFMPEGAudioProductionArguments;
 
         // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioProductionArguments
-        {
-            get { return ProgramSettings.FFMPEGAudioProductionArguments; }
-        }
+        protected string FFMPEGAudioAccessArguments => ProgramSettings.FFMPEGAudioAccessArguments;
+
+        private string SuccesDirectory => Path.Combine(ProgramSettings.SuccessDirectoryName, ObjectDirectoryName);
+
+        private string ErrorDirectory => Path.Combine(ProgramSettings.ErrorDirectoryName, ObjectDirectoryName);
+
+        private IFileProvider FileProvider => _dependencyProvider.FileProvider;
+
+        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
+
+        protected ICarrierDataFactory MetadataGenerator => _dependencyProvider.MetadataGenerator;
+
+        protected IBextProcessor BextProcessor => _dependencyProvider.BextProcessor;
 
         // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioAccessArguments
-        {
-            get { return ProgramSettings.FFMPEGAudioAccessArguments; }
-        }
-        
-        protected string SuccesDirectory
-        {
-            get { return Path.Combine(ProgramSettings.SuccessDirectoryName, ObjectDirectoryName); }
-        }
-
-        protected string ErrorDirectory
-        {
-            get { return Path.Combine(ProgramSettings.ErrorDirectoryName, ObjectDirectoryName); }
-        }
-
-        protected IFileProvider FileProvider
-        {
-            get { return _dependencyProvider.FileProvider; }
-        }
-
-        protected IDirectoryProvider DirectoryProvider
-        {
-            get { return _dependencyProvider.DirectoryProvider; }
-        }
-
-        protected IProcessRunner ProcessRunner
-        {
-            get { return _dependencyProvider.ProcessRunner; }
-        }
-
-        protected ICarrierDataFactory MetadataGenerator
-        {
-            get { return _dependencyProvider.MetadataGenerator; }
-        }
-
-        protected IBextProcessor BextProcessor
-        {
-            get { return _dependencyProvider.BextProcessor; }
-        }
-
-        // ReSharper disable once InconsistentNaming
-        protected IFFMPEGRunner IffmpegRunner { get { return _dependencyProvider.FFMPEGRunner; } }
+        protected IFFMPEGRunner IffmpegRunner => _dependencyProvider.FFMPEGRunner;
 
         private async Task CreateProcessingDirectoryAndMoveFiles(IEnumerable<ObjectFileModel> filesToProcess)
         {
@@ -260,7 +178,7 @@ namespace Packager.Processors
                         Path.Combine(ProcessingDirectory, fileName),
                         Path.Combine(DropBoxDirectory, fileName));
                 }
-                Observers.EndSection(sectionKey, string.Format("{0} files copied to dropbox folder successfully", Barcode));
+                Observers.EndSection(sectionKey, $"{Barcode} files copied to dropbox folder successfully");
             }
             catch (Exception e)
             {
@@ -306,7 +224,7 @@ namespace Packager.Processors
                 // validate base metadata fields
                 MetadataProvider.Validate(metadata, filesToProcess);
 
-                Observers.EndSection(sectionKey, string.Format("Retrieved metadata for object: {0}", Barcode));
+                Observers.EndSection(sectionKey, $"Retrieved metadata for object: {Barcode}");
                 
                 return metadata;
             }
@@ -317,8 +235,6 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
-
-     
 
         protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
         {

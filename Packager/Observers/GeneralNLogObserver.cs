@@ -12,10 +12,7 @@ namespace Packager.Observers
         {
         }
 
-        protected override string LoggerName
-        {
-            get { return ThisLoggerName; }
-        }
+        protected override string LoggerName => ThisLoggerName;
 
         public override void Log(string baseMessage, params object[] elements)
         {

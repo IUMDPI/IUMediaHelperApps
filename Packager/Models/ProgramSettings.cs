@@ -81,10 +81,7 @@ namespace Packager.Models
         [ValidateUri]
         public string WebServiceUrl { get; private set; }
 
-        public string DateFormat
-        {
-            get { return "yyyy-MM-dd HH:mm:ss \"GMT\"zzz"; }
-        }
+        public string DateFormat => "yyyy-MM-dd HH:mm:ss \"GMT\"zzz";
 
         private void ImportMappedConfigStringSettings(NameValueCollection settings)
         {

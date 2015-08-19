@@ -63,7 +63,7 @@ namespace Packager.Engine
 
                 Observers.Log("Found {0} objects to process", objectGroups.Count());
 
-                var results = new Dictionary<string, bool>();
+                var results = new Dictionary<string, ValidationResult>();
 
                 // now we want to get the processor for each group
                 // and process the files for the group
@@ -92,7 +92,7 @@ namespace Packager.Engine
             Observers.Add(observer);
         }
 
-        private async Task<bool> ProcessFile(IGrouping<string, AbstractFileModel> group)
+        private async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> group)
         {
             var processor = GetProcessor(group);
             return await processor.ProcessFile(group);
@@ -149,23 +149,41 @@ namespace Packager.Engine
             Observers.EndSection(sectionKey);
         }
 
-        private void WriteResultsMessage(Dictionary<string, bool> results)
+        private void WriteResultsMessage(Dictionary<string, ValidationResult> results)
         {
-            Observers.Log("");
             if (!results.Any())
             {
                 return;
             }
 
-            var inError = results.Where(r => r.Value == false).Select(r => r.Key).ToList();
-            var success = results.Where(r => r.Value).Select(r => r.Key).ToList();
+            var section = Observers.BeginSection("Results Summary:");
 
-            Observers.Log("Successfully processed {0} objects.", success.Count);
+            Observers.Log("Found {0} {1} to process.", results.Count, results.ToSingularOrPlural("object", "objects"));
 
-            foreach (var barcode in inError)
+            var inError = results.Where(r => r.Value.Result == false).Select(r => r.Key).ToList();
+            var success = results.Where(r => r.Value.Result).Select(r => r.Key).ToList();
+
+            LogObjectResults(success, $"Successfully processed {success.Count} {success.ToSingularOrPlural("object", "objects")}:");
+            LogObjectResults(inError, $"Could not process {inError.Count} {inError.ToSingularOrPlural("object", "objects")}:");
+
+            Observers.EndSection(section);
+        }
+
+        private void LogObjectResults(List<string> barcodes, string header)
+        {
+            if (barcodes.Any() == false)
             {
-                Observers.Log("Could not process {0}", barcode);
+                return;
             }
+
+            var sectionKey = Observers.BeginSection(header);
+
+            foreach (var barCode in barcodes)
+            {
+                Observers.Log("  {0}", barCode);
+            }
+
+            Observers.EndSection(sectionKey);
         }
     }
 }

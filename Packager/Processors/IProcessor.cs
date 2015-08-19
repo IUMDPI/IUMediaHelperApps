@@ -1,11 +1,12 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
+using Packager.Validators;
 
 namespace Packager.Processors
 {
     public interface IProcessor
     {
-        Task<bool> ProcessFile(IGrouping<string, AbstractFileModel> fileModels);
+        Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels);
     }
 }

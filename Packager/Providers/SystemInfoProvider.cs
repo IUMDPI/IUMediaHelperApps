@@ -13,10 +13,7 @@ namespace Packager.Providers
 
         private string LogFolder { get; set; }
         
-        public string MachineName
-        {
-            get { return Environment.MachineName; }
-        }
+        public string MachineName => Environment.MachineName;
 
         public string CurrentLogPath
         {

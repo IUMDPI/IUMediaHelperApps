@@ -21,7 +21,7 @@ namespace Packager.Utilities
                 using (content)
                 {
                     var hash = md5.ComputeHash(content);
-                    return hash.Aggregate(string.Empty, (current, b) => current + string.Format("{0:x2}", b));
+                    return hash.Aggregate(string.Empty, (current, b) => current + $"{b:x2}");
                 }
             }
         }

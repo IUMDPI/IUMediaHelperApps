@@ -14,6 +14,9 @@ namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {
+        // todo: figure out how to get this
+        //private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
+
         public AudioProcessor(IDependencyProvider dependencyProvider)
             : base(dependencyProvider)
         {

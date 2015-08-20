@@ -22,10 +22,10 @@ namespace Packager.Utilities
             FileProvider = fileProvider;
         }
 
-        public string BaseProcessingDirectory { get; set; }
-        private IProcessRunner ProcessRunner { get; set; }
-        private IObserverCollection Observers { get; set; }
-        public IFileProvider FileProvider { get; set; }
+        private string BaseProcessingDirectory { get; }
+        private IProcessRunner ProcessRunner { get; }
+        private IObserverCollection Observers { get; }
+        private IFileProvider FileProvider { get; }
 
         [ValidateFile]
         public string FFMPEGPath { get; set; }
@@ -46,11 +46,11 @@ namespace Packager.Utilities
                 }
                 else
                 {
-                    var args = string.Format("-i {0} {1} {2}", inputPath, arguments, outputPath);
+                    var args = $"-i {inputPath} {arguments} {outputPath}";
                     await CreateDerivative(args);
                 }
 
-                Observers.EndSection(sectionKey, string.Format("{0} generated successfully: {1}", target.FullFileUse, target.ToFileName()));
+                Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.ToFileName()}");
                 return target;
             }
             catch (Exception e)

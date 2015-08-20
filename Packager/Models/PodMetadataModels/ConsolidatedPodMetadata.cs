@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -26,9 +27,9 @@ namespace Packager.Models.PodMetadataModels
 
         public string Brand { get; set; }
         public string DirectionsRecorded { get; set; }
-        public string CleaningDate { get; set; }
+        public DateTime? CleaningDate { get; set; }
         public string CleaningComment { get; set; }
-        public string BakingDate { get; set; }
+        public DateTime? BakingDate { get; set; }
         public string Repaired { get; set; }
 
         [Required]

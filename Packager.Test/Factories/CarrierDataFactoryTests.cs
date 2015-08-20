@@ -43,8 +43,8 @@ namespace Packager.Test.Factories
             {
                 Barcode = "4890764553278906",
                 Brand = "Brand",
-                BakingDate = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
-                CleaningDate = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
+                BakingDate = new DateTime(2015, 05, 01),
+                CleaningDate = new DateTime(2015, 05, 01),
                 CleaningComment = "Cleaning comment",
                 Format = "CD-R",
                 DirectionsRecorded = "1",

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Packager.Validators.Attributes;
 
@@ -6,7 +7,7 @@ namespace Packager.Models.PodMetadataModels
     public class DigitalFileProvenance
     {
         [Required]
-        public string DateDigitized { get; set; }
+        public DateTime? DateDigitized { get; set; }
 
         public string Comment { get; set; }
 

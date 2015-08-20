@@ -29,7 +29,7 @@ namespace Packager.Factories
                 PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
                 ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
                 SpeedUsed = digitalFileProvenance.SpeedUsed,
-                Date = digitalFileProvenance.DateDigitized, 
+                Date = digitalFileProvenance.DateDigitized.ToString(), 
                 PreAmp = digitalFileProvenance.PreAmp, 
                 PreAmpSerialNumber = digitalFileProvenance.PreAmpSerialNumber
             };

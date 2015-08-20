@@ -31,7 +31,7 @@ namespace Packager.Test.Factories
                 Comment = "File provenance comment",
                 CreatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
                 CreatedBy = "Test user",
-                DateDigitized = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
+                DateDigitized = new DateTime(2015, 05, 01),
                 ExtractionWorkstation = "Extraction workstation",
                 PlayerManufacturer = "Player manufacturer",
                 PlayerModel = "Player model",

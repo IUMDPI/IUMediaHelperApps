@@ -63,7 +63,7 @@ namespace Packager.Test.Factories
                 Comment = "Comment",
                 CreatedAt = new DateTime(2015, 8, 1, 1, 2, 3).ToString(CultureInfo.InvariantCulture),
                 CreatedBy = "Created by",
-                DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3).ToString(CultureInfo.InvariantCulture),
+                DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
                 ExtractionWorkstation = "Extraction workstation",
                 Filename = PreservationFileName,
                 PlayerManufacturer = "Player manufacturer",

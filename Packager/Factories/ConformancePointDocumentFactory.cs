@@ -24,7 +24,7 @@ namespace Packager.Factories
 
         public ConformancePointDocumentFile Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
-            var digitizedOn = GenerateOriginationDateTime(provenance);
+            var digitizedOn = provenance.DateDigitized.Value;
             var description = GenerateBextDescription(metadata, model);
 
             return new ConformancePointDocumentFile
@@ -37,17 +37,25 @@ namespace Packager.Factories
                     Description = description,
                     ICMT = description,
                     IARL = metadata.Unit,
-                    OriginationDate = digitizedOn.ToString("yyyy-MM-dd"),
-                    OriginationTime = digitizedOn.ToString("HH:mm:ss"),
+                    OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
+                    OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),
                     TimeReference = "0",
-                    ICRD = digitizedOn.ToString("yyyy-MM-dd"),
+                    ICRD = GetDateString(provenance.DateDigitized, "yyyy-MM-dd",""),
                     INAM = metadata.Title,
                     CodingHistory = GenerateCodingHistory(metadata, provenance)
                 }
             };
         }
 
-        private static DateTime GenerateOriginationDateTime(DigitalFileProvenance provenance)
+
+        private static string GetDateString(DateTime? date, string format, string defaultValue)
+        {
+            return date.HasValue == false ? defaultValue : date.Value.ToString(format);
+        }
+
+/*
+        
+         private static DateTime GenerateOriginationDateTime(DigitalFileProvenance provenance)
         {
             DateTime result;
             if (DateTime.TryParse(provenance.DateDigitized, out result) == false)
@@ -56,7 +64,7 @@ namespace Packager.Factories
             }
 
             return result;
-        }
+        }*/
 
         private static string GenerateBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
         {

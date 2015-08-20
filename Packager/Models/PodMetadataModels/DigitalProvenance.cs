@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Packager.Models.PodMetadataModels
@@ -6,8 +7,8 @@ namespace Packager.Models.PodMetadataModels
     {
         public string DigitizingEntity { get; set; }
         public string Comments { get; set; }
-        public string CleaningDate { get; set; }
-        public string Baking { get; set; }
+        public DateTime? CleaningDate { get; set; }
+        public DateTime? Baking { get; set; }
         public bool? Repaired { get; set; }
         public string CleaningComment { get; set; }
         public string DigitizationTime { get; set; }

@@ -10,7 +10,8 @@
                 FontFamily="Consolas" FontSize="10pt"
                 HorizontalScrollBarVisibility="Hidden" 
                 IsReadOnly="True"
-                Padding="10px"/>
+                Padding="10px"
+                Cursor="{Binding Cursor}" />
         </Border>
         
     </Grid>

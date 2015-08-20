@@ -123,7 +123,6 @@ namespace Packager.Engine
 
         private void WriteGoodbyeMessage()
         {
-            Observers.Log("");
             Observers.Log("Completed {0}", DateTime.Now);
         }
 
@@ -160,8 +159,8 @@ namespace Packager.Engine
 
             Observers.Log("Found {0} {1} to process.", results.Count, results.ToSingularOrPlural("object", "objects"));
 
-            var inError = results.Where(r => r.Value.Result == false).Select(r => r.Key).ToList();
-            var success = results.Where(r => r.Value.Result).Select(r => r.Key).ToList();
+            var inError = results.Where(r => r.Value.Result == false).ToList();
+            var success = results.Where(r => r.Value.Result).ToList();
 
             LogObjectResults(success, $"Successfully processed {success.Count} {success.ToSingularOrPlural("object", "objects")}:");
             LogObjectResults(inError, $"Could not process {inError.Count} {inError.ToSingularOrPlural("object", "objects")}:");
@@ -169,18 +168,18 @@ namespace Packager.Engine
             Observers.EndSection(section);
         }
 
-        private void LogObjectResults(List<string> barcodes, string header)
+        private void LogObjectResults(List<KeyValuePair<string, ValidationResult>> results, string header)
         {
-            if (barcodes.Any() == false)
+            if (results.Any() == false)
             {
                 return;
             }
 
             var sectionKey = Observers.BeginSection(header);
 
-            foreach (var barCode in barcodes)
+            foreach (var result in results)
             {
-                Observers.Log("  {0}", barCode);
+                Observers.Log("  {0}", result.Key);
             }
 
             Observers.EndSection(sectionKey);

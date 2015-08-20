@@ -6,7 +6,7 @@ namespace Packager.Models.UserInterfaceModels
     {
         public int StartOffset { get; set; }
         public int EndOffset { get; set; }
-        public Guid Key { get; set; }
+        public string Key { get; set; }
         public bool Completed { get; set; }
         public int Indent { get; set; }
         public string Title { get; set; }

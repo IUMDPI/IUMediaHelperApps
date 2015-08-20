@@ -19,29 +19,29 @@ namespace Packager.Test.Processors
         private const string ProdCommandLineArgs = "-c:a pcm_s24le -b:a 128k -strict -2 -ar 96000";
         private const string AccessCommandLineArgs = "-c:a aac -b:a 128k -strict -2 -ar 48000";
         private const string FFMPEGPath = "ffmpeg.exe";
-        private Guid SectionGuid { get; set; }
+        private string SectionKey { get; set; }
 
         protected override void DoCustomSetup()
         {
-            SectionGuid = Guid.NewGuid();
-            Observers.BeginSection("Processing Object: {0}", Barcode).Returns(SectionGuid);
+            SectionKey = Guid.NewGuid().ToString();
+            Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
 
-            PreservationFileName = string.Format("{0}_{1}_01_pres.wav", ProjectCode, Barcode);
-            PreservationIntermediateFileName = string.Format("{0}_{1}_01_pres-int.wav", ProjectCode, Barcode);
-            ProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode, Barcode);
-            AccessFileName = string.Format("{0}_{1}_01_access.mp4", ProjectCode, Barcode);
-            XmlManifestFileName = string.Format("{0}_{1}.xml", ProjectCode, Barcode);
+            PreservationFileName = $"{ProjectCode}_{Barcode}_01_pres.wav";
+            PreservationIntermediateFileName = $"{ProjectCode}_{Barcode}_01_pres-int.wav";
+            ProductionFileName = $"{ProjectCode}_{Barcode}_01_prod.wav";
+            AccessFileName = $"{ProjectCode}_{Barcode}_01_access.mp4";
+            XmlManifestFileName = $"{ProjectCode}_{Barcode}.xml";
 
             PresObjectFileModel = new ObjectFileModel(PreservationFileName);
             PresIntObjectFileModel = new ObjectFileModel(PreservationIntermediateFileName);
             ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
             AccessObjectFileModel = new ObjectFileModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
+            ModelList = new List<AbstractFileModel> { PresObjectFileModel };
 
-            ExpectedObjectFolderName = string.Format("{0}_{1}", ProjectCode, Barcode);
+            ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new ConsolidatedPodMetadata {Barcode = Barcode};
+            Metadata = new ConsolidatedPodMetadata { Barcode = Barcode };
 
             MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
 
@@ -57,7 +57,7 @@ namespace Packager.Test.Processors
             [Test]
             public void ProcessorShouldReturnTrue()
             {
-                Assert.That(Result, Is.EqualTo(true));
+                Assert.That(Result.Result, Is.EqualTo(true));
             }
 
             public class WhenInitializing : WhenNothingGoesWrong
@@ -65,7 +65,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallBeginSectionCorrectly()
                 {
-                    Observers.Received().BeginSection("Processing Object: {0}", Barcode);
+                    Observers.Received().BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
                 }
 
                 [Test]
@@ -83,7 +83,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCloseInitializingSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>(), "Initialization successful");
+                    Observers.Received().EndSection(Arg.Any<string>(), "Initialization successful");
                 }
             }
 
@@ -99,9 +99,9 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        NonNormalPresFileName = string.Format("{0}_{1}_1_pres.wav", ProjectCode.ToLowerInvariant(), Barcode);
-                        NonNormalPresIntFileName = string.Format("{0}_{1}_001_pres-int.wav", ProjectCode.ToLowerInvariant(), Barcode);
-                        NonNormalProductionFileName = string.Format("{0}_{1}_01_prod.wav", ProjectCode.ToLowerInvariant(), Barcode);
+                        NonNormalPresFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_1_pres.wav";
+                        NonNormalPresIntFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_001_pres-int.wav";
+                        NonNormalProductionFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_01_prod.wav";
 
                         ModelList = new List<AbstractFileModel>
                         {
@@ -142,7 +142,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         }
 
                         [Test]
@@ -159,7 +159,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
+                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
                         }
 
                         [Test]
@@ -189,7 +189,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCloseSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("Retrieved metadata for object: {0}", Barcode));
+                    Observers.Received().EndSection(Arg.Any<string>(), $"Retrieved metadata for object: {Barcode}");
                 }
             }
 
@@ -229,7 +229,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedMasterFileName = PreservationIntermediateFileName;
                     }
                 }
@@ -254,7 +254,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCloseSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>(), "BEXT metadata added successfully");
+                    Observers.Received().EndSection(Arg.Any<string>(), "BEXT metadata added successfully");
                 }
 
                 [Test]
@@ -295,7 +295,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedModelCount = 3; // pres master, pres-int master, prod-master
                     }
 
@@ -368,7 +368,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedModelCount = 4; // pres master, pres-int master, prod-master, access master
                     }
 
@@ -391,7 +391,7 @@ namespace Packager.Test.Processors
                 {
                     base.DoCustomSetup();
 
-                    ExpectedDropboxDirectory = Path.Combine(DropBoxRoot, string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), Barcode));
+                    ExpectedDropboxDirectory = Path.Combine(DropBoxRoot, $"{ProjectCode.ToUpperInvariant()}_{Barcode}");
                     ExpectedFiles = 4; // prod master, pres master, access, xml manifest
                 }
 
@@ -405,8 +405,8 @@ namespace Packager.Test.Processors
                 public void ItShouldCloseSection()
                 {
                     Observers.Received().EndSection(
-                        Arg.Any<Guid>(),
-                        string.Format("{0} files copied to dropbox folder successfully", Barcode));
+                        Arg.Any<string>(),
+                        $"{Barcode} files copied to dropbox folder successfully");
                 }
 
                 [Test]
@@ -483,7 +483,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
                         ExpectedFiles = 5; // prod master, pres master, pres-int master, access, xml manifest
                     }
 
@@ -513,7 +513,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallEndSectionCorrectly()
                 {
-                    Observers.Received().EndSection(SectionGuid, "Object processed succesfully: 4890764553278906");
+                    Observers.Received().EndSection(SectionKey, "Object processed succesfully: 4890764553278906");
                 }
             }
         }
@@ -521,14 +521,14 @@ namespace Packager.Test.Processors
         public class WhenThingsGoWrong : AudioProcessorTests
         {
             private string IssueMessage { get; set; }
-            private Guid SubSectionGuid { get; set; }
+            private string SubSectionKey { get; set; }
 
             public abstract class CommonTests : WhenThingsGoWrong
             {
                 [Test]
                 public void ProcessorShouldReturnFalse()
                 {
-                    Assert.That(Result, Is.EqualTo(false));
+                    Assert.That(Result.Result, Is.EqualTo(false));
                 }
 
                 [Test]
@@ -552,18 +552,18 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ShouldCloseProcessingSection()
                 {
-                    Observers.Received().EndSection(SectionGuid);
+                    Observers.Received().EndSection(SectionKey);
                 }
 
                 [Test]
                 public void ShouldCloseSubSection()
                 {
-                    if (SubSectionGuid == Guid.Empty)
+                    if (string.IsNullOrWhiteSpace(SubSectionKey))
                     {
                         return;
                     }
 
-                    Observers.Received().EndSection(SubSectionGuid);
+                    Observers.Received().EndSection(SubSectionKey);
                 }
             }
 
@@ -582,8 +582,8 @@ namespace Packager.Test.Processors
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
-                    SubSectionGuid = Guid.NewGuid();
-                    Observers.BeginSection("Copying objects to dropbox").Returns(SubSectionGuid);
+                    SubSectionKey = Guid.NewGuid().ToString();
+                    Observers.BeginSection("Copying objects to dropbox").Returns(SubSectionKey);
                     IssueMessage = "dropbox operation failed";
                     FileProvider.CopyFileAsync(Arg.Any<string>(), Arg.Any<string>()).Returns(x => { throw new Exception(IssueMessage); });
                 }

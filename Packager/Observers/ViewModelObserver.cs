@@ -33,29 +33,14 @@ namespace Packager.Observers
             ViewModel.LogError(issue);
         }
 
-        public void BeginSection(Guid sectionKey, string baseMessage, params object[] elements)
+        public void BeginSection(string sectionKey, string baseMessage, params object[] elements)
         {
             ViewModel.BeginSection(sectionKey, string.Format(baseMessage, elements));
         }
 
-        public void EndSection(Guid sectionKey, string newTitle = "", bool collapse = true)
+        public void EndSection(string sectionKey, string newTitle = "", bool collapse = true)
         {
             ViewModel.EndSection(sectionKey, newTitle, collapse);
-        }
-
-        public void FlagAsSuccessful(Guid sectionKey, string newTitle)
-        {
-            ViewModel.FlagSectionAsSuccessful(sectionKey, newTitle);
-        }
-
-        public void FlagAsWarning(Guid sectionKey, string newTitle)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void FlagAsError(Guid sectionKey, string newTitle)
-        {
-            throw new NotImplementedException();
         }
     }
 }

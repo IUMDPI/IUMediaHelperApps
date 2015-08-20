@@ -31,34 +31,33 @@ namespace Packager.Observers
             }
         }
 
-        public Guid BeginSection(string baseMessage, params object[] elements)
+        public string BeginProcessingSection(string barcode, string baseMessage, params object[] elements)
         {
-            var sectionKey = Guid.NewGuid();
-            foreach (var observer in ViewModelObservers())
-            {
-                observer.BeginSection(sectionKey, baseMessage, elements);
-            }
+            NotifyOfBeginSection(barcode, baseMessage, elements);
+            return barcode;
+        }
+
+        public string BeginSection(string baseMessage, params object[] elements)
+        {
+            var sectionKey = Guid.NewGuid().ToString();
+            NotifyOfBeginSection(sectionKey, baseMessage, elements);
             return sectionKey;
         }
 
-        public void EndSection(Guid sectionKey, string newTitle = "", bool collapse = false)
+        private void NotifyOfBeginSection(string key, string baseMessage, params object[] elements)
+        {
+            foreach (var observer in ViewModelObservers())
+            {
+                observer.BeginSection(key, baseMessage, elements);
+            }
+        }
+
+        public void EndSection(string sectionKey, string newTitle = "", bool collapse = false)
         {
             foreach (var observer in ViewModelObservers())
             {
                 observer.EndSection(sectionKey, newTitle, collapse);
             }
-        }
-
-        public void LogObjectProperties(object instance)
-        {
-            var builder = new StringBuilder();
-            foreach (var property in instance.GetType().GetProperties())
-            {
-                var name = property.Name.FromCamelCaseToSpaces();
-                var value = property.GetValue(instance);
-                builder.AppendFormat("{0}: {1}\n", name, value);
-            }
-            Log(builder.ToString());
         }
 
         public void LogEngineIssue(Exception exception)

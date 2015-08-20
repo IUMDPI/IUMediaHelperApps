@@ -40,8 +40,8 @@ namespace Packager.Test.Processors
 
         protected IFFMPEGRunner FFMPEGRunner { get; set; }
 
-        protected string ExpectedProcessingDirectory { get { return Path.Combine(ProcessingRoot, ExpectedObjectFolderName); } }
-        
+        protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
+
         protected string ExpectedObjectFolderName { get; set; }
         protected ConsolidatedPodMetadata Metadata { get; set; }
         protected abstract void DoCustomSetup();

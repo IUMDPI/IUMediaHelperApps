@@ -89,7 +89,7 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldCallEndSectionCorrectly()
             {
-                Observers.Received().EndSection(Arg.Any<Guid>(), string.Format("{0} generated successfully: {1}", DerivativeFileModel.FullFileUse, DerivativeFileModel.ToFileName()));
+                Observers.Received().EndSection(Arg.Any<string>(), $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.ToFileName()}");
             }
 
             [Test]
@@ -201,7 +201,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldCloseExceptionCorrectly()
                 {
-                    Observers.Received().EndSection(Arg.Any<Guid>());
+                    Observers.Received().EndSection(Arg.Any<string>());
                 }
 
                 [Test]

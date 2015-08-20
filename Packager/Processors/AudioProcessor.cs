@@ -93,7 +93,7 @@ namespace Packager.Processors
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {
-            var sectionKey = Guid.Empty;
+            var sectionKey = string.Empty;
             var success = false;
             try
             {

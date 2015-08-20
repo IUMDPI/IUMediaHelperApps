@@ -1,5 +1,7 @@
 ﻿<SyntaxDefinition name="Packager"
-                  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+                  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="https://github.com/icsharpcode/AvalonEdit/blob/master/ICSharpCode.AvalonEdit/Highlighting/Resources/ModeV2.xsd ./HighLightRules.xsd">
 
   <Color name="Success" foreground="Blue" />
   <Color name="Error" foreground="Red" />
@@ -7,6 +9,8 @@
   <Color name="SubHeader" foreground="Blue" />
   <Color name="ObjectHeader" foreground="DarkBlue" fontWeight="bold" />
   <Color name="ProvenanceHeader" foreground="DarkBlue" />
+  <Color name="BarcodeLink" foreground="DarkBlue" underline="true"/>
+  <Color name="PathFileOrBarcode" foreground="DarkBlue"/>
 
   <RuleSet>
     <Span color="Error" begin="ERROR: " />
@@ -16,10 +20,10 @@
     <Span color="Error" begin="  Invalid path specified for " />
     <Span color="Error" begin="  Invalid uri specified for " />
     <Span color="Error" begin="  No digital file provenance found for " />
-    
+
     <Span color="Warning" begin="Found 0 objects to process" />
 
-    <Span color="SubHeader" begin="Configuration:"/>
+    <Span color="SubHeader" begin="^Configuration:"/>
     <Span color="SubHeader" begin="Generating "/>
     <Span color="SubHeader" begin="Requesting metadata" />
     <Span color="SubHeader" begin="Adding BEXT metadata" />
@@ -27,18 +31,20 @@
     <Span color="SubHeader" begin="Cleaning up" />
     <Span color="SubHeader" begin="Initializing" />
     <Span color="SubHeader" begin="Results Summary:" />
-    <Span color="ObjectHeader" begin="Processing Object" end=": " />
+    <Span color="ObjectHeader" begin="Processing Object:" />
     <Span color="ProvenanceHeader" begin="File Provenance:" end=": " />
+
+    <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     
-    <Rule foreground="DarkBlue">
-      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|\d{14}|.{4}_\d{14} #barcode, file name
+    <Rule color="PathFileOrBarcode">
+      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|.{4}_\d{14} #barcode, file name
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">
       \[not\ set\] #notsetWarning
     </Rule>
 
-   
+    <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
 
     <Rule foreground="DarkBlue">
       ([a-zA-z]\:\\.*\\...._\d{14})(\\|$|\s) # file path

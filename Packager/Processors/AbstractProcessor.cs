@@ -53,7 +53,7 @@ namespace Packager.Processors
         {
             Barcode = fileModels.Key;
 
-            var sectionKey = Observers.BeginSection("Processing Object: {0}", Barcode);
+            var sectionKey = Observers.BeginProcessingSection(Barcode,"Processing Object: {0}", Barcode);
             try
             {
                 // figure out what files we need to touch
@@ -79,7 +79,7 @@ namespace Packager.Processors
                 Observers.LogProcessingIssue(e, Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return new ValidationResult(e.Message);
+                return new ValidationResult(e.GetFirstMessage());
             }
         }
 

@@ -7,8 +7,9 @@ namespace Packager.Observers
     {
         void Log(string baseMessage, params object[] elements);
         void LogProcessingIssue(Exception issue, string barcode);
-        Guid BeginSection(string baseMessage, params object[] elements);
-        void EndSection(Guid sectionKey, string newTitle = "", bool collapse = false);
+        string BeginProcessingSection(string barcode, string baseMessage, params object[] elements);
+        string BeginSection(string baseMessage, params object[] elements);
+        void EndSection(string sectionKey, string newTitle = "", bool collapse = false);
         void LogEngineIssue(Exception exception);
     }
 }

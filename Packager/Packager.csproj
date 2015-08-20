@@ -69,8 +69,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
+    <Compile Include="UserInterface\TestElementGenerator.cs" />
     <Compile Include="Utilities\FFMPEGRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
@@ -231,6 +233,9 @@
     <EmbeddedResource Include="UserInterface\HighlightRules.xshd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="UserInterface\HighlightRules.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

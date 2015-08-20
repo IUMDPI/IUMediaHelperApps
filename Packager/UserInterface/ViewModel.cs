@@ -7,10 +7,13 @@ using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Forms;
+using System.Windows.Input;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Folding;
+using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Rendering;
 using Packager.Annotations;
 using Packager.Exceptions;
@@ -51,14 +54,21 @@ namespace Packager.UserInterface
 
         private TextEditor TextEditor { get; set; }
 
+        private IHighlighter Highlighter { get; set; }
+
         public void Initialize(OutputWindow outputWindow, IProgramSettings programSettings)
         {
             AutoScroll = true;
             TextEditor = outputWindow.OutputText;
 
+            //TextEditor.TextArea.TextView.ElementGenerators.Clear();
+            TextArea.TextView.ElementGenerators.Add(new TestElementGenerator(this));
+
+            Highlighter = new DocumentHighlighter(Document, TextEditor.SyntaxHighlighting);
+
             outputWindow.DataContext = this;
             outputWindow.Show();
-            
+
             ((IScrollInfo)outputWindow.OutputText.TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
 
             Document.PropertyChanged += DocumentPropertyChangedHandler;
@@ -118,6 +128,26 @@ namespace Packager.UserInterface
             }
         }
 
+        public void ScrollToBarcodeSection(string barCode)
+        {
+            var section =_sections.FirstOrDefault(m => m.Key.Equals(barCode));
+            if (section == null)
+            {
+                return;
+            }
+
+            var folding = FoldingManager.AllFoldings.SingleOrDefault(f => f.Tag.Equals(section));
+            if (folding == null)
+            {
+                return;
+            }
+
+            folding.IsFolded = false; 
+            
+            var line = TextEditor.Document.GetLineByOffset(section.StartOffset);
+            TextEditor.ScrollTo(line.LineNumber, 0);
+        }
+
         public void LogError(Exception e)
         {
             if (e is AbstractEngineException)
@@ -126,7 +156,7 @@ namespace Packager.UserInterface
                 return;
             }
 
-            var sectionKey = Guid.NewGuid();
+            var sectionKey = Guid.NewGuid().ToString();
             BeginSection(sectionKey, $"ERROR: {e.Message}");
             InsertLine(e.StackTrace);
             EndSection(sectionKey);
@@ -139,9 +169,9 @@ namespace Packager.UserInterface
                 .Count(m => !m.Title.Equals(value));
         }
 
-        public void BeginSection(Guid sectionKey, string text)
+        public void BeginSection(string sectionKey, string text)
         {
-            if (sectionKey == Guid.Empty)
+            if (string.IsNullOrEmpty(sectionKey))
             {
                 return;
             }
@@ -165,7 +195,7 @@ namespace Packager.UserInterface
             InsertLine();
         }
 
-        private SectionModel GetOrCreateSectionModel(Guid key)
+        private SectionModel GetOrCreateSectionModel(string key)
         {
             var sectionModel = _sections.SingleOrDefault(m => m.Key.Equals(key));
             if (sectionModel != null) return sectionModel;
@@ -180,9 +210,9 @@ namespace Packager.UserInterface
             return sectionModel;
         }
 
-        public void EndSection(Guid sectionKey, string newTitle = "", bool collapse = false)
+        public void EndSection(string sectionKey, string newTitle = "", bool collapse = false)
         {
-            if (sectionKey == Guid.Empty)
+            if (string.IsNullOrEmpty(sectionKey))
             {
                 return;
             }
@@ -216,31 +246,6 @@ namespace Packager.UserInterface
             return indent == 0
                 ? value
                 : $"{new string(' ', indent * 2)}{value}";
-        }
-
-        public void FlagSectionAsSuccessful(Guid key, string newTitle)
-        {
-            var section = FoldingManager.AllFoldings.SingleOrDefault(s => IsSection(s, key));
-
-            var model = section?.Tag as SectionModel;
-            if (model == null)
-            {
-                return;
-            }
-
-            section.Title = Indent(newTitle, model.Indent);
-            section.IsFolded = true;
-        }
-
-        private static bool IsSection(FoldingSection section, Guid key)
-        {
-            var model = section.Tag as SectionModel;
-            if (model == null)
-            {
-                return false;
-            }
-
-            return model.Key.Equals(key);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -54,17 +54,13 @@ namespace Packager.UserInterface
 
         private TextEditor TextEditor { get; set; }
 
-        private IHighlighter Highlighter { get; set; }
-
         public void Initialize(OutputWindow outputWindow, IProgramSettings programSettings)
         {
             AutoScroll = true;
             TextEditor = outputWindow.OutputText;
 
             //TextEditor.TextArea.TextView.ElementGenerators.Clear();
-            TextArea.TextView.ElementGenerators.Add(new TestElementGenerator(this));
-
-            Highlighter = new DocumentHighlighter(Document, TextEditor.SyntaxHighlighting);
+            TextArea.TextView.ElementGenerators.Add(new BarcodeElementGenerator(this));
 
             outputWindow.DataContext = this;
             outputWindow.Show();
@@ -74,7 +70,10 @@ namespace Packager.UserInterface
             Document.PropertyChanged += DocumentPropertyChangedHandler;
             Title = $"{programSettings.ProjectCode.ToUpperInvariant()} Media Packager";
 
-            FoldingManager = FoldingManager.Install(outputWindow.OutputText.TextArea);
+            FoldingManager = FoldingManager.Install(TextArea);
+
+            var test = TextEditor.TextArea.TextView.Services;
+            //TextArea.TextView.ElementGenerators.Clear();
         }
 
         private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)

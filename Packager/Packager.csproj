@@ -72,7 +72,9 @@
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
-    <Compile Include="UserInterface\TestElementGenerator.cs" />
+    <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
+    <Compile Include="UserInterface\BarCodeLinkText.cs" />
+    <Compile Include="UserInterface\CustomFoldingManager.cs" />
     <Compile Include="Utilities\FFMPEGRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />

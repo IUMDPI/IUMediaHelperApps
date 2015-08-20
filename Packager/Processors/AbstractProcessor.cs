@@ -49,11 +49,38 @@ namespace Packager.Processors
 
         protected string Barcode { get; private set; }
 
+        private string InputDirectory => ProgramSettings.InputDirectory;
+
+        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
+
+        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
+
+        // ReSharper disable once InconsistentNaming
+        protected string FFMPEGAudioProductionArguments => ProgramSettings.FFMPEGAudioProductionArguments;
+
+        // ReSharper disable once InconsistentNaming
+        protected string FFMPEGAudioAccessArguments => ProgramSettings.FFMPEGAudioAccessArguments;
+
+        private string SuccesDirectory => Path.Combine(ProgramSettings.SuccessDirectoryName, ObjectDirectoryName);
+
+        private string ErrorDirectory => Path.Combine(ProgramSettings.ErrorDirectoryName, ObjectDirectoryName);
+
+        private IFileProvider FileProvider => _dependencyProvider.FileProvider;
+
+        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
+
+        protected ICarrierDataFactory MetadataGenerator => _dependencyProvider.MetadataGenerator;
+
+        protected IBextProcessor BextProcessor => _dependencyProvider.BextProcessor;
+
+        // ReSharper disable once InconsistentNaming
+        protected IFFMPEGRunner IffmpegRunner => _dependencyProvider.FFMPEGRunner;
+
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
             Barcode = fileModels.Key;
 
-            var sectionKey = Observers.BeginProcessingSection(Barcode,"Processing Object: {0}", Barcode);
+            var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
                 // figure out what files we need to touch
@@ -87,39 +114,12 @@ namespace Packager.Processors
         {
             return fileModels
                 .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel)m)
+                .Select(m => (ObjectFileModel) m)
                 .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion())
                 .ToList();
         }
 
         protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
-        
-        private string InputDirectory => ProgramSettings.InputDirectory;
-
-        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
-
-        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
-
-        // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioProductionArguments => ProgramSettings.FFMPEGAudioProductionArguments;
-
-        // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioAccessArguments => ProgramSettings.FFMPEGAudioAccessArguments;
-
-        private string SuccesDirectory => Path.Combine(ProgramSettings.SuccessDirectoryName, ObjectDirectoryName);
-
-        private string ErrorDirectory => Path.Combine(ProgramSettings.ErrorDirectoryName, ObjectDirectoryName);
-
-        private IFileProvider FileProvider => _dependencyProvider.FileProvider;
-
-        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
-
-        protected ICarrierDataFactory MetadataGenerator => _dependencyProvider.MetadataGenerator;
-
-        protected IBextProcessor BextProcessor => _dependencyProvider.BextProcessor;
-
-        // ReSharper disable once InconsistentNaming
-        protected IFFMPEGRunner IffmpegRunner => _dependencyProvider.FFMPEGRunner;
 
         private async Task CreateProcessingDirectoryAndMoveFiles(IEnumerable<ObjectFileModel> filesToProcess)
         {
@@ -129,7 +129,7 @@ namespace Packager.Processors
                 // make directory to hold processed files
                 Observers.Log("Creating directory: {0}", ProcessingDirectory);
                 DirectoryProvider.CreateDirectory(ProcessingDirectory);
-                
+
                 foreach (var fileModel in filesToProcess)
                 {
                     Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
@@ -225,7 +225,7 @@ namespace Packager.Processors
                 MetadataProvider.Validate(metadata, filesToProcess);
 
                 Observers.EndSection(sectionKey, $"Retrieved metadata for object: {Barcode}");
-                
+
                 return metadata;
             }
             catch (Exception e)

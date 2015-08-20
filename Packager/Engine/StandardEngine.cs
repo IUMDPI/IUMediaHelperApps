@@ -36,38 +36,18 @@ namespace Packager.Engine
         {
             try
             {
+                var results = new Dictionary<string, ValidationResult>();
+
                 WriteHelloMessage();
 
                 await LogConfiguration();
+                ValidateDependencyProvider();
 
-                var result = ValidatorCollection.Validate(_dependencyProvider);
-                if (result.Succeeded == false)
-                {
-                    throw new ProgramSettingsException(result.Issues);
-                }
+                await CleanupOldFiles();
 
-                // this factory will assign each extension
-                // to the appropriate file model
-                var factory = new FileModelFactory(_processors.Keys);
-
-                // want to get all files in the input directory
-                // and convert them to file models (via out file model factory)
-                // and then take all of the files that are valid
-                // and start with the correct project code
-                // and then group them by barcode
-                var objectGroups = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
-                    .Select(p => factory.GetModel(p))
-                    .Where(f => f.IsValid())
-                    .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
-                    .GroupBy(f => f.BarCode).ToList();
-
-                Observers.Log("Found {0} objects to process", objectGroups.Count());
-
-                var results = new Dictionary<string, ValidationResult>();
-
-                // now we want to get the processor for each group
+                // Get the processor for each group
                 // and process the files for the group
-                foreach (var group in objectGroups)
+                foreach (var group in GetObjectGroups())
                 {
                     results[group.Key] = await ProcessFile(group);
                 }
@@ -80,6 +60,43 @@ namespace Packager.Engine
             }
 
             WriteGoodbyeMessage();
+        }
+
+        private async Task CleanupOldFiles()
+        {
+            await _dependencyProvider.SuccessFolderCleaner.DoCleaning();
+        }
+
+        private void ValidateDependencyProvider()
+        {
+
+            var result = ValidatorCollection.Validate(_dependencyProvider);
+            if (result.Succeeded == false)
+            {
+                throw new ProgramSettingsException(result.Issues);
+            }
+        }
+
+        private IEnumerable<IGrouping<string, AbstractFileModel>> GetObjectGroups()
+        {
+            // this factory will assign each extension
+            // to the appropriate file model
+            var factory = new FileModelFactory(_processors.Keys);
+
+            // want to get all files in the input directory
+            // and convert them to file models (via out file model factory)
+            // and then take all of the files that are valid
+            // and start with the correct project code
+            // and then group them by barcode
+            var result = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
+                     .Select(p => factory.GetModel(p))
+                     .Where(f => f.IsValid())
+                     .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
+                     .GroupBy(f => f.BarCode).ToList();
+
+            Observers.Log("Found {0} objects to process", result.Count);
+
+            return result;
         }
 
         public void AddObserver(IObserver observer)

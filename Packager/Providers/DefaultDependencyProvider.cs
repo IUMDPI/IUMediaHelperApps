@@ -1,4 +1,5 @@
-﻿using Packager.Factories;
+﻿using System;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Observers;
 using Packager.Utilities;
@@ -36,56 +37,59 @@ namespace Packager.Providers
                 new UriValidator()
             };
             MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider, Observers, ValidatorCollection);
+            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName, 
+                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays));
         }
 
         [ValidateObject]
-        public ISystemInfoProvider SystemInfoProvider { get; private set; }
+        public ISystemInfoProvider SystemInfoProvider { get; }
 
         [ValidateObject]
-        public IHasher Hasher { get; private set; }
+        public IHasher Hasher { get; }
 
         [ValidateObject]
-        public IXmlExporter XmlExporter { get; private set; }
+        public IXmlExporter XmlExporter { get; }
 
         [ValidateObject]
-        public IDirectoryProvider DirectoryProvider { get; private set; }
+        public IDirectoryProvider DirectoryProvider { get; }
         
         [ValidateObject]
-        public IFileProvider FileProvider { get; private set; }
+        public IFileProvider FileProvider { get; }
 
         [ValidateObject]
-        public IProcessRunner ProcessRunner { get; private set; }
+        public IProcessRunner ProcessRunner { get; }
 
         [ValidateObject]
-        public ICarrierDataFactory MetadataGenerator { get; private set; }
+        public ICarrierDataFactory MetadataGenerator { get; }
 
         [ValidateObject]
-        public IProgramSettings ProgramSettings { get; private set; }
+        public IProgramSettings ProgramSettings { get; }
 
         [ValidateObject]
-        public IObserverCollection Observers { get; private set; }
+        public IObserverCollection Observers { get; }
 
         [ValidateObject]
-        public IPodMetadataProvider MetadataProvider { get; private set; }
+        public IPodMetadataProvider MetadataProvider { get; }
 
         [ValidateObject]
-        public ILookupsProvider LookupsProvider { get; private set; }
+        public ILookupsProvider LookupsProvider { get; }
 
         [ValidateObject]
-        public IBextProcessor BextProcessor { get; private set; }
+        public IBextProcessor BextProcessor { get; }
 
         [ValidateObject]
-        public IFFMPEGRunner FFMPEGRunner {get; private set; }
+        public IFFMPEGRunner FFMPEGRunner {get; }
 
         [ValidateObject]
-        public IEmailSender EmailSender { get; private set; }
+        public IEmailSender EmailSender { get; }
 
         [ValidateObject]
-        public ISideDataFactory SideDataFactory { get; private set; }
+        public ISideDataFactory SideDataFactory { get; }
 
         [ValidateObject]
-        public IIngestDataFactory IngestDataFactory { get; private set; }
+        public IIngestDataFactory IngestDataFactory { get; }
         
-        public IValidatorCollection ValidatorCollection { get; private set; }
+        public IValidatorCollection ValidatorCollection { get; }
+        public ISuccessFolderCleaner SuccessFolderCleaner { get; }
     }
 }

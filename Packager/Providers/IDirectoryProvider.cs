@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Packager.Providers
@@ -11,6 +12,10 @@ namespace Packager.Providers
         Task MoveDirectoryAsync(string sourcePath, string destPath);
         void MoveDirectory(string sourcePath, string destPath);
         bool DirectoryExists(string value);
+
+        Task DeleteDirectoryAsync(string path);
+
+        IEnumerable<DirectoryInfo> EnumerateDirectories(string parent);
     }
 
     internal class DirectoryProvider : IDirectoryProvider
@@ -38,6 +43,22 @@ namespace Packager.Providers
         public bool DirectoryExists(string value)
         {
             return Directory.Exists(value);
+        }
+
+        public async Task DeleteDirectoryAsync(string path)
+        {
+            if (!DirectoryExists(path))
+            {
+                return;
+            }
+
+            await Task.Run(() => { Directory.Delete(path); });
+        }
+
+        public IEnumerable<DirectoryInfo> EnumerateDirectories(string parent)
+        {
+            return Directory.EnumerateDirectories(parent)
+                .Select(directory => new DirectoryInfo(directory)).ToList();
         }
     }
 }

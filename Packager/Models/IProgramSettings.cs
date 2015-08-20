@@ -20,9 +20,9 @@
         string ErrorDirectoryName { get; }
         string SuccessDirectoryName { get; }
         string LogDirectoryName { get; }
-        
         string[] IssueNotifyEmailAddresses { get; }
         string SmtpServer { get; }
         string FromEmailAddress { get; }
+        int DeleteSuccessfulObjectsAfterDays { get; }
     }
 }

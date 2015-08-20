@@ -25,5 +25,7 @@ namespace Packager.Providers
         ISideDataFactory SideDataFactory { get; }
         IIngestDataFactory IngestDataFactory { get; }
         IValidatorCollection ValidatorCollection { get; }
+        ISuccessFolderCleaner SuccessFolderCleaner { get; }
+       
     }
 }

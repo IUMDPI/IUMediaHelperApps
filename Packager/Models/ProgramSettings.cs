@@ -15,6 +15,7 @@ namespace Packager.Models
         public ProgramSettings(NameValueCollection settings)
         {
             ImportMappedConfigStringSettings(settings);
+            ImportMappedConfigIntegerSettings(settings);
             ImportMappedConfigListSettings(settings);
 
             PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
@@ -77,6 +78,9 @@ namespace Packager.Models
         [FromConfigSetting("FromEmailAddress")]
         public string FromEmailAddress { get; private set; }
 
+        [FromIntegerConfigSetting("DeleteProcessedAfterInDays")]
+        public int DeleteSuccessfulObjectsAfterDays { get; private set; }
+
         [FromConfigSetting("WebServiceUrl")]
         [ValidateUri]
         public string WebServiceUrl { get; private set; }
@@ -90,6 +94,22 @@ namespace Packager.Models
             {
                 var settingName = property.GetCustomAttribute<FromConfigSettingAttribute>().Name;
                 property.SetValue(this, settings[settingName]);
+            }
+        }
+
+        private void ImportMappedConfigIntegerSettings(NameValueCollection settings)
+        {
+            foreach (var property in GetType().GetProperties()
+                .Where(p => p.GetCustomAttribute<FromIntegerConfigSettingAttribute>() != null))
+            {
+                var settingName = property.GetCustomAttribute<FromIntegerConfigSettingAttribute>().Name;
+
+                int value;
+                    
+                if (int.TryParse(settings[settingName], out value))
+                {
+                    property.SetValue(this, value);
+                }
             }
         }
 

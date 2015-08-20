@@ -59,7 +59,8 @@ namespace Packager.UserInterface
             AutoScroll = true;
             TextEditor = outputWindow.OutputText;
 
-            //TextEditor.TextArea.TextView.ElementGenerators.Clear();
+            // clear default element generators
+            TextEditor.TextArea.TextView.ElementGenerators.Clear();
             TextArea.TextView.ElementGenerators.Add(new BarcodeElementGenerator(this));
 
             outputWindow.DataContext = this;

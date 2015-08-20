@@ -13,6 +13,7 @@ using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Validators;
 using RestSharp;
+using RestSharp.Authenticators;
 
 namespace Packager.Providers
 {

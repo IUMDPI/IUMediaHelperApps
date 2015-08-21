@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Packager.Providers
 
         Task DeleteDirectoryAsync(string path);
 
-        IEnumerable<DirectoryInfo> EnumerateDirectories(string parent);
+        IEnumerable<KeyValuePair<string, DateTime>> GetFolderNamesAndCreationDates(string parent);
     }
 
     internal class DirectoryProvider : IDirectoryProvider
@@ -52,13 +53,15 @@ namespace Packager.Providers
                 return;
             }
 
-            await Task.Run(() => { Directory.Delete(path); });
+            await Task.Run(() => { Directory.Delete(path,true); });
         }
 
-        public IEnumerable<DirectoryInfo> EnumerateDirectories(string parent)
+        public IEnumerable<KeyValuePair<string, DateTime>> GetFolderNamesAndCreationDates(string parent)
         {
             return Directory.EnumerateDirectories(parent)
-                .Select(directory => new DirectoryInfo(directory)).ToList();
+                .Select(directory => new DirectoryInfo(directory))
+                .Select(i=>new KeyValuePair<string, DateTime>(i.Name, i.CreationTime))
+                .ToList();
         }
     }
 }

@@ -38,7 +38,7 @@ namespace Packager.Providers
             };
             MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider, Observers, ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName, 
-                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays));
+                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays,0,0,0), Observers);
         }
 
         [ValidateObject]

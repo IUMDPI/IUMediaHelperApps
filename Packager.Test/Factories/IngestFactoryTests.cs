@@ -156,7 +156,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetDateCorrectly()
             {
-                Assert.That(Result.Date, Is.EqualTo(Provenance.DateDigitized));
+                Assert.That(Result.Date, Is.EqualTo(Provenance.DateDigitized.Value.ToString()));
             }
 
             [Test]

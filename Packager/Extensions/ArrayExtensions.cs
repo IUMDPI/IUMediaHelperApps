@@ -16,22 +16,21 @@ namespace Packager.Extensions
 
         public static string ToSingularOrPlural<T>(this IEnumerable<T> values, string singular, string plural)
         {
-            if (values == null || values.Count() == 1)
-            {
-                return singular;
-            }
-            
-            return plural;
+            var count = values?.Count() ?? 0;
+            return count.ToSingularOrPlural(singular, plural);
         }
 
         public static string ToSingularOrPlural<T, TU>(this Dictionary<T, TU> values, string singular, string plural)
         {
-            if (values == null || values.Count() == 1)
-            {
-                return singular;
-            }
+            var count = values?.Count() ?? 0;
+            return count.ToSingularOrPlural(singular, plural);
+        }
 
-            return plural;
+        public static string ToSingularOrPlural(this int value, string singular, string plural)
+        {
+            return value == 1
+                ? $"{value} {singular}"
+                : $"{value} {plural}";
         }
     }
 }

@@ -119,7 +119,7 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldLogObjectCountCorrectly()
             {
-                Observer.Received().Log("Found {0} objects to process", 2);
+                Observer.Received().Log("Found {0} to process", Arg.Any<string>());
             }
 
             [Test]

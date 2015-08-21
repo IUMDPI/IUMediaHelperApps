@@ -94,7 +94,7 @@ namespace Packager.Engine
                      .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
                      .GroupBy(f => f.BarCode).ToList();
 
-            Observers.Log("Found {0} objects to process", result.Count);
+            Observers.Log("Found {0} to process", result.ToSingularOrPlural("object", "objects"));
 
             return result;
         }
@@ -162,6 +162,8 @@ namespace Packager.Engine
             Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("FFMPeg audio production args: {0}", ProgramSettings.FFMPEGAudioProductionArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPeg audio access args: {0}", ProgramSettings.FFMPEGAudioAccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("");
+            Observers.Log("Success folder cleaning: {0}", _dependencyProvider.SuccessFolderCleaner.Enabled ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}" : "disabled");
             Observers.EndSection(sectionKey);
         }
 
@@ -169,18 +171,19 @@ namespace Packager.Engine
         {
             if (!results.Any())
             {
+                Observers.Log("");
                 return;
             }
 
             var section = Observers.BeginSection("Results Summary:");
 
-            Observers.Log("Found {0} {1} to process.", results.Count, results.ToSingularOrPlural("object", "objects"));
+            Observers.Log("Found {0} to process.", results.ToSingularOrPlural("object", "objects"));
 
             var inError = results.Where(r => r.Value.Result == false).ToList();
             var success = results.Where(r => r.Value.Result).ToList();
 
-            LogObjectResults(success, $"Successfully processed {success.Count} {success.ToSingularOrPlural("object", "objects")}:");
-            LogObjectResults(inError, $"Could not process {inError.Count} {inError.ToSingularOrPlural("object", "objects")}:");
+            LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
+            LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");
 
             Observers.EndSection(section);
         }

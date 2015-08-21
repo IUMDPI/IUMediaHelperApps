@@ -11,7 +11,8 @@
   <Color name="ProvenanceHeader" foreground="DarkBlue" />
   <Color name="BarcodeLink" foreground="DarkBlue" underline="true"/>
   <Color name="PathFileOrBarcode" foreground="DarkBlue"/>
-
+  <Color name="ResultsSummary" foreground="DarkBlue" fontWeight="bold" />
+  
   <RuleSet>
     <Span color="Error" begin="ERROR: " />
     <Span color="Error" begin="   at "/>
@@ -20,6 +21,7 @@
     <Span color="Error" begin="  Invalid path specified for " />
     <Span color="Error" begin="  Invalid uri specified for " />
     <Span color="Error" begin="  No digital file provenance found for " />
+    <Span color="Warning" begin="  Could not remove.*:" />
 
     <Span color="Warning" begin="Found 0 objects to process" />
 
@@ -30,7 +32,8 @@
     <Span color="SubHeader" begin="Copying objects to dropbox" />
     <Span color="SubHeader" begin="Cleaning up" />
     <Span color="SubHeader" begin="Initializing" />
-    <Span color="SubHeader" begin="Results Summary:" />
+    <Span color="ResultsSummary" begin="Results Summary:" />
+    <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />
     <Span color="ProvenanceHeader" begin="File Provenance:" end=": " />
 

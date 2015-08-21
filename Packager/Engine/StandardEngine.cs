@@ -154,6 +154,7 @@ namespace Packager.Engine
             Observers.Log("Dropbox folder: {0}", ProgramSettings.DropBoxDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("Logs folder: {0}", ProgramSettings.LogDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.BextProcessor.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.BextProcessor.GetBwfMetaEditVersion()).ToDefaultIfEmpty("[not available]"));

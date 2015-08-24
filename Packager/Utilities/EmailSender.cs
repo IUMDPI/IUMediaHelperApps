@@ -25,13 +25,16 @@ namespace Packager.Utilities
             {
                 using (var client = new SmtpClient(SmtpServer){UseDefaultCredentials = true, EnableSsl = true})
                 {
-                    foreach (var emailMessage in message.ToAddresses.Select(address => GetMessage(message, address)))
+                    foreach (var address in message.ToAddresses)
                     {
-                        client.Send(emailMessage);
+                        using (var email = GetMessage(message, address))
+                        {
+                            client.Send(email);
+                        }
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignore
             }

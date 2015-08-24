@@ -17,7 +17,7 @@ namespace Packager.Observers
             EmailSender = emailSender;
         }
 
-        private IProgramSettings ProgramSettings { get; set; }
+        private IProgramSettings ProgramSettings { get; }
         private ISystemInfoProvider SystemInfo { get; set; }
         private IEmailSender EmailSender { get; set; }
 
@@ -30,10 +30,9 @@ namespace Packager.Observers
         {
             if (!ShouldSendMessage(issue))
             {
-                return;
             }
 
-            var message = new ProcessingIssueMessage(
+              var message = new ProcessingIssueMessage(
                 ProgramSettings.IssueNotifyEmailAddresses,
                 ProgramSettings.FromEmailAddress,
                 new[]{SystemInfo.CurrentLogPath}, 
@@ -48,10 +47,9 @@ namespace Packager.Observers
         {
             if (!ShouldSendMessage(issue))
             {
-                return;
             }
 
-            var message = new EngineIssueMessage(
+              var message = new EngineIssueMessage(
                 ProgramSettings.IssueNotifyEmailAddresses,
                 ProgramSettings.FromEmailAddress,
                 new[] { SystemInfo.CurrentLogPath }, 

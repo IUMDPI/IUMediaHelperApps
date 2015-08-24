@@ -16,7 +16,7 @@ namespace Packager.Observers
 
         public override void Log(string baseMessage, params object[] elements)
         {
-            Log(GetLogEvent(baseMessage, elements));
+            Logger.Log(GetLogEvent(baseMessage, elements));
         }
 
         public override void LogProcessingError(Exception issue, string barcode)
@@ -24,6 +24,6 @@ namespace Packager.Observers
             LogEngineError(issue);
         }
 
-        protected override Logger Logger => LogManager.GetLogger(ThisLoggerName);
+        private static readonly Logger Logger = LogManager.GetLogger(ThisLoggerName);
     }
 }

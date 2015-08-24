@@ -29,7 +29,7 @@ namespace Packager.Test.Utilities
         }
 
         [SetUp]
-        public virtual void BeforeEach()
+        public virtual async void BeforeEach()
         {
             Observers = Substitute.For<IObserverCollection>();
             Interval = new TimeSpan(5,0,0,0);

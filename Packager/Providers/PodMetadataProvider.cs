@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -27,10 +26,10 @@ namespace Packager.Providers
             Validators = validators;
         }
 
-        private IProgramSettings ProgramSettings { get; set; }
-        private ILookupsProvider LookupsProvider { get; set; }
-        private IObserverCollection Observers { get; set; }
-        private IValidatorCollection Validators { get; set; }
+        private IProgramSettings ProgramSettings { get; }
+        private ILookupsProvider LookupsProvider { get; }
+        private IObserverCollection Observers { get; }
+        private IValidatorCollection Validators { get; }
 
         public async Task<ConsolidatedPodMetadata> Get(string barcode)
         {
@@ -66,6 +65,29 @@ namespace Packager.Providers
             throw new PodMetadataException(results);
         }
 
+        public void Log(ConsolidatedPodMetadata podMetadata)
+        {
+            Observers.Log(podMetadata.GetStringPropertiesAndValues());
+
+            foreach (var provenance in podMetadata.FileProvenances)
+            {
+                var sectionKey = Observers.BeginSection("File Provenance: {0}", provenance.Filename.ToDefaultIfEmpty("[not set]"));
+                Observers.Log(provenance.GetStringPropertiesAndValues("\t"));
+
+                foreach (var device in provenance.PlayerDevices)
+                {
+                    Observers.Log("\tPlayer: {0} {1} ({2})", device.Manufacturer, device.Model, device.SerialNumber);
+                }
+
+                foreach (var device in provenance.AdDevices)
+                {
+                    Observers.Log("\tAD Device: {0} {1} ({2})", device.Manufacturer, device.Model, device.SerialNumber);
+                }
+
+                Observers.EndSection(sectionKey);
+            }
+        }
+
         private ValidationResults ValidateMetadata(ConsolidatedPodMetadata podMetadata)
         {
             return Validators.Validate(podMetadata);
@@ -79,10 +101,10 @@ namespace Packager.Providers
                 results.Add("Value not set for digital file provenances");
                 return results;
             }
-            
+
             // make sure that all preservation masters 
             // have digital file provenance data in metadata
-            foreach (var model in filesToProcess.Where(m=>m.IsPreservationVersion()||m.IsPreservationIntermediateVersion()))
+            foreach (var model in filesToProcess.Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion()))
             {
                 var provenance = provenances.GetFileProvenance(model);
                 if (provenance == null)
@@ -95,18 +117,6 @@ namespace Packager.Providers
             }
 
             return results;
-        }
-
-        public void Log(ConsolidatedPodMetadata podMetadata)
-        {
-            Observers.Log(podMetadata.GetStringPropertiesAndValues());
-
-            foreach (var provenance in podMetadata.FileProvenances)
-            {
-                var sectionKey = Observers.BeginSection("File Provenance: {0}", provenance.Filename.ToDefaultIfEmpty("[not set]"));
-                Observers.Log(provenance.GetStringPropertiesAndValues("\t"));
-                Observers.EndSection(sectionKey);
-            }
         }
 
         private ConsolidatedPodMetadata ConsolidateMetadata(PodMetadata metadata)
@@ -178,7 +188,7 @@ namespace Packager.Providers
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new PodMetadataException(response.ErrorException, "Could not retrieve metadata from Pod: {0} ({1})", response.StatusCode, (int)response.StatusCode);
+                throw new PodMetadataException(response.ErrorException, "Could not retrieve metadata from Pod: {0} ({1})", response.StatusCode, (int) response.StatusCode);
             }
         }
 

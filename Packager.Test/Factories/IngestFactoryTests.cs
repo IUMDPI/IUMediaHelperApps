@@ -25,21 +25,21 @@ namespace Packager.Test.Factories
             return new DigitalFileProvenance
             {
                 Filename = fileName,
-                AdManufacturer = "Ad Manufacturer",
-                AdModel = "Ad Model",
-                AdSerialNumber = "Ad Serial Number",
+                //AdManufacturer = "Ad Manufacturer",
+                //AdModel = "Ad Model",
+                //AdSerialNumber = "Ad Serial Number",
                 Comment = "File provenance comment",
-                CreatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
+                //CreatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
                 CreatedBy = "Test user",
                 DateDigitized = new DateTime(2015, 05, 01),
-                ExtractionWorkstation = "Extraction workstation",
-                PlayerManufacturer = "Player manufacturer",
-                PlayerModel = "Player model",
-                PlayerSerialNumber = "Player serial number",
+                //ExtractionWorkstation = "Extraction workstation",
+                //PlayerManufacturer = "Player manufacturer",
+                //PlayerModel = "Player model",
+                //PlayerSerialNumber = "Player serial number",
                 SpeedUsed = "7.5 ips",
-                UpdatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
-                PreAmp = "Pre amp",
-                PreAmpSerialNumber = "Pre amp serial number"
+                //UpdatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
+                //PreAmp = "Pre amp",
+                //PreAmpSerialNumber = "Pre amp serial number"
             };
         }
 
@@ -96,19 +96,19 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetAdManufacturerCorrectly()
             {
-                Assert.That(Result.AdManufacturer, Is.EqualTo(Provenance.AdManufacturer));
+                //Assert.That(Result.AdManufacturer, Is.EqualTo(Provenance.AdManufacturer));
             }
 
             [Test]
             public void ItShouldSetAdModelCorrectly()
             {
-                Assert.That(Result.AdModel, Is.EqualTo(Provenance.AdModel));
+                //Assert.That(Result.AdModel, Is.EqualTo(Provenance.AdModel));
             }
 
             [Test]
             public void ItShouldSetAdSerialNumberCorrectly()
             {
-                Assert.That(Result.AdSerialNumber, Is.EqualTo(Provenance.AdSerialNumber));
+                //Assert.That(Result.AdSerialNumber, Is.EqualTo(Provenance.AdSerialNumber));
             }
 
             [Test]
@@ -126,19 +126,19 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetPlayerManufacturerCorrectly()
             {
-                Assert.That(Result.PlayerManufacturer, Is.EqualTo(Provenance.PlayerManufacturer));
+                //Assert.That(Result.PlayerManufacturer, Is.EqualTo(Provenance.PlayerManufacturer));
             }
 
             [Test]
             public void ItShouldSetPlayerModelCorrectly()
             {
-                Assert.That(Result.PlayerModel, Is.EqualTo(Provenance.PlayerModel));
+                //Assert.That(Result.PlayerModel, Is.EqualTo(Provenance.PlayerModel));
             }
 
             [Test]
             public void ItShouldSetPlayerSerialNumberCorrectly()
             {
-                Assert.That(Result.PlayerSerialNumber, Is.EqualTo(Provenance.PlayerSerialNumber));
+                //Assert.That(Result.PlayerSerialNumber, Is.EqualTo(Provenance.PlayerSerialNumber));
             }
 
             [Test]
@@ -162,13 +162,13 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetPreAmpCorrectly()
             {
-                Assert.That(Result.PreAmp, Is.EqualTo(Provenance.PreAmp));
+                //Assert.That(Result.PreAmp, Is.EqualTo(Provenance.PreAmp));
             }
 
             [Test]
             public void ItShouldSetPreAmpSerialNumberCorrectly()
             {
-                Assert.That(Result.PreAmpSerialNumber, Is.EqualTo(Provenance.PreAmpSerialNumber));
+                //Assert.That(Result.PreAmpSerialNumber, Is.EqualTo(Provenance.PreAmpSerialNumber));
             }
         }
     }

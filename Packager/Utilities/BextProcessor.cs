@@ -83,13 +83,13 @@ namespace Packager.Utilities
             var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
             if (sequenceMaster == null)
             {
-                throw new AddMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
+                throw new BextMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
             }
 
             var defaultProvenance = podMetadata.FileProvenances.GetFileProvenance(sequenceMaster);
             if (defaultProvenance == null)
             {
-                throw new AddMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
+                throw new BextMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
             }
 
             return defaultProvenance;
@@ -118,7 +118,7 @@ namespace Packager.Utilities
             if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(),
                 xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(), Observers))
             {
-                throw new AddMetadataException("Could not add metadata to one or more files!");
+                throw new BextMetadataException("Could not add metadata to one or more files!");
             }
         }
 

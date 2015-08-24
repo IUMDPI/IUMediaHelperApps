@@ -1,8 +1,8 @@
 ﻿namespace Packager.Exceptions
 {
-    public class AddMetadataException : AbstractEngineException
+    public class BextMetadataException : AbstractEngineException
     {
-        public AddMetadataException(string baseMessage, params object[] parameters)
+        public BextMetadataException(string baseMessage, params object[] parameters)
             : base(baseMessage, parameters)
         {
         }

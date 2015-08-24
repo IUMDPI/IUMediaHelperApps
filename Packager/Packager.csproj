@@ -79,6 +79,7 @@
     <Compile Include="Utilities\FFMPEGRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />
     <Compile Include="Utilities\ISuccessFolderCleaner.cs" />
+    <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Attributes\DeserializeAsLookupAttribute.cs" />
     <Compile Include="Attributes\FromConfigSettingAttribute.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Utilities\XmlExporter.cs" />
     <Compile Include="Validators\DirectoryExistsValidator.cs" />
     <Compile Include="Validators\FileExistsValidator.cs" />
+    <Compile Include="Validators\MembersValidator.cs" />
     <Compile Include="Validators\StandardValidatorCollection.cs" />
     <Compile Include="Validators\IValidator.cs" />
     <Compile Include="Validators\IValidatorCollection.cs" />

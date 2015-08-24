@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Packager.Exceptions;
 using Packager.Models.BextModels;
@@ -13,18 +12,21 @@ namespace Packager.Factories
 {
     public class ConformancePointDocumentFactory : IConformancePointDocumentFactory
     {
-        private string BaseProcessingDirectory { get; set; }
-        
-        private readonly List<string> _knownDigitalFormats = new List<string>{"cd-r", "dat"};
+        private const string CodingHistoryLine1Format = "A={0},M={1},T={2},\r\n";
+        private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1};A/D,\r\n";
+        private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
+
+        private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
 
         public ConformancePointDocumentFactory(string baseProcessingDirectory)
         {
             BaseProcessingDirectory = baseProcessingDirectory;
         }
 
+        private string BaseProcessingDirectory { get; }
+
         public ConformancePointDocumentFile Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
-            var digitizedOn = provenance.DateDigitized.Value;
             var description = GenerateBextDescription(metadata, model);
 
             return new ConformancePointDocumentFile
@@ -40,7 +42,7 @@ namespace Packager.Factories
                     OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                     OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),
                     TimeReference = "0",
-                    ICRD = GetDateString(provenance.DateDigitized, "yyyy-MM-dd",""),
+                    ICRD = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                     INAM = metadata.Title,
                     CodingHistory = GenerateCodingHistory(metadata, provenance)
                 }
@@ -53,61 +55,66 @@ namespace Packager.Factories
             return date.HasValue == false ? defaultValue : date.Value.ToString(format);
         }
 
-/*
-        
-         private static DateTime GenerateOriginationDateTime(DigitalFileProvenance provenance)
-        {
-            DateTime result;
-            if (DateTime.TryParse(provenance.DateDigitized, out result) == false)
-            {
-                throw new AddMetadataException("Could not convert {0} to date time object", provenance.DateDigitized);
-            }
-
-            return result;
-        }*/
-
         private static string GenerateBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
         {
-            return string.Format("{0}. {1}. File use: {2}. {3}",
-                metadata.Unit,
-                metadata.CallNumber,
-                fileModel.FullFileUse,
-                Path.GetFileNameWithoutExtension(fileModel.ToFileName()));
+            return $"{metadata.Unit}. {metadata.CallNumber}. File use: {fileModel.FullFileUse}. {Path.GetFileNameWithoutExtension(fileModel.ToFileName())}";
         }
 
         private string GetFormatText(ConsolidatedPodMetadata metadata)
         {
-            return _knownDigitalFormats.Contains(metadata.Format.ToLowerInvariant()) 
-                ? "DIGITAL" 
+            return _knownDigitalFormats.Contains(metadata.Format.ToLowerInvariant())
+                ? "DIGITAL"
                 : "ANALOG";
         }
-
-        private const string CodingHistoryLine1Format = "A={0},M={1},T={2},\r\n";
-        private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1};A/D,\r\n";
-        private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
-
-        private static string GenerateLine1TextField(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
+        
+        private static string GeneratePlayerTextField(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
         {
-            var parts = new List<string>
+            if (!provenance.PlayerDevices.Any())
             {
-                string.Format("{0} {1}", provenance.PlayerManufacturer, provenance.PlayerModel),
-                provenance.PlayerSerialNumber,
-                DetermineSpeedUsed(metadata, provenance),
-                metadata.Format
-            };
+                throw new BextMetadataException("No player data present in metadata");
+            }
+
+            var parts = GenerateDevicePartsArray(provenance.PlayerDevices);
+
+            parts.Add(DetermineSpeedUsed(metadata, provenance));
+            parts.Add(metadata.Format);
 
             return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
         }
 
-        private static string GenerateLine2TextField(DigitalFileProvenance provenance)
+        private static List<string> GenerateDevicePartsArray(IEnumerable<Device> devices)
         {
-            var parts = new List<string>
-            {
-                string.Format("{0} {1}", provenance.AdManufacturer, provenance.AdModel),
-                provenance.AdSerialNumber
-            };
+            var parts = new List<string>();
 
+            foreach (var device in devices)
+            {
+                parts.Add($"{device.Manufacturer} {device.Model}");
+                parts.Add($"SN{device.SerialNumber}");
+            }
+
+            return parts;
+        }  
+
+        private static string GenerateAdTextField(DigitalFileProvenance provenance)
+        {
+            if (!provenance.AdDevices.Any())
+            {
+                throw new BextMetadataException("No AD data present in metadata");
+            }
+
+            var parts = GenerateDevicePartsArray(provenance.AdDevices);
             return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+
+/*
+            var builder = new StringBuilder();
+            foreach (var device in provenance.AdDevices)
+            {
+                var parts = new List<string> { $"{device.Manufacturer} {device.Model}", device.SerialNumber };
+                builder.Append(string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p))));
+            }
+            
+            return builder.ToString();
+*/
         }
 
         private string GenerateCodingHistory(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
@@ -117,11 +124,11 @@ namespace Packager.Factories
             builder.AppendFormat(CodingHistoryLine1Format,
                 GetFormatText(metadata),
                 metadata.SoundField,
-                GenerateLine1TextField(metadata, provenance));
+                GeneratePlayerTextField(metadata, provenance));
 
             builder.AppendFormat(CodingHistoryLine2Format,
                 metadata.SoundField,
-                GenerateLine2TextField(provenance));
+                GenerateAdTextField(provenance));
 
             builder.Append(CodingHistoryLine3);
 
@@ -142,7 +149,7 @@ namespace Packager.Factories
                 return result;
             }
 
-            return result.Replace(",", ";").Replace(" ","");
+            return result.Replace(",", ";").Replace(" ", "");
         }
     }
 }

@@ -34,7 +34,8 @@ namespace Packager.Providers
                 new ValueRequiredValidator(),
                 new DirectoryExistsValidator(DirectoryProvider),
                 new FileExistsValidator(FileProvider),
-                new UriValidator()
+                new UriValidator(),
+                new MembersValidator()
             };
             MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider, Observers, ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName, 

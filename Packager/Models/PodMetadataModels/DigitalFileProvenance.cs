@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
 {
     public class DigitalFileProvenance
     {
+        private const string AdDeviceType = "AD";
+        private const string PlayerDeviceType = "Player";
+        private const string ExtractionWorkstationDeviceType = "Extraction Workstation";
+
         [Required]
         public DateTime? DateDigitized { get; set; }
 
@@ -21,40 +26,40 @@ namespace Packager.Models.PodMetadataModels
 
         [Required]
         public string Filename { get; set; }
-
-
-
-        //-----------------------------------------------------
-        // deprecated 
-
-        //[Required]
-        public string CreatedAt { get; set; }
-
-        //[Required]
-        public string UpdatedAt { get; set; }
         
-        //[Required]
-        public string PlayerSerialNumber { get; set; }
+        [HasMembers]
+        public IEnumerable<Device> PlayerDevices
+        {
+            get
+            {
+                return SignalChain?.
+                    Where(e => e.DeviceType.Equals(PlayerDeviceType, StringComparison.InvariantCultureIgnoreCase)) ?? new List<Device>();
+            }
+        }
 
-        //[Required]
-        public string PlayerManufacturer { get; set; }
+        [HasMembers]
+        public IEnumerable<Device> AdDevices
+        {
+            get
+            {
+                return SignalChain?.
+                    Where(e => e.DeviceType.Equals(AdDeviceType, StringComparison.InvariantCultureIgnoreCase)) ?? new List<Device>();
+            }
+        }
+        
+        [Required]
+        public string ExtractionWorkstation {
+            get
+            {
+                if (SignalChain == null)
+                {
+                    return "";
+                }
 
-        //[Required]
-        public string PlayerModel { get; set; }
-
-        //[Required]
-        public string AdSerialNumber { get; set; }
-
-        //[Required]
-        public string AdManufacturer { get; set; }
-
-        //[Required]
-        public string AdModel { get; set; }
-
-        //[Required]
-        public string ExtractionWorkstation { get; set; }
-
-        public string PreAmpSerialNumber { get; set; }
-        public string PreAmp { get; set; }
+                var entry = SignalChain
+                    .FirstOrDefault(d => d.DeviceType.Equals(ExtractionWorkstationDeviceType, StringComparison.InvariantCultureIgnoreCase));
+                return entry == null ? "" : $"{entry.Manufacturer} {entry.Model} {entry.SerialNumber}";
+            } }
+     
     }
 }

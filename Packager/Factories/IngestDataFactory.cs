@@ -19,19 +19,19 @@ namespace Packager.Factories
             return new IngestData
             {
                 XsiType = string.Format("{0}Ingest", podMetadata.Format),
-                AdManufacturer = digitalFileProvenance.AdManufacturer,
-                AdModel = digitalFileProvenance.AdModel,
-                AdSerialNumber = digitalFileProvenance.AdSerialNumber,
+                //AdManufacturer = digitalFileProvenance.AdManufacturer,
+                //AdModel = digitalFileProvenance.AdModel,
+                //AdSerialNumber = digitalFileProvenance.AdSerialNumber,
                 Comments = digitalFileProvenance.Comment,
                 CreatedBy = digitalFileProvenance.CreatedBy,
-                PlayerManufacturer = digitalFileProvenance.PlayerManufacturer,
-                PlayerModel = digitalFileProvenance.PlayerModel,
-                PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
+                //PlayerManufacturer = digitalFileProvenance.PlayerManufacturer,
+                //PlayerModel = digitalFileProvenance.PlayerModel,
+                //PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
                 ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
                 SpeedUsed = digitalFileProvenance.SpeedUsed,
                 Date = digitalFileProvenance.DateDigitized.ToString(), 
-                PreAmp = digitalFileProvenance.PreAmp, 
-                PreAmpSerialNumber = digitalFileProvenance.PreAmpSerialNumber
+                //PreAmp = digitalFileProvenance.PreAmp, 
+                //PreAmpSerialNumber = digitalFileProvenance.PreAmpSerialNumber
             };
         }
     }

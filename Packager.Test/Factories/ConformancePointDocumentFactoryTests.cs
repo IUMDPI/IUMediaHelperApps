@@ -57,20 +57,20 @@ namespace Packager.Test.Factories
         {
             return new DigitalFileProvenance
             {
-                AdManufacturer = "Ad manufacturer",
-                AdModel = "Ad model",
-                AdSerialNumber = "Ad serial number",
+                //AdManufacturer = "Ad manufacturer",
+                //AdModel = "Ad model",
+                //AdSerialNumber = "Ad serial number",
                 Comment = "Comment",
-                CreatedAt = new DateTime(2015, 8, 1, 1, 2, 3).ToString(CultureInfo.InvariantCulture),
+                //CreatedAt = new DateTime(2015, 8, 1, 1, 2, 3).ToString(CultureInfo.InvariantCulture),
                 CreatedBy = "Created by",
                 DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
-                ExtractionWorkstation = "Extraction workstation",
+                //ExtractionWorkstation = "Extraction workstation",
                 Filename = PreservationFileName,
-                PlayerManufacturer = "Player manufacturer",
-                PlayerModel = "Player model",
-                PlayerSerialNumber = "Player serial number",
+                //PlayerManufacturer = "Player manufacturer",
+                //PlayerModel = "Player model",
+                //PlayerSerialNumber = "Player serial number",
                 SpeedUsed = "7.5 ips",
-                UpdatedAt = new DateTime(2015, 8, 1).ToString(CultureInfo.InvariantCulture)
+                //UpdatedAt = new DateTime(2015, 8, 1).ToString(CultureInfo.InvariantCulture)
             };
         }
 

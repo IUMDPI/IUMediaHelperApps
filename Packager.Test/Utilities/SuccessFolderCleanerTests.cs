@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Observers;
@@ -15,6 +12,18 @@ namespace Packager.Test.Utilities
     [TestFixture]
     public class SuccessFolderCleanerTests
     {
+        [SetUp]
+        public virtual void BeforeEach()
+        {
+            Observers = Substitute.For<IObserverCollection>();
+            Interval = new TimeSpan(5, 0, 0, 0);
+            DirectoryProvider = Substitute.For<IDirectoryProvider>();
+
+            DoCustomSetup();
+
+            Cleaner = new SuccessFolderCleaner(DirectoryProvider, SuccessFolder, Interval, Observers);
+        }
+
         private const string SuccessFolder = "success folder";
         private IObserverCollection Observers { get; set; }
         private IDirectoryProvider DirectoryProvider { get; set; }
@@ -25,40 +34,27 @@ namespace Packager.Test.Utilities
 
         protected virtual void DoCustomSetup()
         {
-            
-        }
-
-        [SetUp]
-        public virtual void BeforeEach()
-        {
-            Observers = Substitute.For<IObserverCollection>();
-            Interval = new TimeSpan(5,0,0,0);
-            DirectoryProvider = Substitute.For<IDirectoryProvider>();
-
-            DoCustomSetup();
-
-            Cleaner = new SuccessFolderCleaner(DirectoryProvider, SuccessFolder, Interval, Observers);
         }
 
         public class WhenThereIsNothingToClean : SuccessFolderCleanerTests
         {
-            protected override void DoCustomSetup()
-            {
-                base.DoCustomSetup();
-
-                DirectoryProvider.GetFolderNamesAndCreationDates(SuccessFolder).Returns(new List<KeyValuePair<string, DateTime>> ());
-            }
-
             public override async void BeforeEach()
             {
                 base.BeforeEach();
                 await Cleaner.DoCleaning();
             }
 
-            [Test]
-            public void ItShouldNotOpenSection()
+            protected override void DoCustomSetup()
             {
-                Observers.DidNotReceive().BeginSection("Removing {0} from success folder", Arg.Any<string>());
+                base.DoCustomSetup();
+
+                DirectoryProvider.GetFolderNamesAndCreationDates(SuccessFolder).Returns(new List<KeyValuePair<string, DateTime>>());
+            }
+
+            [Test]
+            public void ItShouldNotAttemptToRemoveFolders()
+            {
+                DirectoryProvider.DidNotReceive().DeleteDirectoryAsync(Arg.Any<string>());
             }
 
             [Test]
@@ -68,11 +64,10 @@ namespace Packager.Test.Utilities
             }
 
             [Test]
-            public void ItShouldNotAttemptToRemoveFolders()
+            public void ItShouldNotOpenSection()
             {
-                DirectoryProvider.DidNotReceive().DeleteDirectoryAsync(Arg.Any<string>());
+                Observers.DidNotReceive().BeginSection("Removing {0} from success folder", Arg.Any<string>());
             }
-
         }
 
         public class WhenIntervalIsNotLessThanOneDay : SuccessFolderCleanerTests
@@ -80,7 +75,7 @@ namespace Packager.Test.Utilities
             protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
-                Interval = new TimeSpan(0,0,0,0);
+                Interval = new TimeSpan(0, 0, 0, 0);
             }
 
             [Test]
@@ -107,15 +102,15 @@ namespace Packager.Test.Utilities
 
         public class WhenThereAreObjectsToClean : SuccessFolderCleanerTests
         {
-            private KeyValuePair<string, DateTime> Folder1 { get; set; }
-            private KeyValuePair<string, DateTime> Folder2 { get; set; }
-            private KeyValuePair<string, DateTime> Folder3 { get; set; }
-
             public override async void BeforeEach()
             {
                 base.BeforeEach();
                 await Cleaner.DoCleaning();
             }
+
+            private KeyValuePair<string, DateTime> Folder1 { get; set; }
+            private KeyValuePair<string, DateTime> Folder2 { get; set; }
+            private KeyValuePair<string, DateTime> Folder3 { get; set; }
 
             protected override void DoCustomSetup()
             {
@@ -127,19 +122,7 @@ namespace Packager.Test.Utilities
 
                 Folder3 = new KeyValuePair<string, DateTime>("Folder3", DateTime.Now.Subtract(new TimeSpan(6, 0, 0, 0))); // 8 days old
 
-                DirectoryProvider.GetFolderNamesAndCreationDates(SuccessFolder).Returns(new List<KeyValuePair<string,DateTime>> {Folder1, Folder2, Folder3});
-            }
-
-            [Test]
-            public void ItShouldOpenSection()
-            {
-                Observers.Received().BeginSection("Removing {0} from success folder", Arg.Any<string>());
-            }
-
-            [Test]
-            public void ItShouldCloseSection()
-            {
-                Observers.Received().EndSection(Arg.Any<string>());
+                DirectoryProvider.GetFolderNamesAndCreationDates(SuccessFolder).Returns(new List<KeyValuePair<string, DateTime>> {Folder1, Folder2, Folder3});
             }
 
 
@@ -173,7 +156,17 @@ namespace Packager.Test.Utilities
                 }
             }
 
+            [Test]
+            public void ItShouldCloseSection()
+            {
+                Observers.Received().EndSection(Arg.Any<string>());
+            }
 
+            [Test]
+            public void ItShouldOpenSection()
+            {
+                Observers.Received().BeginSection("Removing {0} from success folder", Arg.Any<string>());
+            }
         }
     }
 }

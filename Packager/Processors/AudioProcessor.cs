@@ -104,7 +104,7 @@ namespace Packager.Processors
 
                 if (!filesToAddMetadata.Any())
                 {
-                    throw new AddMetadataException("Could not add metadata: no eligible files");
+                    throw new BextMetadataException("Could not add metadata: no eligible files");
                 }
 
                 await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata);

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Packager.Exceptions;
-using Packager.Extensions;
 
 namespace Packager.Observers
 {
-    public class ObserverCollection : List<IObserver>, IObserverCollection
+    public class ObserverCollection : HashSet<IObserver>, IObserverCollection
     {
+        public ObserverCollection() : base(new ObserverCollectionEqualityComparer())
+        {
+        }
+
         public void Log(string baseMessage, params object[] elements)
         {
             foreach (var observer in this)
@@ -17,7 +19,7 @@ namespace Packager.Observers
             }
         }
 
-        
+
         public void LogProcessingIssue(Exception issue, string barcode)
         {
             if (issue is LoggedException)
@@ -44,20 +46,9 @@ namespace Packager.Observers
             return sectionKey;
         }
 
-        private void NotifyOfBeginSection(string key, string baseMessage, params object[] elements)
-        {
-            foreach (var observer in ViewModelObservers())
-            {
-                observer.BeginSection(key, baseMessage, elements);
-            }
-        }
-
         public void EndSection(string sectionKey, string newTitle = "", bool collapse = false)
         {
-            foreach (var observer in ViewModelObservers())
-            {
-                observer.EndSection(sectionKey, newTitle, collapse);
-            }
+            ViewModelObserver?.EndSection(sectionKey, newTitle, collapse);
         }
 
         public void LogEngineIssue(Exception exception)
@@ -73,18 +64,26 @@ namespace Packager.Observers
             }
         }
 
-        private static string[] GetArrayValues(IEnumerable<object> values)
+        private void NotifyOfBeginSection(string key, string baseMessage, params object[] elements)
         {
-            if (values == null)
-            {
-                return new string[0];
-            }
-
-            return values.Select(v => v.ToString()).ToArray();
+            ViewModelObserver?.BeginSection(key, baseMessage, elements);
         }
-        private IEnumerable<IViewModelObserver> ViewModelObservers()
+
+        private IViewModelObserver ViewModelObserver { get { return this.SingleOrDefault(o => o is IViewModelObserver) as IViewModelObserver; } }
+        
+        
+    }
+
+    internal class ObserverCollectionEqualityComparer : IEqualityComparer<IObserver>
+    {
+        public bool Equals(IObserver x, IObserver y)
         {
-            return this.Select(o => (o as IViewModelObserver)).Where(o => o != null);
+            return x.GetType() == y.GetType();
+        }
+
+        public int GetHashCode(IObserver obj)
+        {
+            return obj.UniqueIdentifier;
         }
     }
 }

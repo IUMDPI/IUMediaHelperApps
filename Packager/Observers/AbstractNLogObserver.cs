@@ -20,6 +20,8 @@ namespace Packager.Observers
             Log(issue.ToString());
         }
 
+        public abstract int UniqueIdentifier { get; }
+
         public void LogExternal(string text)
         {
             Log(text);

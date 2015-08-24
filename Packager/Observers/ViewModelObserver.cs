@@ -33,6 +33,8 @@ namespace Packager.Observers
             ViewModel.LogError(issue);
         }
 
+        public int UniqueIdentifier => 3;
+
         public void BeginSection(string sectionKey, string baseMessage, params object[] elements)
         {
             ViewModel.BeginSection(sectionKey, string.Format(baseMessage, elements));

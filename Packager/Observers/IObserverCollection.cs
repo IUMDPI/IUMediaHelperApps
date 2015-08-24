@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Packager.Observers
 {
-    public interface IObserverCollection : IList<IObserver>
+    public interface IObserverCollection : ICollection<IObserver>
     {
         void Log(string baseMessage, params object[] elements);
         void LogProcessingIssue(Exception issue, string barcode);

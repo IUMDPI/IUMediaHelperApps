@@ -24,6 +24,8 @@ namespace Packager.Observers
             LogEngineError(issue);
         }
 
+        public override int UniqueIdentifier => 1;
+
         private static readonly Logger Logger = LogManager.GetLogger(ThisLoggerName);
     }
 }

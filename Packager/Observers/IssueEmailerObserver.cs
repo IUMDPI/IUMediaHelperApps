@@ -59,6 +59,8 @@ namespace Packager.Observers
             EmailSender.Send(message);
         }
 
+        public int UniqueIdentifier => 4;
+
         private bool ShouldSendMessage(Exception issue)
         {
             if (string.IsNullOrWhiteSpace(ProgramSettings.SmtpServer))

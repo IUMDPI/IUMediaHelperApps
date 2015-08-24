@@ -72,6 +72,7 @@
     </Compile>
     <Compile Include="Attributes\FromIntegerConfigSetting.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
+    <Compile Include="Models\OutputModels\IngestDevice.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />

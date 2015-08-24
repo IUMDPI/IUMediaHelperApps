@@ -77,5 +77,19 @@ namespace Packager.Extensions
 
             return builder.ToString();
         }
+
+        public static string RemoveSpaces(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value) 
+                ? value 
+                : value.Replace(" ", "");
+        }
+
+        public static string TrimWhiteSpace(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? value
+                : value.Trim();
+        }
     }
 }

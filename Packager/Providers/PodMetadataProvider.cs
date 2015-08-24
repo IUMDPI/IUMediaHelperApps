@@ -145,7 +145,35 @@ namespace Packager.Providers
                 PreservationProblems = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PreservationProblems)
             };
 
-            return result;
+            return NormalizeResultFields(result);
+        }
+
+        // go through the result's string fields and remove leading and trailing whitespace
+        private static ConsolidatedPodMetadata NormalizeResultFields(ConsolidatedPodMetadata metadata)
+        {
+            metadata = NormalizeFields(metadata);
+
+            for (var i = 0; i < metadata.FileProvenances.Count; i++)
+            {
+                metadata.FileProvenances[i] = NormalizeFields(metadata.FileProvenances[i]);
+
+                for (var j = 0; j < metadata.FileProvenances[i].SignalChain.Count; j++)
+                {
+                    metadata.FileProvenances[i].SignalChain[j] = NormalizeFields(metadata.FileProvenances[i].SignalChain[j]);
+                }
+            }
+
+            return metadata;
+        }
+
+        private static T NormalizeFields<T>(T value)
+        {
+            foreach (var property in value.GetType().GetProperties().Where(p => p.PropertyType == typeof (string) && p.CanWrite))
+            {
+                property.SetValue(value, ((string)property.GetValue(value)).TrimWhiteSpace());
+            }
+
+            return value;
         }
 
         private static string GetBoolValuesAsList(object instance, string defaultValue = "")

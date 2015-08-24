@@ -1,4 +1,5 @@
-﻿using Packager.Exceptions;
+﻿using System.Linq;
+using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -18,21 +19,22 @@ namespace Packager.Factories
 
             return new IngestData
             {
-                XsiType = string.Format("{0}Ingest", podMetadata.Format),
-                //AdManufacturer = digitalFileProvenance.AdManufacturer,
-                //AdModel = digitalFileProvenance.AdModel,
-                //AdSerialNumber = digitalFileProvenance.AdSerialNumber,
+                XsiType = $"{podMetadata.Format}Ingest".RemoveSpaces(),
+                
                 Comments = digitalFileProvenance.Comment,
                 CreatedBy = digitalFileProvenance.CreatedBy,
-                //PlayerManufacturer = digitalFileProvenance.PlayerManufacturer,
-                //PlayerModel = digitalFileProvenance.PlayerModel,
-                //PlayerSerialNumber = digitalFileProvenance.PlayerSerialNumber,
                 ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
                 SpeedUsed = digitalFileProvenance.SpeedUsed,
-                Date = digitalFileProvenance.DateDigitized.ToString(), 
-                //PreAmp = digitalFileProvenance.PreAmp, 
-                //PreAmpSerialNumber = digitalFileProvenance.PreAmpSerialNumber
+                Date = digitalFileProvenance.DateDigitized.ToString(),
+                Players = digitalFileProvenance.PlayerDevices
+                    .Select(d=>new IngestDevice {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
+                    .ToArray(),
+                AdDevices = digitalFileProvenance.AdDevices
+                    .Select(d => new IngestDevice { Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer })
+                    .ToArray()
             };
+
+            
         }
     }
 }

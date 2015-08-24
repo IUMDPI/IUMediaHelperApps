@@ -19,34 +19,22 @@ namespace Packager.Models.OutputModels
         [XmlElement("Created_by", Order = 3)]
         public string CreatedBy { get; set; }
 
-        [XmlElement("Player_serial_number", Order = 4)]
-        public string PlayerSerialNumber { get; set; }
+        [XmlElement("Player", Order = 4)]
+        public IngestDevice[] Players { get; set; }
 
-        [XmlElement("Player_manufacturer", Order = 5)]
-        public string PlayerManufacturer { get; set; }
+        [XmlElement("AD", Order = 5)]
+        public IngestDevice[] AdDevices { get; set; }
 
-        [XmlElement("Player_model", Order = 6)]
-        public string PlayerModel { get; set; }
-
-        [XmlElement("AD_serial_number", Order = 7)]
-        public string AdSerialNumber { get; set; }
-
-        [XmlElement("AD_manufacturer", Order = 8)]
-        public string AdManufacturer { get; set; }
-
-        [XmlElement("AD_model", Order = 9)]
-        public string AdModel { get; set; }
-
-        [XmlElement("Extraction_workstation", Order = 10)]
+        [XmlElement("Extraction_workstation", Order = 6)]
         public string ExtractionWorkstation { get; set; }
 
-        [XmlElement("Speed_used", Order = 11)]
+        [XmlElement("Speed_used", Order = 7)]
         public string SpeedUsed { get; set; }
 
-        [XmlElement("Preamp", Order = 12)]
+        [XmlElement("Preamp", Order = 8)]
         public string PreAmp { get; set; }
 
-        [XmlElement("Preamp_serial_number", Order = 13)]
+        [XmlElement("Preamp_serial_number", Order = 9)]
         public string PreAmpSerialNumber { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Factories;
@@ -90,27 +91,32 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetXsiTypeCorrectly()
             {
-                Assert.That(Result.XsiType, Is.EqualTo(string.Format("{0}Ingest", PodMetadata.Format)));
+                Assert.That(Result.XsiType, Is.EqualTo($"{PodMetadata.Format}Ingest"));
             }
 
             [Test]
-            public void ItShouldSetAdManufacturerCorrectly()
+            public void ItShouldSetAdDevicesCorrectly()
             {
-                //Assert.That(Result.AdManufacturer, Is.EqualTo(Provenance.AdManufacturer));
+                AssertDeviceCollectionOk(Provenance.AdDevices.ToArray(), Result.AdDevices);
+            }
+
+            private void AssertDeviceCollectionOk(IReadOnlyList<Device> devices, IReadOnlyList<IngestDevice> ingestDevices)
+            {
+                Assert.That(devices.Count, Is.EqualTo(ingestDevices.Count));
+                for (var i = 0; i < devices.Count; i++)
+                {
+                    Assert.That(ingestDevices[i].Model, Is.EqualTo(devices[i].Model));
+                    Assert.That(ingestDevices[i].SerialNumber, Is.EqualTo(devices[i].SerialNumber));
+                    Assert.That(ingestDevices[i].Manufacturer, Is.EqualTo(devices[i].Manufacturer));
+                }
             }
 
             [Test]
-            public void ItShouldSetAdModelCorrectly()
+            public void ItShouldPlayerDevicesCorrectly()
             {
-                //Assert.That(Result.AdModel, Is.EqualTo(Provenance.AdModel));
+                AssertDeviceCollectionOk(Provenance.PlayerDevices.ToArray(), Result.Players);
             }
-
-            [Test]
-            public void ItShouldSetAdSerialNumberCorrectly()
-            {
-                //Assert.That(Result.AdSerialNumber, Is.EqualTo(Provenance.AdSerialNumber));
-            }
-
+            
             [Test]
             public void ItShouldSetCommentsCorrectly()
             {
@@ -121,24 +127,6 @@ namespace Packager.Test.Factories
             public void ItShouldSetCreatedByCorrectly()
             {
                 Assert.That(Result.CreatedBy, Is.EqualTo(Provenance.CreatedBy));
-            }
-
-            [Test]
-            public void ItShouldSetPlayerManufacturerCorrectly()
-            {
-                //Assert.That(Result.PlayerManufacturer, Is.EqualTo(Provenance.PlayerManufacturer));
-            }
-
-            [Test]
-            public void ItShouldSetPlayerModelCorrectly()
-            {
-                //Assert.That(Result.PlayerModel, Is.EqualTo(Provenance.PlayerModel));
-            }
-
-            [Test]
-            public void ItShouldSetPlayerSerialNumberCorrectly()
-            {
-                //Assert.That(Result.PlayerSerialNumber, Is.EqualTo(Provenance.PlayerSerialNumber));
             }
 
             [Test]
@@ -159,17 +147,7 @@ namespace Packager.Test.Factories
                 Assert.That(Result.Date, Is.EqualTo(Provenance.DateDigitized.Value.ToString()));
             }
 
-            [Test]
-            public void ItShouldSetPreAmpCorrectly()
-            {
-                //Assert.That(Result.PreAmp, Is.EqualTo(Provenance.PreAmp));
-            }
-
-            [Test]
-            public void ItShouldSetPreAmpSerialNumberCorrectly()
-            {
-                //Assert.That(Result.PreAmpSerialNumber, Is.EqualTo(Provenance.PreAmpSerialNumber));
-            }
+        
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using NUnit.Framework;
@@ -69,9 +70,22 @@ namespace Packager.Test.Factories
                 //PlayerManufacturer = "Player manufacturer",
                 //PlayerModel = "Player model",
                 //PlayerSerialNumber = "Player serial number",
-                SpeedUsed = "7.5 ips",
+                SignalChain = GetSignalChain(),
+                SpeedUsed = "7.5 ips"
                 //UpdatedAt = new DateTime(2015, 8, 1).ToString(CultureInfo.InvariantCulture)
             };
+        }
+
+        private static List<Device> GetSignalChain()
+        {
+            var result = new List<Device>
+            {
+                new Device {DeviceType = "extraction workstation", Model = "ew model", Manufacturer = "ew manufacturer", SerialNumber = "ew serial number"},
+                new Device {DeviceType = "player", Model = "Player model", Manufacturer = "Player manufacturer", SerialNumber = "Player serial number"},
+                new Device {DeviceType = "ad", Model = "Ad model", Manufacturer = "Ad manufacturer", SerialNumber = "Ad serial number"},
+            };
+
+            return result;
         }
 
         [Test]
@@ -108,7 +122,7 @@ namespace Packager.Test.Factories
         [Test]
         public void DescriptionAndIcmtShouldBeSetCorrectly()
         {
-            var expected = string.Format("{0}. {1}. File use: {2}. {3}", Unit, CallNumber, Model.FullFileUse, Path.GetFileNameWithoutExtension(PreservationFileName));
+            var expected = $"{Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
             Assert.That(Result.Core.Description, Is.EqualTo(expected));
             Assert.That(Result.Core.ICMT, Is.EqualTo(expected));
         }
@@ -137,7 +151,7 @@ namespace Packager.Test.Factories
         {
             var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-            const string expected = "A=PCM,F=96000,W=24,M=Mono,T=Ad manufacturer Ad model;Ad serial number;A/D,";
+            const string expected = "A=PCM,F=96000,W=24,M=Mono,T=Ad manufacturer Ad model;SNAd serial number;A/D,";
 
             Assert.That(parts[1], Is.EqualTo(expected));
         }
@@ -188,10 +202,7 @@ namespace Packager.Test.Factories
             {
                 var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-                var expected = string.Format("A={0}," +
-                                             "M=Mono," +
-                                             "T=Player manufacturer Player model;Player serial number;8.5ips;{1},",
-                    ExpectedDigitalOrAnalog, Metadata.Format);
+                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5ips;{Metadata.Format},";
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
@@ -211,10 +222,7 @@ namespace Packager.Test.Factories
             {
                 var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-                var expected = string.Format("A={0}," +
-                                             "M=Mono," +
-                                             "T=Player manufacturer Player model;Player serial number;8.5ips;1.1ips;2.1ips;{1},",
-                    ExpectedDigitalOrAnalog, Metadata.Format);
+                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5ips;1.1ips;2.1ips;{Metadata.Format},";
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
@@ -234,10 +242,7 @@ namespace Packager.Test.Factories
             {
                 var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-                var expected = string.Format("A={0}," +
-                                             "M=Mono," +
-                                             "T=Player manufacturer Player model;Player serial number;{1};{2},",
-                    ExpectedDigitalOrAnalog, Metadata.PlaybackSpeed.Replace(" ",""), Metadata.Format);
+                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;{Metadata.PlaybackSpeed.Replace(" ", "")};{Metadata.Format},";
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
@@ -258,10 +263,7 @@ namespace Packager.Test.Factories
             {
                 var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-                var expected = string.Format("A={0}," +
-                                             "M=Mono," +
-                                             "T=Player manufacturer Player model;Player serial number;{1},",
-                    ExpectedDigitalOrAnalog, Metadata.Format);
+                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;{Metadata.Format},";
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }

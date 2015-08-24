@@ -104,17 +104,6 @@ namespace Packager.Factories
 
             var parts = GenerateDevicePartsArray(provenance.AdDevices);
             return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
-
-/*
-            var builder = new StringBuilder();
-            foreach (var device in provenance.AdDevices)
-            {
-                var parts = new List<string> { $"{device.Manufacturer} {device.Model}", device.SerialNumber };
-                builder.Append(string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p))));
-            }
-            
-            return builder.ToString();
-*/
         }
 
         private string GenerateCodingHistory(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)

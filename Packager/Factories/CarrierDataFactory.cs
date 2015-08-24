@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
@@ -22,7 +23,7 @@ namespace Packager.Factories
                 Barcode = podMetadata.Barcode,
                 Brand = podMetadata.Brand,
                 CarrierType = podMetadata.Format,
-                XsiType = string.Format("{0}Carrier", podMetadata.Format),
+                XsiType = $"{podMetadata.Format}Carrier".RemoveSpaces(),
                 DirectionsRecorded = podMetadata.DirectionsRecorded,
                 Identifier = podMetadata.Identifier,
                 Thickness = podMetadata.TapeThickness,
@@ -32,7 +33,7 @@ namespace Packager.Factories
                 Parts = GeneratePartsData(podMetadata, filesToProcess),
                 Configuration = new ConfigurationData
                 {
-                    XsiType = string.Format("Configuration{0}", podMetadata.Format),
+                    XsiType = $"Configuration{podMetadata.Format}".RemoveSpaces(),
                     Track = podMetadata.TrackConfiguration,
                     SoundField = podMetadata.SoundField,
                     Speed = podMetadata.PlaybackSpeed

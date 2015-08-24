@@ -1,6 +1,7 @@
 ﻿using System;
 using NLog;
 using NLog.Targets;
+using NLog.Targets.Wrappers;
 
 namespace Packager.Providers
 {
@@ -19,16 +20,27 @@ namespace Packager.Providers
         {
             get
             {
-                var fileTarget = (FileTarget)LogManager.Configuration.FindTargetByName("GeneralFileLogger");
-                if (fileTarget == null)
+                var target = GetFileTarget(LogManager.Configuration.FindTargetByName("GeneralFileLogger"));
+                if (target == null)
                 {
                     return "";
                 }
 
                 var logEventInfo = new LogEventInfo { TimeStamp = DateTime.Now };
                 logEventInfo.Properties.Add("LogDirectoryName", LogFolder);
-                return fileTarget.FileName.Render(logEventInfo);
+                return target.FileName.Render(logEventInfo);
             }
+        }
+
+        private static FileTarget GetFileTarget(Target value)
+        {
+            var wrapper = value as AsyncTargetWrapper;
+            var actual = (wrapper != null)
+                ? wrapper.WrappedTarget
+                : value;
+
+
+            return actual as FileTarget;
         }
     }
 }

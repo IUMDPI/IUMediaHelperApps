@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
 using Packager.Exceptions;
@@ -26,40 +25,40 @@ namespace Packager.Test.Factories
             return new DigitalFileProvenance
             {
                 Filename = fileName,
-                //AdManufacturer = "Ad Manufacturer",
-                //AdModel = "Ad Model",
-                //AdSerialNumber = "Ad Serial Number",
                 Comment = "File provenance comment",
-                //CreatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
                 CreatedBy = "Test user",
                 DateDigitized = new DateTime(2015, 05, 01),
-                //ExtractionWorkstation = "Extraction workstation",
-                //PlayerManufacturer = "Player manufacturer",
-                //PlayerModel = "Player model",
-                //PlayerSerialNumber = "Player serial number",
                 SpeedUsed = "7.5 ips",
-                //UpdatedAt = new DateTime(2015, 05, 01).ToString(CultureInfo.InvariantCulture),
-                //PreAmp = "Pre amp",
-                //PreAmpSerialNumber = "Pre amp serial number"
+                SignalChain = GetSignalChain()
             };
         }
+        
+        private static List<Device> GetSignalChain()
+        {
+            var result = new List<Device>
+            {
+                new Device {DeviceType = "extraction workstation", Model = "ew model", Manufacturer = "ew manufacturer", SerialNumber = "ew serial number"},
+                new Device {DeviceType = "player", Model = "Player model", Manufacturer = "Player manufacturer", SerialNumber = "Player serial number"},
+                new Device {DeviceType = "ad", Model = "Ad model", Manufacturer = "Ad manufacturer", SerialNumber = "Ad serial number"},
+            };
 
-       
+            return result;
+        }
+
         public class WhenProvenanceIsMissing : IngestFactoryTests
         {
             [SetUp]
             public void BeforeEach()
             {
-
                 FileModel = new ObjectFileModel(MissingFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 PodMetadata = new ConsolidatedPodMetadata
                 {
                     Format = "CD-R",
-                    FileProvenances = new List<DigitalFileProvenance> { Provenance }
+                    FileProvenances = new List<DigitalFileProvenance> {Provenance}
                 };
-             }
+            }
 
             [Test]
             public void ShouldThrowOutputXmlException()
@@ -74,33 +73,20 @@ namespace Packager.Test.Factories
             [SetUp]
             public void BeforeEach()
             {
-
                 FileModel = new ObjectFileModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 PodMetadata = new ConsolidatedPodMetadata
                 {
                     Format = "CD-R",
-                    FileProvenances = new List<DigitalFileProvenance> { Provenance }
+                    FileProvenances = new List<DigitalFileProvenance> {Provenance}
                 };
 
                 var factory = new IngestDataFactory();
                 Result = factory.Generate(PodMetadata, FileModel);
             }
-            
-            [Test]
-            public void ItShouldSetXsiTypeCorrectly()
-            {
-                Assert.That(Result.XsiType, Is.EqualTo($"{PodMetadata.Format}Ingest"));
-            }
 
-            [Test]
-            public void ItShouldSetAdDevicesCorrectly()
-            {
-                AssertDeviceCollectionOk(Provenance.AdDevices.ToArray(), Result.AdDevices);
-            }
-
-            private void AssertDeviceCollectionOk(IReadOnlyList<Device> devices, IReadOnlyList<IngestDevice> ingestDevices)
+            private static void AssertDeviceCollectionOk(IReadOnlyList<Device> devices, IReadOnlyList<IngestDevice> ingestDevices)
             {
                 Assert.That(devices.Count, Is.EqualTo(ingestDevices.Count));
                 for (var i = 0; i < devices.Count; i++)
@@ -112,11 +98,23 @@ namespace Packager.Test.Factories
             }
 
             [Test]
+            public void ItShouldExtractionWorkstationCorrectly()
+            {
+                Assert.That(Result.ExtractionWorkstation, Is.EqualTo(Provenance.ExtractionWorkstation));
+            }
+
+            [Test]
             public void ItShouldPlayerDevicesCorrectly()
             {
                 AssertDeviceCollectionOk(Provenance.PlayerDevices.ToArray(), Result.Players);
             }
-            
+
+            [Test]
+            public void ItShouldSetAdDevicesCorrectly()
+            {
+                AssertDeviceCollectionOk(Provenance.AdDevices.ToArray(), Result.AdDevices);
+            }
+
             [Test]
             public void ItShouldSetCommentsCorrectly()
             {
@@ -130,9 +128,9 @@ namespace Packager.Test.Factories
             }
 
             [Test]
-            public void ItShouldExtractionWorkstationCorrectly()
+            public void ItShouldSetDateCorrectly()
             {
-                Assert.That(Result.ExtractionWorkstation, Is.EqualTo(Provenance.ExtractionWorkstation));
+                Assert.That(Result.Date, Is.EqualTo(Provenance.DateDigitized.Value.ToString()));
             }
 
             [Test]
@@ -142,12 +140,10 @@ namespace Packager.Test.Factories
             }
 
             [Test]
-            public void ItShouldSetDateCorrectly()
+            public void ItShouldSetXsiTypeCorrectly()
             {
-                Assert.That(Result.Date, Is.EqualTo(Provenance.DateDigitized.Value.ToString()));
+                Assert.That(Result.XsiType, Is.EqualTo($"{PodMetadata.Format}Ingest"));
             }
-
-        
         }
     }
 }

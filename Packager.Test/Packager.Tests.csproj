@@ -76,6 +76,7 @@
     <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />
     <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />
     <Compile Include="Models\FileModels\XmlFileModelTests.cs" />
+    <Compile Include="Models\MetadataModels\DigitalFileProvenanceTests.cs" />
     <Compile Include="Processors\AbstractProcessorTests.cs" />
     <Compile Include="Processors\AudioProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Utilities\SuccessFolderCleanerTests.cs" />
     <Compile Include="Validators\DirectoryValidatorTests.cs" />
     <Compile Include="Validators\FileValidatorTests.cs" />
+    <Compile Include="Validators\HasMembersValidatorTests.cs" />
     <Compile Include="Validators\UriValidatorTests.cs" />
     <Compile Include="Validators\ValueRequiredValidatorTests.cs" />
   </ItemGroup>

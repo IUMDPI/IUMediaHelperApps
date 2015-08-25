@@ -4,7 +4,7 @@ using Packager.UserInterface;
 
 namespace Packager.Observers
 {
-    internal class ViewModelObserver : IViewModelObserver
+    internal class ViewModelObserver : IObserver
     {
         public ViewModelObserver(ViewModel viewModel)
         {

@@ -56,9 +56,7 @@ namespace Packager
 
         private static void AddObservers(IDependencyProvider dependencyProvider, ViewModel viewModel)
         {
-            dependencyProvider.Observers.Add(new GeneralNLogObserver(
-                dependencyProvider.ProgramSettings.LogDirectoryName,
-                dependencyProvider.ProgramSettings.ProcessingDirectory));
+            dependencyProvider.Observers.Add(new GeneralNLogObserver(dependencyProvider.ProgramSettings.LogDirectoryName));
 
             dependencyProvider.Observers.Add(new ViewModelObserver(viewModel));
 

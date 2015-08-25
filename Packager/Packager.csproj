@@ -157,7 +157,6 @@
     <Compile Include="Models\FileModels\UnknownFileModel.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\UserInterfaceModels\SectionModel.cs" />
-    <Compile Include="Observers\AbstractNLogObserver.cs" />
     <Compile Include="Observers\GeneralNLogObserver.cs" />
     <Compile Include="Observers\IObserverCollection.cs" />
     <Compile Include="Observers\IssueEmailerObserver.cs" />

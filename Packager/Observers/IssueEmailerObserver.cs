@@ -59,6 +59,16 @@ namespace Packager.Observers
             EmailSender.Send(message);
         }
 
+        public void BeginSection(string sectionKey, string baseMessage, params object[] elements)
+        {
+            // ignore
+        }
+
+        public void EndSection(string sectionKey, string newTitle = "", bool collapse = false)
+        {
+            // ignore
+        }
+
         public int UniqueIdentifier => 4;
 
         private bool ShouldSendMessage(Exception issue)

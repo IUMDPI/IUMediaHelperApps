@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Packager.Exceptions;
 
 namespace Packager.Observers
@@ -48,7 +47,10 @@ namespace Packager.Observers
 
         public void EndSection(string sectionKey, string newTitle = "", bool collapse = false)
         {
-            ViewModelObserver?.EndSection(sectionKey, newTitle, collapse);
+            foreach (var observer in this)
+            {
+                observer.EndSection(sectionKey, newTitle, collapse);
+            }
         }
 
         public void LogEngineIssue(Exception exception)
@@ -66,12 +68,11 @@ namespace Packager.Observers
 
         private void NotifyOfBeginSection(string key, string baseMessage, params object[] elements)
         {
-            ViewModelObserver?.BeginSection(key, baseMessage, elements);
+            foreach (var observer in this)
+            {
+                observer.BeginSection(key, baseMessage, elements);
+            }
         }
-
-        private IViewModelObserver ViewModelObserver { get { return this.SingleOrDefault(o => o is IViewModelObserver) as IViewModelObserver; } }
-        
-        
     }
 
     internal class ObserverCollectionEqualityComparer : IEqualityComparer<IObserver>

@@ -40,10 +40,8 @@ namespace Packager.Providers
             };
 
 
-            var request = new RestRequest($"responses/objects/{barcode}/metadata/full/")
-            {
-                DateFormat = "yyyy-MM-dd HH:mm:ss zzz"
-            };
+            var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
+            
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
 
             VerifyResponse(response);

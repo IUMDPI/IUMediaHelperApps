@@ -47,6 +47,12 @@
       \[not\ set\] #notsetWarning
     </Rule>
 
+    <Rule fontWeight="bold" foreground="Orange">
+      \[not\ available\] #notavailableWarning
+    </Rule>
+
+    <Rule fontWeight="normal" color="Success">Is\smodified</Rule>
+    
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
 
     <Rule foreground="DarkBlue">

@@ -5,7 +5,7 @@
 
   <Color name="Success" foreground="Blue" />
   <Color name="Error" foreground="Red" />
-  <Color name="Warning" foreground="Orange" fontWeight="bold" />
+  <Color name="Warning" foreground="DarkOrange" fontWeight="bold" />
   <Color name="SubHeader" foreground="Blue" />
   <Color name="ObjectHeader" foreground="DarkBlue" fontWeight="bold" />
   <Color name="ProvenanceHeader" foreground="DarkBlue" />
@@ -24,6 +24,7 @@
     <Span color="Warning" begin="  Could not remove.*:" />
 
     <Span color="Warning" begin="Found 0 objects to process" />
+    <Span color="Warning" begin=".{4}_\d{14}\salready exists in" />
 
     <Span color="SubHeader" begin="^Configuration:"/>
     <Span color="SubHeader" begin="Generating "/>
@@ -40,7 +41,7 @@
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     
     <Rule color="PathFileOrBarcode">
-      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|.{4}_\d{14} #barcode, file name
+      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">
@@ -53,11 +54,11 @@
 
     <Rule fontWeight="normal" color="Success">Is\smodified</Rule>
     
-    <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
-
     <Rule foreground="DarkBlue">
       ([a-zA-z]\:\\.*\\...._\d{14})(\\|$|\s) # file path
     </Rule>
+
+ 
 
    
   </RuleSet>

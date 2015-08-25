@@ -61,10 +61,6 @@ namespace Packager.Processors
         // ReSharper disable once InconsistentNaming
         protected string FFMPEGAudioAccessArguments => ProgramSettings.FFMPEGAudioAccessArguments;
 
-        private string SuccesDirectory => Path.Combine(ProgramSettings.SuccessDirectoryName, ObjectDirectoryName);
-
-        private string ErrorDirectory => Path.Combine(ProgramSettings.ErrorDirectoryName, ObjectDirectoryName);
-
         private IFileProvider FileProvider => _dependencyProvider.FileProvider;
 
         private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
@@ -75,6 +71,10 @@ namespace Packager.Processors
 
         // ReSharper disable once InconsistentNaming
         protected IFFMPEGRunner IffmpegRunner => _dependencyProvider.FFMPEGRunner;
+
+        public string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
+
+        public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
 
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
@@ -126,8 +126,8 @@ namespace Packager.Processors
             var sectionKey = Observers.BeginSection("Initializing");
             try
             {
-                // make directory to hold processed files
-                Observers.Log("Creating directory: {0}", ProcessingDirectory);
+                // make folder to hold processed files
+                Observers.Log("Creating folder: {0}", ProcessingDirectory);
                 DirectoryProvider.CreateDirectory(ProcessingDirectory);
 
                 foreach (var fileModel in filesToProcess)
@@ -151,8 +151,8 @@ namespace Packager.Processors
             var sectionKey = Observers.BeginSection("Cleaning up");
             try
             {
-                Observers.Log("Moving {0} to success directory", ObjectDirectoryName);
-                await DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory, SuccesDirectory);
+                Observers.Log("Moving {0} to success folder", ObjectDirectoryName);
+                await DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory, GetSafeDirectoryName(BaseSuccessDirectory, ObjectDirectoryName, "success folder"));
 
                 Observers.EndSection(sectionKey, "Cleanup successful");
             }
@@ -164,11 +164,38 @@ namespace Packager.Processors
             }
         }
 
+        private string GetSafeDirectoryName(string baseDirectory, string preferredName, string friendlyName)
+        {
+            var preferredPath = Path.Combine(baseDirectory, preferredName);
+            if (DirectoryProvider.DirectoryExists(Path.Combine(baseDirectory, preferredName)) == false)
+            {
+                return preferredPath;
+            }
+
+            Observers.Log("{0} already exists in {1}", preferredName, friendlyName);
+
+            var newName = $"{preferredName}_{DateTime.Now:MMddyyyyhhmmss}";
+            preferredPath = Path.Combine(baseDirectory, newName);
+            if (DirectoryProvider.DirectoryExists(preferredPath))
+            {
+                Observers.Log("{0} already exists in {1}", newName, friendlyName);
+                throw new FileDirectoryExistsException("{0} already exists in {1}", preferredName, baseDirectory);
+            }
+
+            Observers.Log("Using {0} instead.", newName);
+            return preferredPath;
+        }
+
         private async Task CopyToDropbox(IEnumerable<AbstractFileModel> fileList)
         {
             var sectionKey = Observers.BeginSection("Copying objects to dropbox");
             try
             {
+                if (DirectoryProvider.DirectoryExists(DropBoxDirectory))
+                {
+                    throw new FileDirectoryExistsException("{0} already exists in dropbox folder", ObjectDirectoryName);
+                }
+
                 DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
                 foreach (var fileName in fileList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
@@ -193,13 +220,13 @@ namespace Packager.Processors
             try
             {
                 // move folder to success
-                Observers.Log("Moving {0} to error directory", ObjectDirectoryName);
+                Observers.Log("Moving {0} to error folder", ObjectDirectoryName);
 
-                DirectoryProvider.MoveDirectory(ProcessingDirectory, ErrorDirectory);
+                DirectoryProvider.MoveDirectory(ProcessingDirectory, GetSafeDirectoryName(BaseErrorDirectory, ObjectDirectoryName, "error folder"));
             }
             catch (Exception e)
             {
-                Observers.Log("Could not move {0} to error directory: {1}", ObjectDirectoryName, e);
+                Observers.Log("Could not move {0} to error folder: {1}", ObjectDirectoryName, e);
             }
         }
 
@@ -207,6 +234,12 @@ namespace Packager.Processors
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
             var targetPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName()); // ToFileName will normalize the filename when we move the file
+
+            if (FileProvider.FileExists(targetPath))
+            {
+                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.ToFileName(), ProcessingDirectory);
+            }
+
             await FileProvider.MoveFileAsync(sourcePath, targetPath);
             return targetPath;
         }

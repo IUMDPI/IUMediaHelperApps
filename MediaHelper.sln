@@ -8,7 +8,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{A80F0017-48F8-4323-A7D9-81CC4ED6AD6C}"
 	ProjectSection(SolutionItems) = preProject
 		reference\InputTemplate.xlsx = reference\InputTemplate.xlsx
-		reference\Instructions.docx = reference\Instructions.docx
 		reference\IU_PID_1.0_technical_only.docx = reference\IU_PID_1.0_technical_only.docx
 		reference\mdpi_embeddedMD_audio_20150519.docx = reference\mdpi_embeddedMD_audio_20150519.docx
 		MemnonExample.xml = MemnonExample.xml

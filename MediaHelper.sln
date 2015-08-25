@@ -1,13 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager", "Packager\Packager.csproj", "{C29CEACF-32EB-45CF-818F-87590A0EFDC0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{A80F0017-48F8-4323-A7D9-81CC4ED6AD6C}"
 	ProjectSection(SolutionItems) = preProject
 		reference\InputTemplate.xlsx = reference\InputTemplate.xlsx
+		reference\Instructions.docx = reference\Instructions.docx
 		reference\IU_PID_1.0_technical_only.docx = reference\IU_PID_1.0_technical_only.docx
 		reference\mdpi_embeddedMD_audio_20150519.docx = reference\mdpi_embeddedMD_audio_20150519.docx
 		MemnonExample.xml = MemnonExample.xml

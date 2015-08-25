@@ -11,8 +11,7 @@ namespace Scheduler.Models
         private const string DaysPrefix = "-days=";
         private const string StartPrefix = "-start=";
         private const string NamePrefix = "-name=";
-        private const string QuietPrefix = "-q";
-
+        
         public string Target { get; set; }
         public DaysOfTheWeek Days { get; set; }
         public DateTime StartTime { get; set; }
@@ -51,7 +50,7 @@ namespace Scheduler.Models
             TimeSpan timespan;
             if (!TimeSpan.TryParse(startTime, out timespan))
             {
-                throw new Exception(string.Format("Could not convert {0} to valid start time. Valid format is hh:mm:ss.", startTime));
+                throw new Exception($"Could not convert {startTime} to valid start time. Valid format is hh:mm:ss.");
             }
 
             return DateTime.Now.Date.Add(timespan);
@@ -73,8 +72,7 @@ namespace Scheduler.Models
                 DaysOfTheWeek value;
                 if (!Enum.TryParse(part.Trim(), true, out value))
                 {
-                    throw new Exception(string.Format("Could not convert {0} to valid day value. Allowed values are 'Monday', 'Tuesday','Wednesday', 'Thursday', 'Friday', 'Saturday',  and 'Sunday.'",
-                        part));
+                    throw new Exception($"Could not convert {part} to valid day value. Allowed values are 'Monday', 'Tuesday','Wednesday', 'Thursday', 'Friday', 'Saturday',  and 'Sunday.'");
                 }
 
                 result = (result | value);

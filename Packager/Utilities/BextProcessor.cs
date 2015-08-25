@@ -65,10 +65,10 @@ namespace Packager.Utilities
         {
             try
             {
-                var startInfo = new ProcessStartInfo(BwfMetaEditPath) {Arguments = "--version"};
+                var startInfo = new ProcessStartInfo(BwfMetaEditPath) { Arguments = "--version" };
                 var result = await ProcessRunner.Run(startInfo);
 
-                var parts = result.StandardOutput.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+                var parts = result.StandardOutput.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 return parts.Last();
             }
             catch (Exception)
@@ -100,7 +100,7 @@ namespace Packager.Utilities
             var xmlPath = Path.Combine(BaseProcessingDirectory, objectFolder, "core.xml");
             XmlExporter.ExportToFile(xml, xmlPath);
 
-            var args = string.Format("--verbose --Append --in-core={0}", xmlPath.ToQuoted());
+            var args = $"--verbose --Append --in-core={xmlPath.ToQuoted()}";
 
             var startInfo = new ProcessStartInfo(BwfMetaEditPath)
             {
@@ -113,7 +113,7 @@ namespace Packager.Utilities
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.Log(FormatOutput(result.StandardOutput));
+            Observers.Log(FormatOutput(result.StandardOutput, objectFolder));
 
             if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(),
                 xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(), Observers))
@@ -122,21 +122,42 @@ namespace Packager.Utilities
             }
         }
 
-        private static string FormatOutput(string output)
+        private string FormatOutput(string output, string objectFolder)
         {
             var builder = new StringBuilder();
-            var lines = output.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
-            for (var index = 0; index < lines.Count(); index++)
+            var lines = output.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (var index = 0; index < lines.Length; index++)
             {
                 if (index > 0 && lines[index].EndsWith(": Is open"))
                 {
                     builder.Append('\n');
                 }
 
-                builder.AppendFormat("{0}\n", lines[index]);
+                var text = NormalizeLogLine(lines[index], objectFolder);
+                builder.AppendFormat("{0}\n", text);
             }
 
             return builder.ToString();
+        }
+
+
+        private static string NormalizeLogLine(string line, string objectFolder)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                return line;
+            }
+
+            // want to remove everything before the file name
+            // so find the base processing directory in the string
+            // and start from there + its length +1
+            var index = line.IndexOf(objectFolder, StringComparison.InvariantCultureIgnoreCase) + objectFolder.Length + 1;
+            if (index <= 0 || index >= line.Length)
+            {
+                return line;
+            }
+
+            return line.Substring(index);
         }
     }
 }

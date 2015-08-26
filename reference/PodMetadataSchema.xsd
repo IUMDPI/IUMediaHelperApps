@@ -88,6 +88,9 @@
         <xs:element ref="audio"/>
         <xs:element ref="video"/>
         <xs:element ref="memnon_qc_completed"/>
+        <xs:element ref="billed"/>
+        <xs:element ref="date_billed"/>
+        <xs:element ref="spread_sheet_filename"/>
         <xs:element ref="group_total"/>
         <xs:element ref="carrier_stream_index"/>
         <xs:element ref="current_workflow_status"/>
@@ -124,6 +127,9 @@
   <xs:element name="audio" type="xs:boolean"/>
   <xs:element name="video" type="xs:boolean"/>
   <xs:element name="memnon_qc_completed" type="xs:boolean"/>
+  <xs:element name="billed" type="xs:boolean"/>
+  <xs:element name="date_billed" type="xs:dateTime" nillable="true"/>
+  <xs:element name="spread_sheet_filename" type="xs:string"/>
   <xs:element name="group_total" type="xs:integer"/>
   <xs:element name="carrier_stream_index" type="xs:string"/>
   <xs:element name="current_workflow_status" type="xs:string"/>
@@ -441,15 +447,15 @@
   </xs:element>
   <xs:element name="digitizing_entity" type="xs:string"/>
   <xs:element name="comments" type="xs:string"/>
-  <xs:element name="cleaning_date" type="xs:dateTime" />
-  <xs:element name="baking" type="xs:dateTime" />
+  <xs:element name="cleaning_date" type="xs:dateTime" nillable="true"/>
+  <xs:element name="baking" type="xs:dateTime" nillable="true"/>
   <xs:element name="repaired" type="xs:boolean"/>
   <xs:element name="cleaning_comment" type="xs:string" />
   <xs:element name="digitization_time" type="xs:string" />
   <xs:element name="digital_files">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" ref="digital_file_provenance"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="digital_file_provenance"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -466,7 +472,7 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="filename" type="xs:string"/>
-  <xs:element name="date_digitized" type="xs:dateTime"/>
+  <xs:element name="date_digitized" type="xs:dateTime" nillable="true"/>
   <xs:element name="comment" type="xs:string"/>
   <xs:element name="created_by" type="xs:string" />
   <xs:element name="speed_used" type="xs:string" />

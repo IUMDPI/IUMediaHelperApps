@@ -1,3 +1,5 @@
 ﻿1.0.0.0	08/25/2015	initial release
-1.1.0.0	08/25/2015	fix issue copying to success error folder if preferred folder name already exists
-					fix various processing issues due to unexpected metadata
+1.1.0.0	08/25/2015	fixed issue copying to success error folder if preferred folder name already exists
+					fixed various processing issues due to unexpected metadata
+1.2.0.0 08/27/2015  fixed encoding issue when serializing xml files
+					fixed node names (FileData->File, Checksum->CheckSum) in output xml

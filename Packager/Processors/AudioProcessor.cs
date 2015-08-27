@@ -134,7 +134,7 @@ namespace Packager.Processors
         {
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
             var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
-            XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()), Encoding.UTF8);
+            XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()), new UTF8Encoding(false));
 
             return result;
         }

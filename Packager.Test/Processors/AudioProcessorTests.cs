@@ -360,7 +360,7 @@ namespace Packager.Test.Processors
                 public void ItShouldCallExportToFileCorrectly()
                 {
                     XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
-                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName), Encoding.UTF8);
+                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName), Arg.Any<UTF8Encoding>());
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenGeneratingXmlManifest
@@ -547,7 +547,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ShouldLogMovingMessage()
                 {
-                    Observers.Received().Log("Moving {0} to error directory", ExpectedObjectFolderName);
+                    Observers.Received().Log("Moving {0} to error folder", ExpectedObjectFolderName);
                 }
 
                 [Test]

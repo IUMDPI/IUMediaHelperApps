@@ -10,10 +10,12 @@ namespace Packager.Utilities
   
         public void ExportToFile(object o, string path, Encoding encoding)
         {
+            var settings = new XmlWriterSettings { Indent = true, Encoding = encoding};
+
             var xmlSerializer = new XmlSerializer(o.GetType());
 
             using (Stream stream = new FileStream(path, FileMode.Create))
-            using (XmlWriter xmlWriter = new XmlTextWriter(stream, encoding))
+            using (var xmlWriter = XmlWriter.Create(stream, settings))
             {
                 xmlSerializer.Serialize(xmlWriter, o);
             }

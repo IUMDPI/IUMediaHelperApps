@@ -1,8 +1,9 @@
-﻿namespace Packager.Utilities
+﻿using System.Text;
+
+namespace Packager.Utilities
 {
     public interface IXmlExporter
     {
-        string GenerateXml(object o);
-        void ExportToFile(object o, string path);
+        void ExportToFile(object o, string path, Encoding encoding);
     }
 }

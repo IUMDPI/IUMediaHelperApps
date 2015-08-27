@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -102,7 +103,7 @@ namespace Packager.Test.Utilities
             [Test]
             public void ItShouldCallXmlExporterWithCorrectPath()
             {
-                XmlExporter.Received().ExportToFile(Arg.Any<ConformancePointDocument>(), Path.Combine(BaseProcessingFolder, ExpectedProcessingFolder, "core.xml"));
+                XmlExporter.Received().ExportToFile(Arg.Any<ConformancePointDocument>(), Path.Combine(BaseProcessingFolder, ExpectedProcessingFolder, "core.xml"), Encoding.ASCII);
             }
 
             [Test]

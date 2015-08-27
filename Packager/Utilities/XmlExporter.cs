@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -6,26 +7,17 @@ namespace Packager.Utilities
 {
     internal class XmlExporter : IXmlExporter
     {
-        public string GenerateXml(object o)
+  
+        public void ExportToFile(object o, string path, Encoding encoding)
         {
-            var serializer = new XmlSerializer(o.GetType());
-            var settings = new XmlWriterSettings { Indent = true };
-            // code borrow
-            using (var textWriter = new StringWriter())
+            var xmlSerializer = new XmlSerializer(o.GetType());
+
+            using (Stream stream = new FileStream(path, FileMode.Create))
+            using (XmlWriter xmlWriter = new XmlTextWriter(stream, encoding))
             {
-                using (var xmlWriter = XmlWriter.Create(textWriter, settings))
-                {
-                    serializer.Serialize(xmlWriter, o);
-                }
-                return textWriter.ToString();
+                xmlSerializer.Serialize(xmlWriter, o);
             }
         }
-
-        public void ExportToFile(object o, string path)
-        {
-            var xml = GenerateXml(o);
-            File.WriteAllText(path, xml);
-
-        }
     }
+
 }

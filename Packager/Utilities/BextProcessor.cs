@@ -98,7 +98,7 @@ namespace Packager.Utilities
         private async Task AddMetadata(ConformancePointDocument xml, string objectFolder)
         {
             var xmlPath = Path.Combine(BaseProcessingDirectory, objectFolder, "core.xml");
-            XmlExporter.ExportToFile(xml, xmlPath);
+            XmlExporter.ExportToFile(xml, xmlPath, Encoding.ASCII);
 
             var args = $"--verbose --Append --in-core={xmlPath.ToQuoted()}";
 

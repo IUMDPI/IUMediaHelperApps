@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace Packager.Models.OutputModels
 {
@@ -6,6 +7,8 @@ namespace Packager.Models.OutputModels
     public class FileData
     {
         public string FileName { get; set; }
+
+        [XmlElement("CheckSum")]
         public string Checksum { get; set; }
     }
 }

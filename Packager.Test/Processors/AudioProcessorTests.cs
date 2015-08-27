@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -359,7 +360,7 @@ namespace Packager.Test.Processors
                 public void ItShouldCallExportToFileCorrectly()
                 {
                     XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
-                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName));
+                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName), Encoding.UTF8);
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenGeneratingXmlManifest

@@ -38,9 +38,9 @@ namespace Packager.Factories
             }).ToArray();
         }
 
-        private FileData GetFileData(AbstractFileModel model)
+        private File GetFileData(AbstractFileModel model)
         {
-            return new FileData
+            return new File
             {
                 Checksum = Hasher.Hash(model),
                 FileName = model.ToFileName()

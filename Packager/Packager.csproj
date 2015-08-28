@@ -182,7 +182,7 @@
     <Compile Include="Models\OutputModels\IU.cs" />
     <Compile Include="Models\OutputModels\ConfigurationData.cs" />
     <Compile Include="Models\OutputModels\CleaningData.cs" />
-    <Compile Include="Models\OutputModels\FileData.cs" />
+    <Compile Include="Models\OutputModels\File.cs" />
     <Compile Include="Models\OutputModels\IngestData.cs" />
     <Compile Include="Models\PodAuth.cs" />
     <Compile Include="Models\PodMetadataModels\Assignment.cs" />

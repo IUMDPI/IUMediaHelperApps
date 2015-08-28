@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 namespace Packager.Models.OutputModels
 {
     [Serializable]
-    public class FileData
+    public class File
     {
         public string FileName { get; set; }
 

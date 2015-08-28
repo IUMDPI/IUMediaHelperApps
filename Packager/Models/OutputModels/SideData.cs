@@ -12,7 +12,6 @@ namespace Packager.Models.OutputModels
         public IngestData Ingest { get; set; }
         public string ManualCheck { get; set; }
 
-        [XmlElement("File")]
-        public List<FileData> Files { get; set; }
+        public List<File> Files { get; set; }
     }
 }

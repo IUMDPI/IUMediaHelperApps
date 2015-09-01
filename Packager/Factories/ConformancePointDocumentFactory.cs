@@ -64,7 +64,7 @@ namespace Packager.Factories
         {
             return _knownDigitalFormats.Contains(metadata.Format.ToLowerInvariant())
                 ? "DIGITAL"
-                : "ANALOG";
+                : "ANALOGUE";
         }
         
         private static string GeneratePlayerTextField(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)

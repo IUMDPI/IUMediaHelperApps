@@ -29,7 +29,7 @@ namespace Packager.Test.Factories
 
         protected virtual void DoCustomSetup()
         {
-            ExpectedDigitalOrAnalog = "ANALOG";
+            ExpectedDigitalOrAnalog = "ANALOGUE";
         }
 
         [SetUp]

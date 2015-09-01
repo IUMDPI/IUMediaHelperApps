@@ -95,7 +95,7 @@ namespace Packager.Test.Factories
         {
             for (var i = 0; i < Results.Length; i++)
             {
-                Assert.That(Results[i].Side, Is.EqualTo((i + 1).ToString("D2", CultureInfo.InvariantCulture)));
+                Assert.That(Results[i].Side, Is.EqualTo((i + 1).ToString(CultureInfo.InvariantCulture)));
             }
         }
 

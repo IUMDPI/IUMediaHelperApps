@@ -31,7 +31,7 @@ namespace Packager.Factories
 
             return sideGroupings.Select(grouping => new SideData
             {
-                Side = grouping.Key.ToString("D2", CultureInfo.InvariantCulture),
+                Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
                 Files = grouping.Select(GetFileData).ToList(),
                 Ingest = IngestDataFactory.Generate(podMetadata, grouping.GetPreservationOrIntermediateModel()),
                 ManualCheck = "No"

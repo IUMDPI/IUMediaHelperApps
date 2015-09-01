@@ -81,8 +81,7 @@ namespace Packager.Utilities
 
                 Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
 
-                if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(),
-                    instances.Select(f => f.ToFileName().ToLowerInvariant()).ToList(), Observers))
+                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant(), Observers) == false)
                 {
                     throw new BextMetadataException("Could not clear metadata field {0} in one or more files!", field);
                 }

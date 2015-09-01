@@ -160,7 +160,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance};
@@ -179,7 +179,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, ProductionProvenance};
@@ -198,7 +198,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance};
@@ -218,7 +218,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, null, null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance, ProductionProvenance};

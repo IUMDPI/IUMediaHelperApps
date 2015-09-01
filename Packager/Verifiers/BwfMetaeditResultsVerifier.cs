@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Packager.Observers;
 
 namespace Packager.Verifiers
@@ -9,23 +10,23 @@ namespace Packager.Verifiers
         public bool Verify(string output, List<string> targetPaths, IObserverCollection observers)
         {
             var hasError = false;
-            foreach (var path in targetPaths)
+            foreach (var path in targetPaths.Where(path => !IsModifiedOrNothingToDo(output, path)))
             {
-                var fileName = Path.GetFileName(path);
-
-                if (IsModifiedOrNothingToDo(output, path)) continue; // no error continue
-
-                observers.Log("Could not add metadata to {0}", fileName);
                 hasError = true;
             }
 
             return hasError == false;
         }
 
+        public bool Verify(string output, string targetPath, IObserverCollection observers)
+        {
+            return Verify(output, new List<string> {targetPath}, observers);
+        }
+
         private static bool IsModifiedOrNothingToDo(string output, string path)
         {
-            var modified = string.Format("{0}: is modified", path);
-            var nothingToDo = string.Format("{0}: nothing to do", path);
+            var modified = $"{path}: is modified";
+            var nothingToDo = $"{path}: nothing to do";
             return output.Contains(modified) || output.Contains(nothingToDo);
         }
     }

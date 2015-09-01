@@ -143,7 +143,7 @@ namespace Packager.Processors
                 sectionKey = Observers.BeginSection("Clearing unwanted BEXT metadata fields ({0})", string.Join(", ", fields));
                 var targets = processedList.Where(m => m.IsObjectModel())
                     .Select(m => (ObjectFileModel)m)
-                    .Where(m => m.IsProductionVersion()).ToList();
+                    .Where(m => m.IsAccessVersion() == false).ToList();
 
                 for (var i = 0; i < fields.Length; i++)
                 {

@@ -83,7 +83,7 @@ namespace Packager.Utilities
 
                 if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant(), Observers) == false)
                 {
-                    throw new BextMetadataException("Could not clear metadata field {0} in one or more files!", field);
+                    throw new BextMetadataException("Could not clear metadata field {0} for one or more files!", field);
                 }
             }
 

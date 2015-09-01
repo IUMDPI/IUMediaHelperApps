@@ -11,6 +11,7 @@ using Packager.Factories;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.ResultModels;
 using Packager.Observers;
 using Packager.Validators.Attributes;
 using Packager.Verifiers;
@@ -19,6 +20,8 @@ namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
+
+
         public BextProcessor(string bwfMetaEditPath, string baseProcessingDirectory, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
             IConformancePointDocumentFactory conformancePointDocumentFactory)
         {
@@ -59,6 +62,46 @@ namespace Packager.Utilities
             };
 
             await AddMetadata(xml, instances.First().GetFolderName());
+        }
+
+        public async Task ClearBextMetadataField(List<ObjectFileModel> instances, BextFields field)
+        {
+            for (var i = 0; i < instances.Count; i++)
+            {
+                var instance = instances[i];
+                var path = Path.Combine(BaseProcessingDirectory, instance.GetFolderName(), instance.ToFileName());
+                var args = $"--verbose --Append --{field}=\"\" {path.ToQuoted()}";
+
+                var result = await ExecuteBextProcess(args);
+
+                if (i > 0)
+                {
+                    Observers.Log("");
+                }
+
+                Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
+
+                if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(),
+                    instances.Select(f => f.ToFileName().ToLowerInvariant()).ToList(), Observers))
+                {
+                    throw new BextMetadataException("Could not clear metadata field {0} in one or more files!", field);
+                }
+            }
+
+        }
+
+        private async Task<IProcessResult> ExecuteBextProcess(string args)
+        {
+            var startInfo = new ProcessStartInfo(BwfMetaEditPath)
+            {
+                Arguments = args,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            return await ProcessRunner.Run(startInfo);
         }
 
         public async Task<string> GetBwfMetaEditVersion()
@@ -102,16 +145,7 @@ namespace Packager.Utilities
 
             var args = $"--verbose --Append --in-core={xmlPath.ToQuoted()}";
 
-            var startInfo = new ProcessStartInfo(BwfMetaEditPath)
-            {
-                Arguments = args,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            var result = await ProcessRunner.Run(startInfo);
+            var result = await ExecuteBextProcess(args);
 
             Observers.Log(FormatOutput(result.StandardOutput, objectFolder));
 
@@ -122,7 +156,7 @@ namespace Packager.Utilities
             }
         }
 
-        private string FormatOutput(string output, string objectFolder)
+        private static string FormatOutput(string output, string objectFolder)
         {
             var builder = new StringBuilder();
             var lines = output.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);

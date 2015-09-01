@@ -193,7 +193,7 @@ namespace Packager.Test.Factories
             {
                 var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5ips;{Metadata.Format},";
+                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5 ips;{Metadata.Format},";
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
@@ -213,7 +213,7 @@ namespace Packager.Test.Factories
             {
                 var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5ips;1.1ips;2.1ips;{Metadata.Format},";
+                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5 ips;1.1 ips;2.1 ips;{Metadata.Format},";
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
@@ -233,7 +233,7 @@ namespace Packager.Test.Factories
             {
                 var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;{Metadata.PlaybackSpeed.Replace(" ", "")};{Metadata.Format},";
+                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;{Metadata.PlaybackSpeed};{Metadata.Format},";
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }

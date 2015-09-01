@@ -23,7 +23,12 @@ namespace Packager.Factories
                 
                 Comments = digitalFileProvenance.Comment,
                 CreatedBy = digitalFileProvenance.CreatedBy,
-                ExtractionWorkstation = digitalFileProvenance.ExtractionWorkstation,
+                ExtractionWorkstation = new IngestDevice
+                {
+                    Model = digitalFileProvenance.ExtractionWorkstation.Model,
+                    SerialNumber = digitalFileProvenance.ExtractionWorkstation.SerialNumber,
+                    Manufacturer = digitalFileProvenance.ExtractionWorkstation.Manufacturer
+                },
                 SpeedUsed = digitalFileProvenance.SpeedUsed,
                 Date = digitalFileProvenance.DateDigitized.ToString(),
                 Players = digitalFileProvenance.PlayerDevices

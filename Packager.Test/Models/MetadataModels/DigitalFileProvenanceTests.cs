@@ -50,7 +50,9 @@ namespace Packager.Test.Models.MetadataModels
         [Test]
         public void ExtractionWorkstationShouldBeCorrect()
         {
-            Assert.That(Source.ExtractionWorkstation, Is.EqualTo("ew manufacturer ew model ew serial number"));
+            Assert.That(Source.ExtractionWorkstation.Model, Is.EqualTo("ew model"));
+            Assert.That(Source.ExtractionWorkstation.Manufacturer, Is.EqualTo("ew manufacturer"));
+            Assert.That(Source.ExtractionWorkstation.SerialNumber, Is.EqualTo("ew serial number"));
         }
 
 

@@ -26,7 +26,7 @@ namespace Packager.Models.OutputModels
         public IngestDevice[] AdDevices { get; set; }
 
         [XmlElement("Extraction_workstation", Order = 6)]
-        public string ExtractionWorkstation { get; set; }
+        public IngestDevice ExtractionWorkstation { get; set; }
 
         [XmlElement("Speed_used", Order = 7)]
         public string SpeedUsed { get; set; }

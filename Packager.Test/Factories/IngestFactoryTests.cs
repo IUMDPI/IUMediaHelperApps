@@ -100,7 +100,9 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldExtractionWorkstationCorrectly()
             {
-                Assert.That(Result.ExtractionWorkstation, Is.EqualTo(Provenance.ExtractionWorkstation));
+                Assert.That(Result.ExtractionWorkstation.SerialNumber, Is.EqualTo(Provenance.ExtractionWorkstation.SerialNumber));
+                Assert.That(Result.ExtractionWorkstation.Model, Is.EqualTo(Provenance.ExtractionWorkstation.Model));
+                Assert.That(Result.ExtractionWorkstation.Manufacturer, Is.EqualTo(Provenance.ExtractionWorkstation.Manufacturer));
             }
 
             [Test]

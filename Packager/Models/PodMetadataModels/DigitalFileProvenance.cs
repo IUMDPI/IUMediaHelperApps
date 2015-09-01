@@ -26,7 +26,7 @@ namespace Packager.Models.PodMetadataModels
 
         [Required]
         public string Filename { get; set; }
-        
+
         [HasMembers]
         public IEnumerable<Device> PlayerDevices
         {
@@ -46,20 +46,16 @@ namespace Packager.Models.PodMetadataModels
                     Where(e => e.DeviceType.Equals(AdDeviceType, StringComparison.InvariantCultureIgnoreCase)) ?? new List<Device>();
             }
         }
-        
+
         [Required]
-        public string ExtractionWorkstation {
+        public Device ExtractionWorkstation
+        {
             get
             {
-                if (SignalChain == null)
-                {
-                    return "";
-                }
+                return SignalChain?.
+                    FirstOrDefault(d => d.DeviceType.Equals(ExtractionWorkstationDeviceType, StringComparison.InvariantCultureIgnoreCase));
+            }
+        }
 
-                var entry = SignalChain
-                    .FirstOrDefault(d => d.DeviceType.Equals(ExtractionWorkstationDeviceType, StringComparison.InvariantCultureIgnoreCase));
-                return entry == null ? "" : $"{entry.Manufacturer} {entry.Model} {entry.SerialNumber}";
-            } }
-     
     }
 }

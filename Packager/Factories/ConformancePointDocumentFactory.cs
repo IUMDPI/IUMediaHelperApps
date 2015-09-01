@@ -138,7 +138,7 @@ namespace Packager.Factories
                 return result;
             }
 
-            return result.Replace(",", ";").Replace(" ", "");
+            return result.Replace(",", ";").Replace("; ", ";");
         }
     }
 }

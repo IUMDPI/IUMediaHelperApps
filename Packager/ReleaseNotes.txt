@@ -4,3 +4,13 @@
 1.2.0.0 08/27/2015  fixed encoding issue when serializing xml files
 					fixed node names (FileData->File, Checksum->CheckSum) in output xml
 1.3.0.0	08/28/2015	fixed node structure in output xml
+1.4.0.0 09/01/2015	should set identifier to call number in output xml
+					should render part numbers without leading zeros in output xml
+					should render extraction workstation as node in output xml
+					updated university names in .config unit lookup xml to be "Indiana University-Bloomington"
+					changed spelling of "Analog" to "Analogue" in coding history
+					should preserve spaces in coding history speed strings
+					should terminate coding history lines with CRLF
+					should clear ISFT bext metadata field for production masters
+					should clear ITCH bext metadata field for production masters
+					

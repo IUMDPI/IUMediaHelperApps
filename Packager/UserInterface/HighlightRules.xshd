@@ -25,7 +25,7 @@
 
     <Span color="Warning" begin="Found 0 objects to process" />
     <Span color="Warning" begin=".{4}_\d{14}\salready exists in" />
-
+    
     <Span color="SubHeader" begin="^Configuration:"/>
     <Span color="SubHeader" begin="Generating "/>
     <Span color="SubHeader" begin="Requesting metadata" />
@@ -33,6 +33,7 @@
     <Span color="SubHeader" begin="Copying objects to dropbox" />
     <Span color="SubHeader" begin="Cleaning up" />
     <Span color="SubHeader" begin="Initializing" />
+    <Span color="SubHeader" begin="Clearing unwanted BEXT metadata fields" />
     <Span color="ResultsSummary" begin="Results Summary:" />
     <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />
@@ -53,6 +54,7 @@
     </Rule>
 
     <Rule fontWeight="normal" color="Success">Is\smodified</Rule>
+    <Rule fontWeight="normal" color="Success">Nothing\sto\sdo</Rule>
     
     <Rule foreground="DarkBlue">
       ([a-zA-z]\:\\.*\\...._\d{14})(\\|$|\s) # file path

@@ -6,20 +6,17 @@ using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Utilities;
 
 namespace Packager.Factories
 {
     public class SideDataFactory : ISideDataFactory
     {
-        public SideDataFactory(IHasher hasher, IIngestDataFactory ingestDataFactory)
+        public SideDataFactory(IIngestDataFactory ingestDataFactory)
         {
-            Hasher = hasher;
             IngestDataFactory = ingestDataFactory;
         }
 
-        private IHasher Hasher { get; set; }
-        private IIngestDataFactory IngestDataFactory { get; set; }
+        private IIngestDataFactory IngestDataFactory { get; }
 
         public SideData[] Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
@@ -38,11 +35,11 @@ namespace Packager.Factories
             }).ToArray();
         }
 
-        private File GetFileData(AbstractFileModel model)
+        private static File GetFileData(ObjectFileModel model)
         {
             return new File
             {
-                Checksum = Hasher.Hash(model),
+                Checksum = model.Checksum,
                 FileName = model.ToFileName()
             };
         }

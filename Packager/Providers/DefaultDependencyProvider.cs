@@ -20,7 +20,7 @@ namespace Packager.Providers
             ProcessRunner = new ProcessRunner();
             ProgramSettings = programSettings;
             IngestDataFactory = new IngestDataFactory();
-            SideDataFactory = new SideDataFactory(Hasher, IngestDataFactory);
+            SideDataFactory = new SideDataFactory(IngestDataFactory);
             MetadataGenerator = new CarrierDataFactory(SideDataFactory);
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();

@@ -68,12 +68,11 @@ namespace Packager.Processors
             await AddMetadata(processedList, metadata);
 
             // now remove metadata fields that we don't want
-            await ClearMetadata(processedList, new[] { BextFields.ISFT, BextFields.ITCH });
+            await ClearMetadata(processedList, new[] {BextFields.ISFT, BextFields.ITCH});
 
             // using the list of files that have been processed
             // make the xml file
-            var xmlModel = GenerateXml(metadata,
-                processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel)m).ToList());
+            var xmlModel = await GenerateXml(metadata, processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
 
             processedList.Add(xmlModel);
 
@@ -93,7 +92,7 @@ namespace Packager.Processors
                 FFMPEGAudioAccessArguments);
 
             // return models for files
-            return new List<ObjectFileModel> { prodModel, accessModel };
+            return new List<ObjectFileModel> {prodModel, accessModel};
         }
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
@@ -104,7 +103,7 @@ namespace Packager.Processors
             {
                 sectionKey = Observers.BeginSection("Adding BEXT metadata");
                 var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                    .Select(m => (ObjectFileModel)m)
+                    .Select(m => (ObjectFileModel) m)
                     .Where(m => m.IsAccessVersion() == false).ToList();
 
                 if (!filesToAddMetadata.Any())
@@ -142,7 +141,7 @@ namespace Packager.Processors
             {
                 sectionKey = Observers.BeginSection("Clearing unwanted BEXT metadata fields ({0})", string.Join(", ", fields));
                 var targets = processedList.Where(m => m.IsObjectModel())
-                    .Select(m => (ObjectFileModel)m)
+                    .Select(m => (ObjectFileModel) m)
                     .Where(m => m.IsAccessVersion() == false).ToList();
 
                 for (var i = 0; i < fields.Length; i++)
@@ -174,13 +173,42 @@ namespace Packager.Processors
             }
         }
 
-        private XmlFileModel GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
+            var sectionKey = string.Empty;
+            var success = false;
             var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
-            var wrapper = new IU { Carrier = MetadataGenerator.Generate(metadata, filesToProcess) };
-            XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()), new UTF8Encoding(false));
+            try
+            {
+                sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
 
-            return result;
+                await AssignChecksumValues(filesToProcess);
+                
+                var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
+                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()), new UTF8Encoding(false));
+
+                success = true;
+                return result;
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
+            }
+            finally
+            {
+                if (success)
+                {
+                    Observers.EndSection(sectionKey, $"{result.ToFileName()} generated successfully");
+                }
+                else
+                {
+                    Observers.EndSection(sectionKey);
+                }
+            }
+
+
+
         }
     }
 }

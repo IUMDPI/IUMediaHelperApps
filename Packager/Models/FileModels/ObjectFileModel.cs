@@ -34,6 +34,8 @@ namespace Packager.Models.FileModels
         public int SequenceIndicator { get; set; }
         private string FileUse { get; set; }
 
+        public string Checksum { get; set; }
+
         public string FullFileUse
         {
             get
@@ -70,7 +72,7 @@ namespace Packager.Models.FileModels
         private static int GetSequenceIndicator(string value)
         {
             int result;
-            return Int32.TryParse(value, out result) 
+            return int.TryParse(value, out result) 
                 ? result
                 : 0;
         }

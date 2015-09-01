@@ -1,20 +1,26 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using Packager.Models.FileModels;
 
 namespace Packager.Utilities
 {
     public class Hasher : IHasher
     {
-        private string BaseProcessingFolder { get; set; }
-
         public Hasher(string baseProcessingFolder)
         {
             BaseProcessingFolder = baseProcessingFolder;
         }
 
-        public string Hash(Stream content)
+        private string BaseProcessingFolder { get; }
+
+        public async Task<string> Hash(AbstractFileModel model)
+        {
+            return await Task.Run(() => Hash(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName())));
+        }
+
+        private static string Hash(Stream content)
         {
             using (var md5 = MD5.Create())
             {
@@ -25,18 +31,13 @@ namespace Packager.Utilities
                 }
             }
         }
-
-        public string Hash(string path)
+        
+        private static string Hash(string path)
         {
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
                 return Hash(stream);
             }
-        }
-
-        public string Hash(AbstractFileModel model)
-        {
-            return Hash(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName()));
         }
     }
 }

@@ -42,7 +42,7 @@
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     
     <Rule color="PathFileOrBarcode">
-      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
+      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}\.xml|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">

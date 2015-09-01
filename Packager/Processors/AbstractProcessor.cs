@@ -55,6 +55,8 @@ namespace Packager.Processors
 
         private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
 
+        private IHasher Hasher => _dependencyProvider.Hasher;
+
         // ReSharper disable once InconsistentNaming
         protected string FFMPEGAudioProductionArguments => ProgramSettings.FFMPEGAudioProductionArguments;
 
@@ -268,6 +270,15 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
+
+        protected async Task AssignChecksumValues(IEnumerable<ObjectFileModel> models)
+        {
+            foreach (var model in models)
+            {
+                model.Checksum = await Hasher.Hash(model);
+                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.ToFileName()), model.Checksum);
+            }
+        } 
 
         protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
         {

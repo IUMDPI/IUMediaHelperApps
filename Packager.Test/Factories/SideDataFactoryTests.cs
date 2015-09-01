@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
@@ -8,13 +7,37 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Utilities;
 
 namespace Packager.Test.Factories
 {
     [TestFixture]
     public class SideDataFactoryTests
     {
+        [SetUp]
+        public void BeforeEach()
+        {
+            ProcessingDirectory = "test folder";
+
+            PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName) {Checksum = "pres 1 hash"};
+            ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName) { Checksum = "prod 1 hash" }; 
+            AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName) { Checksum = "access 1 hash" }; 
+            PreservationSide2FileModel = new ObjectFileModel(PreservationSide2FileName) { Checksum = "pres 2 hash" }; 
+            ProductionSide2FileModel = new ObjectFileModel(ProductionSide2FileName) { Checksum = "prod 2 hash" }; 
+            AccessSide2FileModel = new ObjectFileModel(AccessSide2FileName) { Checksum = "access 1 hash" }; 
+
+            PreservationIntermediateSide1FileModel = new ObjectFileModel(PreservationIntermediateSide1FileName) { Checksum = "pres-int 1 hash" }; ;
+
+            IngestDataFactory = Substitute.For<IIngestDataFactory>();
+            IngestDataFactory.Generate(null, null).ReturnsForAnyArgs(new IngestData());
+
+            PodMetadata = new ConsolidatedPodMetadata();
+
+            DoCustomSetup();
+
+            var factory = new SideDataFactory(IngestDataFactory);
+            Results = factory.Generate(PodMetadata, FilesToProcess);
+        }
+
         private const string PreservationIntermediateSide1FileName = "MDPI_4890764553278906_01_pres-int.wav";
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
         private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
@@ -34,103 +57,17 @@ namespace Packager.Test.Factories
         private ObjectFileModel ProductionSide2FileModel { get; set; }
         private ObjectFileModel AccessSide2FileModel { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
-        private IHasher Hasher { get; set; }
+
         private IIngestDataFactory IngestDataFactory { get; set; }
         private ConsolidatedPodMetadata PodMetadata { get; set; }
         private string ProcessingDirectory { get; set; }
         private SideData[] Results { get; set; }
-        
-        [SetUp]
-        public void BeforeEach()
-        {
-            ProcessingDirectory = "test folder";
-
-            PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName);
-            ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
-            AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
-            PreservationSide2FileModel = new ObjectFileModel(PreservationSide2FileName);
-            ProductionSide2FileModel = new ObjectFileModel(ProductionSide2FileName);
-            AccessSide2FileModel = new ObjectFileModel(AccessSide2FileName);
-
-            PreservationIntermediateSide1FileModel = new ObjectFileModel(PreservationIntermediateSide1FileName);
-
-            Hasher = Substitute.For<IHasher>();
-            Hasher.Hash(Arg.Any<AbstractFileModel>()).Returns(x => string.Format("{0} hash value", x.Arg<AbstractFileModel>().ToFileName()));
-
-            IngestDataFactory = Substitute.For<IIngestDataFactory>();
-            IngestDataFactory.Generate(null, null).ReturnsForAnyArgs(new IngestData());
-
-            PodMetadata = new ConsolidatedPodMetadata();
-
-            DoCustomSetup();
-
-            var factory = new SideDataFactory(Hasher, IngestDataFactory);
-            Results = factory.Generate(PodMetadata, FilesToProcess);
-        }
 
         protected virtual void DoCustomSetup()
         {
             FilesToProcess = new List<ObjectFileModel> {PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel};
             ExpectedSide1MasterFileModel = PreservationSide1FileModel;
             ExpectedSides = 1;
-        }
-
-        [Test]
-        public void ItShouldCallHasherForEveryModelInFilesToProcess()
-        {
-            foreach (var model in FilesToProcess)
-            {
-                Hasher.Received().Hash(model);
-            }
-        }
-
-        [Test]
-        public void ResultShouldContainExpectedSides()
-        {
-            Assert.That(Results.Length, Is.EqualTo(ExpectedSides));
-        }
-
-        [Test]
-        public void SideValuesShouldBeSetCorrectly()
-        {
-            for (var i = 0; i < Results.Length; i++)
-            {
-                Assert.That(Results[i].Side, Is.EqualTo((i + 1).ToString(CultureInfo.InvariantCulture)));
-            }
-        }
-
-        [Test]
-        public void ManualCheckShouldBeSetCorrectly()
-        {
-            foreach (var side in Results)
-            {
-                Assert.That(side.ManualCheck, Is.EqualTo("No"));
-            }
-        }
-
-        [Test]
-        public void EachSideShouldHaveCorrectFilesEntries()
-        {
-            for (var i = 0; i < Results.Length; i++)
-            {
-                var side = Results[i];
-                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).ToList();
-
-                Assert.That(side.Files.Count, Is.EqualTo(modelsForSide.Count()));
-
-                foreach (var model in modelsForSide)
-                {
-                    var fileData = side.Files.SingleOrDefault(f => f.FileName.Equals(model.ToFileName()));
-                    Assert.That(fileData, Is.Not.Null);
-                    Assert.That(string.IsNullOrWhiteSpace(fileData.Checksum), Is.False);
-                }
-            }
-        }
-
-        [Test]
-        public void ItShouldCallIngestFactoryCorrectlyForSide1()
-        {
-            IngestDataFactory.Received(1).Generate(PodMetadata, ExpectedSide1MasterFileModel);
         }
 
         public class WhenPreservationIntermediateMasterPresent : SideDataFactoryTests
@@ -166,6 +103,55 @@ namespace Packager.Test.Factories
             public void ItShouldCallIngestFactoryCorrectlyForSide2()
             {
                 IngestDataFactory.Received(1).Generate(PodMetadata, ExpectedSide2MasterFileModel);
+            }
+        }
+
+        [Test]
+        public void EachSideShouldHaveCorrectFilesEntries()
+        {
+            for (var i = 0; i < Results.Length; i++)
+            {
+                var side = Results[i];
+                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).ToList();
+
+                Assert.That(side.Files.Count, Is.EqualTo(modelsForSide.Count()));
+
+                foreach (var model in modelsForSide)
+                {
+                    var fileData = side.Files.SingleOrDefault(f => f.FileName.Equals(model.ToFileName()));
+                    Assert.That(fileData, Is.Not.Null);
+                    Assert.That(string.IsNullOrWhiteSpace(fileData.Checksum), Is.False);
+                }
+            }
+        }
+
+        [Test]
+        public void ItShouldCallIngestFactoryCorrectlyForSide1()
+        {
+            IngestDataFactory.Received(1).Generate(PodMetadata, ExpectedSide1MasterFileModel);
+        }
+
+        [Test]
+        public void ManualCheckShouldBeSetCorrectly()
+        {
+            foreach (var side in Results)
+            {
+                Assert.That(side.ManualCheck, Is.EqualTo("No"));
+            }
+        }
+
+        [Test]
+        public void ResultShouldContainExpectedSides()
+        {
+            Assert.That(Results.Length, Is.EqualTo(ExpectedSides));
+        }
+
+        [Test]
+        public void SideValuesShouldBeSetCorrectly()
+        {
+            for (var i = 0; i < Results.Length; i++)
+            {
+                Assert.That(Results[i].Side, Is.EqualTo((i + 1).ToString(CultureInfo.InvariantCulture)));
             }
         }
     }

@@ -25,7 +25,7 @@ namespace Packager.Factories
                 CarrierType = podMetadata.Format,
                 XsiType = $"{podMetadata.Format}Carrier".RemoveSpaces(),
                 DirectionsRecorded = podMetadata.DirectionsRecorded,
-                Identifier = podMetadata.Identifier,
+                Identifier = podMetadata.CallNumber,
                 Thickness = podMetadata.TapeThickness,
                 Baking = new BakingData {Date = podMetadata.BakingDate},
                 Cleaning = new CleaningData {Date = podMetadata.CleaningDate, Comment = podMetadata.CleaningComment},

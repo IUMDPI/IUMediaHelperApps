@@ -100,7 +100,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetIdentifierCorrectly()
             {
-                Assert.That(Result.Identifier, Is.EqualTo(PodMetadata.Identifier));
+                Assert.That(Result.Identifier, Is.EqualTo(PodMetadata.CallNumber));
             }
 
             [Test]

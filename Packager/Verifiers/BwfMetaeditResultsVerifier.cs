@@ -7,7 +7,7 @@ namespace Packager.Verifiers
 {
     public class BwfMetaEditResultsVerifier : IBwfMetaEditResultsVerifier
     {
-        public bool Verify(string output, List<string> targetPaths, IObserverCollection observers)
+        public bool Verify(string output, IEnumerable<string> targetPaths)
         {
             var hasError = false;
             foreach (var path in targetPaths.Where(path => !IsModifiedOrNothingToDo(output, path)))
@@ -18,9 +18,9 @@ namespace Packager.Verifiers
             return hasError == false;
         }
 
-        public bool Verify(string output, string targetPath, IObserverCollection observers)
+        public bool Verify(string output, string targetPath)
         {
-            return Verify(output, new List<string> {targetPath}, observers);
+            return Verify(output, new List<string> {targetPath});
         }
 
         private static bool IsModifiedOrNothingToDo(string output, string path)

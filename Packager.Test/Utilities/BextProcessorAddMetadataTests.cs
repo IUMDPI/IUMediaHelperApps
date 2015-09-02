@@ -134,12 +134,12 @@ namespace Packager.Test.Utilities
             public void ShouldCallVerifierCorrectly()
             {
                 Verifier.Received().Verify(Output.ToLowerInvariant(),
-                    Arg.Is<List<string>>(l => l.Count() == Instances.Count), Observers);
+                    Arg.Is<List<string>>(l => l.Count() == Instances.Count));
 
                 foreach (var instance in Instances)
                 {
                     var path = Path.Combine(ExpectedProcessingFolder, instance.ToFileName()).ToLowerInvariant();
-                    Verifier.Received().Verify(Output.ToLowerInvariant(), Arg.Is<List<string>>(l => l.Contains(path)), Observers);
+                    Verifier.Received().Verify(Output.ToLowerInvariant(), Arg.Is<List<string>>(l => l.Contains(path)));
                 }
             }
 
@@ -160,7 +160,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>()).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance};
@@ -179,7 +179,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>()).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, ProductionProvenance};
@@ -198,7 +198,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>()).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance};
@@ -218,7 +218,7 @@ namespace Packager.Test.Utilities
         {
             protected override void DoCustomSetup()
             {
-                Verifier.Verify(null, Arg.Any<List<string>>(), null).ReturnsForAnyArgs(true);
+                Verifier.Verify(null, Arg.Any<List<string>>()).ReturnsForAnyArgs(true);
 
                 Instances = new List<ObjectFileModel> {PresFileModel, ProdFileModel, PresIntFileModel};
                 Metadata.FileProvenances = new List<DigitalFileProvenance> {PreservationProvenance, PreservationIntermediateProvenance, ProductionProvenance};

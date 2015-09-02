@@ -81,7 +81,7 @@ namespace Packager.Utilities
 
                 Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
 
-                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant(), Observers) == false)
+                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
                 {
                     throw new BextMetadataException("Could not clear metadata field {0} for one or more files!", field);
                 }
@@ -149,7 +149,7 @@ namespace Packager.Utilities
             Observers.Log(FormatOutput(result.StandardOutput, objectFolder));
 
             if (!Verifier.Verify(result.StandardOutput.ToLowerInvariant(),
-                xml.File.Select(f => f.Name.ToLowerInvariant()).ToList(), Observers))
+                xml.File.Select(f => f.Name.ToLowerInvariant()).ToList()))
             {
                 throw new BextMetadataException("Could not add metadata to one or more files!");
             }

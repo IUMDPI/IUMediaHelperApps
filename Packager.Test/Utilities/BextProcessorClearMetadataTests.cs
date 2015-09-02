@@ -29,7 +29,7 @@ namespace Packager.Test.Utilities
             Instances = new List<ObjectFileModel> {ProdFileModel, PresFileModel, PresIntFileModel};
 
             Verifier = Substitute.For<IBwfMetaEditResultsVerifier>();
-            Verifier.Verify(Arg.Any<string>(), Arg.Any<string>(), Observers).Returns(true);
+            Verifier.Verify(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             ProcessRunner = Substitute.For<IProcessRunner>();
             ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).Returns(
                 Task.FromResult((IProcessResult) new ProcessResult {ExitCode = 0, StandardError = Output, StandardOutput = Output}));

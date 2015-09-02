@@ -19,7 +19,7 @@ using Packager.Verifiers;
 namespace Packager.Test.Utilities
 {
     [TestFixture]
-    public class BextProcessorTests
+    public class BextProcessorAddMetadataTests
     {
         private const string BwfMetaEditPath = "bwfmetaedit.exe";
         private const string ProductionFileName = "MDPI_4890764553278906_01_prod.wav";
@@ -98,7 +98,7 @@ namespace Packager.Test.Utilities
             return null;
         }
 
-        public abstract class CommonBextProcessorTests : BextProcessorTests
+        public abstract class CommonBextProcessorAddMetadataTests : BextProcessorAddMetadataTests
         {
             [Test]
             public void ItShouldCallXmlExporterWithCorrectPath()
@@ -156,7 +156,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenOnlyPresMasterProvenancePresent : CommonBextProcessorTests
+        public class WhenOnlyPresMasterProvenancePresent : CommonBextProcessorAddMetadataTests
         {
             protected override void DoCustomSetup()
             {
@@ -175,7 +175,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenPresAndProdProvenancesPresent : CommonBextProcessorTests
+        public class WhenPresAndProdProvenancesPresent : CommonBextProcessorAddMetadataTests
         {
             protected override void DoCustomSetup()
             {
@@ -194,7 +194,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenPresIntAndPresProvenancesPresent : CommonBextProcessorTests
+        public class WhenPresIntAndPresProvenancesPresent : CommonBextProcessorAddMetadataTests
         {
             protected override void DoCustomSetup()
             {
@@ -214,7 +214,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenPresIntAndPresAndProdProvenancesPresent : CommonBextProcessorTests
+        public class WhenPresIntAndPresAndProdProvenancesPresent : CommonBextProcessorAddMetadataTests
         {
             protected override void DoCustomSetup()
             {
@@ -234,7 +234,7 @@ namespace Packager.Test.Utilities
         }
 
         [TestFixture]
-        public class WhenMultipleSequenceInstancesPresent : CommonBextProcessorTests
+        public class WhenMultipleSequenceInstancesPresent : CommonBextProcessorAddMetadataTests
         {
             private const string PreservationFileNameS2 = "MDPI_4890764553278906_02_pres.wav";
             private ObjectFileModel PresModelS2 { get; set; }

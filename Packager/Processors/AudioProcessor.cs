@@ -133,7 +133,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task ClearMetadata(IEnumerable<AbstractFileModel> processedList, BextFields[] fields)
+        private async Task ClearMetadata(IEnumerable<AbstractFileModel> processedList, IReadOnlyList<BextFields> fields)
         {
             var sectionKey = string.Empty;
             var success = false;
@@ -144,7 +144,7 @@ namespace Packager.Processors
                     .Select(m => (ObjectFileModel) m)
                     .Where(m => m.IsAccessVersion() == false).ToList();
 
-                for (var i = 0; i < fields.Length; i++)
+                for (var i = 0; i < fields.Count; i++)
                 {
                     if (i > 0)
                     {

@@ -11,6 +11,7 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
+using Packager.Utilities;
 
 namespace Packager.Test.Processors
 {
@@ -262,7 +263,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassCorrectNumberOfObjectsToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.Count() == ExpectedModelCount),
+                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount),
                         Arg.Any<ConsolidatedPodMetadata>());
                 }
 
@@ -310,6 +311,29 @@ namespace Packager.Test.Processors
                 }
             }
 
+            public class WhenClearingMetadataFields : WhenNothingGoesWrong
+            {
+                [Test]
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Clearing unwanted BEXT metadata fields ({0})", string.Join(", ", new[] {BextFields.ISFT, BextFields.ITCH}));
+                }
+
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<string>(), "BEXT metadata fields cleared successfully");
+                }
+
+                [TestCase(BextFields.ISFT)]
+                [TestCase(BextFields.ITCH)]
+                public void ItShouldRemoveFields(BextFields expectedField)
+                {
+                    BextProcessor.Received().ClearBextMetadataField(Arg.Is<List<ObjectFileModel>>(l=>l.SingleOrDefault(m=>m.IsSameAs(PreservationFileName)) !=null), expectedField);
+                    BextProcessor.Received().ClearBextMetadataField(Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsSameAs(ProductionFileName)) != null), expectedField);
+                }
+            }
+
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private CarrierData CarrierData { get; set; }
@@ -325,11 +349,23 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Generating {0}", $"{ProjectCode}_{Barcode}.xml");
+                }
+
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<string>(), $"{ProjectCode}_{Barcode}.xml generated successfully");
+                }
+
+                [Test]
                 public void ItShouldPassExpectedNumberOfObjectsToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.Count() == ExpectedModelCount));
+                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount));
                 }
 
                 [Test]
@@ -380,6 +416,68 @@ namespace Packager.Test.Processors
                             Arg.Any<ConsolidatedPodMetadata>(),
                             Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
+                }
+            }
+
+            public class WhenHashingFiles : WhenNothingGoesWrong
+            {
+                private List<ObjectFileModel> ProcessedModelList { get; set; } 
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+
+                    Hasher.Hash(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult($"{x.Arg<ObjectFileModel>().ToFileName()} checksum"));
+                }
+
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+
+                    ProcessedModelList = MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<ObjectFileModel>;
+                }
+
+                [Test]
+                public void ItShouldCallHasherForPreservationMaster()
+                {
+                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(PreservationFileName)));
+                }
+
+                [Test]
+                public void ItShouldCallHasherForProductionVersion()
+                {
+                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(ProductionFileName)));
+                }
+
+                [Test]
+                public void ItShouldCallHasherForAccessVersion()
+                {
+                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(AccessFileName)));
+                }
+
+                [Test]
+                public void ItShouldAssignHashValueCorrectlytoPreservationMaster()
+                {
+                    Assert.That(ProcessedModelList.Single(m=>m.IsSameAs(PreservationFileName)).Checksum, Is.EqualTo($"{PreservationFileName} checksum"));
+                }
+
+                [Test]
+                public void ItShouldAssignHashValueCorrectlytoProductionVersion()
+                {
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(ProductionFileName)).Checksum, Is.EqualTo($"{ProductionFileName} checksum"));
+                }
+
+                [Test]
+                public void ItShouldAssignHashValueCorrectlytoAccessVersion()
+                {
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(AccessFileName)).Checksum, Is.EqualTo($"{AccessFileName} checksum"));
+                }
+
+                [TestCase()]
+                public void ItShouldLogChecksumsCorrectly()
+                {
+                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(PreservationFileName), $"{PreservationFileName} checksum");
+                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(ProductionFileName), $"{ProductionFileName} checksum");
+                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(AccessFileName), $"{AccessFileName} checksum");
                 }
             }
 

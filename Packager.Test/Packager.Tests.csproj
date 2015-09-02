@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Engine\EngineTests.cs" />
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
+    <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\HasherTests.cs" />
     <Compile Include="Mocks\MockDependencyProvider.cs" />
     <Compile Include="Mocks\MockProcessRunner.cs" />
@@ -80,7 +81,7 @@
     <Compile Include="Processors\AbstractProcessorTests.cs" />
     <Compile Include="Processors\AudioProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utilities\BextProcessorTests.cs" />
+    <Compile Include="Utilities\BextProcessorAddMetadataTests.cs" />
     <Compile Include="Factories\ConformancePointDocumentFactoryTests.cs" />
     <Compile Include="Factories\IngestFactoryTests.cs" />
     <Compile Include="Factories\CarrierDataFactoryTests.cs" />

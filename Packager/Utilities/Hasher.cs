@@ -20,7 +20,7 @@ namespace Packager.Utilities
             return await Task.Run(() => Hash(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName())));
         }
 
-        private static string Hash(Stream content)
+        public static string Hash(Stream content)
         {
             using (var md5 = MD5.Create())
             {

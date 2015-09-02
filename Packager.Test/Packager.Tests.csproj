@@ -65,7 +65,7 @@
   <ItemGroup>
     <Compile Include="Engine\EngineTests.cs" />
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
-    <Compile Include="HasherTest.cs" />
+    <Compile Include="Utilities\HasherTests.cs" />
     <Compile Include="Mocks\MockDependencyProvider.cs" />
     <Compile Include="Mocks\MockProcessRunner.cs" />
     <Compile Include="Mocks\MockGrouping.cs" />

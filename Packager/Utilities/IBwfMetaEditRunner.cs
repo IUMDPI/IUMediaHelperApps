@@ -16,7 +16,7 @@ namespace Packager.Utilities
 {
     public interface IBwfMetaEditRunner
     {
-        Task<IProcessResult> AddMetadata(ObjectFileModel model, ConformancePointDocumentFileCore core);
+        Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core);
         Task<IProcessResult> ClearMetadata(ObjectFileModel model);
         Task<string> GetVersion();
 
@@ -42,7 +42,7 @@ namespace Packager.Utilities
         [ValidateFile]
         public string BwfMetaEditPath { get; }
 
-        public async Task<IProcessResult> AddMetadata(ObjectFileModel model, ConformancePointDocumentFileCore core)
+        public async Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core)
         {
             var args = GetArgsForCoreAndModel(model, core);
             return await ExecuteBextProcess(args);
@@ -50,7 +50,7 @@ namespace Packager.Utilities
 
         public async Task<IProcessResult> ClearMetadata(ObjectFileModel model)
         {
-            var args = GetArgsForCoreAndModel(model, new ConformancePointDocumentFileCore());
+            var args = GetArgsForCoreAndModel(model, new BextMetadata());
             return await ExecuteBextProcess(args);
         }
 
@@ -69,7 +69,7 @@ namespace Packager.Utilities
             }
         }
 
-        private string GetArgsForCoreAndModel(AbstractFileModel model, ConformancePointDocumentFileCore core)
+        private string GetArgsForCoreAndModel(AbstractFileModel model, BextMetadata core)
         {
             var args = new List<string> {VerboseArgument, AppendArgument};
             args.AddRange(core.GetType().GetProperties()

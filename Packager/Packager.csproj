@@ -172,9 +172,7 @@
     <Compile Include="Extensions\XElementExtensions.cs" />
     <Compile Include="Factories\IngestDataFactory.cs" />
     <Compile Include="Factories\SideDataFactory.cs" />
-    <Compile Include="Models\BextModels\ConformancePointDocument.cs" />
-    <Compile Include="Models\BextModels\ConformancePointDocumentFile.cs" />
-    <Compile Include="Models\BextModels\ConformancePointDocumentFileCore.cs" />
+    <Compile Include="Models\BextModels\BextMetadata.cs" />
     <Compile Include="Models\EmailMessageModels\EngineIssueMessage.cs" />
     <Compile Include="Models\FileModels\FileModelFactory.cs" />
     <Compile Include="Models\FileModels\AbstractFileModel.cs" />
@@ -235,7 +233,7 @@
     <Compile Include="Models\EmailMessageModels\AbstractEmailMessage.cs" />
     <Compile Include="Providers\ISystemInfoProvider.cs" />
     <Compile Include="Providers\SystemInfoProvider.cs" />
-    <Compile Include="Factories\ConformancePointDocumentFactory.cs" />
+    <Compile Include="Factories\BextMetadataFactory.cs" />
     <Compile Include="Utilities\EmailSender.cs" />
     <Compile Include="Utilities\Hasher.cs" />
     <Compile Include="Utilities\IBextProcessor.cs" />
@@ -250,7 +248,7 @@
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\ViewModel.cs" />
-    <Compile Include="Factories\IConformancePointDocumentFactory.cs" />
+    <Compile Include="Factories\IBextMetadataFactory.cs" />
     <Compile Include="Utilities\IEmailSender.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />

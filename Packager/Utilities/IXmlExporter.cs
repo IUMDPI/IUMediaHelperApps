@@ -4,6 +4,6 @@ namespace Packager.Utilities
 {
     public interface IXmlExporter
     {
-        void ExportToFile(object o, string path, Encoding encoding);
+        void ExportToFile(object o, string path);
     }
 }

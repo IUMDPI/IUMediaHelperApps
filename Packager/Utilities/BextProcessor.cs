@@ -16,7 +16,7 @@ namespace Packager.Utilities
     public class BextProcessor : IBextProcessor
     {
         public BextProcessor(IBwfMetaEditRunner metaEditRunner, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
-            IConformancePointDocumentFactory conformancePointDocumentFactory)
+            IBextMetadataFactory conformancePointDocumentFactory)
         {
             MetaEditRunner = metaEditRunner;
             Observers = observers;
@@ -27,7 +27,7 @@ namespace Packager.Utilities
         public IBwfMetaEditRunner MetaEditRunner { get; set; }
         private IObserverCollection Observers { get; }
         private IBwfMetaEditResultsVerifier Verifier { get; }
-        private IConformancePointDocumentFactory ConformancePointDocumentFactory { get; }
+        private IBextMetadataFactory ConformancePointDocumentFactory { get; }
 
 
         public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata)

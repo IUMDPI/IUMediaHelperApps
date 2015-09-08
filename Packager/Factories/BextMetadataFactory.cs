@@ -10,7 +10,7 @@ using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories
 {
-    public class ConformancePointDocumentFactory : IConformancePointDocumentFactory
+    public class BextMetadataFactory : IBextMetadataFactory
     {
         private const string CodingHistoryLine1Format = "A={0},M={1},T={2},\r\n";
         private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1};A/D,\r\n";
@@ -18,11 +18,11 @@ namespace Packager.Factories
 
         private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
         
-        public ConformancePointDocumentFileCore Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
+        public BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
             var description = GenerateBextDescription(metadata, model);
 
-            return new ConformancePointDocumentFileCore
+            return new BextMetadata
             {
                 Originator = metadata.DigitizingEntity,
                 OriginatorReference = Path.GetFileNameWithoutExtension(model.ToFileName()),

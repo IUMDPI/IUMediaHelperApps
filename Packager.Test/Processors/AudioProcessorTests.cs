@@ -362,7 +362,7 @@ namespace Packager.Test.Processors
                 public void ItShouldCallExportToFileCorrectly()
                 {
                     XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
-                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName), Arg.Any<UTF8Encoding>());
+                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName));
                 }
 
                 [Test]

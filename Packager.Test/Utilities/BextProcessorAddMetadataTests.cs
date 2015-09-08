@@ -39,9 +39,9 @@ namespace Packager.Test.Utilities
 
             Metadata = new ConsolidatedPodMetadata();
 
-            ConformancePointDocumentFactory = Substitute.For<IConformancePointDocumentFactory>();
+            ConformancePointDocumentFactory = Substitute.For<IBextMetadataFactory>();
             ConformancePointDocumentFactory.Generate(Arg.Any<ObjectFileModel>(), Arg.Any<DigitalFileProvenance>(), Metadata)
-                .Returns(r => new ConformancePointDocumentFileCore());
+                .Returns(r => new BextMetadata());
 
             DoCustomSetup();
 
@@ -59,7 +59,7 @@ namespace Packager.Test.Utilities
         private IBwfMetaEditRunner MetaEditRunner { get; set; }
 
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
-        private IConformancePointDocumentFactory ConformancePointDocumentFactory { get; set; }
+        private IBextMetadataFactory ConformancePointDocumentFactory { get; set; }
         private IObserverCollection Observers { get; set; }
         private ObjectFileModel ProdFileModel { get; set; }
         private ObjectFileModel PresFileModel { get; set; }
@@ -87,7 +87,7 @@ namespace Packager.Test.Utilities
             {
                 foreach (var instance in Instances)
                 {
-                    MetaEditRunner.Received().AddMetadata(instance, Arg.Any<ConformancePointDocumentFileCore>());
+                    MetaEditRunner.Received().AddMetadata(instance, Arg.Any<BextMetadata>());
                 }
             }
 

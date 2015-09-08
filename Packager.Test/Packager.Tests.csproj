@@ -72,7 +72,7 @@
     <Compile Include="Mocks\MockProcessRunner.cs" />
     <Compile Include="Mocks\MockGrouping.cs" />
     <Compile Include="Mocks\MockProgramSettings.cs" />
-    <Compile Include="Models\BextModels\ConformancePointDocumentFileCoreTests.cs" />
+    <Compile Include="Models\BextModels\BextMetadataTests.cs" />
     <Compile Include="Models\FileModels\ObjectFileModelTests.cs" />
     <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
     <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />

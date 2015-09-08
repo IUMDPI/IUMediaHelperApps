@@ -179,7 +179,7 @@ namespace Packager.Processors
                 await AssignChecksumValues(filesToProcess);
                 
                 var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
-                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()), new UTF8Encoding(false));
+                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
 
                 success = true;
                 return result;

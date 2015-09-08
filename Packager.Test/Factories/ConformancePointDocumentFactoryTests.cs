@@ -19,7 +19,7 @@ namespace Packager.Test.Factories
         private const string CallNumber = "AB1243";
         private const string Title = "Test title";
 
-        private ConformancePointDocumentFileCore Result { get; set; }
+        private BextMetadata Result { get; set; }
         private ObjectFileModel Model { get; set; }
         private DigitalFileProvenance Provenance { get; set; }
         private ConsolidatedPodMetadata Metadata { get; set; }
@@ -50,7 +50,7 @@ namespace Packager.Test.Factories
 
             DoCustomSetup();
 
-            Result = new ConformancePointDocumentFactory().Generate(Model, Provenance, Metadata);
+            Result = new BextMetadataFactory().Generate(Model, Provenance, Metadata);
         }
 
         private static DigitalFileProvenance GetFileProvenance()

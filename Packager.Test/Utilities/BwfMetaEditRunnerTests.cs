@@ -75,7 +75,7 @@ namespace Packager.Test.Utilities
             [Test]
             public void ArgsShouldIncludeEmptyFieldValues()
             {
-                foreach (var property in typeof (ConformancePointDocumentFileCore).GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
+                foreach (var property in typeof (BextMetadata).GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
                 {
                     var attribute = property.GetCustomAttribute<BextFieldAttribute>();
 
@@ -109,11 +109,11 @@ namespace Packager.Test.Utilities
                 Assert.That(StartInfo, Is.Not.Null);
             }
 
-            private ConformancePointDocumentFileCore Core { get; set; }
+            private BextMetadata Core { get; set; }
 
-            private static ConformancePointDocumentFileCore GenerateTestingCore()
+            private static BextMetadata GenerateTestingCore()
             {
-                var result = new ConformancePointDocumentFileCore();
+                var result = new BextMetadata();
                 foreach (var property in result.GetType().GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
                 {
                     property.SetValue(result, $"{property.Name} value");

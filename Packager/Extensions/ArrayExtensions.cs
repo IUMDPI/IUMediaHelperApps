@@ -32,5 +32,10 @@ namespace Packager.Extensions
                 ? $"{value} {singular}"
                 : $"{value} {plural}";
         }
+
+        public static bool IsFirst<T>(this IEnumerable<T> list, T instance)
+        {
+            return list.First().Equals(instance);
+        }
     }
 }

@@ -11,7 +11,6 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
-using Packager.Utilities;
 
 namespace Packager.Test.Processors
 {
@@ -39,11 +38,11 @@ namespace Packager.Test.Processors
             ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
             AccessObjectFileModel = new ObjectFileModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> { PresObjectFileModel };
+            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new ConsolidatedPodMetadata { Barcode = Barcode };
+            Metadata = new ConsolidatedPodMetadata {Barcode = Barcode};
 
             MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
 
@@ -56,18 +55,18 @@ namespace Packager.Test.Processors
 
         public class WhenNothingGoesWrong : AudioProcessorTests
         {
-            [Test]
-            public void ProcessorShouldReturnTrue()
-            {
-                Assert.That(Result.Result, Is.EqualTo(true));
-            }
-
             public class WhenInitializing : WhenNothingGoesWrong
             {
                 [Test]
                 public void ItShouldCallBeginSectionCorrectly()
                 {
                     Observers.Received().BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
+                }
+
+                [Test]
+                public void ItShouldCloseInitializingSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<string>(), "Initialization successful");
                 }
 
                 [Test]
@@ -80,12 +79,6 @@ namespace Packager.Test.Processors
                 public void ItShouldOpenInitializingSection()
                 {
                     Observers.Received().BeginSection("Initializing");
-                }
-
-                [Test]
-                public void ItShouldCloseInitializingSection()
-                {
-                    Observers.Received().EndSection(Arg.Any<string>(), "Initialization successful");
                 }
             }
 
@@ -132,19 +125,13 @@ namespace Packager.Test.Processors
 
                 public class WhenFileNamesAreNormal : WhenMovingFilesToProcessingDirectory
                 {
-                    [Test]
-                    public void ItShouldMovePresentationFileToProcessingDirectory()
-                    {
-                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
-                    }
-
                     public class WhenPreservationIntermediateMasterPresent : WhenMovingFilesToProcessingDirectory
                     {
                         protected override void DoCustomSetup()
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         }
 
                         [Test]
@@ -161,7 +148,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> { PresObjectFileModel, ProdObjectFileModel };
+                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
                         }
 
                         [Test]
@@ -171,11 +158,23 @@ namespace Packager.Test.Processors
                                 Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
                         }
                     }
+
+                    [Test]
+                    public void ItShouldMovePresentationFileToProcessingDirectory()
+                    {
+                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+                    }
                 }
             }
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
             {
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<string>(), $"Retrieved metadata for object: {Barcode}");
+                }
+
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
@@ -186,12 +185,6 @@ namespace Packager.Test.Processors
                 public void ItShouldOpenSection()
                 {
                     Observers.Received().BeginSection("Requesting metadata for object: {0}", Barcode);
-                }
-
-                [Test]
-                public void ItShouldCloseSection()
-                {
-                    Observers.Received().EndSection(Arg.Any<string>(), $"Retrieved metadata for object: {Barcode}");
                 }
             }
 
@@ -206,23 +199,11 @@ namespace Packager.Test.Processors
                     ExpectedMasterFileName = PreservationFileName;
                 }
 
-                [Test]
-                public void ItShouldCreateAccessFileCorrectly()
-                {
-                    AssertCalled(ProductionFileName, AccessFileName, AccessCommandLineArgs);
-                }
-
                 private void AssertCalled(string originalFileName, string newFileName, string settingsArgs)
                 {
                     FFMPEGRunner.Received()
                         .CreateDerivative(Arg.Is<ObjectFileModel>(m => m.IsSameAs(originalFileName)),
                             Arg.Is<ObjectFileModel>(m => m.IsSameAs(newFileName)), settingsArgs);
-                }
-
-                [Test]
-                public void ItShouldCreateProductionDerivativeFromExpectedMaster()
-                {
-                    AssertCalled(ExpectedMasterFileName, ProductionFileName, ProdCommandLineArgs);
                 }
 
                 public class WhenPreservationIntermediateMasterPresent : WhenCreatingDerivatives
@@ -231,9 +212,21 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedMasterFileName = PreservationIntermediateFileName;
                     }
+                }
+
+                [Test]
+                public void ItShouldCreateAccessFileCorrectly()
+                {
+                    AssertCalled(ProductionFileName, AccessFileName, AccessCommandLineArgs);
+                }
+
+                [Test]
+                public void ItShouldCreateProductionDerivativeFromExpectedMaster()
+                {
+                    AssertCalled(ExpectedMasterFileName, ProductionFileName, ProdCommandLineArgs);
                 }
             }
 
@@ -247,10 +240,23 @@ namespace Packager.Test.Processors
                     ExpectedModelCount = 2; // pres master + prod master
                 }
 
-                [Test]
-                public void ItShouldOpenSection()
+                public class WhenPreservationIntermediateModelPresent : WhenEmbeddingMetadata
                 {
-                    Observers.Received().BeginSection("Adding BEXT metadata");
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ExpectedModelCount = 3; // pres master, pres-int master, prod-master
+                    }
+
+                    [Test]
+                    public void ItShouldPassSinglePresentationIntermediateModelToBextProcessor()
+                    {
+                        BextProcessor.Received().EmbedBextMetadata(
+                            Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
+                            Arg.Any<ConsolidatedPodMetadata>());
+                    }
                 }
 
                 [Test]
@@ -260,18 +266,24 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldPassCorrectNumberOfObjectsToBextProcessor()
+                public void ItShouldNotPassAccessModelToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount),
+                        Arg.Is<List<ObjectFileModel>>(l => l.Any(m => m.IsAccessVersion()) == false),
                         Arg.Any<ConsolidatedPodMetadata>());
                 }
 
                 [Test]
-                public void ItShouldPassSingleProductionModelToBextProcessor()
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Adding BEXT metadata");
+                }
+
+                [Test]
+                public void ItShouldPassCorrectNumberOfObjectsToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
+                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount),
                         Arg.Any<ConsolidatedPodMetadata>());
                 }
 
@@ -284,53 +296,32 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldNotPassAccessModelToBextProcessor()
+                public void ItShouldPassSingleProductionModelToBextProcessor()
                 {
                     BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.Any(m => m.IsAccessVersion()) == false),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
                         Arg.Any<ConsolidatedPodMetadata>());
-                }
-
-                public class WhenPreservationIntermediateModelPresent : WhenEmbeddingMetadata
-                {
-                    protected override void DoCustomSetup()
-                    {
-                        base.DoCustomSetup();
-
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
-                        ExpectedModelCount = 3; // pres master, pres-int master, prod-master
-                    }
-
-                    [Test]
-                    public void ItShouldPassSinglePresentationIntermediateModelToBextProcessor()
-                    {
-                        BextProcessor.Received().EmbedBextMetadata(
-                            Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
-                            Arg.Any<ConsolidatedPodMetadata>());
-                    }
                 }
             }
 
             public class WhenClearingMetadataFields : WhenNothingGoesWrong
             {
                 [Test]
-                public void ItShouldOpenSection()
+                public void ItShouldCloseSection()
                 {
-                    Observers.Received().BeginSection("Clearing unwanted BEXT metadata fields ({0})", string.Join(", ", new[] {BextFields.ISFT, BextFields.ITCH}));
+                    Observers.Received().EndSection(Arg.Any<string>(), "Original BEXT metadata fields cleared successfully");
                 }
 
                 [Test]
-                public void ItShouldCloseSection()
+                public void ItShouldOpenSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<string>(), "BEXT metadata fields cleared successfully");
+                    Observers.Received().BeginSection("Clearing original BEXT metadata fields");
                 }
 
-                [TestCase(BextFields.ISFT)]
-                [TestCase(BextFields.ITCH)]
-                public void ItShouldRemoveFields(BextFields expectedField)
+                [Test]
+                public void ItShouldTellProcessorToRemoveFields()
                 {
-                    BextProcessor.Received().ClearBextMetadataField(Arg.Is<List<ObjectFileModel>>(l=>l.SingleOrDefault(m=>m.IsSameAs(PreservationFileName)) !=null), expectedField);
-                    BextProcessor.Received().ClearBextMetadataField(Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsSameAs(ProductionFileName)) != null), expectedField);
+                    BextProcessor.Received().ClearAllBextMetadataFields(Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsSameAs(PreservationFileName)) != null));
                 }
             }
 
@@ -348,64 +339,13 @@ namespace Packager.Test.Processors
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
-                [Test]
-                public void ItShouldOpenSection()
-                {
-                    Observers.Received().BeginSection("Generating {0}", $"{ProjectCode}_{Barcode}.xml");
-                }
-
-                [Test]
-                public void ItShouldCloseSection()
-                {
-                    Observers.Received().EndSection(Arg.Any<string>(), $"{ProjectCode}_{Barcode}.xml generated successfully");
-                }
-
-                [Test]
-                public void ItShouldPassExpectedNumberOfObjectsToGenerator()
-                {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount));
-                }
-
-                [Test]
-                public void ItShouldPassSingleProductionModelToGenerator()
-                {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null));
-                }
-
-                [Test]
-                public void ItShouldPassSinglePreservationModelToGenerator()
-                {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
-                }
-
-                [Test]
-                public void ItShouldPassSingleAccessModelToGenerator()
-                {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
-                }
-
-                [Test]
-                public void ItShouldCallExportToFileCorrectly()
-                {
-                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
-                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName), Arg.Any<UTF8Encoding>());
-                }
-
                 public class WhenPreservationIntermediateModelPresent : WhenGeneratingXmlManifest
                 {
                     protected override void DoCustomSetup()
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedModelCount = 4; // pres master, pres-int master, prod-master, access master
                     }
 
@@ -417,11 +357,70 @@ namespace Packager.Test.Processors
                             Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
                 }
+
+                [Test]
+                public void ItShouldCallExportToFileCorrectly()
+                {
+                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
+                        Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName), Arg.Any<UTF8Encoding>());
+                }
+
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<string>(), $"{ProjectCode}_{Barcode}.xml generated successfully");
+                }
+
+                [Test]
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Generating {0}", $"{ProjectCode}_{Barcode}.xml");
+                }
+
+                [Test]
+                public void ItShouldPassExpectedNumberOfObjectsToGenerator()
+                {
+                    MetadataGenerator.Received().Generate(
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount));
+                }
+
+                [Test]
+                public void ItShouldPassSingleAccessModelToGenerator()
+                {
+                    MetadataGenerator.Received().Generate(
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
+                }
+
+                [Test]
+                public void ItShouldPassSinglePreservationModelToGenerator()
+                {
+                    MetadataGenerator.Received().Generate(
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
+                }
+
+                [Test]
+                public void ItShouldPassSingleProductionModelToGenerator()
+                {
+                    MetadataGenerator.Received().Generate(
+                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null));
+                }
             }
 
             public class WhenHashingFiles : WhenNothingGoesWrong
             {
-                private List<ObjectFileModel> ProcessedModelList { get; set; } 
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+
+                    ProcessedModelList = MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<ObjectFileModel>;
+                }
+
+                private List<ObjectFileModel> ProcessedModelList { get; set; }
+
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
@@ -429,11 +428,36 @@ namespace Packager.Test.Processors
                     Hasher.Hash(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult($"{x.Arg<ObjectFileModel>().ToFileName()} checksum"));
                 }
 
-                public override void BeforeEach()
+                [TestCase]
+                public void ItShouldLogChecksumsCorrectly()
                 {
-                    base.BeforeEach();
+                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(PreservationFileName), $"{PreservationFileName} checksum");
+                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(ProductionFileName), $"{ProductionFileName} checksum");
+                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(AccessFileName), $"{AccessFileName} checksum");
+                }
 
-                    ProcessedModelList = MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<ObjectFileModel>;
+                [Test]
+                public void ItShouldAssignHashValueCorrectlytoAccessVersion()
+                {
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(AccessFileName)).Checksum, Is.EqualTo($"{AccessFileName} checksum"));
+                }
+
+                [Test]
+                public void ItShouldAssignHashValueCorrectlytoPreservationMaster()
+                {
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(PreservationFileName)).Checksum, Is.EqualTo($"{PreservationFileName} checksum"));
+                }
+
+                [Test]
+                public void ItShouldAssignHashValueCorrectlytoProductionVersion()
+                {
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(ProductionFileName)).Checksum, Is.EqualTo($"{ProductionFileName} checksum"));
+                }
+
+                [Test]
+                public void ItShouldCallHasherForAccessVersion()
+                {
+                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(AccessFileName)));
                 }
 
                 [Test]
@@ -446,38 +470,6 @@ namespace Packager.Test.Processors
                 public void ItShouldCallHasherForProductionVersion()
                 {
                     Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(ProductionFileName)));
-                }
-
-                [Test]
-                public void ItShouldCallHasherForAccessVersion()
-                {
-                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(AccessFileName)));
-                }
-
-                [Test]
-                public void ItShouldAssignHashValueCorrectlytoPreservationMaster()
-                {
-                    Assert.That(ProcessedModelList.Single(m=>m.IsSameAs(PreservationFileName)).Checksum, Is.EqualTo($"{PreservationFileName} checksum"));
-                }
-
-                [Test]
-                public void ItShouldAssignHashValueCorrectlytoProductionVersion()
-                {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(ProductionFileName)).Checksum, Is.EqualTo($"{ProductionFileName} checksum"));
-                }
-
-                [Test]
-                public void ItShouldAssignHashValueCorrectlytoAccessVersion()
-                {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(AccessFileName)).Checksum, Is.EqualTo($"{AccessFileName} checksum"));
-                }
-
-                [TestCase()]
-                public void ItShouldLogChecksumsCorrectly()
-                {
-                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(PreservationFileName), $"{PreservationFileName} checksum");
-                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(ProductionFileName), $"{ProductionFileName} checksum");
-                    Observers.Received().Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(AccessFileName), $"{AccessFileName} checksum");
                 }
             }
 
@@ -494,95 +486,13 @@ namespace Packager.Test.Processors
                     ExpectedFiles = 4; // prod master, pres master, access, xml manifest
                 }
 
-                [Test]
-                public void ItShouldOpenSection()
-                {
-                    Observers.Received().BeginSection("Copying objects to dropbox");
-                }
-
-                [Test]
-                public void ItShouldCloseSection()
-                {
-                    Observers.Received().EndSection(
-                        Arg.Any<string>(),
-                        $"{Barcode} files copied to dropbox folder successfully");
-                }
-
-                [Test]
-                public void ItShouldCreateFolderInDropBox()
-                {
-                    DirectoryProvider.Received().CreateDirectory(ExpectedDropboxDirectory);
-                }
-
-                [Test]
-                public void ItShouldCopyCorrectNumberOfFilesToDropBox()
-                {
-                    FileProvider.Received(ExpectedFiles).CopyFileAsync(Arg.Any<string>(), Arg.Any<string>());
-                }
-
-                [Test]
-                public void ItShouldCopyPreservationMasterToDropbox()
-                {
-                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, PreservationFileName);
-                    var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
-                }
-
-                [Test]
-                public void ItShouldLogPreservationMasterCopied()
-                {
-                    Observers.Received().Log("copying {0} to {1}", PreservationFileName, ExpectedDropboxDirectory);
-                }
-
-                [Test]
-                public void ItShouldLogProductionMasterCopied()
-                {
-                    Observers.Received().Log("copying {0} to {1}", PreservationFileName, ExpectedDropboxDirectory);
-                }
-
-                [Test]
-                public void ItShouldLogAccessMasterCopied()
-                {
-                    Observers.Received().Log("copying {0} to {1}", AccessFileName, ExpectedDropboxDirectory);
-                }
-
-                [Test]
-                public void ItShouldLogXmlManifestCopied()
-                {
-                    Observers.Received().Log("copying {0} to {1}", XmlManifestFileName, ExpectedDropboxDirectory);
-                }
-
-                [Test]
-                public void ItShouldCopyProductionMasterToDropbox()
-                {
-                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, ProductionFileName);
-                    var targetPath = Path.Combine(ExpectedDropboxDirectory, ProductionFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
-                }
-
-                [Test]
-                public void ItShouldCopyAccessMasterToDropbox()
-                {
-                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, AccessFileName);
-                    var targetPath = Path.Combine(ExpectedDropboxDirectory, AccessFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
-                }
-
-                [Test]
-                public void ItShouldCopyXmlManifestToDropbox()
-                {
-                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName);
-                    var targetPath = Path.Combine(ExpectedDropboxDirectory, XmlManifestFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
-                }
-
                 public class WhenPreservationIntermediateModelPresent : WhenCopyingFilesToDropBoxFolder
                 {
                     protected override void DoCustomSetup()
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> { PresObjectFileModel, PresIntObjectFileModel };
+                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
                         ExpectedFiles = 5; // prod master, pres master, pres-int master, access, xml manifest
                     }
 
@@ -600,20 +510,108 @@ namespace Packager.Test.Processors
                         Observers.Received().Log("copying {0} to {1}", PreservationIntermediateFileName, ExpectedDropboxDirectory);
                     }
                 }
+
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(
+                        Arg.Any<string>(),
+                        $"{Barcode} files copied to dropbox folder successfully");
+                }
+
+                [Test]
+                public void ItShouldCopyAccessMasterToDropbox()
+                {
+                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, AccessFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, AccessFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+                [Test]
+                public void ItShouldCopyCorrectNumberOfFilesToDropBox()
+                {
+                    FileProvider.Received(ExpectedFiles).CopyFileAsync(Arg.Any<string>(), Arg.Any<string>());
+                }
+
+                [Test]
+                public void ItShouldCopyPreservationMasterToDropbox()
+                {
+                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, PreservationFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+                [Test]
+                public void ItShouldCopyProductionMasterToDropbox()
+                {
+                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, ProductionFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, ProductionFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+                [Test]
+                public void ItShouldCopyXmlManifestToDropbox()
+                {
+                    var sourcePath = Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName);
+                    var targetPath = Path.Combine(ExpectedDropboxDirectory, XmlManifestFileName);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                }
+
+                [Test]
+                public void ItShouldCreateFolderInDropBox()
+                {
+                    DirectoryProvider.Received().CreateDirectory(ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldLogAccessMasterCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", AccessFileName, ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldLogPreservationMasterCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", PreservationFileName, ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldLogProductionMasterCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", PreservationFileName, ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldLogXmlManifestCopied()
+                {
+                    Observers.Received().Log("copying {0} to {1}", XmlManifestFileName, ExpectedDropboxDirectory);
+                }
+
+                [Test]
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Copying objects to dropbox");
+                }
             }
 
             public class WhenFinalizing : WhenNothingGoesWrong
             {
                 [Test]
-                public void ItShouldMoveFilesToSuccessFolder()
-                {
-                }
-
-                [Test]
                 public void ItShouldCallEndSectionCorrectly()
                 {
                     Observers.Received().EndSection(SectionKey, "Object processed succesfully: 4890764553278906");
                 }
+
+                [Test]
+                public void ItShouldMoveFilesToSuccessFolder()
+                {
+                }
+            }
+
+            [Test]
+            public void ProcessorShouldReturnTrue()
+            {
+                Assert.That(Result.Result, Is.EqualTo(true));
             }
         }
 
@@ -631,24 +629,6 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ShouldLogException()
-                {
-                    Observers.Received().LogProcessingIssue(Arg.Is<Exception>(e => e.Message.Equals(IssueMessage)), Barcode);
-                }
-
-                [Test]
-                public void ShouldMoveContentToErrorFolder()
-                {
-                    DirectoryProvider.Received().MoveDirectory(ExpectedProcessingDirectory, Path.Combine(ErrorDirectory, ExpectedObjectFolderName));
-                }
-
-                [Test]
-                public void ShouldLogMovingMessage()
-                {
-                    Observers.Received().Log("Moving {0} to error folder", ExpectedObjectFolderName);
-                }
-
-                [Test]
                 public void ShouldCloseProcessingSection()
                 {
                     Observers.Received().EndSection(SectionKey);
@@ -663,6 +643,24 @@ namespace Packager.Test.Processors
                     }
 
                     Observers.Received().EndSection(SubSectionKey);
+                }
+
+                [Test]
+                public void ShouldLogException()
+                {
+                    Observers.Received().LogProcessingIssue(Arg.Is<Exception>(e => e.Message.Equals(IssueMessage)), Barcode);
+                }
+
+                [Test]
+                public void ShouldLogMovingMessage()
+                {
+                    Observers.Received().Log("Moving {0} to error folder", ExpectedObjectFolderName);
+                }
+
+                [Test]
+                public void ShouldMoveContentToErrorFolder()
+                {
+                    DirectoryProvider.Received().MoveDirectory(ExpectedProcessingDirectory, Path.Combine(ErrorDirectory, ExpectedObjectFolderName));
                 }
             }
 

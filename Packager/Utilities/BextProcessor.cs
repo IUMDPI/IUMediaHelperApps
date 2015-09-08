@@ -20,8 +20,6 @@ namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
-
-
         public BextProcessor(string bwfMetaEditPath, string baseProcessingDirectory, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
             IConformancePointDocumentFactory conformancePointDocumentFactory)
         {
@@ -64,17 +62,24 @@ namespace Packager.Utilities
             await AddMetadata(xml, instances.First().GetFolderName());
         }
 
-        public async Task ClearBextMetadataField(List<ObjectFileModel> instances, BextFields field)
+        public async Task ClearBextMetadataFields(List<ObjectFileModel> instances, IEnumerable<BextFields> fields)
         {
-            for (var i = 0; i < instances.Count; i++)
+            var baseArgs = new StringBuilder();
+            baseArgs.Append("--verbose --Append");
+            foreach (var field in fields)
             {
-                var instance = instances[i];
+                baseArgs.AppendFormat(" --{0}=\"\"", field);
+            }
+            
+            foreach (var instance in instances)
+            {
                 var path = Path.Combine(BaseProcessingDirectory, instance.GetFolderName(), instance.ToFileName());
-                var args = $"--verbose --Append --{field}=\"\" {path.ToQuoted()}";
+
+                var args = $"{baseArgs} {path.ToQuoted()}";
 
                 var result = await ExecuteBextProcess(args);
 
-                if (i > 0)
+                if (instances.IsFirst(instance) == false)
                 {
                     Observers.Log("");
                 }
@@ -83,10 +88,16 @@ namespace Packager.Utilities
 
                 if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
                 {
-                    throw new BextMetadataException("Could not clear metadata field {0} for one or more files!", field);
+                    throw new BextMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
                 }
             }
 
+        }
+
+        public async Task ClearAllBextMetadataFields(List<ObjectFileModel> instances)
+        {
+            await ClearBextMetadataFields(instances, 
+                Enum.GetValues(typeof (BextFields)).Cast<BextFields>().ToArray());
         }
 
         private async Task<IProcessResult> ExecuteBextProcess(string args)
@@ -158,21 +169,25 @@ namespace Packager.Utilities
         private static string FormatOutput(string output, string objectFolder)
         {
             var builder = new StringBuilder();
-            var lines = output.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            for (var index = 0; index < lines.Length; index++)
+            var lines = output.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(l=>NormalizeLogLine(l,objectFolder));
+            foreach (var line in lines)
             {
-                if (index > 0 && lines[index].EndsWith(": Is open"))
+                if (IsStandardLine(line) && builder.HasContent())
                 {
-                    builder.Append('\n');
+                    builder.Append("\n");
                 }
 
-                var text = NormalizeLogLine(lines[index], objectFolder);
-                builder.AppendFormat("{0}\n", text);
-            }
+                if (IsOpeningLine(line) && builder.HasContent())
+                {
+                    builder.Append("\n");
+                }
 
+                builder.Append(line);
+            }
+         
             return builder.ToString();
         }
-
 
         private static string NormalizeLogLine(string line, string objectFolder)
         {
@@ -180,7 +195,7 @@ namespace Packager.Utilities
             {
                 return line;
             }
-
+            
             // want to remove everything before the file name
             // so find the base processing directory in the string
             // and start from there + its length +1
@@ -190,7 +205,18 @@ namespace Packager.Utilities
                 return line;
             }
 
+            // return a newline followed by the formatted line
             return line.Substring(index);
+        }
+
+        private static bool IsStandardLine(string line)
+        {
+            return line.ToLowerInvariant().Contains(".wav:");
+        }
+
+        private static bool IsOpeningLine(string line)
+        {
+            return line.ToLowerInvariant().EndsWith(": is open");
         }
     }
 }

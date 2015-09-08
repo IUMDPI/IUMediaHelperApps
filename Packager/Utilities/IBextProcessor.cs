@@ -13,7 +13,7 @@ namespace Packager.Utilities
         OriginationDate,
         OriginationTime,
         TimeReference,
-        CodingHistory,
+        History,
         UMID,
         IARL,
         IART,
@@ -36,11 +36,13 @@ namespace Packager.Utilities
 
     public interface IBextProcessor
     {
+        string BwfMetaEditPath { get; set; }
         Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata);
 
-        Task ClearBextMetadataField(List<ObjectFileModel> instances, BextFields field);
+        Task ClearBextMetadataFields(List<ObjectFileModel> instances, IEnumerable<BextFields> fields);
+
+        Task ClearAllBextMetadataFields(List<ObjectFileModel> instances);
 
         Task<string> GetBwfMetaEditVersion();
-        string BwfMetaEditPath { get; set; }
     }
 }

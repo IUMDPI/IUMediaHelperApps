@@ -25,8 +25,8 @@ namespace Packager.Verifiers
 
         private static bool IsModifiedOrNothingToDo(string output, string path)
         {
-            var modified = $"{path}: is modified";
-            var nothingToDo = $"{path}: nothing to do";
+            var modified = $"{path.ToLowerInvariant()}: is modified";
+            var nothingToDo = $"{path.ToLowerInvariant()}: nothing to do";
             return output.Contains(modified) || output.Contains(nothingToDo);
         }
     }

@@ -64,12 +64,13 @@ namespace Packager.Processors
                 .GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();
 
-            // now add metadata to eligible objects
-            await AddMetadata(processedList, metadata);
 
             // now remove metadata fields that we don't want
-            await ClearMetadata(processedList, new[] {BextFields.ISFT, BextFields.ITCH});
+            await ClearMetadata(processedList);
 
+            // now add metadata to eligible objects
+            await AddMetadata(processedList, metadata);
+            
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = await GenerateXml(metadata, processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
@@ -133,26 +134,19 @@ namespace Packager.Processors
             }
         }
 
-        private async Task ClearMetadata(IEnumerable<AbstractFileModel> processedList, IReadOnlyList<BextFields> fields)
+        private async Task ClearMetadata(IEnumerable<AbstractFileModel> processedList)
         {
             var sectionKey = string.Empty;
             var success = false;
             try
             {
-                sectionKey = Observers.BeginSection("Clearing unwanted BEXT metadata fields ({0})", string.Join(", ", fields));
+                sectionKey = Observers.BeginSection("Clearing original BEXT metadata fields");
                 var targets = processedList.Where(m => m.IsObjectModel())
                     .Select(m => (ObjectFileModel) m)
                     .Where(m => m.IsAccessVersion() == false).ToList();
 
-                for (var i = 0; i < fields.Count; i++)
-                {
-                    if (i > 0)
-                    {
-                        Observers.Log("");
-                    }
-                    await BextProcessor.ClearBextMetadataField(targets, fields[i]);
-                }
-
+                    await BextProcessor.ClearAllBextMetadataFields(targets);
+                
                 success = true;
             }
             catch (Exception e)
@@ -164,7 +158,7 @@ namespace Packager.Processors
             {
                 if (success)
                 {
-                    Observers.EndSection(sectionKey, "BEXT metadata fields cleared successfully");
+                    Observers.EndSection(sectionKey, "Original BEXT metadata fields cleared successfully");
                 }
                 else
                 {

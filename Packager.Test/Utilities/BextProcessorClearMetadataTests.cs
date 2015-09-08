@@ -38,7 +38,7 @@ namespace Packager.Test.Utilities
             ConformancePointDocumentFactory = Substitute.For<IConformancePointDocumentFactory>();
 
             BextProcessor = new BextProcessor(BwfMetaEditPath, BaseProcessingFolder, ProcessRunner, XmlExporter, Observers, Verifier, ConformancePointDocumentFactory);
-            await BextProcessor.ClearBextMetadataField(Instances, BextFields.ISFT);
+            await BextProcessor.ClearBextMetadataFields(Instances, new[] { BextFields.ISFT });
         }
 
         private const string BwfMetaEditPath = "bwfmetaedit.exe";

@@ -6,7 +6,7 @@ namespace Packager.Factories
 {
     public interface IConformancePointDocumentFactory
     {
-        ConformancePointDocumentFile Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata);
+        ConformancePointDocumentFileCore Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata);
         
     }
 }

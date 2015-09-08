@@ -17,35 +17,24 @@ namespace Packager.Factories
         private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
 
         private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
-
-        public ConformancePointDocumentFactory(string baseProcessingDirectory)
-        {
-            BaseProcessingDirectory = baseProcessingDirectory;
-        }
-
-        private string BaseProcessingDirectory { get; }
-
-        public ConformancePointDocumentFile Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
+        
+        public ConformancePointDocumentFileCore Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
             var description = GenerateBextDescription(metadata, model);
 
-            return new ConformancePointDocumentFile
+            return new ConformancePointDocumentFileCore
             {
-                Name = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()),
-                Core = new ConformancePointDocumentFileCore
-                {
-                    Originator = metadata.DigitizingEntity,
-                    OriginatorReference = Path.GetFileNameWithoutExtension(model.ToFileName()),
-                    Description = description,
-                    ICMT = description,
-                    IARL = metadata.Unit,
-                    OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
-                    OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),
-                    TimeReference = "0",
-                    ICRD = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
-                    INAM = metadata.Title,
-                    CodingHistory = GenerateCodingHistory(metadata, provenance)
-                }
+                Originator = metadata.DigitizingEntity,
+                OriginatorReference = Path.GetFileNameWithoutExtension(model.ToFileName()),
+                Description = description,
+                ICMT = description,
+                IARL = metadata.Unit,
+                OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
+                OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),
+                TimeReference = "0",
+                ICRD = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
+                INAM = metadata.Title,
+                CodingHistory = GenerateCodingHistory(metadata, provenance)
             };
         }
 
@@ -66,7 +55,7 @@ namespace Packager.Factories
                 ? "DIGITAL"
                 : "ANALOGUE";
         }
-        
+
         private static string GeneratePlayerTextField(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
         {
             if (!provenance.PlayerDevices.Any())
@@ -93,7 +82,7 @@ namespace Packager.Factories
             }
 
             return parts;
-        }  
+        }
 
         private static string GenerateAdTextField(DigitalFileProvenance provenance)
         {

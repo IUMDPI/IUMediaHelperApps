@@ -36,13 +36,10 @@ namespace Packager.Utilities
 
     public interface IBextProcessor
     {
-        string BwfMetaEditPath { get; set; }
+       
         Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata);
 
-        Task ClearBextMetadataFields(List<ObjectFileModel> instances, IEnumerable<BextFields> fields);
-
         Task ClearAllBextMetadataFields(List<ObjectFileModel> instances);
-
-        Task<string> GetBwfMetaEditVersion();
+        
     }
 }

@@ -66,6 +66,7 @@
     <Compile Include="Engine\EngineTests.cs" />
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
+    <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />
     <Compile Include="Utilities\HasherTests.cs" />
     <Compile Include="Mocks\MockDependencyProvider.cs" />
     <Compile Include="Mocks\MockProcessRunner.cs" />

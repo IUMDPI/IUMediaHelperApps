@@ -21,6 +21,8 @@ namespace Packager.Providers
         ISystemInfoProvider SystemInfoProvider { get; }
         IBextProcessor BextProcessor { get; }
         IFFMPEGRunner FFMPEGRunner { get; }
+
+        IBwfMetaEditRunner MetaEditRunner { get; }
         IEmailSender EmailSender { get; }
         ISideDataFactory SideDataFactory { get; }
         IIngestDataFactory IngestDataFactory { get; }

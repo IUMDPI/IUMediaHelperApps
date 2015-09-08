@@ -13,14 +13,13 @@ namespace Packager.Test.Factories
     [TestFixture]
     public class ConformancePointDocumentFactoryTests
     {
-        private const string BaseProcessDirectory = "base";
-        private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
+       private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string DigitizingEntity = "Test digitizing entity";
         private const string Unit = "Test unit";
         private const string CallNumber = "AB1243";
         private const string Title = "Test title";
 
-        private ConformancePointDocumentFile Result { get; set; }
+        private ConformancePointDocumentFileCore Result { get; set; }
         private ObjectFileModel Model { get; set; }
         private DigitalFileProvenance Provenance { get; set; }
         private ConsolidatedPodMetadata Metadata { get; set; }
@@ -51,7 +50,7 @@ namespace Packager.Test.Factories
 
             DoCustomSetup();
 
-            Result = new ConformancePointDocumentFactory(BaseProcessDirectory).Generate(Model, Provenance, Metadata);
+            Result = new ConformancePointDocumentFactory().Generate(Model, Provenance, Metadata);
         }
 
         private static DigitalFileProvenance GetFileProvenance()
@@ -82,65 +81,65 @@ namespace Packager.Test.Factories
         [Test]
         public void TimeReferenceShouldBeSetCorrectly()
         {
-            Assert.That(Result.Core.TimeReference.Equals("0"));
+            Assert.That(Result.TimeReference.Equals("0"));
         }
 
         [Test]
         public void InamShouldBeSetCorrectly()
         {
-            Assert.That(Result.Core.INAM.Equals(Title));
+            Assert.That(Result.INAM.Equals(Title));
         }
 
         [Test]
         public void IarlShouldBeSetCorrectly()
         {
-            Assert.That(Result.Core.IARL.Equals(Unit));
+            Assert.That(Result.IARL.Equals(Unit));
         }
 
         [Test]
         public void OriginationDateAndIcrdShouldBeSetCorrectly()
         {
-            Assert.That(Result.Core.OriginationDate.Equals("2015-08-01"));
-            Assert.That(Result.Core.ICRD.Equals("2015-08-01"));
+            Assert.That(Result.OriginationDate.Equals("2015-08-01"));
+            Assert.That(Result.ICRD.Equals("2015-08-01"));
         }
 
         [Test]
         public void OrginationTimeShouldBeSetCorrectly()
         {
-            Assert.That(Result.Core.OriginationTime.Equals("01:02:03"));
+            Assert.That(Result.OriginationTime.Equals("01:02:03"));
         }
 
         [Test]
         public void DescriptionAndIcmtShouldBeSetCorrectly()
         {
             var expected = $"{Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
-            Assert.That(Result.Core.Description, Is.EqualTo(expected));
-            Assert.That(Result.Core.ICMT, Is.EqualTo(expected));
+            Assert.That(Result.Description, Is.EqualTo(expected));
+            Assert.That(Result.ICMT, Is.EqualTo(expected));
         }
 
         [Test]
         public void OriginatorReferenceShouldBeSetCorrectly()
         {
-            Assert.That(Result.Core.OriginatorReference, Is.EqualTo(Path.GetFileNameWithoutExtension(PreservationFileName)));
+            Assert.That(Result.OriginatorReference, Is.EqualTo(Path.GetFileNameWithoutExtension(PreservationFileName)));
         }
 
         [Test]
         public void OriginatorShouldBeSetCorrectly()
         {
-            Assert.That(Result.Core.Originator.Equals(DigitizingEntity));
+            Assert.That(Result.Originator.Equals(DigitizingEntity));
         }
 
         [Test]
         public void CodingHistoryShouldHaveThreeLines()
         {
-            var parts = Result.Core.CodingHistory.Split(new [] { "\r\n" }, StringSplitOptions.None);
+            var parts = Result.CodingHistory.Split(new [] { "\r\n" }, StringSplitOptions.None);
             Assert.That(parts.Length, Is.EqualTo(3));
         }
         
         [Test]
         public void CodingHistoryLine2ShouldBeCorrect()
         {
-            var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+            var parts = Result.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
             const string expected = "A=PCM,F=96000,W=24,M=Mono,T=Ad manufacturer Ad model;SNAd serial number;A/D,";
 
@@ -150,7 +149,7 @@ namespace Packager.Test.Factories
         [Test]
         public void CodingHistoryLine3ShouldBeCorrect()
         {
-            var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+            var parts = Result.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
             const string expected = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
 
@@ -191,7 +190,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldUseProvenanceSpeed()
             {
-                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+                var parts = Result.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
                 var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5 ips;{Metadata.Format},";
 
@@ -211,7 +210,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldRenderSpeedsCorrectly()
             {
-                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+                var parts = Result.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
                 var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;8.5 ips;1.1 ips;2.1 ips;{Metadata.Format},";
 
@@ -231,7 +230,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldUseMetadataPlaybackSpeed()
             {
-                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+                var parts = Result.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
                 var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;{Metadata.PlaybackSpeed};{Metadata.Format},";
 
@@ -252,7 +251,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldNotRenderPlaybackSpeed()
             {
-                var parts = Result.Core.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
+                var parts = Result.CodingHistory.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
                 var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," + $"T=Player manufacturer Player model;SNPlayer serial number;{Metadata.Format},";
 

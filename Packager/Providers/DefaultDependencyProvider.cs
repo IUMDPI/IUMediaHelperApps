@@ -25,8 +25,8 @@ namespace Packager.Providers
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             LookupsProvider = new AppConfigLookupsProvider();
-            BextProcessor = new BextProcessor(programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory, ProcessRunner, XmlExporter, Observers,
-                new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory(programSettings.ProcessingDirectory));
+            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory);
+            BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier(), new ConformancePointDocumentFactory());
             FFMPEGRunner = new FFMPEGRunner(ProgramSettings.FFMPEGPath, ProgramSettings.ProcessingDirectory, ProcessRunner, Observers, FileProvider);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ValidatorCollection = new StandardValidatorCollection
@@ -92,5 +92,7 @@ namespace Packager.Providers
         
         public IValidatorCollection ValidatorCollection { get; }
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
+
+        public IBwfMetaEditRunner MetaEditRunner { get; }
     }
 }

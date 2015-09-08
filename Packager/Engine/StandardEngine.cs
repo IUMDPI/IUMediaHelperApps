@@ -155,8 +155,8 @@ namespace Packager.Engine
             Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
-            Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.BextProcessor.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.BextProcessor.GetBwfMetaEditVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("");
             Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));

@@ -30,26 +30,26 @@ namespace Packager.Test.Utilities
 
             Verifier = Substitute.For<IBwfMetaEditResultsVerifier>();
             Verifier.Verify(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
-            ProcessRunner = Substitute.For<IProcessRunner>();
-            ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).Returns(
+
+            MetaEditRunner = Substitute.For<IBwfMetaEditRunner>();
+            MetaEditRunner.ClearMetadata(null).Returns(
                 Task.FromResult((IProcessResult) new ProcessResult {ExitCode = 0, StandardError = Output, StandardOutput = Output}));
 
 
             ConformancePointDocumentFactory = Substitute.For<IConformancePointDocumentFactory>();
 
-            BextProcessor = new BextProcessor(BwfMetaEditPath, BaseProcessingFolder, ProcessRunner, XmlExporter, Observers, Verifier, ConformancePointDocumentFactory);
-            await BextProcessor.ClearBextMetadataFields(Instances, new[] { BextFields.ISFT });
+            BextProcessor = new BextProcessor(MetaEditRunner, Observers, Verifier, ConformancePointDocumentFactory);
+            await BextProcessor.ClearAllBextMetadataFields(Instances);
         }
-
-        private const string BwfMetaEditPath = "bwfmetaedit.exe";
+        
         private const string ProductionFileName = "MDPI_4890764553278906_01_prod.wav";
         private const string PreservationIntermediateFileName = "MDPI_4890764553278906_01_pres-int.wav";
         private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
-        private const string BaseProcessingFolder = "base";
-
+   
         private const string Output = "Output";
         private BextProcessor BextProcessor { get; set; }
-        private IProcessRunner ProcessRunner { get; set; }
+       
+        private IBwfMetaEditRunner MetaEditRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
         private IConformancePointDocumentFactory ConformancePointDocumentFactory { get; set; }
@@ -65,10 +65,7 @@ namespace Packager.Test.Utilities
         {
             foreach (var model in Instances)
             {
-                var expectedPath = Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName());
-                var expectedArgs = $"--verbose --Append --{BextFields.ISFT}=\"\" {expectedPath.ToQuoted()}";
-                ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(
-                    i => i.Arguments.Equals(expectedArgs)));
+                MetaEditRunner.Received().ClearMetadata(model);
             }
         }
     }

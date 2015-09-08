@@ -13,7 +13,7 @@ namespace Packager.Models.BextModels
         [BextField(BextFields.Originator)]
         public string Originator { get; set; }
 
-        [BextField(BextFields.Originator)]
+        [BextField(BextFields.OriginatorReference)]
         public string OriginatorReference { get; set; }
 
         [BextField(BextFields.OriginationDate)]

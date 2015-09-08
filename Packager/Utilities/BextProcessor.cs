@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Packager.Attributes;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
@@ -20,6 +22,9 @@ namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
+        private const string VerboseArgument = "--verbose";
+        private const string AppendArgument = "--Append";
+
         public BextProcessor(string bwfMetaEditPath, string baseProcessingDirectory, IProcessRunner processRunner, IXmlExporter xmlExporter, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
             IConformancePointDocumentFactory conformancePointDocumentFactory)
         {
@@ -46,20 +51,38 @@ namespace Packager.Utilities
 
         public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata)
         {
-            var files = new List<ConformancePointDocumentFile>();
+            //var files = new List<ConformancePointDocumentFile>();
             foreach (var fileModel in instances)
             {
                 var defaultProvenance = GetDefaultProvenance(instances, podMetadata, fileModel);
                 var provenance = podMetadata.FileProvenances.GetFileProvenance(fileModel, defaultProvenance);
-                files.Add(ConformancePointDocumentFactory.Generate(fileModel, provenance, podMetadata));
+                var doc = ConformancePointDocumentFactory.Generate(fileModel, provenance, podMetadata);
+
+                var args = GetArgsForCoreAndModel(doc.Core, fileModel);
+                var result = await ExecuteBextProcess(args);
+
+                if (instances.IsFirst(fileModel) == false)
+                {
+                    Observers.Log("");
+                }
+
+                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), fileModel.ToFileName().ToLowerInvariant()) == false)
+                {
+                    Observers.Log(result.StandardOutput);
+                    throw new BextMetadataException("Could not add bext metadata to {0}", fileModel.ToFileName());
+
+                }
+                
+                Observers.Log(FormatOutput(result.StandardOutput, fileModel.GetFolderName()));
+                
             }
 
-            var xml = new ConformancePointDocument
+           /* var xml = new ConformancePointDocument
             {
                 File = files.ToArray()
             };
 
-            await AddMetadata(xml, instances.First().GetFolderName());
+            await AddMetadata(xml, instances.First().GetFolderName());*/
         }
 
         public async Task ClearBextMetadataFields(List<ObjectFileModel> instances, IEnumerable<BextFields> fields)
@@ -83,13 +106,14 @@ namespace Packager.Utilities
                 {
                     Observers.Log("");
                 }
-
-                Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
-
+                
                 if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
                 {
+                    Observers.Log(result.StandardOutput);
                     throw new BextMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
                 }
+
+                Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
             }
 
         }
@@ -146,6 +170,19 @@ namespace Packager.Utilities
             }
 
             return defaultProvenance;
+        }
+        
+        private string GetArgsForCoreAndModel(ConformancePointDocumentFileCore core, ObjectFileModel model)
+        {
+            var args = new List<string> {VerboseArgument, AppendArgument};
+            args.AddRange(core.GetType().GetProperties()
+                .Select(p => new Tuple<PropertyInfo, BextFieldAttribute>(p, p.GetCustomAttribute<BextFieldAttribute>()))
+                .Where(t => t.Item2 != null)
+                .Select(t => $"--{t.Item2.Field}={t.Item1.GetValue(core).ToDefaultIfEmpty().ToQuoted()}"));
+                          
+            args.Add(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()).ToQuoted());
+
+             return string.Join(" ", args);
         }
 
         private async Task AddMetadata(ConformancePointDocument xml, string objectFolder)

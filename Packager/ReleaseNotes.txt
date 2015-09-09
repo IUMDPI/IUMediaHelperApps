@@ -17,4 +17,6 @@
 					should clear ITCH bext metadata field for all pres, pres-int, and prod masters
 					should generate checksum values asynchronously
 					should log generated checksum values
+1.6.0.0	09/09/2015	should clear all bext metadata fields before setting new values
+					should set bext metadata values via command-line, not xml
 					

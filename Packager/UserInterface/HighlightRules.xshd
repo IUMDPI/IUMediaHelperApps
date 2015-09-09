@@ -33,7 +33,7 @@
     <Span color="SubHeader" begin="Copying objects to dropbox" />
     <Span color="SubHeader" begin="Cleaning up" />
     <Span color="SubHeader" begin="Initializing" />
-    <Span color="SubHeader" begin="Clearing unwanted BEXT metadata fields" />
+    <Span color="SubHeader" begin="Clearing original BEXT metadata fields" />
     <Span color="ResultsSummary" begin="Results Summary:" />
     <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />

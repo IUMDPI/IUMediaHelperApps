@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Configuration;
 using System.Windows;
+using Recorder.Models;
 
 namespace Recorder
 {
@@ -13,5 +9,17 @@ namespace Recorder
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
+
+            var viewModel = new ViewModel(programSettings);
+
+            var userControls = new UserControls {DataContext = viewModel};
+
+            userControls.Show();
+        }
     }
 }

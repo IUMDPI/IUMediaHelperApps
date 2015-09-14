@@ -1,0 +1,36 @@
+﻿<Window x:Class="Recorder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Recorder"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="301" Width="434" ResizeMode="CanMinimize" FontSize="14" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="8,8,8,8" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <xctk:WatermarkTextBox Watermark="Barcode"  HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,8,0" Grid.Column="0"></xctk:WatermarkTextBox>
+            <xctk:IntegerUpDown Grid.Column="1" Increment="1" Minimum="1" Maximum="4" VerticalAlignment="Center" Padding="4" Watermark="Part" Width="100" HorizontalAlignment="Right" HorizontalContentAlignment="Right" >
+                
+            </xctk:IntegerUpDown>
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" >
+            <Button Name="PauseButton" FontFamily="Webdings" FontSize="48" Width="56" Height="56" Margin="12,12,12,12">;</Button>
+            <Button Name="RecordButton" FontFamily="Webdings" FontSize="48" Width="56" Height="56" Margin="12,12,12,12">&lt;</Button>
+        </StackPanel>
+
+
+
+    </Grid>
+</Window>
+
+    

@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{6A78B2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduler", "Scheduler\Scheduler.csproj", "{5F458C66-5C16-48EB-B11D-C0CF0D8F2AFE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recorder", "Recorder\Recorder.csproj", "{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{5F458C66-5C16-48EB-B11D-C0CF0D8F2AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F458C66-5C16-48EB-B11D-C0CF0D8F2AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F458C66-5C16-48EB-B11D-C0CF0D8F2AFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

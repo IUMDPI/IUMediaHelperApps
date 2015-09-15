@@ -8,6 +8,8 @@ namespace Recorder.Models
         string PathToFFMPEG { get; }
         string OutputFolder { get; }
         string FFMPEGArguments { get; }
+
+        string WorkingFolder { get; }
     }
 
     public class ProgramSettings : IProgramSettings
@@ -18,11 +20,14 @@ namespace Recorder.Models
             PathToFFMPEG = settings["PathToFFMPEG"];
             OutputFolder = settings["OutputDirectoryName"];
             FFMPEGArguments = settings["FFMPEGArguments"];
+            WorkingFolder = settings["WorkingDirectoryName"];
+
         }
 
         public string ProjectCode { get; }
         public string PathToFFMPEG { get; }
         public string OutputFolder { get; }
         public string FFMPEGArguments { get; }
+        public string WorkingFolder { get; }
     }
 }

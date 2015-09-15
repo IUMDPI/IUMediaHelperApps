@@ -1,7 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows.Input;
+using System.Windows.Media;
 using JetBrains.Annotations;
 using Recorder.Models;
 
@@ -9,43 +12,105 @@ namespace Recorder
 {
     public class ViewModel : INotifyPropertyChanged
     {
+
+        private string WorkingFolderName => Path.Combine(_settings.WorkingFolder, $"{Barcode}_{Part}");
+
+        private Process _process;
+
         private readonly IProgramSettings _settings;
         private string _barcode;
         private int _part;
-        private PauseCommand _pauseButtonCommand;
+        private ICommand _pauseButtonCommand;
 
-        private RecordCommand _recordButtonCommand;
+        private ICommand _recordButtonCommand;
         private bool _recording;
         private bool _paused;
 
         public ViewModel(IProgramSettings settings)
         {
             _settings = settings;
-           
-            RecordButtonCommand = new RecordCommand(this);
-            PauseButtonCommand = new PauseCommand(this);
-            
+            Part = 1;
+
         }
 
-        public RecordCommand RecordButtonCommand
+        public bool LockInputs => !Recording;
+
+        public ICommand RecordButtonCommand
         {
-            get { return _recordButtonCommand; }
-            set
+            get { return _recordButtonCommand 
+                    ?? (_recordButtonCommand = new RelayCommand(param => DoRecord(), param => CanRecord())); }
+        }
+
+        public ICommand PauseButtonCommand
+        {
+            get
             {
-                _recordButtonCommand = value;
-                OnPropertyChanged();
+                return _pauseButtonCommand
+                   ?? (_pauseButtonCommand = new RelayCommand(param => DoPause(), param => CanPause()));
+            }
+
+        }
+
+        private bool CanRecord()
+        {
+            if (string.IsNullOrEmpty(Barcode))
+            {
+                return false;
+            }
+
+            return !Paused;
+        }
+
+        private bool CanPause()
+        {
+            return Recording;
+        }
+
+        private void DoRecord()
+        {
+            if (Recording)
+            {
+                _process.StandardInput.WriteLine('q');
+                Recording = false;
+            }
+            else
+            {
+                // make folder in temp directory
+                if (!Directory.Exists(WorkingFolderName))
+                {
+                    Directory.CreateDirectory(WorkingFolderName);
+                }
+
+                var info = new ProcessStartInfo(_settings.PathToFFMPEG);
+                info.Arguments = $"{_settings.FFMPEGArguments} \"{GetNewPart()}\"";
+                info.RedirectStandardInput = true;
+                info.UseShellExecute = false;
+                _process = Process.Start(info);
+                Recording = true;
             }
         }
 
-        public PauseCommand PauseButtonCommand
+        private string GetNewPart()
         {
-            get { return _pauseButtonCommand; }
-            set
+            var count = 0;
+            var value = Path.Combine(WorkingFolderName, $"part_{count}.mkv");
+            while (File.Exists(value))
             {
-                _pauseButtonCommand = value;
-                OnPropertyChanged();
+                count++;
+                value = Path.Combine(WorkingFolderName, $"part_{count}.mkv");
+                Thread.Sleep(5);
             }
+
+            return value;
         }
+
+        private void DoPause()
+        {
+            Paused = !Paused;
+        }
+
+        public Brush RecordButtonForeground => Recording ? new SolidColorBrush(Colors.Black) : new SolidColorBrush(Colors.Red);
+        public Brush RecordButtonBackground => Recording ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.LightGray);
 
         public string RecordingButtonLabel => Recording ? "<" : "=";
 
@@ -57,6 +122,9 @@ namespace Recorder
                 _recording = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(RecordingButtonLabel));
+                OnPropertyChanged(nameof(RecordButtonBackground));
+                OnPropertyChanged(nameof(RecordButtonForeground));
+                OnPropertyChanged(nameof(LockInputs));
             }
         }
 
@@ -66,13 +134,14 @@ namespace Recorder
             set { _paused = value; OnPropertyChanged(); }
         }
 
-        public string BarCode
+        public string Barcode
         {
             get { return _barcode; }
             set
             {
                 _barcode = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(RecordButtonCommand));
             }
         }
 
@@ -92,59 +161,6 @@ namespace Recorder
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            //PauseButtonCommand.CanExecuteChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    }
-
-
-    public class PauseCommand : ICommand, INotifyPropertyChanged
-    {
-
-        private readonly ViewModel _viewModel;
-
-        public PauseCommand(ViewModel viewModel)
-        {
-            _viewModel = viewModel;
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return _viewModel.Recording;
-        }
-
-        public void Execute(object parameter)
-        {
-            _viewModel.Paused = !_viewModel.Paused;
-        }
-
-        public event EventHandler CanExecuteChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-    public class RecordCommand : ICommand
-    {
-        private readonly ViewModel _viewModel;
-
-        public RecordCommand(ViewModel viewModel)
-        {
-            _viewModel = viewModel;
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return _viewModel.Paused == false;
-        }
-
-        public void Execute(object parameter)
-        {
-            _viewModel.Recording = !_viewModel.Recording;
-        }
-
-        public event EventHandler CanExecuteChanged;
     }
 }

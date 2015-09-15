@@ -88,6 +88,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\ProgramSettings.cs" />
+    <Compile Include="RegExValidationRule.cs" />
+    <Compile Include="RelayCommand.cs" />
     <Compile Include="ViewModel.cs" />
     <Page Include="UserControls.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -18,12 +18,23 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <xctk:WatermarkTextBox Watermark="Barcode"  HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,8,0" Grid.Column="0"></xctk:WatermarkTextBox>
-            <xctk:IntegerUpDown Grid.Column="1" Increment="1" Minimum="1" Maximum="4" VerticalAlignment="Center" Padding="4" Watermark="Part" Width="100" HorizontalAlignment="Right" HorizontalContentAlignment="Right" />
+            <xctk:WatermarkTextBox 
+                Watermark="Barcode" 
+                HorizontalContentAlignment="Stretch" 
+                HorizontalAlignment="Stretch" 
+                Margin="0,0,8,0" Grid.Column="0" IsEnabled="{Binding LockInputs}" >
+                <Binding Path="Barcode" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <local:BarcodeValidationRule></local:BarcodeValidationRule>
+                    </Binding.ValidationRules>
+                </Binding>
+                
+            </xctk:WatermarkTextBox>
+            <xctk:IntegerUpDown IsEnabled="{Binding LockInputs}" Grid.Column="1" Increment="1" Minimum="1" Maximum="4" VerticalAlignment="Center" Padding="4" Watermark="Part" Width="100"  Text="{Binding Part, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" HorizontalContentAlignment="Right" />
         </Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" >
-            <Button Name="RecordButton" FontFamily="Webdings" FontSize="48" Width="56" Height="56" Margin="12,12,12,12" Command="{Binding RecordButtonCommand}"><TextBlock Text="{Binding RecordingButtonLabel}"></TextBlock></Button>
-            <Button Name="PauseButton" FontFamily="Webdings" FontSize="48" Width="56" Height="56" Margin="12,12,12,12" Command="{Binding PauseButtonCommand}">;</Button>
+            <Button Name="RecordButton" FontFamily="Webdings" Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="48" Width="56" Height="56" Margin="12,12,12,12" Command="{Binding RecordButtonCommand}"><TextBlock Text="{Binding RecordingButtonLabel}"></TextBlock></Button>
+            <Button Name="PauseButton" FontFamily="Webdings" Cursor="Hand" FontSize="48" Width="56" Height="56" Margin="12,12,12,12" Command="{Binding PauseButtonCommand}">;</Button>
         </StackPanel>
 
 

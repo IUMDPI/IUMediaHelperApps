@@ -1,6 +1,8 @@
 ﻿using System.Configuration;
 using System.Windows;
 using Recorder.Models;
+using Recorder.Utilities;
+using Recorder.ViewModels;
 
 namespace Recorder
 {
@@ -9,15 +11,22 @@ namespace Recorder
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
+        private void InitializeApplication(object sender, StartupEventArgs e)
         {
-            base.OnStartup(e);
-
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
 
-            var viewModel = new ViewModel(programSettings);
+            var recorder = new RecordingEngine(programSettings)
+            {
+                Part = 1,
+                FileUse = "pres"
+            };
 
-            var userControls = new UserControls {DataContext = viewModel};
+            var viewModel = new UserControlsViewModel(programSettings, recorder);
+
+            var userControls = new UserControls
+            {
+                DataContext = viewModel,
+            };
 
             userControls.Show();
         }

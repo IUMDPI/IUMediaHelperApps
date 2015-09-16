@@ -87,10 +87,52 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\ActionPanel.xaml.cs">
+      <DependentUpon>ActionPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\BarcodePanel.xaml.cs">
+      <DependentUpon>BarcodePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FinishPanel.xaml.cs">
+      <DependentUpon>FinishPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\NavigationPanel.xaml.cs">
+      <DependentUpon>NavigationPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RecordPanel.xaml.cs">
+      <DependentUpon>RecordPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\EmptyToVisibilityConverter.cs" />
+    <Compile Include="Enums\FileUses.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
-    <Compile Include="RegExValidationRule.cs" />
     <Compile Include="RelayCommand.cs" />
-    <Compile Include="ViewModel.cs" />
+    <Compile Include="Utilities\RecordingEngine.cs" />
+    <Compile Include="ViewModels\UserControlsViewModel.cs" />
+    <Compile Include="ViewModels\AbstractPanelViewModel.cs" />
+    <Compile Include="ViewModels\ActionPanelViewModel.cs" />
+    <Compile Include="ViewModels\FinishPanelViewModel.cs" />
+    <Compile Include="ViewModels\RecordPanelViewModel.cs" />
+    <Compile Include="ViewModels\BarcodePanelViewModel.cs" />
+    <Page Include="Controls\ActionPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\BarcodePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\FinishPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\NavigationPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RecordPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -130,7 +172,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

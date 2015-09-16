@@ -16,7 +16,7 @@ namespace Recorder.Models
     {
         public ProgramSettings(NameValueCollection settings)
         {
-            ProjectCode = settings["ProjectCode"];
+            ProjectCode = settings["ProjectCode"].ToUpperInvariant();
             PathToFFMPEG = settings["PathToFFMPEG"];
             OutputFolder = settings["OutputDirectoryName"];
             FFMPEGArguments = settings["FFMPEGArguments"];

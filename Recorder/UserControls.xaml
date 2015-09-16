@@ -5,15 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Recorder"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:controls="clr-namespace:Recorder.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="301" Width="434" ResizeMode="CanMinimize" FontSize="14" >
+        Title="{Binding Title}" Height="545" Width="455" ResizeMode="CanMinimize" FontSize="14" Background="White" >
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="8,12,8,12" VerticalAlignment="Center">
+        <DockPanel Margin="0">
+            <controls:ActionPanel DockPanel.Dock="Top" DataContext="{Binding ActionPanelViewModel}" Background="LightBlue"></controls:ActionPanel>
+            <Label DockPanel.Dock="Top" Background="LightBlue" Padding="20,6,20,20">
+                <TextBlock TextWrapping="Wrap" Text="{Binding Instructions}" DataContext="{Binding ActivePanelModel}"></TextBlock>
+            </Label>
+            <controls:BarcodePanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding BarcodePanelViewModel}"></controls:BarcodePanel>
+            <controls:RecordPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding RecordPanelViewModel}"></controls:RecordPanel>
+            <controls:FinishPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding FinishPanelViewModel}"></controls:FinishPanel>
+            <controls:NavigationPanel DockPanel.Dock="Bottom" Padding="12" DataContext="{Binding ActivePanelModel}" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Background="LightBlue"></controls:NavigationPanel>
+        </DockPanel>
+        
+        <!--<Grid Grid.Row="1" Margin="8,12,8,12" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -31,11 +38,11 @@
                 
             </xctk:WatermarkTextBox>
             <xctk:IntegerUpDown IsEnabled="{Binding LockInputs}" Grid.Column="1" Increment="1" Minimum="1" Maximum="4" VerticalAlignment="Center" Padding="4" Watermark="Part" Width="100"  Text="{Binding Part, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" HorizontalContentAlignment="Right" />
-        </Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" >
+        </Grid>-->
+        <!-- <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" >
             <Button Name="RecordButton" FontFamily="Webdings" Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="48" Width="56" Height="56" Margin="12,12,12,12" Command="{Binding RecordButtonCommand}"><TextBlock Text="{Binding RecordingButtonLabel}"></TextBlock></Button>
             <Button Name="PauseButton" FontFamily="Webdings" Cursor="Hand" FontSize="48" Width="56" Height="56" Margin="12,12,12,12" Command="{Binding PauseButtonCommand}">;</Button>
-        </StackPanel>
+        </StackPanel>-->
 
 
 

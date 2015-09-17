@@ -15,13 +15,16 @@ namespace Recorder
         {
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
 
-            var recorder = new RecordingEngine(programSettings)
+            var objectModel = new ObjectModel(programSettings)
             {
                 Part = 1,
                 FileUse = "pres"
             };
 
-            var viewModel = new UserControlsViewModel(programSettings, recorder);
+            var recorder = new RecordingEngine(programSettings, objectModel);
+            var combiner = new CombiningEngine(programSettings, objectModel);
+
+            var viewModel = new UserControlsViewModel(programSettings, objectModel, recorder, combiner);
 
             var userControls = new UserControls
             {

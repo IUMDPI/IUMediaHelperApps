@@ -2,78 +2,29 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading;
 using System.Windows.Controls;
+using Microsoft.VisualBasic.FileIO;
 using Recorder.Models;
+using Recorder.Receivers;
 
 namespace Recorder.Utilities
 {
-    public class RecordingEngine:IDisposable
+    public class RecordingEngine : AbstractEngine
     {
-        private readonly Process _process;
-
-        private readonly Regex _barcodeExpression = new Regex(@"^\d{14,14}$");
-
-        public RecordingEngine(ProgramSettings settings)
+        public RecordingEngine(ProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
         {
-            Settings = settings;
             Recording = false;
-
-            FileUses = new List<Tuple<string, string>>
-            {
-                new Tuple<string, string>("Preservation", "pres"),
-                new Tuple<string, string>("Preservation-Intermediate", "pres-int"),
-                new Tuple<string, string>("Production", "prod")
-            };
-
-            _process = new Process
-            {
-                StartInfo = new ProcessStartInfo(Settings.PathToFFMPEG)
-                {
-                    UseShellExecute = false,
-                    RedirectStandardInput = true
-                }
-            };
-
         }
 
-        private ProgramSettings Settings { get; }
-
-        public List<Tuple<string, string>> FileUses { get; private set; }
-
-        public bool Recording { get; private set; }
-        public string Barcode { get; set; }
-        public int Part { get; set; }
-
-        public string ProjectCode => Settings.ProjectCode;
-
-        public string FileUse { get; set; }
-
-        public string Filename => FilePartsValid().IsValid
-            ? string.Format($"{ProjectCode}_{Barcode}_{Part:d2}_{FileUse}.mkv")
-            : string.Empty;
-
-        public ValidationResult FilePartsValid()
+        public void InitializeTimestampDelegate(OutputReceivedHandler.TimestampDelegate @delegate)
         {
-            if (BarcodeValid() == false)
-            {
-                return new ValidationResult(false, "invalid barcode");
-            }
-
-            if (PartValid() == false)
-            {
-                return new ValidationResult(false, "invalid part");
-            }
-
-            if (FileUseValid() == false)
-            {
-                return new ValidationResult(false, "invaid file use");
-            }
-
-            return new ValidationResult(true, "");
+            Process.ErrorDataReceived += new OutputReceivedHandler(@delegate).OnDataReceived;
+            Process.OutputDataReceived += new OutputReceivedHandler(@delegate).OnDataReceived;
         }
+        
+        public bool Recording { get; private set; }
 
         public ValidationResult OkToRecord()
         {
@@ -92,22 +43,7 @@ namespace Recorder.Utilities
                 return new ValidationResult(false, "output folder does not exist");
             }
 
-            return FilePartsValid();
-        }
-
-        private bool BarcodeValid()
-        {
-            return !string.IsNullOrWhiteSpace(Barcode) && _barcodeExpression.IsMatch(Barcode);
-        }
-
-        private bool PartValid()
-        {
-            return Part >= 1 && Part <= 5;
-        }
-
-        private bool FileUseValid()
-        {
-            return string.IsNullOrWhiteSpace(FileUse) == false;
+            return ObjectModel.FilePartsValid();
         }
 
         private void StartRecording()
@@ -119,14 +55,18 @@ namespace Recorder.Utilities
 
             Recording = true;
 
-            if (!Directory.Exists(WorkingFolderPath))
+            if (!Directory.Exists(ObjectModel.WorkingFolderPath))
             {
-                Directory.CreateDirectory(WorkingFolderPath);
+                Directory.CreateDirectory(ObjectModel.WorkingFolderPath);
             }
 
-            _process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} \"{GetNewPart()}\"";
-                
-            _process.Start();
+            var part = GetNewPart();
+
+            Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} -vstats_file {GetTargetVstatFileName(part)} {GetTargetPartFilename(part)}";
+            Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
+            Process.Start();
+            Process.BeginErrorReadLine();
+            Process.BeginOutputReadLine();
         }
 
         public Action GetRecordingMethod()
@@ -146,41 +86,52 @@ namespace Recorder.Utilities
                 return;
             }
 
-            _process.StandardInput.WriteLine('q');
+            Process.StandardInput.WriteLine('q');
+            Process.CancelErrorRead();
+            Process.CancelOutputRead();           
             Recording = false;
         }
 
-        private string WorkingFolderName => $"{ProjectCode}_{Barcode}";
+        public void ClearExistingParts()
+        {
+            foreach (var file in Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.mkv"))
+            {
+                FileSystem.DeleteFile(file, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
+            }
 
-        private string WorkingFolderPath => Path.Combine(Settings.WorkingFolder, WorkingFolderName);
+            foreach (var file in Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.log"))
+            {
+                FileSystem.DeleteFile(file, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
+            }
+        }
 
-        private string GetNewPart()
+        private int GetNewPart()
         {
             var count = 0;
-            var value = Path.Combine(WorkingFolderPath, $"part_{count}.mkv");
-            while (File.Exists(value))
+            string value;
+            do
             {
                 count++;
-                value = Path.Combine(WorkingFolderPath, $"part_{count}.mkv");
+                value = GetTargetPartFilename(count);
                 Thread.Sleep(5);
-            }
+            } while (File.Exists(Path.Combine(ObjectModel.WorkingFolderPath, value)));
+            
 
-            return value;
+            return count;
         }
 
-        public bool PartsPresent()
+
+        private string GetTargetPartFilename(int part)
         {
-            if (!Directory.Exists(WorkingFolderPath))
-            {
-                return false;
-            }
-
-            return Directory.EnumerateFiles(WorkingFolderPath, "*.mkv").Any();
+            return  $"{ObjectModel.ProjectCode}_{ObjectModel.Barcode}_part_{part:d5}.mkv";
         }
 
-        public void Dispose()
+        private string GetTargetVstatFileName(int part)
         {
-            _process?.Dispose();
+            return $"{ObjectModel.ProjectCode}_{ObjectModel.Barcode}_vstat_{part:d5}.log";
         }
+        
     }
+
+
 }

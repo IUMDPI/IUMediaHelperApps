@@ -38,10 +38,15 @@
     <StartupObject>Recorder.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FontAwesome.WPF, Version=4.3.0.35981, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FontAwesome.WPF.4.4.0.5\lib\FontAwesome.WPF.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="JetBrains.Annotations, Version=9.2.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.9.2.0\lib\net20\JetBrains.Annotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -104,8 +109,12 @@
     </Compile>
     <Compile Include="Converters\EmptyToVisibilityConverter.cs" />
     <Compile Include="Enums\FileUses.cs" />
+    <Compile Include="Models\ObjectModel.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
+    <Compile Include="Receivers\OutputReceivedHandler.cs" />
     <Compile Include="RelayCommand.cs" />
+    <Compile Include="Utilities\AbstractEngine.cs" />
+    <Compile Include="Utilities\CombiningEngine.cs" />
     <Compile Include="Utilities\RecordingEngine.cs" />
     <Compile Include="ViewModels\UserControlsViewModel.cs" />
     <Compile Include="ViewModels\AbstractPanelViewModel.cs" />

@@ -15,15 +15,15 @@ namespace Recorder.ViewModels
 
         private readonly IProgramSettings _settings;
 
-        public UserControlsViewModel(IProgramSettings settings, RecordingEngine recorder)
+        public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel, RecordingEngine recorder, CombiningEngine combiner)
         {
             _settings = settings;
 
             _panels = new List<AbstractPanelViewModel>
             {
-                new BarcodePanelViewModel(this, recorder, _settings.ProjectCode) {Visibility = Visibility.Visible},
-                new RecordPanelViewModel(this, recorder) {Visibility = Visibility.Collapsed},
-                new FinishPanelViewModel(this, recorder) {Visibility = Visibility.Collapsed}
+                new BarcodePanelViewModel(this, objectModel, _settings.ProjectCode) {Visibility = Visibility.Visible},
+                new RecordPanelViewModel(this, objectModel, recorder) {Visibility = Visibility.Collapsed},
+                new FinishPanelViewModel(this, objectModel, combiner) {Visibility = Visibility.Collapsed}
             };
             ActionPanelViewModel = new ActionPanelViewModel(this);
         }

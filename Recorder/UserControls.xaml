@@ -14,10 +14,10 @@
             <Label DockPanel.Dock="Top" Background="LightBlue" Padding="20,6,20,20">
                 <TextBlock TextWrapping="Wrap" Text="{Binding Instructions}" DataContext="{Binding ActivePanelModel}"></TextBlock>
             </Label>
-            <controls:BarcodePanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding BarcodePanelViewModel}"></controls:BarcodePanel>
-            <controls:RecordPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding RecordPanelViewModel}"></controls:RecordPanel>
-            <controls:FinishPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding FinishPanelViewModel}"></controls:FinishPanel>
-            <controls:NavigationPanel DockPanel.Dock="Bottom" Padding="12" DataContext="{Binding ActivePanelModel}" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Background="LightBlue"></controls:NavigationPanel>
+            <controls:BarcodePanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding BarcodePanelViewModel}" />
+            <controls:RecordPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding RecordPanelViewModel}" />
+            <controls:FinishPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding FinishPanelViewModel}" />
+            <controls:NavigationPanel DockPanel.Dock="Bottom" Padding="12" DataContext="{Binding ActivePanelModel}" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Background="LightBlue" />
         </DockPanel>
         
         <!--<Grid Grid.Row="1" Margin="8,12,8,12" VerticalAlignment="Center">

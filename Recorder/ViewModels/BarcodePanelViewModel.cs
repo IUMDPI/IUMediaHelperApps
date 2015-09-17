@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using Recorder.Models;
 using Recorder.Utilities;
 
 namespace Recorder.ViewModels
@@ -10,34 +11,36 @@ namespace Recorder.ViewModels
     {
         private ICommand _nextCommand;
 
-        public BarcodePanelViewModel(UserControlsViewModel parent, RecordingEngine recorder, string projectCode) : base(parent, recorder)
+        public BarcodePanelViewModel(UserControlsViewModel parent, ObjectModel objectModel, string projectCode) : base(parent, objectModel)
         {
+            ObjectModel = objectModel;
             ProjectCode = projectCode;
             Part = 1;
             FileUse = FileUses.First().Item2;
             Touched = false;
         }
 
+        private ObjectModel ObjectModel { get; set; }
         private string ProjectCode { get; }
 
-        public string Filename => Recorder.Filename;
+        public string Filename => ObjectModel.Filename;
 
         public string FileUse
         {
-            get { return Recorder.FileUse; }
+            get { return ObjectModel.FileUse; }
             set
             {
-                FlagTouched(Recorder.FileUse, value);
-                Recorder.FileUse = value;
+                FlagTouched(ObjectModel.FileUse, value);
+                ObjectModel.FileUse = value;
                 OnPropertyChanged();
             }
         }
 
-        public string FilenameIssue => Recorder.FilePartsValid().IsValid == false
-            ? Recorder.FilePartsValid().ErrorContent.ToString()
+        public string FilenameIssue => ObjectModel.FilePartsValid().IsValid == false
+            ? ObjectModel.FilePartsValid().ErrorContent.ToString()
             : string.Empty;
 
-        public List<Tuple<string, string>> FileUses => Recorder.FileUses;
+        public List<Tuple<string, string>> FileUses => ObjectModel.FileUses;
 
         public override string BackButtonText => "";
         public override string NextButtonText => "Start recording";
@@ -56,22 +59,22 @@ namespace Recorder.ViewModels
 
         public string Barcode
         {
-            get { return Recorder.Barcode; }
+            get { return ObjectModel.Barcode; }
             set
             {
-                FlagTouched(Recorder.Barcode, value);
-                Recorder.Barcode = value;
+                FlagTouched(ObjectModel.Barcode, value);
+                ObjectModel.Barcode = value;
                 OnPropertyChanged();
             }
         }
 
         public int Part
         {
-            get { return Recorder.Part; }
+            get { return ObjectModel.Part; }
             set
             {
-                FlagTouched(Recorder.Part, value);
-                Recorder.Part = value;
+                FlagTouched(ObjectModel.Part, value);
+                ObjectModel.Part = value;
                 OnPropertyChanged();
             }
         }

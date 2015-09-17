@@ -1,14 +1,18 @@
 ﻿using System.Windows.Input;
+using Recorder.Models;
 using Recorder.Utilities;
 
 namespace Recorder.ViewModels
 {
     public class FinishPanelViewModel : AbstractPanelViewModel
     {
+        private CombiningEngine Combiner { get; set; }
         private ICommand _backCommand;
+        private ICommand _combineCommand;
 
-        public FinishPanelViewModel(UserControlsViewModel parent, RecordingEngine recorder) : base(parent, recorder)
+        public FinishPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel, CombiningEngine combiner) : base(parent, objectModel)
         {
+            Combiner = combiner;
         }
 
         public override string BackButtonText => "Continue recording";
@@ -23,6 +27,21 @@ namespace Recorder.ViewModels
                 return _backCommand
                        ?? (_backCommand = new RelayCommand(param => Parent.ShowPanel<RecordPanelViewModel>()));
             }
+        }
+        
+        public ICommand CombineCommand
+        {
+            get
+            {
+                return _combineCommand
+                       ?? (_combineCommand = new RelayCommand(param => DoCombine(), param=>Combiner.OkToCombine().IsValid));
+            }
+        }
+
+        private void DoCombine()
+        {
+            Combiner.Combine();
+            OnPropertyChanged(nameof(CombineCommand));
         }
     }
 }

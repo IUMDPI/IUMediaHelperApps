@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using JetBrains.Annotations;
+using Recorder.Models;
 using Recorder.Utilities;
 
 namespace Recorder.ViewModels
@@ -12,13 +13,16 @@ namespace Recorder.ViewModels
         private bool _touched;
         private Visibility _visibility;
 
-        protected RecordingEngine Recorder { get; private set; }
+        
 
-        protected AbstractPanelViewModel(UserControlsViewModel parent, RecordingEngine recorder)
+        protected AbstractPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel)
         {
             Parent = parent;
-            Recorder = recorder;
+            ObjectModel = objectModel;
+
         }
+
+        protected ObjectModel ObjectModel { get; set; }
 
         protected UserControlsViewModel Parent { get; set; }
 

@@ -8,11 +8,23 @@
              d:DesignHeight="300" d:DesignWidth="300"
              Visibility="{Binding Visibility}">
     <Grid>
-        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-            <Button FontFamily="Webdings" Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="64" Width="72" Height="72" Margin="12,12,12,12" Command="{Binding RecordCommand}">
+        <DockPanel VerticalAlignment="Stretch">
+            <Label DockPanel.Dock="Top"  VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding ShowClear, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Hyperlink Command="{Binding ClearCommand}">Clear existing parts</Hyperlink>
+            </Label>
+            <Button DockPanel.Dock="Top" FontFamily="Webdings" Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="64" Width="72" Height="72" Margin="12,12,12,12" Command="{Binding RecordCommand}">
                 <TextBlock Text="{Binding RecordButtonLabel}"></TextBlock>
             </Button>
-            <Label HorizontalContentAlignment="Center"><TextBlock Text="{Binding RecordCaption}" /></Label>
-        </StackPanel>
+            <Label DockPanel.Dock="Top" HorizontalContentAlignment="Center">
+                <TextBlock Text="{Binding RecordCaption}" />
+            </Label>
+            <Label DockPanel.Dock="Bottom">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>Timestamp</TextBlock>
+                    <TextBlock Text="{Binding Timestamp}" />
+                </StackPanel>
+
+            </Label>
+        </DockPanel>
     </Grid>
 </UserControl>

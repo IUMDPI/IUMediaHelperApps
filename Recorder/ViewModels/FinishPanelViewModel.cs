@@ -15,6 +15,10 @@ namespace Recorder.ViewModels
             Combiner = combiner;
         }
 
+        public override void Initialize()
+        {
+        }
+
         public override string BackButtonText => "Continue recording";
         public override string NextButtonText => "";
         public override string Instructions => "Click finalize to generate your file and move it to the output folder";

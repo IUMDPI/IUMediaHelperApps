@@ -5,6 +5,8 @@
              Startup="InitializeApplication">
     <Application.Resources>
         <converters:NullOrEmptyToVisibilityConverter x:Key="EmptyToVisibilityConverter" />
+        <converters:TimespanToStringConverter x:Key="TimespanToStringConverter" />
+        
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <TextDecorationCollection x:Key="TextBlockDecorationsCollection">

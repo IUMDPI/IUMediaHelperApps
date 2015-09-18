@@ -40,6 +40,8 @@ namespace Recorder.Models
         public string OutputFolder => Path.Combine(Settings.OutputFolder, WorkingFolderName);
         public string OutputFile => Path.Combine(OutputFolder, Filename);
 
+        public string ExistingPartsMask => $"{ProjectCode}_{Barcode}_part_*.mkv";
+
         public ValidationResult FilePartsValid()
         {
             if (BarcodeValid() == false)
@@ -78,7 +80,13 @@ namespace Recorder.Models
         public bool PartsPresent()
         {
             return Directory.Exists(WorkingFolderPath)
-                   && Directory.EnumerateFiles(WorkingFolderPath, "*.mkv").Any();
+                   && Directory.EnumerateFiles(WorkingFolderPath, ExistingPartsMask).Any();
+        }
+
+        public bool MultiplePartsPresent()
+        {
+            return Directory.Exists(WorkingFolderPath)
+                   && Directory.EnumerateFiles(WorkingFolderPath, ExistingPartsMask).Count()>1;
         }
     }
 }

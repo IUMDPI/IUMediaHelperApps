@@ -8,23 +8,26 @@
              d:DesignHeight="300" d:DesignWidth="300"
              Visibility="{Binding Visibility}">
     <Grid>
-        <DockPanel VerticalAlignment="Stretch">
-            <Label DockPanel.Dock="Top"  VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding ShowClear, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Hyperlink Command="{Binding ClearCommand}">Clear existing parts</Hyperlink>
-            </Label>
-            <Button DockPanel.Dock="Top" FontFamily="Webdings" Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="64" Width="72" Height="72" Margin="12,12,12,12" Command="{Binding RecordCommand}">
+        <StackPanel VerticalAlignment="Stretch">
+            <Button FontFamily="Webdings"  Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="64" Width="72" Height="72" Margin="0,36,0,0" Command="{Binding RecordCommand}">
                 <TextBlock Text="{Binding RecordButtonLabel}"></TextBlock>
             </Button>
-            <Label DockPanel.Dock="Top" HorizontalContentAlignment="Center">
+            <Label  HorizontalContentAlignment="Center">
                 <TextBlock Text="{Binding RecordCaption}" />
             </Label>
-            <Label DockPanel.Dock="Bottom">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock>Timestamp</TextBlock>
-                    <TextBlock Text="{Binding Timestamp}" />
-                </StackPanel>
-
+            <Label HorizontalContentAlignment="Center" FontSize="36" Margin="0,12,0,0" Padding="0">
+                <TextBlock Text="{Binding CumulativeTimestamp, Converter={StaticResource TimespanToStringConverter}}" />
             </Label>
-        </DockPanel>
+            <Label HorizontalContentAlignment="Center" Margin="0" Padding="0" FontSize="20" Visibility="{Binding ShowPartTimestamp, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding PartTimestamp, Converter={StaticResource TimespanToStringConverter}}" />
+            </Label>
+            <Label HorizontalAlignment="Center" Visibility="{Binding ShowClear, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock>
+                    <TextBlock Margin="0" Padding="0">(</TextBlock>
+                    <Hyperlink Command="{Binding ClearCommand}">clear</Hyperlink>
+                    <TextBlock Margin="0" Padding="0">)</TextBlock>
+                </TextBlock>
+            </Label>
+        </StackPanel>
     </Grid>
 </UserControl>

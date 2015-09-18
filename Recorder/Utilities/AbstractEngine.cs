@@ -1,10 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Recorder.Models;
 
 namespace Recorder.Utilities
 {
-    public abstract class AbstractEngine : IDisposable
+    public abstract class AbstractEngine : IDisposable, INotifyPropertyChanged
     {
         protected readonly Process Process;
 
@@ -21,8 +24,9 @@ namespace Recorder.Utilities
                     RedirectStandardInput = true,
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
+                    CreateNoWindow = true,
+                },
+                EnableRaisingEvents = true
             };
         }
 
@@ -32,6 +36,14 @@ namespace Recorder.Utilities
         public virtual void Dispose()
         {
             Process?.Dispose();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

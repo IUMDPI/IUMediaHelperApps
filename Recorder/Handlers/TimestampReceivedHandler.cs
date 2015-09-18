@@ -1,21 +1,24 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text;
 using System.Text.RegularExpressions;
+using Recorder.Utilities;
 
-namespace Recorder.Receivers
+namespace Recorder.Handlers
 {
-    public class OutputReceivedHandler
+    public class TimestampReceivedHandler:AbstractRecordingHandler
     {
-        private readonly TimestampDelegate _timestampDelegate;
-
         private readonly Regex _timestampExpression = new Regex(@"time=(\d{2}:\d{2}:\d{2}\.\d{2})");
 
         public delegate void TimestampDelegate(TimeSpan timeSpan);
 
-        public OutputReceivedHandler(TimestampDelegate @delegate)
+        public TimestampReceivedHandler(RecordingEngine recorder) : base(recorder)
         {
-            _timestampDelegate = @delegate;
+         
+        }
+
+        public void Reset()
+        {
+            Recorder.OnTimestampUpdated(new TimeSpan());
         }
 
         public void OnDataReceived(object sender, DataReceivedEventArgs args)
@@ -24,7 +27,7 @@ namespace Recorder.Receivers
             {
                 return;
             }
-
+            
             var match = _timestampExpression.Match(args.Data);
             if (match.Success == false)
             {
@@ -37,7 +40,7 @@ namespace Recorder.Receivers
                 return;
             }
 
-            _timestampDelegate(timeSpan);
+            Recorder.OnTimestampUpdated(timeSpan);
         }
     }
 }

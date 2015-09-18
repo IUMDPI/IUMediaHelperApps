@@ -12,9 +12,9 @@ namespace Recorder.ViewModels
     {
         private bool _touched;
         private Visibility _visibility;
-
         
-
+        public abstract void Initialize();
+        
         protected AbstractPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel)
         {
             Parent = parent;

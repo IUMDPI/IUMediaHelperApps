@@ -164,6 +164,7 @@ namespace Recorder.ViewModels
         {
             foreach (var panel in _panels)
             {
+                panel.Initialize();
                 panel.Visibility = panel.GetType() == typeof (T) ? Visibility.Visible : Visibility.Collapsed;
             }
             OnPropertyChanged(nameof(ActivePanelModel));

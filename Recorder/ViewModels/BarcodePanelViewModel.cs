@@ -20,6 +20,10 @@ namespace Recorder.ViewModels
             Touched = false;
         }
 
+        public override void Initialize()
+        {
+        }
+
         private ObjectModel ObjectModel { get; set; }
         private string ProjectCode { get; }
 

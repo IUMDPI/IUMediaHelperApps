@@ -1,30 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.WindowsAPICodePack.Shell;
+using Recorder.Handlers;
 using Recorder.Models;
-using Recorder.Receivers;
 
 namespace Recorder.Utilities
 {
     public class RecordingEngine : AbstractEngine
     {
+        private bool _recording;
+
         public RecordingEngine(ProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
         {
             Recording = false;
+            CumulativeTimeSpan = new TimeSpan();
+            Process.Exited += new ProcessExitHandler(this).OnExitHandler;
+            TimestampHandler = new TimestampReceivedHandler(this);
+            Process.ErrorDataReceived += TimestampHandler.OnDataReceived;
+            Process.OutputDataReceived += TimestampHandler.OnDataReceived;
         }
 
-        public void InitializeTimestampDelegate(OutputReceivedHandler.TimestampDelegate @delegate)
+
+        private TimestampReceivedHandler TimestampHandler { get; }
+
+        public bool Recording
         {
-            Process.ErrorDataReceived += new OutputReceivedHandler(@delegate).OnDataReceived;
-            Process.OutputDataReceived += new OutputReceivedHandler(@delegate).OnDataReceived;
+            get { return _recording; }
+            set
+            {
+                if (!value && _recording)
+                {
+                    Process.CancelOutputRead();
+                    Process.CancelErrorRead();
+                }
+
+                _recording = value;
+
+                OnPropertyChanged();
+            }
         }
-        
-        public bool Recording { get; private set; }
+
+        public TimeSpan CumulativeTimeSpan { get; private set; }
+        public event EventHandler<TimeSpan> TimestampUpdated;
 
         public ValidationResult OkToRecord()
         {
@@ -55,6 +77,7 @@ namespace Recorder.Utilities
 
             Recording = true;
 
+
             if (!Directory.Exists(ObjectModel.WorkingFolderPath))
             {
                 Directory.CreateDirectory(ObjectModel.WorkingFolderPath);
@@ -62,9 +85,14 @@ namespace Recorder.Utilities
 
             var part = GetNewPart();
 
-            Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} -vstats_file {GetTargetVstatFileName(part)} {GetTargetPartFilename(part)}";
+            CumulativeTimeSpan = GetDurationOfExistingParts();
+            TimestampHandler.Reset();
+
+            Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
+
             Process.Start();
+
             Process.BeginErrorReadLine();
             Process.BeginOutputReadLine();
         }
@@ -87,19 +115,30 @@ namespace Recorder.Utilities
             }
 
             Process.StandardInput.WriteLine('q');
+        }
+
+        private void OnProcessExit()
+        {
+            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            {
+                Dispatcher.CurrentDispatcher.Invoke(OnProcessExit);
+                return;
+            }
+
+            Recording = false;
             Process.CancelErrorRead();
-            Process.CancelOutputRead();           
+            Process.CancelOutputRead();
             Recording = false;
         }
 
         public void ClearExistingParts()
         {
-            foreach (var file in Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.mkv"))
+            if (OkToRecord().IsValid == false)
             {
-                FileSystem.DeleteFile(file, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
+                return;
             }
 
-            foreach (var file in Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.log"))
+            foreach (var file in GetExistingParts())
             {
                 FileSystem.DeleteFile(file, UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
             }
@@ -115,23 +154,54 @@ namespace Recorder.Utilities
                 value = GetTargetPartFilename(count);
                 Thread.Sleep(5);
             } while (File.Exists(Path.Combine(ObjectModel.WorkingFolderPath, value)));
-            
+
 
             return count;
         }
 
+        private IEnumerable<string> GetExistingParts()
+        {
+            return Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, ObjectModel.ExistingPartsMask);
+        }
+
+        private TimeSpan GetDurationOfExistingParts()
+        {
+            if (OkToRecord().IsValid == false)
+            {
+                return new TimeSpan();
+            }
+
+            var result = new TimeSpan();
+            foreach (var part in GetExistingParts())
+            {
+                var item = ShellObject.FromParsingName(part).Properties.GetProperty<ulong?>("System.Media.Duration");
+                if (item == null)
+                {
+                    // what to do here
+                    continue;
+                }
+                result = result.Add(new TimeSpan(Convert.ToInt64(item.Value)));
+            }
+
+            return result;
+        }
+
+        public TimeSpan ResetCumulativeTimestamp()
+        {
+            CumulativeTimeSpan = GetDurationOfExistingParts();
+            return CumulativeTimeSpan;
+        }
 
         private string GetTargetPartFilename(int part)
         {
-            return  $"{ObjectModel.ProjectCode}_{ObjectModel.Barcode}_part_{part:d5}.mkv";
+            return $"{ObjectModel.ProjectCode}_{ObjectModel.Barcode}_part_{part:d5}.mkv";
         }
 
-        private string GetTargetVstatFileName(int part)
+        public virtual void OnTimestampUpdated(TimeSpan e)
         {
-            return $"{ObjectModel.ProjectCode}_{ObjectModel.Barcode}_vstat_{part:d5}.log";
+            TimestampUpdated?.Invoke(this, e);
         }
-        
+
+
     }
-
-
 }

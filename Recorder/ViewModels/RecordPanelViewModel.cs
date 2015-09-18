@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -10,23 +11,72 @@ namespace Recorder.ViewModels
 {
     public class RecordPanelViewModel : AbstractPanelViewModel
     {
-        private delegate void SetTimestamp(TimeSpan timestamp);
-
         private ICommand _backCommand;
         private ICommand _clearCommand;
         private ICommand _nextCommand;
+        private TimeSpan _partTimestamp;
         private ICommand _recordCommand;
-        private string _timestamp;
+        private TimeSpan _timestamp;
 
         public RecordPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel, RecordingEngine recorder) : base(parent, objectModel)
         {
             Recorder = recorder;
-            Recorder.InitializeTimestampDelegate( ChangeTimestamp);
+            PartTimestamp = new TimeSpan();
+            Recorder.TimestampUpdated += TimestampUpdatedHandler;
+            Recorder.PropertyChanged += RecorderPropertyChangedHandler;
         }
 
-        private RecordingEngine Recorder { get; set; }
+        private void RecorderPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        {
+            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            {
+                Dispatcher.CurrentDispatcher.Invoke(() => RecorderPropertyChangedHandler(sender, e));
+                return;
+            }
 
-        public bool ShowClear => ObjectModel.PartsPresent();
+            OnPropertyChanged(nameof(RecordCommand));
+        }
+
+        private void RecordingEndedHandler(object sender, EventArgs e)
+        {
+            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            {
+                Dispatcher.CurrentDispatcher.Invoke(() => RecordingEndedHandler(sender, e));
+                return;
+            }
+
+            OnPropertyChanged(nameof(RecordCommand));
+        }
+
+        private void TimestampUpdatedHandler(object sender, TimeSpan e)
+        {
+            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            {
+                Dispatcher.CurrentDispatcher.Invoke(() => TimestampUpdatedHandler(sender,e));
+                return;
+            }
+
+            var value = Recorder.CumulativeTimeSpan.Add(e);
+            CumulativeTimestamp = value;
+            PartTimestamp = e;
+        }
+
+        private RecordingEngine Recorder { get; }
+
+        public bool ShowClear => ObjectModel.PartsPresent() && !Recorder.Recording;
+
+        public bool ShowPartTimestamp => ObjectModel.MultiplePartsPresent();
+
+        public TimeSpan PartTimestamp
+        {
+            get { return _partTimestamp; }
+            set
+            {
+                Debug.WriteLine(value);
+                _partTimestamp = value;
+                OnPropertyChanged();
+            }
+        }
 
         public SolidColorBrush RecordButtonForeground => Recorder.Recording
             ? new SolidColorBrush(Colors.Black)
@@ -53,28 +103,20 @@ namespace Recorder.ViewModels
             }
         }
 
-        private void ChangeTimestamp(TimeSpan timestamp)
-        {
-            if (!Dispatcher.CurrentDispatcher.CheckAccess())
-            {
-                Dispatcher.CurrentDispatcher.Invoke(() => ChangeTimestamp(timestamp));
-                return;
-            }
-
-            Timestamp = timestamp.ToString();
-        }
-
-        public string Timestamp
+        public TimeSpan CumulativeTimestamp
         {
             get { return _timestamp; }
-            set { _timestamp = value; Debug.WriteLine(value); OnPropertyChanged(); }
+            set
+            {
+                _timestamp = value;
+                OnPropertyChanged();
+            }
         }
 
         public override string BackButtonText => "Create new object";
         public override string NextButtonText => "Generate single file";
 
-        public override string Instructions
-            => "Click record to start recording. You can stop and restart your recording as often as needed, and the parts will be assembled into a single file in the Finish step.";
+        public override string Instructions => "Click record to start recording.";
 
         public override ICommand NextCommand
         {
@@ -111,17 +153,28 @@ namespace Recorder.ViewModels
                     new RelayCommand(param => DoClearAction(), param => ShowClear));
             }
         }
+        
+        public override void Initialize()
+        {
+            if (Recorder.Recording)
+            {
+                return;
+            }
+
+            CumulativeTimestamp = Recorder.ResetCumulativeTimestamp();
+        }
 
         private void DoClearAction()
         {
             Recorder.ClearExistingParts();
+            CumulativeTimestamp = Recorder.ResetCumulativeTimestamp();
             OnPropertyChanged(nameof(ShowClear));
         }
 
         private void DoRecordAction()
         {
             Recorder.GetRecordingMethod().Invoke();
-            OnPropertyChanged(nameof(RecordCommand));
+            //OnPropertyChanged(nameof(RecordCommand));
         }
 
         protected override void OnPropertyChanged(string propertyName = null)
@@ -134,6 +187,9 @@ namespace Recorder.ViewModels
             base.OnPropertyChanged(nameof(RecordCaption));
             base.OnPropertyChanged(nameof(ClearCommand));
             base.OnPropertyChanged(nameof(ShowClear));
+            base.OnPropertyChanged(nameof(ShowPartTimestamp));
         }
+
+
     }
 }

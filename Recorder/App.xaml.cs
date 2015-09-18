@@ -11,6 +11,9 @@ namespace Recorder
     /// </summary>
     public partial class App : Application
     {
+        private RecordingEngine _recorder;
+        private CombiningEngine _combiner;
+
         private void InitializeApplication(object sender, StartupEventArgs e)
         {
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
@@ -21,10 +24,10 @@ namespace Recorder
                 FileUse = "pres"
             };
 
-            var recorder = new RecordingEngine(programSettings, objectModel);
-            var combiner = new CombiningEngine(programSettings, objectModel);
+            _recorder = new RecordingEngine(programSettings, objectModel);
+            _combiner = new CombiningEngine(programSettings, objectModel);
 
-            var viewModel = new UserControlsViewModel(programSettings, objectModel, recorder, combiner);
+            var viewModel = new UserControlsViewModel(programSettings, objectModel, _recorder, _combiner);
 
             var userControls = new UserControls
             {
@@ -32,6 +35,12 @@ namespace Recorder
             };
 
             userControls.Show();
+        }
+
+        private void ApplicationExitHandler(object sender, ExitEventArgs e)
+        {
+            _recorder?.Dispose();
+            _combiner?.Dispose();
         }
     }
 }

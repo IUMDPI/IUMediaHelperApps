@@ -19,7 +19,7 @@ namespace Recorder.Utilities
         {
             Recording = false;
             CumulativeTimeSpan = new TimeSpan();
-            Process.Exited += new ProcessExitHandler(this).OnExitHandler;
+            Process.Exited += ProcessExitHandler;
             TimestampHandler = new TimestampReceivedHandler(this);
             Process.ErrorDataReceived += TimestampHandler.OnDataReceived;
             Process.OutputDataReceived += TimestampHandler.OnDataReceived;
@@ -33,14 +33,7 @@ namespace Recorder.Utilities
             get { return _recording; }
             set
             {
-                if (!value && _recording)
-                {
-                    Process.CancelOutputRead();
-                    Process.CancelErrorRead();
-                }
-
                 _recording = value;
-
                 OnPropertyChanged();
             }
         }
@@ -89,6 +82,7 @@ namespace Recorder.Utilities
             TimestampHandler.Reset();
 
             Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
+            Process.StartInfo.EnvironmentVariables["FFREPORT"]=$"file={GetTargetPartLogFilename(part)}:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
 
             Process.Start();
@@ -117,15 +111,14 @@ namespace Recorder.Utilities
             Process.StandardInput.WriteLine('q');
         }
 
-        private void OnProcessExit()
+        private void ProcessExitHandler(object sender, EventArgs e)
         {
             if (!Dispatcher.CurrentDispatcher.CheckAccess())
             {
-                Dispatcher.CurrentDispatcher.Invoke(OnProcessExit);
+                Dispatcher.CurrentDispatcher.Invoke(() => ProcessExitHandler(sender, e));
                 return;
             }
 
-            Recording = false;
             Process.CancelErrorRead();
             Process.CancelOutputRead();
             Recording = false;
@@ -197,11 +190,21 @@ namespace Recorder.Utilities
             return $"{ObjectModel.ProjectCode}_{ObjectModel.Barcode}_part_{part:d5}.mkv";
         }
 
+
+        private string GetTargetPartLogFilename(int part)
+        {
+            return $"{ObjectModel.ProjectCode}_{ObjectModel.Barcode}_part_{part:d5}.log";
+        }
+
         public virtual void OnTimestampUpdated(TimeSpan e)
         {
             TimestampUpdated?.Invoke(this, e);
         }
 
-
+        public override void Dispose()
+        {
+            StopRecording();
+            base.Dispose();
+        }
     }
 }

@@ -19,4 +19,5 @@
 					should log generated checksum values
 1.6.0.0	09/09/2015	should clear all bext metadata fields before setting new values
 					should set bext metadata values via command-line, not xml
+1.7.0.0	09/18/2015	should escape single quotation characters when generating command-line for bwfmetaedit
 					

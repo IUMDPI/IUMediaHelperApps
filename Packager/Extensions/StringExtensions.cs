@@ -50,6 +50,17 @@ namespace Packager.Extensions
                 : Regex.Replace(value, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
         }
 
+        public static string NormalizeForCommandLine(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            return value.Replace(@"""", @"""""");
+
+        }
+
         public static string ToDefaultIfEmpty(this object value, string defaultValue = "")
         {
             if (value == null)

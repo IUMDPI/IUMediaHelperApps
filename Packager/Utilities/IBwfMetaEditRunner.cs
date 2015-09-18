@@ -75,7 +75,7 @@ namespace Packager.Utilities
             args.AddRange(core.GetType().GetProperties()
                 .Select(p => new Tuple<PropertyInfo, BextFieldAttribute>(p, p.GetCustomAttribute<BextFieldAttribute>()))
                 .Where(t => t.Item2 != null)
-                .Select(t => $"--{t.Item2.Field}={t.Item1.GetValue(core).ToDefaultIfEmpty().ToQuoted()}"));
+                .Select(t => $"--{t.Item2.Field}={t.Item1.GetValue(core).ToDefaultIfEmpty().NormalizeForCommandLine().ToQuoted()}"));
 
             args.Add(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()).ToQuoted());
 

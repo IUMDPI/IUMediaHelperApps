@@ -12,7 +12,8 @@ namespace Recorder.ViewModels
     {
         private bool _touched;
         private Visibility _visibility;
-        
+        private ActionButtonModel _buttonModel;
+
         public abstract void Initialize();
         
         protected AbstractPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel)
@@ -21,6 +22,10 @@ namespace Recorder.ViewModels
             ObjectModel = objectModel;
 
         }
+
+        protected RecordingEngine Recorder=> Parent.Recorder;
+
+        protected CombiningEngine Combiner => Parent.Combiner;
 
         protected ObjectModel ObjectModel { get; set; }
 
@@ -36,6 +41,8 @@ namespace Recorder.ViewModels
             }
         }
 
+        public abstract bool IsEnabled { get; }
+
         public abstract string BackButtonText { get; }
         public abstract string NextButtonText { get; }
         public abstract string Instructions { get; }
@@ -50,8 +57,18 @@ namespace Recorder.ViewModels
             set
             {
                 _visibility = value;
+
+                ActionButton.Opacity = _visibility == Visibility.Collapsed ? .5 : 1;
+
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsEnabled));
             }
+        }
+
+        public ActionButtonModel ActionButton
+        {
+            get { return _buttonModel;}
+            protected set { _buttonModel = value; OnPropertyChanged(); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

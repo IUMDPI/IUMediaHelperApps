@@ -6,19 +6,27 @@ namespace Recorder.ViewModels
 {
     public class FinishPanelViewModel : AbstractPanelViewModel
     {
-        private CombiningEngine Combiner { get; set; }
+       
         private ICommand _backCommand;
         private ICommand _combineCommand;
 
-        public FinishPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel, CombiningEngine combiner) : base(parent, objectModel)
+        public FinishPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel) : base(parent, objectModel)
         {
-            Combiner = combiner;
+       
+            ActionButton = new ActionButtonModel
+            {
+                ButtonCaption = "3",
+                LabelCaption = "Finish",
+                Scale = 1,
+                ButtonCommand = new RelayCommand(param => parent.ShowPanel<FinishPanelViewModel>())
+            };
         }
 
         public override void Initialize()
         {
         }
 
+        public override bool IsEnabled => Recorder.Recording == false && ObjectModel.PartsPresent();
         public override string BackButtonText => "Continue recording";
         public override string NextButtonText => "";
         public override string Instructions => "Click finalize to generate your file and move it to the output folder";

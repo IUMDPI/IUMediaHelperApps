@@ -9,12 +9,13 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              Visibility="{Binding Visibility}">
-    <Grid Margin="0,24,0,0">
+    <Grid Margin="0,24,0,0" IsEnabled="{Binding IsEnabled, FallbackValue=true}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -42,13 +43,11 @@
                   DisplayMemberPath="Item1"
                   SelectedValuePath="Item2"
                   SelectedValue="{Binding FileUse}" />
-        
-        <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" Margin="0,12,12,0">Filename</Label>
-        <Label Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Margin="0,12,0,0">
-            <TextBlock Text="{Binding Filename}" />
-        </Label>
-        <Label Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Margin="0,12,0,0" Foreground="DarkRed" Visibility="{Binding Touched, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <TextBlock Text="{Binding FilenameIssue}" />
+
+        <Label Grid.Row="3" Grid.Column="0" Margin="0,0,12,0" HorizontalAlignment="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">Filename</Label>
+        <TextBox Grid.Row="3" Grid.Column="1" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Margin="6" Padding="6" Text="{Binding Filename, FallbackValue='value', Mode=OneWay}" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Arrow" />
+        <Label Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="6,0" Padding="0" Foreground="DarkRed" Visibility="{Binding Touched, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Text="{Binding FilenameIssue, FallbackValue='issue'}" />
         </Label>
     </Grid>
 </UserControl>

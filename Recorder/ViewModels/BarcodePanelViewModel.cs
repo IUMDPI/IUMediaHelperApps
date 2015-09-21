@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using Recorder.Models;
-using Recorder.Utilities;
 
 namespace Recorder.ViewModels
 {
@@ -13,18 +12,19 @@ namespace Recorder.ViewModels
 
         public BarcodePanelViewModel(UserControlsViewModel parent, ObjectModel objectModel, string projectCode) : base(parent, objectModel)
         {
-            ObjectModel = objectModel;
             ProjectCode = projectCode;
             Part = 1;
             FileUse = FileUses.First().Item2;
             Touched = false;
+            ActionButton = new ActionButtonModel
+            {
+                ButtonCaption = "1",
+                LabelCaption = "Start",
+                Scale = 1,
+                ButtonCommand = new RelayCommand(param => parent.ShowPanel<BarcodePanelViewModel>())
+            };
         }
 
-        public override void Initialize()
-        {
-        }
-
-        private ObjectModel ObjectModel { get; set; }
         private string ProjectCode { get; }
 
         public string Filename => ObjectModel.Filename;
@@ -45,6 +45,8 @@ namespace Recorder.ViewModels
             : string.Empty;
 
         public List<Tuple<string, string>> FileUses => ObjectModel.FileUses;
+
+        public override bool IsEnabled => (Recorder.Recording == false);
 
         public override string BackButtonText => "";
         public override string NextButtonText => "Start recording";
@@ -81,6 +83,10 @@ namespace Recorder.ViewModels
                 ObjectModel.Part = value;
                 OnPropertyChanged();
             }
+        }
+
+        public override void Initialize()
+        {
         }
 
         protected override void OnPropertyChanged(string propertyName = null)

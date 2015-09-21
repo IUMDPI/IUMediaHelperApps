@@ -108,6 +108,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\ActionButton.xaml.cs">
+      <DependentUpon>ActionButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ActionPanel.xaml.cs">
       <DependentUpon>ActionPanel.xaml</DependentUpon>
     </Compile>
@@ -134,12 +137,16 @@
     <Compile Include="Utilities\AbstractEngine.cs" />
     <Compile Include="Utilities\CombiningEngine.cs" />
     <Compile Include="Utilities\RecordingEngine.cs" />
+    <Compile Include="ViewModels\ActionButtonModel.cs" />
     <Compile Include="ViewModels\UserControlsViewModel.cs" />
     <Compile Include="ViewModels\AbstractPanelViewModel.cs" />
-    <Compile Include="ViewModels\ActionPanelViewModel.cs" />
     <Compile Include="ViewModels\FinishPanelViewModel.cs" />
     <Compile Include="ViewModels\RecordPanelViewModel.cs" />
     <Compile Include="ViewModels\BarcodePanelViewModel.cs" />
+    <Page Include="Controls\ActionButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\ActionPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

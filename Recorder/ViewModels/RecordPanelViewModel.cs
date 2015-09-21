@@ -5,7 +5,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Recorder.Models;
-using Recorder.Utilities;
 
 namespace Recorder.ViewModels
 {
@@ -18,50 +17,19 @@ namespace Recorder.ViewModels
         private ICommand _recordCommand;
         private TimeSpan _timestamp;
 
-        public RecordPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel, RecordingEngine recorder) : base(parent, objectModel)
+        public RecordPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel) : base(parent, objectModel)
         {
-            Recorder = recorder;
             PartTimestamp = new TimeSpan();
             Recorder.TimestampUpdated += TimestampUpdatedHandler;
             Recorder.PropertyChanged += RecorderPropertyChangedHandler;
-        }
-
-        private void RecorderPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
-        {
-            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            ActionButton = new ActionButtonModel
             {
-                Dispatcher.CurrentDispatcher.Invoke(() => RecorderPropertyChangedHandler(sender, e));
-                return;
-            }
-
-            OnPropertyChanged(nameof(RecordCommand));
+                ButtonCaption = "2",
+                LabelCaption = "Record",
+                Scale = 1,
+                ButtonCommand = new RelayCommand(param => parent.ShowPanel<RecordPanelViewModel>())
+            };
         }
-
-        private void RecordingEndedHandler(object sender, EventArgs e)
-        {
-            if (!Dispatcher.CurrentDispatcher.CheckAccess())
-            {
-                Dispatcher.CurrentDispatcher.Invoke(() => RecordingEndedHandler(sender, e));
-                return;
-            }
-
-            OnPropertyChanged(nameof(RecordCommand));
-        }
-
-        private void TimestampUpdatedHandler(object sender, TimeSpan e)
-        {
-            if (!Dispatcher.CurrentDispatcher.CheckAccess())
-            {
-                Dispatcher.CurrentDispatcher.Invoke(() => TimestampUpdatedHandler(sender,e));
-                return;
-            }
-
-            var value = Recorder.CumulativeTimeSpan.Add(e);
-            CumulativeTimestamp = value;
-            PartTimestamp = e;
-        }
-
-        private RecordingEngine Recorder { get; }
 
         public bool ShowClear => ObjectModel.PartsPresent() && !Recorder.Recording;
 
@@ -88,20 +56,7 @@ namespace Recorder.ViewModels
 
         public string RecordButtonLabel => Recorder.Recording ? "<" : "=";
 
-        public string RecordCaption
-        {
-            get
-            {
-                if (Recorder.Recording)
-                {
-                    return "Pause / stop recording";
-                }
-
-                return ObjectModel.PartsPresent()
-                    ? "Resume recording"
-                    : "Start recording";
-            }
-        }
+        public string RecordCaption => Recorder.Recording ? "Pause" : "Record";
 
         public TimeSpan CumulativeTimestamp
         {
@@ -112,6 +67,8 @@ namespace Recorder.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        public override bool IsEnabled => ObjectModel.FilePartsValid().IsValid;
 
         public override string BackButtonText => "Create new object";
         public override string NextButtonText => "Generate single file";
@@ -153,7 +110,36 @@ namespace Recorder.ViewModels
                     new RelayCommand(param => DoClearAction(), param => ShowClear));
             }
         }
-        
+
+        private void RecorderPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        {
+            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            {
+                Dispatcher.CurrentDispatcher.Invoke(() => RecorderPropertyChangedHandler(sender, e));
+                return;
+            }
+
+            if (Recorder.Recording == false)
+            {
+                CumulativeTimestamp = Recorder.ResetCumulativeTimestamp();
+            }
+
+            OnPropertyChanged(nameof(RecordCommand));
+        }
+
+        private void TimestampUpdatedHandler(object sender, TimeSpan e)
+        {
+            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            {
+                Dispatcher.CurrentDispatcher.Invoke(() => TimestampUpdatedHandler(sender, e));
+                return;
+            }
+
+            var value = Recorder.CumulativeTimeSpan.Add(e);
+            CumulativeTimestamp = value;
+            PartTimestamp = e;
+        }
+
         public override void Initialize()
         {
             if (Recorder.Recording)
@@ -174,7 +160,6 @@ namespace Recorder.ViewModels
         private void DoRecordAction()
         {
             Recorder.GetRecordingMethod().Invoke();
-            //OnPropertyChanged(nameof(RecordCommand));
         }
 
         protected override void OnPropertyChanged(string propertyName = null)
@@ -189,7 +174,5 @@ namespace Recorder.ViewModels
             base.OnPropertyChanged(nameof(ShowClear));
             base.OnPropertyChanged(nameof(ShowPartTimestamp));
         }
-
-
     }
 }

@@ -154,7 +154,9 @@ namespace Recorder.Utilities
 
         private IEnumerable<string> GetExistingParts()
         {
-            return Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, ObjectModel.ExistingPartsMask);
+            return Directory.Exists(ObjectModel.WorkingFolderPath) 
+                ? Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, ObjectModel.ExistingPartsMask)
+                : new List<string>();
         }
 
         private TimeSpan GetDurationOfExistingParts()

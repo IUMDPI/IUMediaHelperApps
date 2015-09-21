@@ -8,18 +8,9 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <StackPanel Orientation="Vertical" Name="StartPanel" Margin="12">
-                <Button Style="{StaticResource RoundButton}" Foreground="White" FontSize="36" Name="StartPanelButton" Command="{Binding StartPanelCommand}">1</Button>
-                <Label HorizontalAlignment="Center" Name="StartPanelLabel">Start</Label>
-            </StackPanel>
-            <StackPanel Orientation="Vertical" Name="RecordPanel" Margin="12">
-                <Button Style="{StaticResource RoundButton}" Foreground="White" FontSize="36" Name="RecordPanelButton" Command="{Binding RecordPanelCommand}">2</Button>
-                <Label HorizontalAlignment="Center" Name="RecordPanelLabel">Record</Label>
-            </StackPanel>
-            <StackPanel Orientation="Vertical" Name="FinishPanel" Margin="12">
-                <Button Style="{StaticResource RoundButton}" Foreground="White" FontSize="36" Name="FinishPanelButton" Command="{Binding FinishPanelCommand}">3</Button>
-                <Label HorizontalAlignment="Center" Name="FinishPanelLabel">Finish</Label>
-            </StackPanel>
+            <local:ActionButton DataContext="{Binding BarcodePanelViewModel.ActionButton}"></local:ActionButton>
+            <local:ActionButton DataContext="{Binding RecordPanelViewModel.ActionButton}"></local:ActionButton>
+            <local:ActionButton DataContext="{Binding FinishPanelViewModel.ActionButton}"></local:ActionButton>
         </StackPanel>
         
     </Grid>

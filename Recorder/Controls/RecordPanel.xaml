@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Visibility="{Binding Visibility}">
-    <Grid>
+    <Grid IsEnabled="{Binding IsEnabled, FallbackValue=true}">
         <StackPanel VerticalAlignment="Stretch">
             <Button FontFamily="Webdings"  Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="64" Width="72" Height="72" Margin="0,36,0,0" Command="{Binding RecordCommand}">
                 <TextBlock Text="{Binding RecordButtonLabel}"></TextBlock>

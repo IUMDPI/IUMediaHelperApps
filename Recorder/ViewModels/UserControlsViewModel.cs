@@ -14,32 +14,34 @@ namespace Recorder.ViewModels
         private readonly List<AbstractPanelViewModel> _panels;
     
         private readonly IProgramSettings _settings;
-        private readonly RecordingEngine _recorder;
+       
         private readonly CombiningEngine _combiner;
 
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel, RecordingEngine recorder, CombiningEngine combiner)
         {
             _settings = settings;
-            _recorder = recorder;
-            _combiner = combiner;
+            Recorder = recorder;
+            Combiner = combiner;
 
             _panels = new List<AbstractPanelViewModel>
             {
                 new BarcodePanelViewModel(this, objectModel, _settings.ProjectCode) {Visibility = Visibility.Visible},
-                new RecordPanelViewModel(this, objectModel, _recorder) {Visibility = Visibility.Collapsed},
-                new FinishPanelViewModel(this, objectModel, _combiner) {Visibility = Visibility.Collapsed}
+                new RecordPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed},
+                new FinishPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed}
             };
-            ActionPanelViewModel = new ActionPanelViewModel(this);
+        
         }
 
         public string Title => $"{_settings.ProjectCode} Recorder";
         
-        public ActionPanelViewModel ActionPanelViewModel { get; private set; }
         public BarcodePanelViewModel BarcodePanelViewModel => GetPanel<BarcodePanelViewModel>();
         public RecordPanelViewModel RecordPanelViewModel => GetPanel<RecordPanelViewModel>();
         public FinishPanelViewModel FinishPanelViewModel => GetPanel<FinishPanelViewModel>();
 
         public AbstractPanelViewModel ActivePanelModel => _panels.Single(p => p.Visibility == Visibility.Visible);
+        public RecordingEngine Recorder { get; set; }
+
+        public CombiningEngine Combiner { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -66,11 +68,16 @@ namespace Recorder.ViewModels
 
         public void OnWindowClosing(object sender, CancelEventArgs args)
         {
-            if (_recorder.Recording == false)
+            if (Recorder.Recording == false)
             {
                 return;
             }
-            var result = MessageBox.Show("You are still recording. Are you sure you want to exit", "Stop Recording and Exit", MessageBoxButton.YesNo);
+
+            var view = sender as UserControls;
+            var result = view == null 
+                ? MessageBox.Show("You are still recording. Are you sure you want to exit", "Stop Recording and Exit?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) 
+                : MessageBox.Show(view, "You are still recording. Are you sure you want to exit", "Stop Recording and Exit?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+
             if (result != MessageBoxResult.Yes)
             {
                 args.Cancel = true;

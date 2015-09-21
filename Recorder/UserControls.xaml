@@ -7,10 +7,8 @@
         mc:Ignorable="d"
         Title="{Binding Title}" Height="545" Width="455" ResizeMode="CanMinimize" FontSize="14" Background="White" >
     <Grid>
-     
-
         <DockPanel Margin="0">
-            <controls:ActionPanel DockPanel.Dock="Top" DataContext="{Binding ActionPanelViewModel}" Background="LightBlue"></controls:ActionPanel>
+            <controls:ActionPanel DockPanel.Dock="Top" Padding="0,12,0,0" Background="LightBlue"></controls:ActionPanel>
             <Label DockPanel.Dock="Top" Background="LightBlue" Padding="20,6,20,20">
                 <TextBlock TextWrapping="Wrap" Text="{Binding Instructions}" DataContext="{Binding ActivePanelModel}"></TextBlock>
             </Label>

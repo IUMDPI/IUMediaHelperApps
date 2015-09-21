@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Visibility="{Binding Visibility}">
-    <Grid>
+    <Grid IsEnabled="{Binding IsEnabled, FallbackValue=true}">
         <StackPanel VerticalAlignment="Center">
             <Button Command="{Binding CombineCommand}" Width="100" Height="100">Combine Files</Button>
         </StackPanel>

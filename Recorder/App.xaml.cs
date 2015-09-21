@@ -28,7 +28,7 @@ namespace Recorder
             _combiner = new CombiningEngine(programSettings, objectModel);
 
             var viewModel = new UserControlsViewModel(programSettings, objectModel, _recorder, _combiner);
-
+          
             var userControls = new UserControls
             {
                 DataContext = viewModel,

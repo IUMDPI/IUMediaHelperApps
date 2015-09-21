@@ -3,18 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Recorder"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:controls="clr-namespace:Recorder.Controls"
-        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
         Title="{Binding Title}" Height="545" Width="455" ResizeMode="CanMinimize" FontSize="14" Background="White" >
     <Grid>
-        <i:Interaction.Triggers>
-            <i:EventTrigger EventName="Closing">
-                <i:InvokeCommandAction Command="{Binding WindowClosingCommand}" CommandParameter="{Binding}" />
-            </i:EventTrigger>
-        </i:Interaction.Triggers>
+     
 
         <DockPanel Margin="0">
             <controls:ActionPanel DockPanel.Dock="Top" DataContext="{Binding ActionPanelViewModel}" Background="LightBlue"></controls:ActionPanel>

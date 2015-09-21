@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
 using JetBrains.Annotations;
 using Recorder.Models;
 using Recorder.Utilities;
@@ -13,19 +12,22 @@ namespace Recorder.ViewModels
     public class UserControlsViewModel : INotifyPropertyChanged
     {
         private readonly List<AbstractPanelViewModel> _panels;
-        private ICommand _windowClosingCommand;
-
+    
         private readonly IProgramSettings _settings;
+        private readonly RecordingEngine _recorder;
+        private readonly CombiningEngine _combiner;
 
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel, RecordingEngine recorder, CombiningEngine combiner)
         {
             _settings = settings;
+            _recorder = recorder;
+            _combiner = combiner;
 
             _panels = new List<AbstractPanelViewModel>
             {
                 new BarcodePanelViewModel(this, objectModel, _settings.ProjectCode) {Visibility = Visibility.Visible},
-                new RecordPanelViewModel(this, objectModel, recorder) {Visibility = Visibility.Collapsed},
-                new FinishPanelViewModel(this, objectModel, combiner) {Visibility = Visibility.Collapsed}
+                new RecordPanelViewModel(this, objectModel, _recorder) {Visibility = Visibility.Collapsed},
+                new FinishPanelViewModel(this, objectModel, _combiner) {Visibility = Visibility.Collapsed}
             };
             ActionPanelViewModel = new ActionPanelViewModel(this);
         }
@@ -46,24 +48,6 @@ namespace Recorder.ViewModels
             return _panels.Single(p => p.GetType() == typeof (T)) as T;
         }
 
-        public ICommand WindowClosingCommand
-        {
-            get
-            {
-                if (_windowClosingCommand == null)
-                {
-                    _windowClosingCommand = new RelayCommand(param=>HandleWindowClosing());
-                }
-
-                return _windowClosingCommand;
-            }
-        }
-
-        private void HandleWindowClosing()
-        {
-            var test = 0;
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -78,6 +62,19 @@ namespace Recorder.ViewModels
                 panel.Visibility = panel.GetType() == typeof (T) ? Visibility.Visible : Visibility.Collapsed;
             }
             OnPropertyChanged(nameof(ActivePanelModel));
+        }
+
+        public void OnWindowClosing(object sender, CancelEventArgs args)
+        {
+            if (_recorder.Recording == false)
+            {
+                return;
+            }
+            var result = MessageBox.Show("You are still recording. Are you sure you want to exit", "Stop Recording and Exit", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)
+            {
+                args.Cancel = true;
+            }
         }
     }
 }

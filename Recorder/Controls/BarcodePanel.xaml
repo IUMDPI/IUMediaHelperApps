@@ -24,7 +24,7 @@
                HorizontalAlignment="Right" Margin="0,0,12,0">
             Barcode
         </Label>
-        <TextBox HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Margin="6" Padding="6"
+        <TextBox HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Margin="6" Padding="6" MaxLength="14"
                  Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center">
             <Binding Path="Barcode" UpdateSourceTrigger="PropertyChanged" />
         </TextBox>

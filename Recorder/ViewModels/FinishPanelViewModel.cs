@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Recorder.Models;
 using Recorder.Utilities;
@@ -43,7 +44,7 @@ namespace Recorder.ViewModels
             }
         }
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
         }
 

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.VisualBasic.FileIO;
-using Microsoft.WindowsAPICodePack.Shell;
 using Recorder.Handlers;
 using Recorder.Models;
 
@@ -13,6 +13,7 @@ namespace Recorder.Utilities
 {
     public class RecordingEngine : AbstractEngine
     {
+        private readonly InfoEngine _infoEngine;
         private bool _recording;
 
         public RecordingEngine(ProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
@@ -23,6 +24,7 @@ namespace Recorder.Utilities
             TimestampHandler = new TimestampReceivedHandler(this);
             Process.ErrorDataReceived += TimestampHandler.OnDataReceived;
             Process.OutputDataReceived += TimestampHandler.OnDataReceived;
+            _infoEngine = new InfoEngine(settings);
         }
 
 
@@ -61,7 +63,7 @@ namespace Recorder.Utilities
             return ObjectModel.FilePartsValid();
         }
 
-        private void StartRecording()
+        private async Task StartRecording()
         {
             if (Recording)
             {
@@ -78,11 +80,11 @@ namespace Recorder.Utilities
 
             var part = GetNewPart();
 
-            CumulativeTimeSpan = GetDurationOfExistingParts();
+            CumulativeTimeSpan = await GetDurationOfExistingParts();
             TimestampHandler.Reset();
 
             Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
-            Process.StartInfo.EnvironmentVariables["FFREPORT"]=$"file={GetTargetPartLogFilename(part)}:level=32";
+            Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={GetTargetPartLogFilename(part)}:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
 
             Process.Start();
@@ -91,7 +93,7 @@ namespace Recorder.Utilities
             Process.BeginOutputReadLine();
         }
 
-        public Action GetRecordingMethod()
+        public Func<Task> GetRecordingMethod()
         {
             if (Recording)
             {
@@ -101,7 +103,7 @@ namespace Recorder.Utilities
             return StartRecording;
         }
 
-        private void StopRecording()
+        private async Task StopRecording()
         {
             if (!Recording)
             {
@@ -154,12 +156,12 @@ namespace Recorder.Utilities
 
         private IEnumerable<string> GetExistingParts()
         {
-            return Directory.Exists(ObjectModel.WorkingFolderPath) 
+            return Directory.Exists(ObjectModel.WorkingFolderPath)
                 ? Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, ObjectModel.ExistingPartsMask)
                 : new List<string>();
         }
 
-        private TimeSpan GetDurationOfExistingParts()
+        private async Task<TimeSpan> GetDurationOfExistingParts()
         {
             if (OkToRecord().IsValid == false)
             {
@@ -169,21 +171,15 @@ namespace Recorder.Utilities
             var result = new TimeSpan();
             foreach (var part in GetExistingParts())
             {
-                var item = ShellObject.FromParsingName(part).Properties.GetProperty<ulong?>("System.Media.Duration");
-                if (item == null)
-                {
-                    // what to do here
-                    continue;
-                }
-                result = result.Add(new TimeSpan(Convert.ToInt64(item.Value)));
+                result = result.Add(await _infoEngine.GetDuration(part));
             }
 
             return result;
         }
 
-        public TimeSpan ResetCumulativeTimestamp()
+        public async Task<TimeSpan> ResetCumulativeTimestamp()
         {
-            CumulativeTimeSpan = GetDurationOfExistingParts();
+            CumulativeTimeSpan = await GetDurationOfExistingParts();
             return CumulativeTimeSpan;
         }
 

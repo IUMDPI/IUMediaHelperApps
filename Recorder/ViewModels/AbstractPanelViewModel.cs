@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using JetBrains.Annotations;
@@ -14,7 +15,7 @@ namespace Recorder.ViewModels
         private Visibility _visibility;
         private ActionButtonModel _buttonModel;
 
-        public abstract void Initialize();
+        public abstract Task Initialize();
         
         protected AbstractPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel)
         {

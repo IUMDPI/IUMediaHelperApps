@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Recorder.Models;
 
@@ -85,7 +86,7 @@ namespace Recorder.ViewModels
             }
         }
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
         }
 

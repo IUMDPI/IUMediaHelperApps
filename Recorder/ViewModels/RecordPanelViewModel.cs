@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -106,7 +107,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _recordCommand ?? (_recordCommand =
-                    new RelayCommand(param => DoRecordAction(), param => Recorder.OkToRecord().IsValid));
+                    new RelayCommand(async param => await DoRecordAction(), param => Recorder.OkToRecord().IsValid));
             }
         }
 
@@ -119,7 +120,7 @@ namespace Recorder.ViewModels
             }
         }
 
-        private void RecorderPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        private async void RecorderPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
         {
             if (!Dispatcher.CurrentDispatcher.CheckAccess())
             {
@@ -129,7 +130,7 @@ namespace Recorder.ViewModels
 
             if (Recorder.Recording == false)
             {
-                CumulativeTimestamp = Recorder.ResetCumulativeTimestamp();
+                CumulativeTimestamp = await Recorder.ResetCumulativeTimestamp();
             }
 
             OnPropertyChanged(nameof(RecordCommand));
@@ -148,26 +149,26 @@ namespace Recorder.ViewModels
             PartTimestamp = e;
         }
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
             if (Recorder.Recording)
             {
                 return;
             }
 
-            CumulativeTimestamp = Recorder.ResetCumulativeTimestamp();
+            CumulativeTimestamp = await Recorder.ResetCumulativeTimestamp();
         }
 
-        private void DoClearAction()
+        private async Task DoClearAction()
         {
             Recorder.ClearExistingParts();
-            CumulativeTimestamp = Recorder.ResetCumulativeTimestamp();
+            CumulativeTimestamp = await Recorder.ResetCumulativeTimestamp();
             OnPropertyChanged(nameof(ShowClear));
         }
 
-        private void DoRecordAction()
+        private async Task DoRecordAction()
         {
-            Recorder.GetRecordingMethod().Invoke();
+            await Recorder.GetRecordingMethod().Invoke();
         }
 
         protected override void OnPropertyChanged(string propertyName = null)

@@ -11,7 +11,7 @@
     <Grid IsEnabled="{Binding IsEnabled, FallbackValue=true}">
         <StackPanel VerticalAlignment="Stretch">
             <Button Style="{StaticResource RoundButton}"  Foreground="White" BorderBrush="Black" Background="{Binding RecordButtonBackground}" Width="100" Height="100" Margin="0,36,0,0" Command="{Binding RecordCommand}">
-                <fa:ImageAwesome Icon="{Binding RecordIcon}" Height="{Binding RecordIconHeight, FallbackValue=56}" Foreground="{Binding RecordIconBrush}" ></fa:ImageAwesome>
+                <fa:ImageAwesome Icon="{Binding RecordIcon, FallbackValue='{x:Static fa:FontAwesomeIcon.Circle}'}" Height="{Binding RecordIconHeight, FallbackValue=56}" Foreground="{Binding RecordIconBrush}" ></fa:ImageAwesome>
             </Button>
             <Label  HorizontalContentAlignment="Center">
                 <TextBlock Text="{Binding RecordCaption, FallbackValue='Record'}" />

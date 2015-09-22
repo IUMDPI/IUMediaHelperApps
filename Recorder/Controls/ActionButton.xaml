@@ -11,13 +11,11 @@
             <ScaleTransform CenterX="0" CenterY="0" ScaleX="{Binding Scale, FallbackValue=1}" ScaleY="{Binding Scale, FallbackValue=1}" />
         </Grid.LayoutTransform>
         <StackPanel Orientation="Vertical" Margin="12">
-            <Button Style="{StaticResource RoundButton}" Foreground="White" FontSize="36" Command="{Binding ButtonCommand}">
-                <Label>
-                    <TextBlock Text="{Binding ButtonCaption, FallbackValue='1'}" />
-                </Label>
+            <Button Style="{StaticResource RoundButton}" BorderBrush="Black" Foreground="White" FontSize="36" Command="{Binding ButtonCommand}">
+                <TextBlock Text="{Binding ButtonCaption, FallbackValue='2'}" Padding="0" Margin="0,0,0,3" Foreground="Black"/>
             </Button>
             <Label HorizontalAlignment="Center">
-                <TextBlock Text="{Binding LabelCaption, FallbackValue='Value'}"></TextBlock>
+                <TextBlock Text="{Binding LabelCaption, FallbackValue='Value'}" />
             </Label>
         </StackPanel>
     </Grid>

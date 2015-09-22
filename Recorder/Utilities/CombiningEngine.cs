@@ -1,21 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Recorder.Models;
 
 namespace Recorder.Utilities
 {
-    public class CombiningEngine:AbstractEngine
+    public class CombiningEngine : AbstractEngine
     {
+        private bool _combining;
         private const string ArgumentFormat = "-y -f concat -i \"{0}\" -c copy \"{1}\"";
 
         public CombiningEngine(ProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
         {
+            Process.Exited += ProcessExitHandler;
+        }
+
+        public bool Combining
+        {
+            get { return _combining; }
+            set { _combining = value; OnPropertyChanged(); }
         }
 
         public void Combine()
@@ -26,17 +36,37 @@ namespace Recorder.Utilities
             }
 
             GenerateCombineList();
+            Combining = true;
 
             Directory.CreateDirectory(ObjectModel.OutputFolder);
             Process.StartInfo.Arguments = string.Format(ArgumentFormat, CombineFilePath, ObjectModel.OutputFile);
 
             Process.Start();
-            do
-            {
-                Thread.Sleep(5);
-            } while (Process.HasExited == false);
         }
 
+
+        private void ProcessExitHandler(object sender, EventArgs e)
+        {
+            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            {
+                Dispatcher.CurrentDispatcher.Invoke(() => ProcessExitHandler(sender, e));
+                return;
+            }
+
+            Combining = false;
+
+            OpenFolder();
+        }
+
+
+        private void OpenFolder()
+        {
+            var info = new ProcessStartInfo(ObjectModel.OutputFolder);
+            using (var process = new Process() {StartInfo = info})
+            {
+                process.Start();
+            }
+        }
 
         public ValidationResult OkToCombine()
         {
@@ -64,7 +94,7 @@ namespace Recorder.Utilities
         private void GenerateCombineList()
         {
             var builder = new StringBuilder();
-            foreach (var file in Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.mkv").OrderBy(f=>f))
+            foreach (var file in Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.mkv").OrderBy(f => f))
             {
                 builder.AppendLine($"file '{file}'");
             }

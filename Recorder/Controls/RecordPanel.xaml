@@ -4,22 +4,23 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Recorder.Controls"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Visibility="{Binding Visibility}">
     <Grid IsEnabled="{Binding IsEnabled, FallbackValue=true}">
         <StackPanel VerticalAlignment="Stretch">
-            <Button FontFamily="Webdings"  Cursor="Hand" Foreground="{Binding RecordButtonForeground}" Background="{Binding RecordButtonBackground}" FontSize="64" Width="72" Height="72" Margin="0,36,0,0" Command="{Binding RecordCommand}">
-                <TextBlock Text="{Binding RecordButtonLabel}"></TextBlock>
+            <Button Style="{StaticResource RoundButton}"  Foreground="White" BorderBrush="Black" Background="{Binding RecordButtonBackground}" Width="100" Height="100" Margin="0,36,0,0" Command="{Binding RecordCommand}">
+                <fa:ImageAwesome Icon="{Binding RecordIcon}" Height="{Binding RecordIconHeight, FallbackValue=56}" Foreground="{Binding RecordIconBrush}" ></fa:ImageAwesome>
             </Button>
             <Label  HorizontalContentAlignment="Center">
-                <TextBlock Text="{Binding RecordCaption}" />
+                <TextBlock Text="{Binding RecordCaption, FallbackValue='Record'}" />
             </Label>
             <Label HorizontalContentAlignment="Center" FontSize="36" Margin="0,12,0,0" Padding="0">
-                <TextBlock Text="{Binding CumulativeTimestamp, Converter={StaticResource TimespanToStringConverter}}" />
+                <TextBlock Text="{Binding CumulativeTimestamp, Converter={StaticResource TimespanToStringConverter}, FallbackValue='00:00:00.00'}" />
             </Label>
             <Label HorizontalContentAlignment="Center" Margin="0" Padding="0" FontSize="20" Visibility="{Binding ShowPartTimestamp, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Text="{Binding PartTimestamp, Converter={StaticResource TimespanToStringConverter}}" />
+                <TextBlock Text="{Binding PartTimestamp, Converter={StaticResource TimespanToStringConverter},FallbackValue='00:00:00.00'}" />
             </Label>
             <Label HorizontalAlignment="Center" Visibility="{Binding ShowClear, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock>

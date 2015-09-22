@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using FontAwesome.WPF;
 using Recorder.Models;
 
 namespace Recorder.ViewModels
@@ -16,7 +17,7 @@ namespace Recorder.ViewModels
         private TimeSpan _partTimestamp;
         private ICommand _recordCommand;
         private TimeSpan _timestamp;
-
+      
         public RecordPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel) : base(parent, objectModel)
         {
             PartTimestamp = new TimeSpan();
@@ -46,6 +47,13 @@ namespace Recorder.ViewModels
             }
         }
 
+        public FontAwesomeIcon RecordIcon => Recorder.Recording ? FontAwesomeIcon.Pause : FontAwesomeIcon.Circle;
+        public double RecordIconSize => Recorder.Recording ? 48 : 56;
+
+        public SolidColorBrush RecordIconBrush => Recorder.Recording
+            ? new SolidColorBrush(Colors.Black)
+            : new SolidColorBrush(Colors.DarkRed);
+
         public SolidColorBrush RecordButtonForeground => Recorder.Recording
             ? new SolidColorBrush(Colors.Black)
             : new SolidColorBrush(Colors.DarkRed);
@@ -68,7 +76,7 @@ namespace Recorder.ViewModels
             }
         }
 
-        public override bool IsEnabled => ObjectModel.FilePartsValid().IsValid;
+        public override bool IsEnabled => GetEnabledState();
 
         public override string BackButtonText => "Create new object";
         public override string NextButtonText => "Generate single file";
@@ -107,7 +115,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _clearCommand ?? (_clearCommand =
-                    new RelayCommand(param => DoClearAction(), param => ShowClear));
+                    new RelayCommand(param => DoClearAction()));
             }
         }
 
@@ -168,11 +176,28 @@ namespace Recorder.ViewModels
             base.OnPropertyChanged(nameof(RecordCommand));
             base.OnPropertyChanged(nameof(RecordButtonBackground));
             base.OnPropertyChanged(nameof(RecordButtonForeground));
-            base.OnPropertyChanged(nameof(RecordButtonLabel));
+            base.OnPropertyChanged(nameof(RecordIcon));
+            base.OnPropertyChanged(nameof(RecordIconSize));
+            base.OnPropertyChanged(nameof(RecordIconBrush));
             base.OnPropertyChanged(nameof(RecordCaption));
             base.OnPropertyChanged(nameof(ClearCommand));
             base.OnPropertyChanged(nameof(ShowClear));
             base.OnPropertyChanged(nameof(ShowPartTimestamp));
+        }
+
+        private bool GetEnabledState()
+        {
+            if (ObjectModel.FilePartsValid().IsValid == false)
+            {
+                return false;
+            }
+            
+            if (Combiner.Combining)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

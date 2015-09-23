@@ -22,7 +22,7 @@ namespace Recorder.ViewModels
                 ButtonCaption = "1",
                 LabelCaption = "Start",
                 Scale = 1,
-                ButtonCommand = new RelayCommand(param => parent.ShowPanel<BarcodePanelViewModel>())
+                ButtonCommand = new RelayCommand(async param => await parent.ShowPanel<BarcodePanelViewModel>())
             };
         }
 
@@ -47,6 +47,11 @@ namespace Recorder.ViewModels
 
         public List<Tuple<string, string>> FileUses => ObjectModel.FileUses;
 
+        public async override Task Initialize()
+        {
+            
+        }
+
         public override bool IsEnabled => (Recorder.Recording == false);
 
         public override string BackButtonText => "";
@@ -58,7 +63,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _nextCommand
-                       ?? (_nextCommand = new RelayCommand(param => Parent.ShowPanel<RecordPanelViewModel>()));
+                       ?? (_nextCommand = new RelayCommand(async param => await Parent.ShowPanel<RecordPanelViewModel>()));
             }
         }
 
@@ -86,9 +91,7 @@ namespace Recorder.ViewModels
             }
         }
 
-        public override async Task Initialize()
-        {
-        }
+      
 
         protected override void OnPropertyChanged(string propertyName = null)
         {

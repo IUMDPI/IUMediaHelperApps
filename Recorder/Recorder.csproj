@@ -126,6 +126,9 @@
     <Compile Include="Controls\RecordPanel.xaml.cs">
       <DependentUpon>RecordPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\SmallRecordingPanel.xaml.cs">
+      <DependentUpon>SmallRecordingPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\EmptyToVisibilityConverter.cs" />
     <Compile Include="Converters\TimespanToStringConverter.cs" />
     <Compile Include="Enums\FileUses.cs" />
@@ -165,6 +168,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\RecordPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SmallRecordingPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

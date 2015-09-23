@@ -29,7 +29,7 @@ namespace Recorder.ViewModels
                 ButtonCaption = "2",
                 LabelCaption = "Record",
                 Scale = 1,
-                ButtonCommand = new RelayCommand(param => parent.ShowPanel<RecordPanelViewModel>())
+                ButtonCommand = new RelayCommand(async param => await parent.ShowPanel<RecordPanelViewModel>())
             };
         }
 
@@ -89,7 +89,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _nextCommand
-                       ?? (_nextCommand = new RelayCommand(param => Parent.ShowPanel<FinishPanelViewModel>()));
+                       ?? (_nextCommand = new RelayCommand(async param => await Parent.ShowPanel<FinishPanelViewModel>()));
             }
         }
 
@@ -98,7 +98,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _backCommand
-                       ?? (_backCommand = new RelayCommand(param => Parent.ShowPanel<BarcodePanelViewModel>()));
+                       ?? (_backCommand = new RelayCommand(async param => await Parent.ShowPanel<BarcodePanelViewModel>()));
             }
         }
 
@@ -116,7 +116,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _clearCommand ?? (_clearCommand =
-                    new RelayCommand(param => DoClearAction()));
+                    new RelayCommand(async param => await DoClearAction()));
             }
         }
 
@@ -168,7 +168,14 @@ namespace Recorder.ViewModels
 
         private async Task DoRecordAction()
         {
-            await Recorder.GetRecordingMethod().Invoke();
+            if (!Recorder.Recording)
+            {
+                await Recorder.StartRecording();
+            }
+            else
+            {
+                Recorder.StopRecording();
+            }
         }
 
         protected override void OnPropertyChanged(string propertyName = null)

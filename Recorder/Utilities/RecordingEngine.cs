@@ -63,7 +63,7 @@ namespace Recorder.Utilities
             return ObjectModel.FilePartsValid();
         }
 
-        private async Task StartRecording()
+        public async Task StartRecording()
         {
             if (Recording)
             {
@@ -93,17 +93,7 @@ namespace Recorder.Utilities
             Process.BeginOutputReadLine();
         }
 
-        public Func<Task> GetRecordingMethod()
-        {
-            if (Recording)
-            {
-                return StopRecording;
-            }
-
-            return StartRecording;
-        }
-
-        private async Task StopRecording()
+        public void StopRecording()
         {
             if (!Recording)
             {

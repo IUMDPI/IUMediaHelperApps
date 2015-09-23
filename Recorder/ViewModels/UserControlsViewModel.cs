@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using Recorder.Models;
@@ -15,8 +16,6 @@ namespace Recorder.ViewModels
     
         private readonly IProgramSettings _settings;
        
-        private readonly CombiningEngine _combiner;
-
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel, RecordingEngine recorder, CombiningEngine combiner)
         {
             _settings = settings;
@@ -56,13 +55,16 @@ namespace Recorder.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void ShowPanel<T>() where T : AbstractPanelViewModel
+        public async Task ShowPanel<T>() where T : AbstractPanelViewModel
         {
             foreach (var panel in _panels)
             {
-                panel.Initialize();
-                panel.Visibility = panel.GetType() == typeof (T) ? Visibility.Visible : Visibility.Collapsed;
+                await panel.Initialize();
+                panel.Visibility = Visibility.Collapsed;
             }
+
+            GetPanel<T>().Visibility = Visibility.Visible;
+
             OnPropertyChanged(nameof(ActivePanelModel));
         }
 

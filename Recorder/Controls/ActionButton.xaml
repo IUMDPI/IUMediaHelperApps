@@ -11,8 +11,8 @@
             <ScaleTransform CenterX="0" CenterY="0" ScaleX="{Binding Scale, FallbackValue=1}" ScaleY="{Binding Scale, FallbackValue=1}" />
         </Grid.LayoutTransform>
         <StackPanel Orientation="Vertical" Margin="12">
-            <Button Style="{StaticResource RoundButton}" BorderBrush="Black" Foreground="White" FontSize="36" Command="{Binding ButtonCommand}">
-                <TextBlock Text="{Binding ButtonCaption, FallbackValue='2'}" Padding="0" Margin="0,0,0,3" Foreground="Black"/>
+            <Button  Style="{StaticResource RoundButton}" BorderBrush="Black" Foreground="Black" Background="White" FontSize="36" Command="{Binding ButtonCommand}">
+                <ContentPresenter Content="{Binding ButtonCaption, FallbackValue='1'}"></ContentPresenter>
             </Button>
             <Label HorizontalAlignment="Center">
                 <TextBlock Text="{Binding LabelCaption, FallbackValue='Value'}" />

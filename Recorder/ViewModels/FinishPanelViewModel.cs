@@ -21,7 +21,7 @@ namespace Recorder.ViewModels
                 ButtonCaption = "3",
                 LabelCaption = "Finish",
                 Scale = 1,
-                ButtonCommand = new RelayCommand(param => parent.ShowPanel<FinishPanelViewModel>())
+                ButtonCommand = new RelayCommand(async param => await parent.ShowPanel<FinishPanelViewModel>())
             };
             Combiner.PropertyChanged += CombinerPropertyChangedHandler;
             CommandLabelText = "Combine Parts";
@@ -44,8 +44,9 @@ namespace Recorder.ViewModels
             }
         }
 
-        public override async Task Initialize()
+        public async override Task Initialize()
         {
+            
         }
 
         public override bool IsEnabled => GetEnabledState();
@@ -59,7 +60,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _backCommand
-                       ?? (_backCommand = new RelayCommand(param => Parent.ShowPanel<RecordPanelViewModel>()));
+                       ?? (_backCommand = new RelayCommand(async param => await Parent.ShowPanel<RecordPanelViewModel>()));
             }
         }
 

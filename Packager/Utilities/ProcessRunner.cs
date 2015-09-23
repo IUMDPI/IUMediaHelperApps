@@ -72,6 +72,10 @@ namespace Packager.Utilities
                     return;
                 }
 
+                // need to do this to ensure that all
+                // event handlers have completed, etc.
+                process.WaitForExit();
+
                 _completionSource.SetResult(new ProcessResult
                 {
                     StartInfo = _startInfo,

@@ -94,6 +94,7 @@
     <Compile Include="Validators\HasMembersValidatorTests.cs" />
     <Compile Include="Validators\UriValidatorTests.cs" />
     <Compile Include="Validators\ValueRequiredValidatorTests.cs" />
+    <Compile Include="Verifiers\BwfMetaEditResultsVerifierTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

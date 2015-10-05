@@ -1,26 +1,31 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Packager.Observers;
 
 namespace Packager.Verifiers
 {
     public class BwfMetaEditResultsVerifier : IBwfMetaEditResultsVerifier
     {
+        private const string InvalidWavErrorText = "invalid wave:";
+        private const string CanceledErrorText = "canceled";
+        private const string ErrorDuringReadingText = "error during reading";
+        private const string ErrorDuringWritingText = "error during writing";
+
         public bool Verify(string output, IEnumerable<string> targetPaths)
         {
-            var hasError = false;
-            foreach (var path in targetPaths.Where(path => !IsModifiedOrNothingToDo(output, path)))
-            {
-                hasError = true;
-            }
-
-            return hasError == false;
+            return targetPaths.Any(path => !IsModifiedOrNothingToDo(output, path) || HasErrorText(output)) == false;
         }
 
         public bool Verify(string output, string targetPath)
         {
             return Verify(output, new List<string> {targetPath});
+        }
+
+        private static bool HasErrorText(string output)
+        {
+            return output.Contains(InvalidWavErrorText) ||
+                   output.Contains(CanceledErrorText) ||
+                   output.Contains(ErrorDuringReadingText) ||
+                   output.Contains(ErrorDuringWritingText);
         }
 
         private static bool IsModifiedOrNothingToDo(string output, string path)

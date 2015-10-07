@@ -10,7 +10,7 @@
              Visibility="{Binding Visibility}">
     <Grid IsEnabled="{Binding IsEnabled, FallbackValue=true}" Margin="0,36,0,0">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Button VerticalAlignment="Center" Style="{StaticResource RoundButton}" BorderBrush="Black" Command="{Binding CombineCommand}" Width="100" Height="100" Background="White" Foreground="White">
+            <Button VerticalAlignment="Center" Cursor="Hand" Style="{StaticResource RoundButton}" BorderBrush="Black" Command="{Binding CombineCommand}" Width="100" Height="100" Background="White" Foreground="White">
                 <fa:ImageAwesome Icon="FileMovieO" Height="56" Foreground="Black"/>
             </Button>
             <Label HorizontalAlignment="Center" Margin="12" Padding="0">

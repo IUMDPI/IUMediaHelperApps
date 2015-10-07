@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using Packager.Attributes;
+using Packager.Attributes.Packager.Attributes;
+using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Utilities;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models
@@ -17,6 +22,7 @@ namespace Packager.Models
             ImportMappedConfigStringSettings(settings);
             ImportMappedConfigIntegerSettings(settings);
             ImportMappedConfigListSettings(settings);
+            ImportMappedConfigEnumListSettings<BextFields>(settings);
 
             PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
         }
@@ -72,6 +78,9 @@ namespace Packager.Models
         [FromConfigSettingList("IssueNotifyEmailAddresses")]
         public string[] IssueNotifyEmailAddresses { get; private set; }
 
+        [FromConfigSettingEnumList("SuppressAudioMetadataFields")]
+        public BextFields[] SuppressAudioMetadataFields { get; private set; }
+
         [FromConfigSetting("SmtpServer")]
         public string SmtpServer { get; private set; }
 
@@ -105,7 +114,7 @@ namespace Packager.Models
                 var settingName = property.GetCustomAttribute<FromIntegerConfigSettingAttribute>().Name;
 
                 int value;
-                    
+
                 if (int.TryParse(settings[settingName], out value))
                 {
                     property.SetValue(this, value);
@@ -120,17 +129,44 @@ namespace Packager.Models
             {
                 var settingName = property.GetCustomAttribute<FromConfigSettingListAttribute>().Name;
                 var value = settings[settingName].ToDefaultIfEmpty()
-                    .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToArray();
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToArray();
                 property.SetValue(this, value);
+            }
+        }
+
+        private void ImportMappedConfigEnumListSettings<T>(NameValueCollection settings) where T : struct
+        {
+            foreach (var property in GetType().GetProperties()
+                .Where(p => p.PropertyType.GetElementType() == typeof(T))
+                .Where(p => p.GetCustomAttribute<FromConfigSettingEnumListAttribute>() != null))
+            {
+                var settingName = property.GetCustomAttribute<FromConfigSettingEnumListAttribute>().Name;
+                var values = settings[settingName].ToDefaultIfEmpty()
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToArray();
+
+                // need to make th
+                var toSetValues = new List<T>();
+
+                foreach (var value in values)
+                {
+                    T enumValue;
+                    if (Enum.TryParse(value, true, out enumValue) == false)
+                    {
+                        continue;
+                    }
+
+                    toSetValues.Add(enumValue);
+                }
+                property.SetValue(this, toSetValues.ToArray());
             }
         }
 
         private static PodAuth GetAuthorization(string path)
         {
-            var serializer = new XmlSerializer(typeof (PodAuth));
+            var serializer = new XmlSerializer(typeof(PodAuth));
             using (var stream = new FileStream(path, FileMode.Open))
             {
-                return (PodAuth) serializer.Deserialize(stream);
+                return (PodAuth)serializer.Deserialize(stream);
             }
         }
     }

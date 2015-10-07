@@ -132,6 +132,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Attributes\BextFieldAttribute.cs" />
+    <Compile Include="Attributes\FromConfigSettingEnumListAttribute.cs" />
     <Compile Include="Attributes\FromIntegerConfigSetting.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />

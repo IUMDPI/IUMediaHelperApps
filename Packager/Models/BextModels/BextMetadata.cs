@@ -1,25 +1,23 @@
-using System.Xml.Serialization;
 using Packager.Attributes;
 using Packager.Utilities;
 
 namespace Packager.Models.BextModels
 {
-   
     public class BextMetadata
     {
-        [BextField(BextFields.Description)]
+        [BextField(BextFields.Description, 256)]
         public string Description { get; set; }
 
-        [BextField(BextFields.Originator)]
+        [BextField(BextFields.Originator, 32)]
         public string Originator { get; set; }
 
-        [BextField(BextFields.OriginatorReference)]
+        [BextField(BextFields.OriginatorReference, 32)]
         public string OriginatorReference { get; set; }
 
-        [BextField(BextFields.OriginationDate)]
+        [BextField(BextFields.OriginationDate, 10)]
         public string OriginationDate { get; set; }
 
-        [BextField(BextFields.OriginationTime)]
+        [BextField(BextFields.OriginationTime, 8)]
         public string OriginationTime { get; set; }
 
         [BextField(BextFields.TimeReference)]
@@ -81,6 +79,5 @@ namespace Packager.Models.BextModels
 
         [BextField(BextFields.ITCH)]
         public string ITCH { get; set; }
-
     }
 }

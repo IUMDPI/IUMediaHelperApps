@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Packager.Attributes;
+using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
@@ -16,11 +17,10 @@ namespace Packager.Utilities
 {
     public interface IBwfMetaEditRunner
     {
+        string BwfMetaEditPath { get; }
         Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core);
         Task<IProcessResult> ClearMetadata(ObjectFileModel model);
         Task<string> GetVersion();
-
-        string BwfMetaEditPath { get; }
     }
 
     public class BwfMetaEditRunner : IBwfMetaEditRunner
@@ -60,7 +60,7 @@ namespace Packager.Utilities
             {
                 var result = await ExecuteBextProcess(VersionArgument);
 
-                var parts = result.StandardOutput.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = result.StandardOutput.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
                 return parts.Last();
             }
             catch (Exception)
@@ -71,15 +71,28 @@ namespace Packager.Utilities
 
         private string GetArgsForCoreAndModel(AbstractFileModel model, BextMetadata core)
         {
-            var args = new List<string> {VerboseArgument, AppendArgument};
-            args.AddRange(core.GetType().GetProperties()
-                .Select(p => new Tuple<PropertyInfo, BextFieldAttribute>(p, p.GetCustomAttribute<BextFieldAttribute>()))
-                .Where(t => t.Item2 != null)
-                .Select(t => $"--{t.Item2.Field}={t.Item1.GetValue(core).ToDefaultIfEmpty().NormalizeForCommandLine().ToQuoted()}"));
+            var args = new List<string> {VerboseArgument}; //, AppendArgument};
+
+            foreach (var info in core.GetType().GetProperties()
+                .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(core, p), p.GetCustomAttribute<BextFieldAttribute>()))
+                .Where(t => t.Item2 != null))
+            {
+                if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
+                {
+                    throw new BextMetadataException("Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1, info.Item2.MaxLength);
+                }
+
+                args.Add($"--{info.Item2.Field}={info.Item1.NormalizeForCommandLine().ToQuoted()}");
+            }
 
             args.Add(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()).ToQuoted());
 
             return string.Join(" ", args);
+        }
+
+        private static string GetValueFromField(BextMetadata core, PropertyInfo info)
+        {
+            return info.GetValue(core).ToDefaultIfEmpty();
         }
 
 

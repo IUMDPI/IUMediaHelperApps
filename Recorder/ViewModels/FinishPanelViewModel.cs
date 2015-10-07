@@ -19,7 +19,7 @@ namespace Recorder.ViewModels
             ActionButton = new ActionButtonModel
             {
                 ButtonCaption = "3",
-                LabelCaption = "Finish",
+                LabelCaption = "Combine",
                 Scale = 1,
                 ButtonCommand = new RelayCommand(async param => await parent.ShowPanel<FinishPanelViewModel>())
             };

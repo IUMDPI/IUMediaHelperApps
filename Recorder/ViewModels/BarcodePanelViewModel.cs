@@ -20,7 +20,7 @@ namespace Recorder.ViewModels
             ActionButton = new ActionButtonModel
             {
                 ButtonCaption = "1",
-                LabelCaption = "Start",
+                LabelCaption = "Create",
                 Scale = 1,
                 ButtonCommand = new RelayCommand(async param => await parent.ShowPanel<BarcodePanelViewModel>())
             };

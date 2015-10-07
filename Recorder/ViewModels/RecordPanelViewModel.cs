@@ -79,7 +79,7 @@ namespace Recorder.ViewModels
         public override bool IsEnabled => GetEnabledState();
 
         public override string BackButtonText => "Create new object";
-        public override string NextButtonText => "Generate single file";
+        public override string NextButtonText => "Combine parts";
 
         public override string Instructions => "Click record to start recording.";
 

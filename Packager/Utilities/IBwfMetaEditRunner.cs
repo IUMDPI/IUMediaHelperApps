@@ -29,17 +29,20 @@ namespace Packager.Utilities
         private const string AppendArgument = "--append";
         private const string VersionArgument = "--version";
 
-        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory, BextFields[] suppressFields)
+        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory, 
+            BextFields[] suppressFields, bool useAppend)
         {
             ProcessRunner = processRunner;
             BwfMetaEditPath = bwfMetaEditPath;
             BaseProcessingDirectory = baseProcessingDirectory;
             SuppressFields = suppressFields;
+            UseAppend = useAppend;
         }
 
         private IProcessRunner ProcessRunner { get; }
         private string BaseProcessingDirectory { get; }
         private BextFields[] SuppressFields { get; set; }
+        private bool UseAppend { get; set; }
 
         [ValidateFile]
         public string BwfMetaEditPath { get; }
@@ -74,6 +77,11 @@ namespace Packager.Utilities
         private string GetArgsForCoreAndModel(AbstractFileModel model, BextMetadata core)
         {
             var args = new List<string> {VerboseArgument}; //, AppendArgument};
+
+            if (UseAppend)
+            {
+                args.Add(AppendArgument);
+            }
 
             foreach (var info in core.GetType().GetProperties()
                 .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(core, p), p.GetCustomAttribute<BextFieldAttribute>()))

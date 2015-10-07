@@ -1,4 +1,5 @@
-﻿using Packager.Utilities;
+﻿using System.Collections.Generic;
+using Packager.Utilities;
 
 namespace Packager.Models
 {
@@ -26,7 +27,9 @@ namespace Packager.Models
         string SmtpServer { get; }
         string FromEmailAddress { get; }
         int DeleteSuccessfulObjectsAfterDays { get; }
-
         BextFields[] SuppressAudioMetadataFields { get; }
+        bool UseAppendFlagForAudioMetadata { get; }
+
+        List<string> Issues { get; } 
     }
 }

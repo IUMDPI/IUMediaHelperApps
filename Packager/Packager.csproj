@@ -131,9 +131,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Attributes\AbstractFromConfigSetting.cs" />
     <Compile Include="Attributes\BextFieldAttribute.cs" />
-    <Compile Include="Attributes\FromConfigSettingEnumListAttribute.cs" />
-    <Compile Include="Attributes\FromIntegerConfigSetting.cs" />
+    <Compile Include="Attributes\FromBoolConfigSettingAttribute.cs" />
+    <Compile Include="Attributes\FromBextFieldListConfigAttribute.cs" />
+    <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
+    <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
@@ -149,8 +152,8 @@
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Attributes\DeserializeAsLookupAttribute.cs" />
-    <Compile Include="Attributes\FromConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromConfigSettingListAttribute.cs" />
+    <Compile Include="Attributes\FromStringConfigSettingAttribute.cs" />
+    <Compile Include="Attributes\FromListConfigSettingAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFileAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFolderAttribute.cs" />

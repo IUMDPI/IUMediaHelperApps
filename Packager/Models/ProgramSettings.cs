@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Serialization;
 using Packager.Attributes;
 using Packager.Attributes.Packager.Attributes;
-using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Utilities;
 using Packager.Validators.Attributes;
@@ -19,155 +14,112 @@ namespace Packager.Models
     {
         public ProgramSettings(NameValueCollection settings)
         {
-            ImportMappedConfigStringSettings(settings);
-            ImportMappedConfigIntegerSettings(settings);
-            ImportMappedConfigListSettings(settings);
-            ImportMappedConfigEnumListSettings<BextFields>(settings);
-
-            PodAuth = GetAuthorization(settings["PodAuthorizationFile"]);
+            Issues = new List<string>();
+            ImportMappedConfigSettings(settings);
         }
 
-        [FromConfigSetting("PathToMetaEdit")]
+        [FromStringConfigSetting("PathToMetaEdit")]
         [ValidateFile]
         public string BwfMetaEditPath { get; private set; }
 
-        [FromConfigSetting("PathToFFMpeg")]
+        [FromStringConfigSetting("PathToFFMpeg")]
         [ValidateFile]
         public string FFMPEGPath { get; private set; }
 
-        [FromConfigSetting("WhereStaffWorkDirectoryName")]
+        [FromStringConfigSetting("WhereStaffWorkDirectoryName")]
         [ValidateFolder]
         public string InputDirectory { get; private set; }
 
-        [FromConfigSetting("ProcessingDirectoryName")]
+        [FromStringConfigSetting("ProcessingDirectoryName")]
         [ValidateFolder]
         public string ProcessingDirectory { get; private set; }
 
-        [FromConfigSetting("ffmpegAudioProductionArguments")]
+        [FromStringConfigSetting("ffmpegAudioProductionArguments")]
         [Required]
         public string FFMPEGAudioProductionArguments { get; private set; }
 
-        [FromConfigSetting("ffmpegAudioAccessArguments")]
+        [FromStringConfigSetting("ffmpegAudioAccessArguments")]
         [Required]
         public string FFMPEGAudioAccessArguments { get; private set; }
 
-        [FromConfigSetting("ProjectCode")]
+        [FromStringConfigSetting("ProjectCode")]
         [Required]
         public string ProjectCode { get; private set; }
 
-        [FromConfigSetting("DropBoxDirectoryName")]
+        [FromStringConfigSetting("DropBoxDirectoryName")]
         [ValidateFolder]
         public string DropBoxDirectoryName { get; private set; }
 
         [ValidateObject]
+        [FromPodAuthPathSetting("PodAuthorizationFile")]
         public PodAuth PodAuth { get; private set; }
 
-        [FromConfigSetting("ErrorDirectoryName")]
+        [FromStringConfigSetting("ErrorDirectoryName")]
         [ValidateFolder]
         public string ErrorDirectoryName { get; private set; }
 
-        [FromConfigSetting("SuccessDirectoryName")]
+        [FromStringConfigSetting("SuccessDirectoryName")]
         [ValidateFolder]
         public string SuccessDirectoryName { get; private set; }
 
-        [FromConfigSetting("LogDirectoryName")]
+        [FromStringConfigSetting("LogDirectoryName")]
         [ValidateFolder]
         [Required]
         public string LogDirectoryName { get; private set; }
 
-        [FromConfigSettingList("IssueNotifyEmailAddresses")]
+        [FromListConfigSettingAttribute("IssueNotifyEmailAddresses")]
         public string[] IssueNotifyEmailAddresses { get; private set; }
 
-        [FromConfigSettingEnumList("SuppressAudioMetadataFields")]
+        [FromBextFieldListConfig("SuppressAudioMetadataFields")]
         public BextFields[] SuppressAudioMetadataFields { get; private set; }
 
-        [FromConfigSetting("SmtpServer")]
+        [FromBoolConfigSetting("UseAppendFlagForAudioMetadata")]
+        public bool UseAppendFlagForAudioMetadata { get; private set; }
+
+        public List<string> Issues { get; }
+
+        [FromStringConfigSetting("SmtpServer")]
         public string SmtpServer { get; private set; }
 
-        [FromConfigSetting("FromEmailAddress")]
+        [FromStringConfigSetting("FromEmailAddress")]
         public string FromEmailAddress { get; private set; }
 
         [FromIntegerConfigSetting("DeleteProcessedAfterInDays")]
         public int DeleteSuccessfulObjectsAfterDays { get; private set; }
 
-        [FromConfigSetting("WebServiceUrl")]
+        [FromStringConfigSetting("WebServiceUrl")]
         [ValidateUri]
         public string WebServiceUrl { get; private set; }
 
         public string DateFormat => "yyyy-MM-dd HH:mm:ss \"GMT\"zzz";
 
-        private void ImportMappedConfigStringSettings(NameValueCollection settings)
+
+        private void ImportMappedConfigSettings(NameValueCollection settings)
         {
             foreach (var property in GetType().GetProperties()
-                .Where(p => p.GetCustomAttribute<FromConfigSettingAttribute>() != null))
+                .Where(p => p.GetCustomAttribute<AbstractFromConfigSettingAttribute>() != null))
             {
-                var settingName = property.GetCustomAttribute<FromConfigSettingAttribute>().Name;
-                property.SetValue(this, settings[settingName]);
-            }
-        }
+                var attribute = property.GetCustomAttribute<AbstractFromConfigSettingAttribute>();
 
-        private void ImportMappedConfigIntegerSettings(NameValueCollection settings)
-        {
-            foreach (var property in GetType().GetProperties()
-                .Where(p => p.GetCustomAttribute<FromIntegerConfigSettingAttribute>() != null))
-            {
-                var settingName = property.GetCustomAttribute<FromIntegerConfigSettingAttribute>().Name;
-
-                int value;
-
-                if (int.TryParse(settings[settingName], out value))
+                var value = ConvertAndAddIssues(attribute, settings[attribute.Name].ToDefaultIfEmpty());
+                if (value == null)
                 {
-                    property.SetValue(this, value);
+                    continue;
                 }
-            }
-        }
 
-        private void ImportMappedConfigListSettings(NameValueCollection settings)
-        {
-            foreach (var property in GetType().GetProperties()
-                .Where(p => p.GetCustomAttribute<FromConfigSettingListAttribute>() != null))
-            {
-                var settingName = property.GetCustomAttribute<FromConfigSettingListAttribute>().Name;
-                var value = settings[settingName].ToDefaultIfEmpty()
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToArray();
                 property.SetValue(this, value);
             }
         }
 
-        private void ImportMappedConfigEnumListSettings<T>(NameValueCollection settings) where T : struct
+        private object ConvertAndAddIssues(AbstractFromConfigSettingAttribute attribute, string value)
         {
-            foreach (var property in GetType().GetProperties()
-                .Where(p => p.PropertyType.GetElementType() == typeof(T))
-                .Where(p => p.GetCustomAttribute<FromConfigSettingEnumListAttribute>() != null))
+            var result = attribute.Convert(value);
+            foreach (var issue in attribute.Issues)
             {
-                var settingName = property.GetCustomAttribute<FromConfigSettingEnumListAttribute>().Name;
-                var values = settings[settingName].ToDefaultIfEmpty()
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToArray();
-
-                // need to make th
-                var toSetValues = new List<T>();
-
-                foreach (var value in values)
-                {
-                    T enumValue;
-                    if (Enum.TryParse(value, true, out enumValue) == false)
-                    {
-                        continue;
-                    }
-
-                    toSetValues.Add(enumValue);
-                }
-                property.SetValue(this, toSetValues.ToArray());
+                Issues.Add($"Problem importing setting {attribute.Name}: {issue}");
             }
-        }
 
-        private static PodAuth GetAuthorization(string path)
-        {
-            var serializer = new XmlSerializer(typeof(PodAuth));
-            using (var stream = new FileStream(path, FileMode.Open))
-            {
-                return (PodAuth)serializer.Deserialize(stream);
-            }
+            return result;
         }
     }
 }

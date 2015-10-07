@@ -25,7 +25,8 @@ namespace Packager.Providers
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             LookupsProvider = new AppConfigLookupsProvider();
-            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory, programSettings.SuppressAudioMetadataFields);
+            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory, 
+                programSettings.SuppressAudioMetadataFields, programSettings.UseAppendFlagForAudioMetadata);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier(), new BextMetadataFactory());
             FFMPEGRunner = new FFMPEGRunner(ProgramSettings.FFMPEGPath, ProgramSettings.ProcessingDirectory, ProcessRunner, Observers, FileProvider);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);

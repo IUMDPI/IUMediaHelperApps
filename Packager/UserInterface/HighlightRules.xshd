@@ -22,7 +22,8 @@
     <Span color="Error" begin="  Invalid uri specified for " />
     <Span color="Error" begin="  No digital file provenance found for " />
     <Span color="Warning" begin="  Could not remove.*:" />
-
+    <Span color="Warning" begin="Problem importing setting" />
+    <Span color="Warning" begin="Suppress audio metadata fields:" />
     <Span color="Warning" begin="Found 0 objects to process" />
     <Span color="Warning" begin=".{4}_\d{14}\salready exists in" />
     

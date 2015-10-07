@@ -13,7 +13,7 @@
             int convertedValue;
             if (int.TryParse(value, out convertedValue) == false)
             {
-                Issues.Add($"Could not convert \"{value}\" to integer value");
+                Issues.Add($"\"{value}\" is not a valid integer value");
                 return null;
             }
 

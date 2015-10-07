@@ -146,6 +146,17 @@ namespace Packager.Engine
         private async Task LogConfiguration()
         {
             var sectionKey = Observers.BeginSection("Configuration:");
+
+            foreach (var issue in _dependencyProvider.ProgramSettings.Issues)
+            {
+                Observers.Log(issue);
+            }
+
+            if (_dependencyProvider.ProgramSettings.Issues.Any())
+            {
+                Observers.Log("");
+            }
+
             Observers.Log("Project code: {0}", ProgramSettings.ProjectCode.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Web-service host: {0}", ProgramSettings.WebServiceUrl.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
@@ -157,6 +168,11 @@ namespace Packager.Engine
             Observers.Log("");
             Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("Use '--append' flag: {0}", _dependencyProvider.ProgramSettings.UseAppendFlagForAudioMetadata.ToString().ToLowerInvariant());
+            if (_dependencyProvider.ProgramSettings.SuppressAudioMetadataFields.Any())
+            {
+                Observers.Log("Suppress audio metadata fields: {0}", string.Join(", ", _dependencyProvider.ProgramSettings.SuppressAudioMetadataFields));
+            }
             Observers.Log("");
             Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
@@ -164,6 +180,9 @@ namespace Packager.Engine
             Observers.Log("FFMPeg audio access args: {0}", ProgramSettings.FFMPEGAudioAccessArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("Success folder cleaning: {0}", _dependencyProvider.SuccessFolderCleaner.Enabled ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}" : "disabled");
+
+          
+
             Observers.EndSection(sectionKey);
         }
 

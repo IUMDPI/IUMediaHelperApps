@@ -14,6 +14,12 @@ namespace Packager.Attributes
 
         public override object Convert(string value)
         {
+            if (!File.Exists(value))
+            {
+                Issues.Add($"the file {value} does not exist or could not be accessed");
+                return null;
+            }
+
             try
             {
                 var serializer = new XmlSerializer(typeof (PodAuth));

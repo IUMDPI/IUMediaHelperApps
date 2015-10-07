@@ -12,7 +12,7 @@
             bool convertedValue;
             if (bool.TryParse(value, out convertedValue) == false)
             {
-                Issues.Add($"Could not convert \"{value}\" to bool value");
+                Issues.Add($"\"{value}\" is not a valid boolean value");
                 return null;
             }
 

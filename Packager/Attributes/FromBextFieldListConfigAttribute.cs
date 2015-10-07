@@ -26,7 +26,7 @@ namespace Packager.Attributes
                     BextFields enumValue;
                     if (Enum.TryParse(rawValue, true, out enumValue) == false)
                     {
-                        Issues.Add($"Could not convert \"{rawValue}\" to valid bext field value");
+                        Issues.Add($"\"{rawValue}\" is not a valid bext field value");
                         continue;
                     }
 

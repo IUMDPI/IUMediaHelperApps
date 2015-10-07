@@ -29,15 +29,17 @@ namespace Packager.Utilities
         private const string AppendArgument = "--append";
         private const string VersionArgument = "--version";
 
-        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory)
+        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory, BextFields[] suppressFields)
         {
             ProcessRunner = processRunner;
             BwfMetaEditPath = bwfMetaEditPath;
             BaseProcessingDirectory = baseProcessingDirectory;
+            SuppressFields = suppressFields;
         }
 
         private IProcessRunner ProcessRunner { get; }
         private string BaseProcessingDirectory { get; }
+        private BextFields[] SuppressFields { get; set; }
 
         [ValidateFile]
         public string BwfMetaEditPath { get; }
@@ -75,7 +77,9 @@ namespace Packager.Utilities
 
             foreach (var info in core.GetType().GetProperties()
                 .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(core, p), p.GetCustomAttribute<BextFieldAttribute>()))
-                .Where(t => t.Item2 != null))
+                .Where(t => t.Item2 != null)
+                .Where(t=> SuppressFields.Contains(t.Item2.Field)==false) // don't include fields in the suppress list
+                )
             {
                 if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
                 {

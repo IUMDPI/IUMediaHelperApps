@@ -1,4 +1,6 @@
-﻿namespace Packager.Models
+﻿using Packager.Utilities;
+
+namespace Packager.Models
 {
     public interface IProgramSettings
     {
@@ -24,5 +26,7 @@
         string SmtpServer { get; }
         string FromEmailAddress { get; }
         int DeleteSuccessfulObjectsAfterDays { get; }
+
+        BextFields[] SuppressAudioMetadataFields { get; }
     }
 }

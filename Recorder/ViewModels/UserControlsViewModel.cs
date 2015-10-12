@@ -4,8 +4,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using JetBrains.Annotations;
-using Recorder.BarcodeScanner;
 using Recorder.Models;
 using Recorder.Utilities;
 
@@ -14,13 +14,12 @@ namespace Recorder.ViewModels
     public class UserControlsViewModel : INotifyPropertyChanged
     {
         private readonly List<AbstractPanelViewModel> _panels;
-        
+
         private readonly IProgramSettings _settings;
         private BarcodeHandler _barcodeHander;
-       
+
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel, RecordingEngine recorder, CombiningEngine combiner)
         {
-            
             _settings = settings;
             Recorder = recorder;
             Combiner = combiner;
@@ -32,14 +31,17 @@ namespace Recorder.ViewModels
                 new RecordPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed},
                 new FinishPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed}
             };
-        
-        
+
+            OutputWindowViewModel = new OutputWindowViewModel {Visibility = Visibility.Visible, Clear = true};
+
+            Recorder.OutputWindowViewModel = OutputWindowViewModel;
         }
+
 
         private IProgramSettings ProgramSettings { get; }
 
         public string Title => $"{_settings.ProjectCode} Recorder";
-        
+
         public BarcodePanelViewModel BarcodePanelViewModel => GetPanel<BarcodePanelViewModel>();
         public RecordPanelViewModel RecordPanelViewModel => GetPanel<RecordPanelViewModel>();
         public FinishPanelViewModel FinishPanelViewModel => GetPanel<FinishPanelViewModel>();
@@ -48,6 +50,7 @@ namespace Recorder.ViewModels
         public RecordingEngine Recorder { get; set; }
 
         public CombiningEngine Combiner { get; set; }
+        public OutputWindowViewModel OutputWindowViewModel { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -81,10 +84,8 @@ namespace Recorder.ViewModels
             _barcodeHander = new BarcodeHandler(this, ProgramSettings.BarcodeScannerIdentifiers);
             _barcodeHander.Hook(client);
 
-            client.Closing+=OnWindowClosing;
-            
+            client.Closing += OnWindowClosing;
         }
-
 
         private void OnWindowClosing(object sender, CancelEventArgs args)
         {
@@ -94,8 +95,8 @@ namespace Recorder.ViewModels
             }
 
             var view = sender as UserControls;
-            var result = view == null 
-                ? MessageBox.Show("You are still recording. Are you sure you want to exit", "Stop Recording and Exit?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) 
+            var result = view == null
+                ? MessageBox.Show("You are still recording. Are you sure you want to exit", "Stop Recording and Exit?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No)
                 : MessageBox.Show(view, "You are still recording. Are you sure you want to exit", "Stop Recording and Exit?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
 
             if (result != MessageBoxResult.Yes)

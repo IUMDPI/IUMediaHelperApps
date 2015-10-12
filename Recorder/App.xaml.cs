@@ -33,8 +33,22 @@ namespace Recorder
             {
                 DataContext = viewModel,
             };
+
+            var outputWindow = new OutputWindow
+            {
+                DataContext = viewModel.OutputWindowViewModel,
+            };
             
             userControls.Show();
+
+            outputWindow.Owner = userControls;
+            outputWindow.Left = userControls.Left + userControls.Width;
+            outputWindow.Width = userControls.Width;
+            outputWindow.Height = userControls.Height;
+            outputWindow.Top = userControls.Top;
+            outputWindow.Show();
+
+            viewModel.OutputWindowViewModel.HookEvents(outputWindow);
         }
 
         private void ApplicationExitHandler(object sender, ExitEventArgs e)

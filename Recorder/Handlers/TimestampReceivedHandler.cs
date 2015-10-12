@@ -5,15 +5,14 @@ using Recorder.Utilities;
 
 namespace Recorder.Handlers
 {
-    public class TimestampReceivedHandler:AbstractRecordingHandler
+    public class TimestampReceivedHandler
     {
+        private RecordingEngine Recorder { get; }
         private readonly Regex _timestampExpression = new Regex(@"time=(\d{2}:\d{2}:\d{2}\.\d{2})");
-
-        public delegate void TimestampDelegate(TimeSpan timeSpan);
-
-        public TimestampReceivedHandler(RecordingEngine recorder) : base(recorder)
+        
+        public TimestampReceivedHandler(RecordingEngine recorder)
         {
-         
+            Recorder = recorder;
         }
 
         public void Reset()

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Recorder.Models;
@@ -14,8 +11,8 @@ namespace Recorder.Utilities
 {
     public class CombiningEngine : AbstractEngine
     {
-        private bool _combining;
         private const string ArgumentFormat = "-y -f concat -i \"{0}\" -c copy \"{1}\"";
+        private bool _combining;
 
         public CombiningEngine(ProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
         {
@@ -25,8 +22,15 @@ namespace Recorder.Utilities
         public bool Combining
         {
             get { return _combining; }
-            set { _combining = value; OnPropertyChanged(); }
+            set
+            {
+                _combining = value;
+                OnPropertyChanged();
+            }
         }
+
+
+        private string CombineFilePath => Path.Combine(ObjectModel.WorkingFolderPath, "combine.txt");
 
         public void Combine()
         {
@@ -62,7 +66,7 @@ namespace Recorder.Utilities
         private void OpenFolder()
         {
             var info = new ProcessStartInfo(ObjectModel.OutputFolder);
-            using (var process = new Process() {StartInfo = info})
+            using (var process = new Process {StartInfo = info})
             {
                 process.Start();
             }
@@ -88,9 +92,6 @@ namespace Recorder.Utilities
             return ObjectModel.FilePartsValid();
         }
 
-
-        private string CombineFilePath => Path.Combine(ObjectModel.WorkingFolderPath, "combine.txt");
-
         private void GenerateCombineList()
         {
             var builder = new StringBuilder();
@@ -100,6 +101,11 @@ namespace Recorder.Utilities
             }
 
             File.WriteAllText(CombineFilePath, builder.ToString());
+        }
+
+        protected override void ConfigureOutputCapture()
+        {
+            // nothing to do
         }
     }
 }

@@ -15,14 +15,9 @@
             <controls:BarcodePanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding BarcodePanelViewModel}" />
             <controls:RecordPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding RecordPanelViewModel}" />
             <controls:FinishPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding FinishPanelViewModel}" />
-            <controls:NavigationPanel DockPanel.Dock="Bottom" Padding="12" DataContext="{Binding ActivePanelModel}" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Background="LightGray" />
+            <controls:NavigationPanel DockPanel.Dock="Bottom" Padding="12" DataContext="{Binding ActivePanelModel}" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Background="LightGray" Height="56"/>
         </DockPanel>
-        
-      
-
-
-
-    </Grid>
+     </Grid>
 </Window>
 
     

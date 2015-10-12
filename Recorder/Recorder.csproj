@@ -136,6 +136,9 @@
     <Compile Include="Controls\NavigationPanel.xaml.cs">
       <DependentUpon>NavigationPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\OutputPanel.xaml.cs">
+      <DependentUpon>OutputPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\RecordPanel.xaml.cs">
       <DependentUpon>RecordPanel.xaml</DependentUpon>
     </Compile>
@@ -145,10 +148,14 @@
     <Compile Include="Converters\EmptyToVisibilityConverter.cs" />
     <Compile Include="Converters\TimespanToStringConverter.cs" />
     <Compile Include="Enums\FileUses.cs" />
-    <Compile Include="Handlers\AbstractRecordingHandler.cs" />
+    <Compile Include="Extensions\UserInterfaceExtensions.cs" />
+    <Compile Include="Handlers\OutputReceivedHandler.cs" />
     <Compile Include="Models\ObjectModel.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Handlers\TimestampReceivedHandler.cs" />
+    <Compile Include="OutputWindow.xaml.cs">
+      <DependentUpon>OutputWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RelayCommand.cs" />
     <Compile Include="Utilities\AbstractEngine.cs" />
     <Compile Include="Utilities\BarcodeHandler.cs" />
@@ -156,6 +163,7 @@
     <Compile Include="Utilities\InfoEngine.cs" />
     <Compile Include="Utilities\RecordingEngine.cs" />
     <Compile Include="ViewModels\ActionButtonModel.cs" />
+    <Compile Include="ViewModels\OutputWindowViewModel.cs" />
     <Compile Include="ViewModels\UserControlsViewModel.cs" />
     <Compile Include="ViewModels\AbstractPanelViewModel.cs" />
     <Compile Include="ViewModels\FinishPanelViewModel.cs" />
@@ -181,11 +189,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\OutputPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\RecordPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\SmallRecordingPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OutputWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

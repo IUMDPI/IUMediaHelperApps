@@ -42,7 +42,6 @@ namespace Recorder.ViewModels
             get { return _partTimestamp; }
             set
             {
-                Debug.WriteLine(value);
                 _partTimestamp = value;
                 OnPropertyChanged();
             }

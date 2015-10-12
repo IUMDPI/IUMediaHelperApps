@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Forms;
-using System.Windows.Input;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Folding;
-using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Rendering;
 using Packager.Annotations;
 using Packager.Exceptions;
 using Packager.Models;
@@ -44,7 +38,7 @@ namespace Packager.UserInterface
 
         private bool AutoScroll { get; set; }
 
-        public TextDocument Document { get; private set; }
+        public TextDocument Document { get; }
 
         private FoldingManager FoldingManager { get; set; }
 
@@ -53,6 +47,8 @@ namespace Packager.UserInterface
         private TextArea TextArea => TextEditor.TextArea;
 
         private TextEditor TextEditor { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public void Initialize(OutputWindow outputWindow, IProgramSettings programSettings)
         {
@@ -66,7 +62,7 @@ namespace Packager.UserInterface
             outputWindow.DataContext = this;
             outputWindow.Show();
 
-            ((IScrollInfo)outputWindow.OutputText.TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
+            ((IScrollInfo) outputWindow.OutputText.TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
 
             Document.PropertyChanged += DocumentPropertyChangedHandler;
             Title = $"{programSettings.ProjectCode.ToUpperInvariant()} Media Packager";
@@ -107,7 +103,6 @@ namespace Packager.UserInterface
 
             var scrollTo = TextArea.TextView.GetVisualTopByDocumentLine(Document.LineCount);
             TextEditor.ScrollToVerticalOffset(scrollTo);
-
         }
 
         private void InsertLine()
@@ -130,7 +125,7 @@ namespace Packager.UserInterface
 
         public void ScrollToBarcodeSection(string barCode)
         {
-            var section =_sections.FirstOrDefault(m => m.Key.Equals(barCode));
+            var section = _sections.FirstOrDefault(m => m.Key.Equals(barCode));
             if (section == null)
             {
                 return;
@@ -142,8 +137,8 @@ namespace Packager.UserInterface
                 return;
             }
 
-            folding.IsFolded = false; 
-            
+            folding.IsFolded = false;
+
             var line = TextEditor.Document.GetLineByOffset(section.StartOffset);
             TextEditor.ScrollTo(line.LineNumber, 0);
         }
@@ -245,10 +240,8 @@ namespace Packager.UserInterface
         {
             return indent == 0
                 ? value
-                : $"{new string(' ', indent * 2)}{value}";
+                : $"{new string(' ', indent*2)}{value}";
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

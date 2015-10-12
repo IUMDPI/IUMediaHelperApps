@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using Microsoft.VisualBasic.FileIO;
 using Recorder.Handlers;
 using Recorder.Models;
+using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
@@ -29,6 +30,7 @@ namespace Recorder.Utilities
 
 
         private TimestampReceivedHandler TimestampHandler { get; }
+        private OutputReceivedHandler OutputReceivedHandler { get; set; }
 
         public bool Recording
         {
@@ -71,7 +73,7 @@ namespace Recorder.Utilities
             }
 
             Recording = true;
-
+            
 
             if (!Directory.Exists(ObjectModel.WorkingFolderPath))
             {
@@ -79,6 +81,8 @@ namespace Recorder.Utilities
             }
 
             var part = GetNewPart();
+
+            OutputWindowViewModel.StartOutput($"Recording {GetTargetPartFilename(part)}");
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
             TimestampHandler.Reset();
@@ -193,6 +197,13 @@ namespace Recorder.Utilities
         {
             StopRecording();
             base.Dispose();
+        }
+
+        protected override void ConfigureOutputCapture()
+        {
+            OutputReceivedHandler = new OutputReceivedHandler(OutputWindowViewModel);
+            Process.OutputDataReceived += OutputReceivedHandler.OnDataReceived;
+            Process.ErrorDataReceived += OutputReceivedHandler.OnDataReceived;
         }
     }
 }

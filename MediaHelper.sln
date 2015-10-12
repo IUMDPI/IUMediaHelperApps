@@ -32,6 +32,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recorder", "Recorder\Record
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaveInfo", "WaveInfo\WaveInfo.csproj", "{FD737CE4-6FD8-4EF9-88F4-3105F499190D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{AE3B0A62-0256-4802-915D-FC5CABDD7A97}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{031C313B-FF3F-458D-82B4-667AAF2B5FF8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,5 +65,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{52D5A6E9-5667-4163-B97A-4DB1AC4500F0} = {031C313B-FF3F-458D-82B4-667AAF2B5FF8}
+		{5F458C66-5C16-48EB-B11D-C0CF0D8F2AFE} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
+		{FD737CE4-6FD8-4EF9-88F4-3105F499190D} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 	EndGlobalSection
 EndGlobal

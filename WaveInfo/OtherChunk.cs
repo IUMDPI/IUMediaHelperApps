@@ -10,7 +10,8 @@ namespace WaveInfo
         {
             base.ReadChunk(reader);
 
-            Data = reader.ReadBytes(Convert.ToInt32(Size));
+            reader.BaseStream.Seek(Size, SeekOrigin.Current);
+            //Data = reader.ReadBytes(Convert.ToInt32(Size));
         }
     }
 }

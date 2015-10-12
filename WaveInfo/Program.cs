@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace WaveInfo
@@ -12,6 +13,7 @@ namespace WaveInfo
             try
             {
                 var waveFile = WaveFileFactory.OpenWaveFile(args[0]);
+                
                 WriteFileOverView(builder, waveFile);
                 OutputLine(builder);
                 WriteDataSizeReport(builder, waveFile);
@@ -20,6 +22,8 @@ namespace WaveInfo
                 OutputLine(builder);
                 
                 WriteNotes(builder);
+
+                WriteReport(args[0], builder);
             }
             catch (Exception e)
             {
@@ -30,18 +34,9 @@ namespace WaveInfo
 
 
             Console.WriteLine();
-            Console.WriteLine("Press [retrn] to exit");
+            Console.WriteLine("Press [return] to exit");
             Console.ReadLine();
             return returnCode;
-        }
-
-        private static void WriteChunkContentReports(StringBuilder builder, WaveFile file)
-        {
-            foreach (var chunk in file.Chunks)
-            {
-                OutputLine(builder, $"{chunk.Id.ToUpperInvariant()} Content: ");
-                OutputLine(builder,chunk.GetReport());
-            }
         }
 
         private static string ToFixedLength(object value)
@@ -49,10 +44,12 @@ namespace WaveInfo
             return $"{value,-20}";
         }
 
-        private static void OutputText(StringBuilder builder, string baseText, params object[] args)
+        private static void WriteReport(string originalPath, StringBuilder builder)
         {
-            builder.AppendFormat(baseText, args);
-            Console.Write(baseText, args);
+            var info = new FileInfo(originalPath);
+
+            var path = $"{originalPath}.{info.LastWriteTime:yyyy-MM-dd_hh-mm-ss-tt}.report.txt";
+            File.WriteAllText(path, builder.ToString());
         }
 
         private static void OutputLine(StringBuilder builder)
@@ -138,7 +135,7 @@ namespace WaveInfo
             
             if (chunk.Size == chunk.ReportedSize)
             {
-                return string.Format(baseformat, chunk.Size.ToString());
+                return string.Format(baseformat, chunk.Size);
             }
 
             if (IsMaxSize(chunk.ReportedSize))

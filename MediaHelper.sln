@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduler", "Scheduler\Sche
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recorder", "Recorder\Recorder.csproj", "{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaveInfo", "WaveInfo\WaveInfo.csproj", "{FD737CE4-6FD8-4EF9-88F4-3105F499190D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A00C8365-CEE6-45F5-8809-D05D76AB6DEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD737CE4-6FD8-4EF9-88F4-3105F499190D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD737CE4-6FD8-4EF9-88F4-3105F499190D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD737CE4-6FD8-4EF9-88F4-3105F499190D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD737CE4-6FD8-4EF9-88F4-3105F499190D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

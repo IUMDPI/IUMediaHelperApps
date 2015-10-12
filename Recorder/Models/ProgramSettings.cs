@@ -1,4 +1,6 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
+using System.Linq;
 
 namespace Recorder.Models
 {
@@ -12,6 +14,8 @@ namespace Recorder.Models
         string FFMPEGArguments { get; }
 
         string WorkingFolder { get; }
+        
+        string[] BarcodeScannerIdentifiers { get; }
     }
 
     public class ProgramSettings : IProgramSettings
@@ -24,7 +28,20 @@ namespace Recorder.Models
             FFMPEGArguments = settings["FFMPEGArguments"];
             WorkingFolder = settings["WorkingDirectoryName"];
             PathToFFProbe = settings["PathToFFProbe"];
+            BarcodeScannerIdentifiers =ToArray(settings["BarcodeScannerIdentifiers"]);
         }
+
+        private static string[] ToArray(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return new string[0];
+            }
+
+            return value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim()).ToArray();
+        }
+        
 
         public string ProjectCode { get; }
         public string PathToFFMPEG { get; }
@@ -32,5 +49,6 @@ namespace Recorder.Models
         public string PathToFFProbe { get; }
         public string FFMPEGArguments { get; }
         public string WorkingFolder { get; }
+        public string[] BarcodeScannerIdentifiers { get; }
     }
 }

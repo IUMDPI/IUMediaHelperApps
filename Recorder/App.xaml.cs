@@ -33,8 +33,7 @@ namespace Recorder
             {
                 DataContext = viewModel,
             };
-
-            userControls.Closing += viewModel.OnWindowClosing;
+            
             userControls.Show();
         }
 

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
+using Recorder.BarcodeScanner;
 using Recorder.Models;
 using Recorder.Utilities;
 
@@ -13,14 +14,17 @@ namespace Recorder.ViewModels
     public class UserControlsViewModel : INotifyPropertyChanged
     {
         private readonly List<AbstractPanelViewModel> _panels;
-    
+        
         private readonly IProgramSettings _settings;
+        private BarcodeHandler _barcodeHander;
        
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel, RecordingEngine recorder, CombiningEngine combiner)
         {
+            
             _settings = settings;
             Recorder = recorder;
             Combiner = combiner;
+            ProgramSettings = settings;
 
             _panels = new List<AbstractPanelViewModel>
             {
@@ -29,7 +33,10 @@ namespace Recorder.ViewModels
                 new FinishPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed}
             };
         
+        
         }
+
+        private IProgramSettings ProgramSettings { get; }
 
         public string Title => $"{_settings.ProjectCode} Recorder";
         
@@ -68,7 +75,18 @@ namespace Recorder.ViewModels
             OnPropertyChanged(nameof(ActivePanelModel));
         }
 
-        public void OnWindowClosing(object sender, CancelEventArgs args)
+
+        public void HookEvents(Window client)
+        {
+            _barcodeHander = new BarcodeHandler(this, ProgramSettings.BarcodeScannerIdentifiers);
+            _barcodeHander.Hook(client);
+
+            client.Closing+=OnWindowClosing;
+            
+        }
+
+
+        private void OnWindowClosing(object sender, CancelEventArgs args)
         {
             if (Recorder.Recording == false)
             {

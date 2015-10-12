@@ -34,7 +34,7 @@ namespace Recorder.Models
             ? string.Format($"{ProjectCode}_{Barcode}_{Part:d2}_{FileUse}.mkv")
             : string.Empty;
 
-        public string WorkingFolderName => $"{ProjectCode}_{Barcode}";
+        public string WorkingFolderName => FilePartsValid().IsValid ? $"{ProjectCode}_{Barcode}":"";
         public string WorkingFolderPath => Path.Combine(Settings.WorkingFolder, WorkingFolderName);
 
         public string OutputFolder => Path.Combine(Settings.OutputFolder, WorkingFolderName);
@@ -79,12 +79,22 @@ namespace Recorder.Models
 
         public bool PartsPresent()
         {
+            if (!BarcodeValid())
+            {
+                return false;
+            }
+
             return Directory.Exists(WorkingFolderPath)
                    && Directory.EnumerateFiles(WorkingFolderPath, ExistingPartsMask).Any();
         }
 
         public bool MultiplePartsPresent()
         {
+            if (!BarcodeValid())
+            {
+                return false;
+            }
+
             return Directory.Exists(WorkingFolderPath)
                    && Directory.EnumerateFiles(WorkingFolderPath, ExistingPartsMask).Count()>1;
         }

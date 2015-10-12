@@ -108,6 +108,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BarcodeScanner\Interop\DataStructures.cs" />
+    <Compile Include="BarcodeScanner\Interop\Enumerations.cs" />
+    <Compile Include="BarcodeScanner\Interop\RegistryAccess.cs" />
+    <Compile Include="BarcodeScanner\Interop\Win32Consts.cs" />
+    <Compile Include="BarcodeScanner\Interop\Win32Methods.cs" />
+    <Compile Include="BarcodeScanner\KeyPressState.cs" />
+    <Compile Include="BarcodeScanner\RawDeviceType.cs" />
+    <Compile Include="BarcodeScanner\RawInput.cs" />
+    <Compile Include="BarcodeScanner\RawInputCaptureMode.cs" />
+    <Compile Include="BarcodeScanner\RawInputEventArgs.cs" />
+    <Compile Include="BarcodeScanner\RawKeyboard.cs" />
+    <Compile Include="BarcodeScanner\RawKeyboardDevice.cs" />
+    <Compile Include="BarcodeScanner\RawPresentationInput.cs" />
     <Compile Include="Controls\ActionButton.xaml.cs">
       <DependentUpon>ActionButton.xaml</DependentUpon>
     </Compile>
@@ -138,6 +151,7 @@
     <Compile Include="Handlers\TimestampReceivedHandler.cs" />
     <Compile Include="RelayCommand.cs" />
     <Compile Include="Utilities\AbstractEngine.cs" />
+    <Compile Include="Utilities\BarcodeHandler.cs" />
     <Compile Include="Utilities\CombiningEngine.cs" />
     <Compile Include="Utilities\InfoEngine.cs" />
     <Compile Include="Utilities\RecordingEngine.cs" />
@@ -218,6 +232,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

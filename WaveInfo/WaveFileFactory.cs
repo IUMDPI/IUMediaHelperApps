@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using WaveInfo.Extensions;
 
 namespace WaveInfo
 {
@@ -42,6 +43,8 @@ namespace WaveInfo
                 throw new FileNotFoundException("Could not open file", path);
             }
 
+            Console.WriteLine($"Analyzing {path}");
+
             var result = new WaveFile
             {
                 FileName = Path.GetFileName(path),
@@ -55,11 +58,12 @@ namespace WaveInfo
                 while (reader.BaseStream.Position < result.FileSize)
                 {
                     var id = new string(reader.ReadChars(4)).ToLowerInvariant();
+                    Console.WriteLine($"Reading {id} chunk");
                     var chunk = GetChunk(id);
                     result.Chunks.Add(chunk);
                     
                     chunk.ReadChunk(reader);
-                    HanderDataChunk(reader, result, chunk as DataChunk);
+                    HandleDataChunk(reader, result, chunk as DataChunk);
                 }
             }
             return result;
@@ -84,7 +88,7 @@ namespace WaveInfo
             return result;
         }
 
-        private static void HanderDataChunk(BinaryReader reader, WaveFile waveFile, DataChunk chunk)
+        private static void HandleDataChunk(BinaryReader reader, WaveFile waveFile, DataChunk chunk)
         {
             if (chunk == null)
             {
@@ -92,10 +96,10 @@ namespace WaveInfo
             }
 
             var ds64Chunk = waveFile.GetChunk<Ds64Chunk>();
-            var offset = (ds64Chunk != null)
-                ? Convert.ToInt64(ds64Chunk.DataSize)
-                : Convert.ToInt64(chunk.Size);
-            reader.BaseStream.Seek(offset, SeekOrigin.Current);
+            var offset = (ds64Chunk?.DataSize ?? chunk.Size).Normalize();
+
+            Console.WriteLine("Hashing data chunk");
+            chunk.Md5Hash = reader.Md5Hash(offset).ToUpperInvariant();
         }
     }
 }

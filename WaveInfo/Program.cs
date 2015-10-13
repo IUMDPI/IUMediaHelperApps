@@ -14,6 +14,8 @@ namespace WaveInfo
             {
                 var waveFile = WaveFileFactory.OpenWaveFile(args[0]);
                 
+                Console.Clear();
+
                 WriteFileOverView(builder, waveFile);
                 OutputLine(builder);
                 WriteDataSizeReport(builder, waveFile);
@@ -33,7 +35,7 @@ namespace WaveInfo
             }
 
 
-            Console.WriteLine();
+           Console.WriteLine();
             Console.WriteLine("Press [return] to exit");
             Console.ReadLine();
             return returnCode;
@@ -64,6 +66,7 @@ namespace WaveInfo
             builder.AppendLine(text);
             Console.WriteLine(text);
         }
+                
 
         private static void WriteFileOverView(StringBuilder builder, WaveFile file)
         {
@@ -109,11 +112,12 @@ namespace WaveInfo
             OutputLine(builder, "Data size (data)     {0}", NormalizeReportedSize(dataChunk.ReportedSize));
 
             var ds64Chunk = file.GetChunk<Ds64Chunk>();
-            if (ds64Chunk == null)
+            if (ds64Chunk != null)
             {
-                return;
+                OutputLine(builder, "Data size (ds64)     {0}", ds64Chunk.DataSize);
             }
-            OutputLine(builder, "Data size (ds64)     {0}", ds64Chunk.DataSize);
+            
+            OutputLine(builder, "Data MD5 Hash        {0}", dataChunk.Md5Hash);
 
         }
 

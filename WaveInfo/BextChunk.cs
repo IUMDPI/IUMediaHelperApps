@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using WaveInfo.Extensions;
 
 namespace WaveInfo
 {
@@ -34,7 +35,7 @@ namespace WaveInfo
 
             if (Size > 602)
             {
-                var historySize = Convert.ToInt32(NormalizeSize(Size - 602));
+                var historySize = Convert.ToInt32((Size - 602).Normalize());
                 CodingHistory = new string(reader.ReadChars(historySize));
             }
         }

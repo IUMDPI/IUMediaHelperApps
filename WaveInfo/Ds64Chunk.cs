@@ -9,6 +9,7 @@ namespace WaveInfo
         public ulong SampleCount { get; set; }
         public uint TableLength { get; set; }
 
+       
         public override void ReadChunk(BinaryReader reader)
         {
             base.ReadChunk(reader);

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using WaveInfo.Extensions;
 
 namespace WaveInfo
 {
@@ -19,7 +20,7 @@ namespace WaveInfo
         private void SetSize(BinaryReader reader)
         {
             ReportedSize = reader.ReadUInt32();
-            Size = NormalizeSize(ReportedSize);
+            Size = ReportedSize.Normalize();
         }
 
         private void SetOffset(BinaryReader reader)
@@ -27,16 +28,7 @@ namespace WaveInfo
             Offset = reader.BaseStream.Position - 4;
         }
 
-        protected static uint NormalizeSize(uint value)
-        {
-            if (value%2 == 0)
-            {
-                return value;
-            }
-
-            return value + 1;
-        }
-
+        
         public string GetReport()
         {
             var builder = new StringBuilder();

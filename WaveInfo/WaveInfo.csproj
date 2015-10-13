@@ -47,6 +47,8 @@
     <Compile Include="BextChunk.cs" />
     <Compile Include="DataChunk.cs" />
     <Compile Include="Ds64Chunk.cs" />
+    <Compile Include="Extensions\BinaryReaderExtensions.cs" />
+    <Compile Include="Extensions\Uint64Extensions.cs" />
     <Compile Include="FactChunk.cs" />
     <Compile Include="OtherChunk.cs" />
     <Compile Include="FormatChunk.cs" />

@@ -17,19 +17,20 @@ namespace Recorder.Utilities
         private readonly InfoEngine _infoEngine;
         private bool _recording;
 
-        public RecordingEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel) : base(settings, objectModel, outputModel)
+        public RecordingEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel, IssueNotifyModel issueNotifyModel)
+            : base(settings, objectModel, outputModel, issueNotifyModel)
         {
             Recording = false;
             CumulativeTimeSpan = new TimeSpan();
             Process.Exited += ProcessExitHandler;
             TimestampHandler = new TimestampReceivedHandler(this);
-            
+
             _infoEngine = new InfoEngine(settings);
         }
 
 
         private TimestampReceivedHandler TimestampHandler { get; }
-      
+
 
         public bool Recording
         {
@@ -108,15 +109,23 @@ namespace Recorder.Utilities
 
         private void ProcessExitHandler(object sender, EventArgs e)
         {
-            if (!Dispatcher.CurrentDispatcher.CheckAccess())
+            try
             {
-                Dispatcher.CurrentDispatcher.Invoke(() => ProcessExitHandler(sender, e));
-                return;
-            }
+                if (!Dispatcher.CurrentDispatcher.CheckAccess())
+                {
+                    Dispatcher.CurrentDispatcher.Invoke(() => ProcessExitHandler(sender, e));
+                    return;
+                }
 
-            Process.CancelErrorRead();
-            Process.CancelOutputRead();
-            Recording = false;
+
+                Recording = false;
+                CheckExitCode();
+            }
+            finally
+            {
+                Process.CancelErrorRead();
+                Process.CancelOutputRead();
+            }
         }
 
         public void ClearExistingParts()
@@ -196,6 +205,16 @@ namespace Recorder.Utilities
         {
             StopRecording();
             base.Dispose();
+        }
+
+        protected override void CheckExitCode()
+        {
+            if (Process.ExitCode == 0)
+            {
+                return;
+            }
+
+            IssueNotifyModel.Notify(GetErrorMessageFromOutput("Something went wrong while recording parts: {0}"));
         }
     }
 }

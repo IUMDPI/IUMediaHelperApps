@@ -14,7 +14,7 @@ namespace Recorder.Utilities
         protected readonly Process Process;
         private OutputWindowViewModel _outputWindowViewModel;
 
-        protected AbstractEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel)
+        protected AbstractEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel, IssueNotifyModel issueNotifyModel)
         {
             Settings = settings;
             ObjectModel = objectModel;
@@ -33,6 +33,7 @@ namespace Recorder.Utilities
             };
 
             OutputWindowViewModel = outputModel;
+            IssueNotifyModel = issueNotifyModel;
             OutputReceivedHandler = new OutputReceivedHandler(OutputWindowViewModel);
 
             Process.OutputDataReceived += OutputReceivedHandler.OnDataReceived;
@@ -40,13 +41,14 @@ namespace Recorder.Utilities
         }
 
 
-        protected OutputReceivedHandler OutputReceivedHandler { get;}
+        private OutputReceivedHandler OutputReceivedHandler { get; }
         protected OutputWindowViewModel OutputWindowViewModel { get; }
+        protected IssueNotifyModel IssueNotifyModel { get; set; }
 
 
         protected IProgramSettings Settings { get; }
         protected ObjectModel ObjectModel { get; }
-        
+
         public virtual void Dispose()
         {
             Process?.Dispose();
@@ -54,8 +56,26 @@ namespace Recorder.Utilities
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        
+        protected string GetErrorMessageFromOutput(string baseFormat)
+        {
+            if (string.IsNullOrWhiteSpace(OutputWindowViewModel.Text))
+            {
+                return string.Format(baseFormat, "[unknown issue]");
+            }
 
+            var lines = OutputWindowViewModel.Text.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length < 2)
+            {
+                return string.Format(baseFormat, "[unknown issue]");
+            }
+
+
+            return string.Format(baseFormat, lines[lines.Length - 2]);
+        }
+
+        protected abstract void CheckExitCode();
+        
+        
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

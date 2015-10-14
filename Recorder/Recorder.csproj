@@ -149,6 +149,10 @@
     <Compile Include="Converters\EmptyToVisibilityConverter.cs" />
     <Compile Include="Converters\TimespanToStringConverter.cs" />
     <Compile Include="Enums\FileUses.cs" />
+    <Compile Include="Exceptions\AbstractHandledException.cs" />
+    <Compile Include="Exceptions\CombiningException.cs" />
+    <Compile Include="Exceptions\ConfigurationException.cs" />
+    <Compile Include="Exceptions\RecordingException.cs" />
     <Compile Include="Extensions\UserInterfaceExtensions.cs" />
     <Compile Include="Handlers\OutputReceivedHandler.cs" />
     <Compile Include="Models\ObjectModel.cs" />
@@ -157,7 +161,9 @@
     <Compile Include="Dialogs\OutputWindow.xaml.cs">
       <DependentUpon>OutputWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\AbstractNotifyModel.cs" />
     <Compile Include="ViewModels\AskExitViewModel.cs" />
+    <Compile Include="ViewModels\IssueNotifyModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Utilities\AbstractEngine.cs" />
     <Compile Include="Utilities\BarcodeHandler.cs" />

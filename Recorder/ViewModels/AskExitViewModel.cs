@@ -1,48 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using JetBrains.Annotations;
 
 namespace Recorder.ViewModels
 {
-    public class AskExitViewModel:INotifyPropertyChanged, IClosing
+    public class AskExitViewModel : AbstractNotifyModel, IClosing
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private bool _askExit;
-        private ICommand _exitCommand;
-        private ICommand _cancelExit;
-
+       
         private bool _exitNow;
-        private bool _flashPanel;
 
-        public bool AskExit
+        public AskExitViewModel()
         {
-            get { return _askExit; }
-            set { _askExit = value; OnPropertyChanged(); }
+            YesText = "Yes";
+            NoText = "No";
+            Question = "Stop recording and exit?";
+            YesCommand = new RelayCommand(
+                param => DoExit());
+            NoCommand = new RelayCommand(
+                param => ShowPanel = false);
+
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public bool FlashPanel
-        {
-            get { return _flashPanel;}
-            set { _flashPanel = value; OnPropertyChanged(); }
-        }
-
-        public string YesText => "Yes";
-
-        public string NoText => "No";
 
         public bool CancelWindowClose()
         {
@@ -53,31 +33,12 @@ namespace Recorder.ViewModels
                 return false;
             }
 
-            AskExit = true;
+            ShowPanel = true;
             FlashPanel = true;
-            
+
             return true;
         }
 
-        public string Question=>"Stop recording and exit?";
-
-        public ICommand YesCommand
-        {
-            get
-            {
-                return _exitCommand ?? (_exitCommand = new RelayCommand(
-                    param => DoExit()));
-            }
-        }
-        public ICommand NoCommand
-        {
-            get
-            {
-                return _cancelExit ?? (_cancelExit = new RelayCommand(
-                    param => AskExit = false));
-            }
-        }
-        
         private void DoExit()
         {
             _exitNow = true;

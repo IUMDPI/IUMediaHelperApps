@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
+using System.Security.RightsManagement;
+using Recorder.Exceptions;
 
 namespace Recorder.Models
 {
@@ -16,6 +19,8 @@ namespace Recorder.Models
         string WorkingFolder { get; }
         
         string[] BarcodeScannerIdentifiers { get; }
+
+        void Verify();
     }
 
     public class ProgramSettings : IProgramSettings
@@ -30,6 +35,9 @@ namespace Recorder.Models
             PathToFFProbe = settings["PathToFFProbe"];
             BarcodeScannerIdentifiers =ToArray(settings["BarcodeScannerIdentifiers"]);
         }
+
+
+
 
         private static string[] ToArray(string value)
         {
@@ -50,5 +58,37 @@ namespace Recorder.Models
         public string FFMPEGArguments { get; }
         public string WorkingFolder { get; }
         public string[] BarcodeScannerIdentifiers { get; }
+        public void Verify()
+        {
+            if (string.IsNullOrWhiteSpace(ProjectCode))
+            {
+                throw new ConfigurationException("ProjectCode is not set in app.config");
+            }
+
+            if (string.IsNullOrWhiteSpace(PathToFFMPEG) || !File.Exists(PathToFFMPEG))
+            {
+                throw new ConfigurationException("PathToFFMPEG in app.config is not set or invalid");
+            }
+
+            if (string.IsNullOrWhiteSpace(PathToFFMPEG) || !File.Exists(PathToFFProbe))
+            {
+                throw new ConfigurationException("PathToFFProbe in app.config is not set or invalid");
+            }
+
+            if (string.IsNullOrWhiteSpace(FFMPEGArguments))
+            {
+                throw new ConfigurationException("FFMPEGArguments are not set in app.config");
+            }
+
+            if (string.IsNullOrWhiteSpace(OutputFolder) || !Directory.Exists(OutputFolder))
+            {
+                throw new ConfigurationException("OutputFolder in app.config is not set or invalid");
+            }
+
+            if (string.IsNullOrWhiteSpace(WorkingFolder) || !Directory.Exists(WorkingFolder))
+            {
+                throw new ConfigurationException("OutputFolder in app.config is not set or invalid");
+            }
+        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -18,7 +17,7 @@ namespace Recorder.ViewModels
         private TimeSpan _partTimestamp;
         private ICommand _recordCommand;
         private TimeSpan _timestamp;
-      
+
         public RecordPanelViewModel(UserControlsViewModel parent, ObjectModel objectModel) : base(parent, objectModel)
         {
             PartTimestamp = new TimeSpan();
@@ -198,7 +197,7 @@ namespace Recorder.ViewModels
             {
                 return false;
             }
-            
+
             if (Combiner.Combining)
             {
                 return false;

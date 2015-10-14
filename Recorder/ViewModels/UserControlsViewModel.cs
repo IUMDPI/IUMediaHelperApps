@@ -15,36 +15,46 @@ namespace Recorder.ViewModels
 {
     public class UserControlsViewModel : INotifyPropertyChanged, IClosing, IWindowHandleInitialized, IDisposable
     {
-        private readonly List<AbstractPanelViewModel> _panels;
+        private List<AbstractPanelViewModel> Panels { get; set; }
         private ICommand _showOutputCommand;
 
-        public AskExitViewModel AskExitModel { get; }
+        public AskExitViewModel AskExitModel { get;  }
+        public IssueNotifyModel NotifyIssueModel { get;  }
 
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel)
         {
-            OutputWindowViewModel = new OutputWindowViewModel { Visibility = Visibility.Visible, Clear = true };
-
-            Recorder = new RecordingEngine(settings, objectModel, OutputWindowViewModel);
-            Combiner = new CombiningEngine(settings, objectModel, OutputWindowViewModel);
-            BarcodeHandler = new BarcodeHandler(settings.BarcodeScannerIdentifiers);
             ProgramSettings = settings;
 
-            _panels = new List<AbstractPanelViewModel>
+            AskExitModel = new AskExitViewModel();
+            NotifyIssueModel = new IssueNotifyModel();
+            OutputWindowViewModel = new OutputWindowViewModel { Visibility = Visibility.Visible, Clear = true };
+
+            Recorder = new RecordingEngine(settings, objectModel, OutputWindowViewModel, NotifyIssueModel);
+            Combiner = new CombiningEngine(settings, objectModel, OutputWindowViewModel, NotifyIssueModel);
+            BarcodeHandler = new BarcodeHandler(settings.BarcodeScannerIdentifiers);
+
+            ConfigurePanels(objectModel);
+
+         
+        }
+
+        private void ConfigurePanels(ObjectModel objectModel)
+        {
+            Panels = new List<AbstractPanelViewModel>
             {
-                new BarcodePanelViewModel(this, objectModel, settings.ProjectCode) {Visibility = Visibility.Visible},
+                new BarcodePanelViewModel(this, objectModel, ProgramSettings.ProjectCode) {Visibility = Visibility.Visible},
                 new RecordPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed},
                 new FinishPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed}
             };
-            
-            AskExitModel = new AskExitViewModel();
+
             RegisterChildViewModels();
         }
 
-       
+        
 
         private void RegisterChildViewModels()
         {
-            foreach (var child in _panels.Select(p => p as INotifyPropertyChanged).Where(p => p != null))
+            foreach (var child in Panels.Select(p => p as INotifyPropertyChanged).Where(p => p != null))
             {
                 WatchForChildPropertyChanges(child);
             }
@@ -73,7 +83,7 @@ namespace Recorder.ViewModels
         public RecordPanelViewModel RecordPanelViewModel => GetPanel<RecordPanelViewModel>();
         public FinishPanelViewModel FinishPanelViewModel => GetPanel<FinishPanelViewModel>();
         
-        public AbstractPanelViewModel ActivePanelModel => _panels.Single(p => p.Visibility == Visibility.Visible);
+        public AbstractPanelViewModel ActivePanelModel => Panels.Single(p => p.Visibility == Visibility.Visible);
         public RecordingEngine Recorder { get; }
 
         public BarcodeHandler BarcodeHandler { get; }
@@ -85,7 +95,7 @@ namespace Recorder.ViewModels
 
         private T GetPanel<T>() where T : AbstractPanelViewModel
         {
-            return _panels.Single(p => p.GetType() == typeof (T)) as T;
+            return Panels.Single(p => p.GetType() == typeof (T)) as T;
         }
         
 
@@ -97,7 +107,7 @@ namespace Recorder.ViewModels
 
         public async Task ShowPanel<T>() where T : AbstractPanelViewModel
         {
-            foreach (var panel in _panels)
+            foreach (var panel in Panels)
             {
                 await panel.Initialize();
                 panel.Visibility = Visibility.Collapsed;

@@ -14,14 +14,14 @@
         </Grid.ColumnDefinitions>
 
         <Label Grid.Column="0">
-            <TextBlock Text="{Binding Question, FallbackValue='Question to ask'}" />
+            <TextBlock TextWrapping="Wrap" Text="{Binding Question, FallbackValue='Question to ask'}" />
         </Label>
-        <Label Grid.Column="1">
+        <Label Grid.Column="1" Visibility="{Binding YesCommand, Converter={StaticResource EmptyToVisibilityConverter}}">
             <Hyperlink Command="{Binding YesCommand}">
                 <TextBlock Text="{Binding YesText, FallbackValue='Yes'}" />
             </Hyperlink>
         </Label>
-        <Label Grid.Column="2">
+        <Label Grid.Column="2" Visibility="{Binding NoCommand, Converter={StaticResource EmptyToVisibilityConverter}}">
             <Hyperlink Command="{Binding NoCommand}">
                 <TextBlock Text="{Binding NoText, FallbackValue='No'}" />
             </Hyperlink>

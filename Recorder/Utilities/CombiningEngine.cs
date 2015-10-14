@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Recorder.Handlers;
 using Recorder.Models;
 using Recorder.ViewModels;
 
@@ -16,7 +15,8 @@ namespace Recorder.Utilities
         private const string ArgumentFormat = "-y -f concat -i \"{0}\" -c copy \"{1}\"";
         private bool _combining;
 
-        public CombiningEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel) : base(settings, objectModel, outputModel)
+        public CombiningEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel, IssueNotifyModel issueNotifyModel)
+            : base(settings, objectModel, outputModel, issueNotifyModel)
         {
             Process.Exited += ProcessExitHandler;
         }
@@ -63,12 +63,16 @@ namespace Recorder.Utilities
                 return;
             }
 
-            Combining = false;
-
-            Process.CancelOutputRead();
-            Process.CancelErrorRead();
-
-            OpenFolder();
+            try
+            {
+                Combining = false;
+                CheckExitCode();
+            }
+            finally
+            {
+                Process.CancelOutputRead();
+                Process.CancelErrorRead();
+            }
         }
 
 
@@ -112,6 +116,15 @@ namespace Recorder.Utilities
             File.WriteAllText(CombineFilePath, builder.ToString());
         }
 
-        
+        protected override void CheckExitCode()
+        {
+            if (Process.ExitCode == 0)
+            {
+                OpenFolder();
+                return;
+            }
+
+            IssueNotifyModel.Notify(GetErrorMessageFromOutput("Something went wrong while combining parts: {0}"));
+        }
     }
 }

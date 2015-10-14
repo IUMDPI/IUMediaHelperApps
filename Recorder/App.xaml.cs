@@ -1,5 +1,8 @@
 ﻿using System.Configuration;
 using System.Windows;
+using System.Windows.Threading;
+using Recorder.Dialogs;
+using Recorder.Exceptions;
 using Recorder.Models;
 using Recorder.ViewModels;
 
@@ -10,14 +13,19 @@ namespace Recorder
     /// </summary>
     public partial class App : Application
     {
-        private Dialogs.OutputWindow _outputWindow;
-        private Dialogs.UserControls _userControls;
+        private OutputWindow _outputWindow;
+        private UserControls _userControls;
         private UserControlsViewModel _viewModel;
+
+        public App()
+        {
+            Dispatcher.UnhandledException += OnDispatcherUnhandledException;
+        }
 
         private void InitializeApplication(object sender, StartupEventArgs e)
         {
             var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
-
+          
             var objectModel = new ObjectModel(programSettings)
             {
                 Part = 1,
@@ -28,16 +36,18 @@ namespace Recorder
 
             ConfigureWindows();
             ShowWindows();
+
+            programSettings.Verify();
         }
 
         private void ConfigureWindows()
         {
-            _userControls = new Dialogs.UserControls
+            _userControls = new UserControls
             {
                 DataContext = _viewModel
             };
 
-            _outputWindow = new Dialogs.OutputWindow
+            _outputWindow = new OutputWindow
             {
                 DataContext = _viewModel.OutputWindowViewModel
             };
@@ -60,6 +70,21 @@ namespace Recorder
         private void ApplicationExitHandler(object sender, ExitEventArgs e)
         {
             _viewModel?.Dispose();
+        }
+
+        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            var errorMessage = e.Exception is AbstractHandledException ?
+                e.Exception.Message:
+                $"An unhandled exception occurred: {e.Exception.Message}";
+
+            if (_viewModel?.NotifyIssueModel == null)
+            {
+                MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else { _viewModel.NotifyIssueModel.Notify(errorMessage);}
+            
+            e.Handled = true;
         }
     }
 }

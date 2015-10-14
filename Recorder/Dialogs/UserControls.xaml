@@ -8,10 +8,12 @@
         Title="{Binding Title}" Height="575" Width="475" ResizeMode="CanMinimize" FontSize="14" Background="White" Closing="OnWindowClosing" >
     <Grid>
         <DockPanel Margin="0">
+            <controls:YesNoQuestionPanel DataContext="{Binding AskExitModel}" DockPanel.Dock="Top" Padding="12,12,12,12" Visibility="{Binding AskExit, Converter={StaticResource BooleanToVisibilityConverter}}"></controls:YesNoQuestionPanel>
             <controls:ActionPanel DockPanel.Dock="Top" Padding="0,12,0,0" Background="LightGray"></controls:ActionPanel>
             <Label DockPanel.Dock="Top" Background="LightGray" Padding="20,6,20,20">
                 <TextBlock TextWrapping="Wrap" Text="{Binding Instructions, FallbackValue='Instructions'}" DataContext="{Binding ActivePanelModel}"></TextBlock>
             </Label>
+           
             <Label DockPanel.Dock="Top" FontSize="12" Padding="20,4,20,4" Visibility="{Binding Path=IsEnabled, ElementName=ShowOutputLink, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Hyperlink Name="ShowOutputLink" Command="{Binding ShowOutputCommand}">Show output</Hyperlink>
             </Label>

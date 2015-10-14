@@ -142,6 +142,9 @@
     <Compile Include="Controls\RecordPanel.xaml.cs">
       <DependentUpon>RecordPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\YesNoQuestionPanel.xaml.cs">
+      <DependentUpon>YesNoQuestionPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\BooleanToCollapsedConverter.cs" />
     <Compile Include="Converters\EmptyToVisibilityConverter.cs" />
     <Compile Include="Converters\TimespanToStringConverter.cs" />
@@ -154,6 +157,7 @@
     <Compile Include="Dialogs\OutputWindow.xaml.cs">
       <DependentUpon>OutputWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\AskExitViewModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Utilities\AbstractEngine.cs" />
     <Compile Include="Utilities\BarcodeHandler.cs" />
@@ -194,6 +198,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\RecordPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\YesNoQuestionPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

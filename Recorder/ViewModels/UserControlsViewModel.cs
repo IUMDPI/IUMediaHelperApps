@@ -18,6 +18,8 @@ namespace Recorder.ViewModels
         private readonly List<AbstractPanelViewModel> _panels;
         private ICommand _showOutputCommand;
 
+        public AskExitViewModel AskExitModel { get; }
+
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel)
         {
             Recorder = new RecordingEngine(settings, objectModel);
@@ -36,8 +38,11 @@ namespace Recorder.ViewModels
             
             Recorder.OutputWindowViewModel = OutputWindowViewModel;
 
+            AskExitModel = new AskExitViewModel();
             RegisterChildViewModels();
         }
+
+       
 
         private void RegisterChildViewModels()
         {
@@ -69,7 +74,7 @@ namespace Recorder.ViewModels
         public BarcodePanelViewModel BarcodePanelViewModel => GetPanel<BarcodePanelViewModel>();
         public RecordPanelViewModel RecordPanelViewModel => GetPanel<RecordPanelViewModel>();
         public FinishPanelViewModel FinishPanelViewModel => GetPanel<FinishPanelViewModel>();
-
+        
         public AbstractPanelViewModel ActivePanelModel => _panels.Single(p => p.Visibility == Visibility.Visible);
         public RecordingEngine Recorder { get; }
 
@@ -113,6 +118,8 @@ namespace Recorder.ViewModels
                     param =>EnableShowOutputCommand()));
             }
         }
+
+
         
         private bool EnableShowOutputCommand()
         {
@@ -131,9 +138,10 @@ namespace Recorder.ViewModels
                 return false;
             }
 
-            var result = MessageBox.Show("You are still recording. Are you sure you want to exit", "Stop Recording and Exit?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-            return result != MessageBoxResult.Yes;
+            return AskExitModel.CancelWindowClose();
         }
+
+
 
         public void WindowHandleInitialized(Visual client)
         {

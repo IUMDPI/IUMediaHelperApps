@@ -58,6 +58,26 @@
             </Setter>
         </Style>
 
+        <Style TargetType="{x:Type Grid}" x:Key="FlashingGrid">
+            <Style.Resources>
+                <Storyboard x:Key="FlashAnimation" >
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" AutoReverse="True" Duration="0:0:0.5" RepeatBehavior="2x" />
+                </Storyboard>
+            </Style.Resources>
 
+            <Setter Property="Visibility" Value="Visible" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding FlashPanel}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard Name="flash" Storyboard="{StaticResource FlashAnimation}" />
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="flash"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

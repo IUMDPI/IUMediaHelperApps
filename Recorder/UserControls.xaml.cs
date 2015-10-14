@@ -16,14 +16,27 @@ namespace Recorder
 
         protected override void OnSourceInitialized(EventArgs e)
         {
+            base.OnSourceInitialized(e);
+
             var viewModel = DataContext as UserControlsViewModel;
             if (viewModel == null)
             {
                 return;
             }
 
-            viewModel.HookEvents(this);
-            base.OnSourceInitialized(e);
+            //viewModel.HookEvents(this);
+            
+        }
+
+        private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var onClosing = DataContext as IClosing;
+            if (onClosing == null)
+            {
+                return;
+            }
+
+            e.Cancel = onClosing.CancelWindowClose();
         }
     }
 }

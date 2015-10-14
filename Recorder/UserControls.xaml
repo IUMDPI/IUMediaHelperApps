@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:Recorder.Controls"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="575" Width="475" ResizeMode="CanMinimize" FontSize="14" Background="White" >
+        Title="{Binding Title}" Height="575" Width="475" ResizeMode="CanMinimize" FontSize="14" Background="White" Closing="OnWindowClosing" >
     <Grid>
         <DockPanel Margin="0">
             <controls:ActionPanel DockPanel.Dock="Top" Padding="0,12,0,0" Background="LightGray"></controls:ActionPanel>

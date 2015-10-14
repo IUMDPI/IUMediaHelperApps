@@ -8,7 +8,6 @@ using System.Windows.Threading;
 using Microsoft.VisualBasic.FileIO;
 using Recorder.Handlers;
 using Recorder.Models;
-using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
@@ -17,7 +16,7 @@ namespace Recorder.Utilities
         private readonly InfoEngine _infoEngine;
         private bool _recording;
 
-        public RecordingEngine(ProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
+        public RecordingEngine(IProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
         {
             Recording = false;
             CumulativeTimeSpan = new TimeSpan();
@@ -73,7 +72,7 @@ namespace Recorder.Utilities
             }
 
             Recording = true;
-            
+
 
             if (!Directory.Exists(ObjectModel.WorkingFolderPath))
             {

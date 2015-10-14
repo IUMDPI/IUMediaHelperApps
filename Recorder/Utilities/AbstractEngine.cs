@@ -13,7 +13,7 @@ namespace Recorder.Utilities
         protected readonly Process Process;
         private OutputWindowViewModel _outputWindowViewModel;
 
-        protected AbstractEngine(ProgramSettings settings, ObjectModel objectModel)
+        protected AbstractEngine(IProgramSettings settings, ObjectModel objectModel)
         {
             Settings = settings;
             ObjectModel = objectModel;
@@ -32,7 +32,7 @@ namespace Recorder.Utilities
             };
         }
 
-        protected ProgramSettings Settings { get; }
+        protected IProgramSettings Settings { get; }
         protected ObjectModel ObjectModel { get; }
 
         public OutputWindowViewModel OutputWindowViewModel

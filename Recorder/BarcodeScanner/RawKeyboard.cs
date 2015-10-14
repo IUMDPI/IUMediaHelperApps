@@ -52,11 +52,10 @@ namespace Recorder.BarcodeScanner
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            if (_devNotifyHandle != IntPtr.Zero)
-            {
-                Win32Methods.UnregisterDeviceNotification(_devNotifyHandle);
-                _devNotifyHandle = IntPtr.Zero;
-            }
+            if (_devNotifyHandle == IntPtr.Zero) return;
+
+            Win32Methods.UnregisterDeviceNotification(_devNotifyHandle);
+            _devNotifyHandle = IntPtr.Zero;
         }
 
         private static IntPtr RegisterForDeviceNotifications(IntPtr parent)

@@ -163,6 +163,7 @@
     <Compile Include="Utilities\InfoEngine.cs" />
     <Compile Include="Utilities\RecordingEngine.cs" />
     <Compile Include="ViewModels\ActionButtonModel.cs" />
+    <Compile Include="ViewModels\IClosing.cs" />
     <Compile Include="ViewModels\OutputWindowViewModel.cs" />
     <Compile Include="ViewModels\UserControlsViewModel.cs" />
     <Compile Include="ViewModels\AbstractPanelViewModel.cs" />

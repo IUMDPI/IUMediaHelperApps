@@ -1,18 +1,18 @@
 ﻿using System.Configuration;
 using System.Windows;
 using Recorder.Models;
-using Recorder.Utilities;
 using Recorder.ViewModels;
 
 namespace Recorder
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    ///     Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {
-        private RecordingEngine _recorder;
-        private CombiningEngine _combiner;
+        private OutputWindow _outputWindow;
+        private UserControls _userControls;
+        private UserControlsViewModel _viewModel;
 
         private void InitializeApplication(object sender, StartupEventArgs e)
         {
@@ -24,37 +24,41 @@ namespace Recorder
                 FileUse = "pres"
             };
 
-            _recorder = new RecordingEngine(programSettings, objectModel);
-            _combiner = new CombiningEngine(programSettings, objectModel);
+            _viewModel = new UserControlsViewModel(programSettings, objectModel);
 
-            var viewModel = new UserControlsViewModel(programSettings, objectModel, _recorder, _combiner);
-          
-            var userControls = new UserControls
+            ConfigureWindows();
+            ShowWindows();
+        }
+
+        private void ConfigureWindows()
+        {
+            _userControls = new UserControls
             {
-                DataContext = viewModel,
+                DataContext = _viewModel
             };
 
-            var outputWindow = new OutputWindow
+            _outputWindow = new OutputWindow
             {
-                DataContext = viewModel.OutputWindowViewModel,
+                DataContext = _viewModel.OutputWindowViewModel
             };
-            
-            userControls.Show();
+        }
 
-            outputWindow.Owner = userControls;
-            outputWindow.Left = userControls.Left + userControls.Width;
-            outputWindow.Width = userControls.Width;
-            outputWindow.Height = userControls.Height;
-            outputWindow.Top = userControls.Top;
-            outputWindow.Show();
+        private void ShowWindows()
+        {
+            _userControls.Show();
+            _outputWindow.Owner = _userControls;
 
-            viewModel.OutputWindowViewModel.HookEvents(outputWindow);
+            _outputWindow.Left = _userControls.Left + _userControls.Width;
+            _outputWindow.Width = _userControls.Width;
+            _outputWindow.Height = _userControls.Height;
+            _outputWindow.Top = _userControls.Top;
+
+            _outputWindow.Show();
         }
 
         private void ApplicationExitHandler(object sender, ExitEventArgs e)
         {
-            _recorder?.Dispose();
-            _combiner?.Dispose();
+            _viewModel?.Dispose();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,21 +9,22 @@ using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
-    public class BarcodeHandler
+    public class BarcodeHandler:IDisposable
     {
         private readonly string[] _barcodeScannerIdentifiers;
         private readonly List<char> _buffer = new List<char>();
-        private readonly UserControlsViewModel _viewModel;
+        private UserControlsViewModel _viewModel;
         private RawPresentationInput _input;
 
-        public BarcodeHandler(UserControlsViewModel viewModel, string[] barcodeScannerIdentifiers)
+        public BarcodeHandler(string[] barcodeScannerIdentifiers)
         {
-            _viewModel = viewModel;
+            
             _barcodeScannerIdentifiers = barcodeScannerIdentifiers;
         }
 
-        public void Hook(Window client)
+        public void Hook(Window client, UserControlsViewModel viewModel)
         {
+            _viewModel = viewModel;
             _input = new RawPresentationInput(client, RawInputCaptureMode.Foreground);
             _input.KeyPressed += OnKeyPressed;
         }
@@ -73,6 +75,11 @@ namespace Recorder.Utilities
 
             _viewModel.BarcodePanelViewModel.Barcode = value;
             await _viewModel.ShowPanel<BarcodePanelViewModel>();
+        }
+
+        public void Dispose()
+        {
+            _input?.Dispose();
         }
     }
 }

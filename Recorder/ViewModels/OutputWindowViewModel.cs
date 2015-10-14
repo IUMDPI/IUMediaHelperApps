@@ -1,36 +1,16 @@
 ﻿using System.ComponentModel;
-using System.Configuration;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using JetBrains.Annotations;
-using Recorder.Extensions;
 
 namespace Recorder.ViewModels
 {
-    public class OutputWindowViewModel : INotifyPropertyChanged
+    public class OutputWindowViewModel : INotifyPropertyChanged, IClosing
     {
         private bool _clear;
+
         private string _text;
         private Visibility _visibility;
-        private bool _autoScroll;
-        private ScrollViewer _scrollViewer;
-
-        public OutputWindowViewModel()
-        {
-            AutoScroll = true;
-        }
-
-        public bool AutoScroll
-        {
-            get { return _autoScroll; }
-            set
-            {
-                _autoScroll = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string Text
         {
@@ -38,26 +18,8 @@ namespace Recorder.ViewModels
             set
             {
                 _text = value;
-                ScrollToEnd();
                 OnPropertyChanged();
             }
-        }
-
-
-        public void ScrollToEnd()
-        {
-            if (_scrollViewer == null || AutoScroll == false)
-            {
-                return;
-            }
-
-            if (_scrollViewer.Dispatcher.CheckAccess()==false)
-            {
-                _scrollViewer.Dispatcher.Invoke(ScrollToEnd);
-                return;
-            }
-
-            _scrollViewer.ScrollToEnd();
         }
 
         public bool Clear
@@ -73,7 +35,11 @@ namespace Recorder.ViewModels
         public Visibility Visibility
         {
             get { return _visibility; }
-            set { _visibility = value; OnPropertyChanged(); }
+            set
+            {
+                _visibility = value;
+                OnPropertyChanged();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -88,6 +54,8 @@ namespace Recorder.ViewModels
 
         public void StartOutput(string header)
         {
+            Visibility = Visibility.Visible;
+
             if (Clear)
             {
                 Text = string.Empty;
@@ -96,37 +64,10 @@ namespace Recorder.ViewModels
             Text += $"{header}\n\n";
         }
 
-        public void HookEvents(OutputWindow client)
-        {
-            client.Closing += OnWindowClosing;
-            _scrollViewer = client.OutputText.FindDescendant<ScrollViewer>();
-            if (_scrollViewer != null)
-            {
-                _scrollViewer.ScrollChanged += ScrollChangedHandler;
-            }
-        }
-
-        private void OnWindowClosing(object sender, CancelEventArgs args)
+        public bool CancelWindowClose()
         {
             Visibility = Visibility.Hidden;
-            args.Cancel = true;
-
-        }
-        
-        private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)
-        {
-            var viewer = sender as ScrollViewer;
-            if (viewer == null)
-            {
-                return;
-            }
-
-            if (!e.ExtentHeightChange.Equals(0))
-            {
-                return;
-            }
-
-            AutoScroll = viewer.VerticalOffset.Equals(viewer.ScrollableHeight);
+            return true;
         }
     }
 }

@@ -22,8 +22,10 @@ namespace Recorder.ViewModels
 
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel)
         {
-            Recorder = new RecordingEngine(settings, objectModel);
-            Combiner = new CombiningEngine(settings, objectModel);
+            OutputWindowViewModel = new OutputWindowViewModel { Visibility = Visibility.Visible, Clear = true };
+
+            Recorder = new RecordingEngine(settings, objectModel, OutputWindowViewModel);
+            Combiner = new CombiningEngine(settings, objectModel, OutputWindowViewModel);
             BarcodeHandler = new BarcodeHandler(settings.BarcodeScannerIdentifiers);
             ProgramSettings = settings;
 
@@ -33,11 +35,7 @@ namespace Recorder.ViewModels
                 new RecordPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed},
                 new FinishPanelViewModel(this, objectModel) {Visibility = Visibility.Collapsed}
             };
-
-            OutputWindowViewModel = new OutputWindowViewModel {Visibility = Visibility.Visible, Clear = true};
             
-            Recorder.OutputWindowViewModel = OutputWindowViewModel;
-
             AskExitModel = new AskExitViewModel();
             RegisterChildViewModels();
         }

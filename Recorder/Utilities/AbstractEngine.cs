@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Recorder.Handlers;
 using Recorder.Models;
 using Recorder.ViewModels;
 
@@ -13,7 +14,7 @@ namespace Recorder.Utilities
         protected readonly Process Process;
         private OutputWindowViewModel _outputWindowViewModel;
 
-        protected AbstractEngine(IProgramSettings settings, ObjectModel objectModel)
+        protected AbstractEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel)
         {
             Settings = settings;
             ObjectModel = objectModel;
@@ -30,21 +31,22 @@ namespace Recorder.Utilities
                 },
                 EnableRaisingEvents = true
             };
+
+            OutputWindowViewModel = outputModel;
+            OutputReceivedHandler = new OutputReceivedHandler(OutputWindowViewModel);
+
+            Process.OutputDataReceived += OutputReceivedHandler.OnDataReceived;
+            Process.ErrorDataReceived += OutputReceivedHandler.OnDataReceived;
         }
+
+
+        protected OutputReceivedHandler OutputReceivedHandler { get;}
+        protected OutputWindowViewModel OutputWindowViewModel { get; }
+
 
         protected IProgramSettings Settings { get; }
         protected ObjectModel ObjectModel { get; }
-
-        public OutputWindowViewModel OutputWindowViewModel
-        {
-            get { return _outputWindowViewModel; }
-            set
-            {
-                _outputWindowViewModel = value;
-                ConfigureOutputCapture();
-            }
-        }
-
+        
         public virtual void Dispose()
         {
             Process?.Dispose();
@@ -52,7 +54,7 @@ namespace Recorder.Utilities
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected abstract void ConfigureOutputCapture();
+        
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using Recorder.Handlers;
 using Recorder.Models;
+using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
@@ -14,7 +16,7 @@ namespace Recorder.Utilities
         private const string ArgumentFormat = "-y -f concat -i \"{0}\" -c copy \"{1}\"";
         private bool _combining;
 
-        public CombiningEngine(IProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
+        public CombiningEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel) : base(settings, objectModel, outputModel)
         {
             Process.Exited += ProcessExitHandler;
         }
@@ -39,6 +41,7 @@ namespace Recorder.Utilities
                 return;
             }
 
+            OutputWindowViewModel.StartOutput("Combining");
             GenerateCombineList();
             Combining = true;
 
@@ -46,6 +49,9 @@ namespace Recorder.Utilities
             Process.StartInfo.Arguments = string.Format(ArgumentFormat, CombineFilePath, ObjectModel.OutputFile);
 
             Process.Start();
+
+            Process.BeginErrorReadLine();
+            Process.BeginOutputReadLine();
         }
 
 
@@ -58,6 +64,9 @@ namespace Recorder.Utilities
             }
 
             Combining = false;
+
+            Process.CancelOutputRead();
+            Process.CancelErrorRead();
 
             OpenFolder();
         }
@@ -103,9 +112,6 @@ namespace Recorder.Utilities
             File.WriteAllText(CombineFilePath, builder.ToString());
         }
 
-        protected override void ConfigureOutputCapture()
-        {
-            // nothing to do
-        }
+        
     }
 }

@@ -1,19 +1,17 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
-using Recorder.Utilities;
 using Recorder.ViewModels;
 
 namespace Recorder.Handlers
 {
-    internal class OutputReceivedHandler 
+    public class OutputReceivedHandler
     {
-        public OutputReceivedHandler(OutputWindowViewModel viewModel) 
+        public OutputReceivedHandler(OutputWindowViewModel viewModel)
         {
             ViewModel = viewModel;
         }
 
-        private OutputWindowViewModel ViewModel { get;  }
+        private OutputWindowViewModel ViewModel { get; }
 
         public void OnDataReceived(object sender, DataReceivedEventArgs args)
         {

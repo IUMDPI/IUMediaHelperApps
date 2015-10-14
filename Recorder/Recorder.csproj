@@ -154,10 +154,10 @@
     <Compile Include="Models\ObjectModel.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Handlers\TimestampReceivedHandler.cs" />
-    <Compile Include="OutputWindow.xaml.cs">
+    <Compile Include="Dialogs\OutputWindow.xaml.cs">
       <DependentUpon>OutputWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RelayCommand.cs" />
+    <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Utilities\AbstractEngine.cs" />
     <Compile Include="Utilities\BarcodeHandler.cs" />
     <Compile Include="Utilities\CombiningEngine.cs" />
@@ -204,11 +204,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OutputWindow.xaml">
+    <Page Include="Dialogs\OutputWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls.xaml">
+    <Page Include="Dialogs\UserControls.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -216,7 +216,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="UserControls.xaml.cs">
+    <Compile Include="Dialogs\UserControls.xaml.cs">
       <DependentUpon>UserControls.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>

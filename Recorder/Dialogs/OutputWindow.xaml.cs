@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using Recorder.Extensions;
 using Recorder.ViewModels;
 
-namespace Recorder
+namespace Recorder.Dialogs
 {
     /// <summary>
     ///     Interaction logic for OutputWindow.xaml

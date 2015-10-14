@@ -10,8 +10,8 @@ namespace Recorder
     /// </summary>
     public partial class App : Application
     {
-        private OutputWindow _outputWindow;
-        private UserControls _userControls;
+        private Dialogs.OutputWindow _outputWindow;
+        private Dialogs.UserControls _userControls;
         private UserControlsViewModel _viewModel;
 
         private void InitializeApplication(object sender, StartupEventArgs e)
@@ -32,12 +32,12 @@ namespace Recorder
 
         private void ConfigureWindows()
         {
-            _userControls = new UserControls
+            _userControls = new Dialogs.UserControls
             {
                 DataContext = _viewModel
             };
 
-            _outputWindow = new OutputWindow
+            _outputWindow = new Dialogs.OutputWindow
             {
                 DataContext = _viewModel.OutputWindowViewModel
             };

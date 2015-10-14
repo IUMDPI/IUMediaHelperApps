@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace Recorder
+namespace Recorder.ViewModels
 {
     public class RelayCommand : ICommand
     {

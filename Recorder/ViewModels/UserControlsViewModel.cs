@@ -37,8 +37,6 @@ namespace Recorder.ViewModels
             Recorder.OutputWindowViewModel = OutputWindowViewModel;
 
             RegisterChildViewModels();
-
-
         }
 
         private void RegisterChildViewModels()

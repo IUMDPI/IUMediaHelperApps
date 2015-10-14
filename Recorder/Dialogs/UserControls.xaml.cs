@@ -2,7 +2,7 @@
 using System.Windows;
 using Recorder.ViewModels;
 
-namespace Recorder
+namespace Recorder.Dialogs
 {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml

@@ -17,7 +17,7 @@ namespace Recorder.Models
             {
                 new Tuple<string, string>("Preservation", "pres"),
                 new Tuple<string, string>("Preservation-Intermediate", "pres-int"),
-                new Tuple<string, string>("Production", "prod")
+                new Tuple<string, string>("Mezzanine", "mezz")
             };
         }
         

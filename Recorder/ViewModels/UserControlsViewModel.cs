@@ -148,9 +148,7 @@ namespace Recorder.ViewModels
 
             return AskExitModel.CancelWindowClose();
         }
-
-
-
+        
         public void WindowHandleInitialized(Visual client)
         {
             BarcodeHandler.Initialize(client, this);

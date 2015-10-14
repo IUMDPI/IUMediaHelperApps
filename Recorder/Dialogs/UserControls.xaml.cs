@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Media;
 using Recorder.ViewModels;
 
 namespace Recorder.Dialogs
@@ -18,14 +19,9 @@ namespace Recorder.Dialogs
         {
             base.OnSourceInitialized(e);
 
-            var viewModel = DataContext as UserControlsViewModel;
-            if (viewModel == null)
-            {
-                return;
-            }
+            var handleInitialized = DataContext as IWindowHandleInitialized;
+            handleInitialized?.WindowHandleInitialized(this);
 
-            //viewModel.HookEvents(this);
-            
         }
 
         private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)

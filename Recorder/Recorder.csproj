@@ -145,6 +145,7 @@
     <Compile Include="Controls\SmallRecordingPanel.xaml.cs">
       <DependentUpon>SmallRecordingPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\BooleanToCollapsedConverter.cs" />
     <Compile Include="Converters\EmptyToVisibilityConverter.cs" />
     <Compile Include="Converters\TimespanToStringConverter.cs" />
     <Compile Include="Enums\FileUses.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Utilities\RecordingEngine.cs" />
     <Compile Include="ViewModels\ActionButtonModel.cs" />
     <Compile Include="ViewModels\IClosing.cs" />
+    <Compile Include="ViewModels\IWindowHandleInitialized.cs" />
     <Compile Include="ViewModels\OutputWindowViewModel.cs" />
     <Compile Include="ViewModels\UserControlsViewModel.cs" />
     <Compile Include="ViewModels\AbstractPanelViewModel.cs" />

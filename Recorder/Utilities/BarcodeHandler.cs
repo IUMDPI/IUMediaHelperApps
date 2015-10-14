@@ -2,27 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Recorder.BarcodeScanner;
 using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
-    public class BarcodeHandler:IDisposable
+    public class BarcodeHandler : IDisposable
     {
         private readonly string[] _barcodeScannerIdentifiers;
         private readonly List<char> _buffer = new List<char>();
-        private UserControlsViewModel _viewModel;
         private RawPresentationInput _input;
+        private UserControlsViewModel _viewModel;
 
         public BarcodeHandler(string[] barcodeScannerIdentifiers)
         {
-            
             _barcodeScannerIdentifiers = barcodeScannerIdentifiers;
         }
 
-        public void Hook(Window client, UserControlsViewModel viewModel)
+        public void Dispose()
+        {
+            _input?.Dispose();
+        }
+
+        public void Initialize(Visual client, UserControlsViewModel viewModel)
         {
             _viewModel = viewModel;
             _input = new RawPresentationInput(client, RawInputCaptureMode.Foreground);
@@ -56,8 +60,8 @@ namespace Recorder.Utilities
 
         private bool TrapDeviceInput(string name)
         {
-            return string.IsNullOrWhiteSpace(name) == false 
-                && _barcodeScannerIdentifiers.Any(name.Contains);
+            return string.IsNullOrWhiteSpace(name) == false
+                   && _barcodeScannerIdentifiers.Any(name.Contains);
         }
 
         private async Task SetBarcode()
@@ -75,11 +79,6 @@ namespace Recorder.Utilities
 
             _viewModel.BarcodePanelViewModel.Barcode = value;
             await _viewModel.ShowPanel<BarcodePanelViewModel>();
-        }
-
-        public void Dispose()
-        {
-            _input?.Dispose();
         }
     }
 }

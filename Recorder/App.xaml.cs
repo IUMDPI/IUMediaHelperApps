@@ -48,6 +48,7 @@ namespace Recorder
             _userControls.Show();
             _outputWindow.Owner = _userControls;
 
+            // initially position output window next to main window
             _outputWindow.Left = _userControls.Left + _userControls.Width;
             _outputWindow.Width = _userControls.Width;
             _outputWindow.Height = _userControls.Height;

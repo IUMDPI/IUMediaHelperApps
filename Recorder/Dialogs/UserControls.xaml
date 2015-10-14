@@ -10,7 +10,10 @@
         <DockPanel Margin="0">
             <controls:ActionPanel DockPanel.Dock="Top" Padding="0,12,0,0" Background="LightGray"></controls:ActionPanel>
             <Label DockPanel.Dock="Top" Background="LightGray" Padding="20,6,20,20">
-                <TextBlock TextWrapping="Wrap" Text="{Binding Instructions}" DataContext="{Binding ActivePanelModel}"></TextBlock>
+                <TextBlock TextWrapping="Wrap" Text="{Binding Instructions, FallbackValue='Instructions'}" DataContext="{Binding ActivePanelModel}"></TextBlock>
+            </Label>
+            <Label DockPanel.Dock="Top" FontSize="12" Padding="20,4,20,4" Visibility="{Binding Path=IsEnabled, ElementName=ShowOutputLink, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Hyperlink Name="ShowOutputLink" Command="{Binding ShowOutputCommand}">Show output</Hyperlink>
             </Label>
             <controls:BarcodePanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding BarcodePanelViewModel}" />
             <controls:RecordPanel DockPanel.Dock="Top" Margin="12,0,12,0" Background="White" DataContext="{Binding RecordPanelViewModel}" />

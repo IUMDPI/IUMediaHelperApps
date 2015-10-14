@@ -7,10 +7,12 @@ namespace Recorder.ViewModels
 {
     public class OutputWindowViewModel : INotifyPropertyChanged, IClosing
     {
+        private readonly UserControlsViewModel _parent;
         private bool _clear;
 
         private string _text;
         private Visibility _visibility;
+
 
         public string Text
         {
@@ -39,6 +41,7 @@ namespace Recorder.ViewModels
             {
                 _visibility = value;
                 OnPropertyChanged();
+                
             }
         }
 

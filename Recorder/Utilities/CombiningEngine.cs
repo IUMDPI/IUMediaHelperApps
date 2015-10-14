@@ -14,7 +14,7 @@ namespace Recorder.Utilities
         private const string ArgumentFormat = "-y -f concat -i \"{0}\" -c copy \"{1}\"";
         private bool _combining;
 
-        public CombiningEngine(ProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
+        public CombiningEngine(IProgramSettings settings, ObjectModel objectModel) : base(settings, objectModel)
         {
             Process.Exited += ProcessExitHandler;
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using JetBrains.Annotations;
 using Recorder.Models;
@@ -15,6 +16,7 @@ namespace Recorder.ViewModels
     public class UserControlsViewModel : INotifyPropertyChanged, IClosing, IWindowHandleInitialized, IDisposable
     {
         private readonly List<AbstractPanelViewModel> _panels;
+        private ICommand _showOutputCommand;
 
         public UserControlsViewModel(IProgramSettings settings, ObjectModel objectModel)
         {
@@ -31,10 +33,36 @@ namespace Recorder.ViewModels
             };
 
             OutputWindowViewModel = new OutputWindowViewModel {Visibility = Visibility.Visible, Clear = true};
-
+            
             Recorder.OutputWindowViewModel = OutputWindowViewModel;
+
+            RegisterChildViewModels();
+
+
         }
 
+        private void RegisterChildViewModels()
+        {
+            foreach (var child in _panels.Select(p => p as INotifyPropertyChanged).Where(p => p != null))
+            {
+                WatchForChildPropertyChanges(child);
+            }
+
+            WatchForChildPropertyChanges(OutputWindowViewModel);
+        }
+
+        private void WatchForChildPropertyChanges(INotifyPropertyChanged child)
+        {
+            child.PropertyChanged += OnChildPropertyChanged;
+        }
+
+        private void OnChildPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender is OutputWindowViewModel && e.PropertyName.Equals(nameof(OutputWindowViewModel.Visibility)))
+            {
+                OnPropertyChanged(nameof(ShowOutputCommand));
+            }
+        }
 
         private IProgramSettings ProgramSettings { get; }
 
@@ -58,6 +86,7 @@ namespace Recorder.ViewModels
         {
             return _panels.Single(p => p.GetType() == typeof (T)) as T;
         }
+        
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -77,7 +106,26 @@ namespace Recorder.ViewModels
 
             OnPropertyChanged(nameof(ActivePanelModel));
         }
+
+        public ICommand ShowOutputCommand
+        {
+            get {
+                return _showOutputCommand ?? (_showOutputCommand = new RelayCommand(
+                    param => ShowOutputWindow(), 
+                    param =>EnableShowOutputCommand()));
+            }
+        }
         
+        private bool EnableShowOutputCommand()
+        {
+            return OutputWindowViewModel.Visibility != Visibility.Visible;
+        }
+
+        private void ShowOutputWindow()
+        {
+            OutputWindowViewModel.Visibility = Visibility.Visible;
+        }
+
         public bool CancelWindowClose()
         {
             if (Recorder.Recording == false)

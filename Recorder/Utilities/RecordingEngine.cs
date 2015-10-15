@@ -25,6 +25,9 @@ namespace Recorder.Utilities
             Process.Exited += ProcessExitHandler;
             TimestampHandler = new TimestampReceivedHandler(this);
 
+            Process.ErrorDataReceived += TimestampHandler.OnDataReceived;
+            Process.OutputDataReceived += TimestampHandler.OnDataReceived;
+
             _infoEngine = new InfoEngine(settings);
         }
 

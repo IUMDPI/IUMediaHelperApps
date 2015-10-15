@@ -9,4 +9,19 @@ namespace Packager.Utilities
 
         void Verify(List<ObjectFileModel> originals, string originalsFolder, string processingFolder);
     }
+
+    class FFMpegNormalizer : INormalizer
+    {
+
+
+        public void Normalize(List<ObjectFileModel> originals, string originalsFolder, string processingFolder)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Verify(List<ObjectFileModel> originals, string originalsFolder, string processingFolder)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }

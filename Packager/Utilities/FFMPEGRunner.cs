@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
@@ -75,6 +76,8 @@ namespace Packager.Utilities
                 throw new FileDirectoryExistsException(targetPath);
             }
 
+            var args = $"-i {originalPath.ToQuoted()} -acodec copy -write_bext 1 -rf64 auto {targetPath.ToQuoted()}";
+            await CreateDerivative(args);
         }
 
         public async Task<string> GetFFMPEGVersion()

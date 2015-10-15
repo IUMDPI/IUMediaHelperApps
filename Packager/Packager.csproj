@@ -148,6 +148,7 @@
     <Compile Include="Utilities\FFMPEGRunner.cs" />
     <Compile Include="Utilities\IBwfMetaEditRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />
+    <Compile Include="Utilities\INormalizer.cs" />
     <Compile Include="Utilities\ISuccessFolderCleaner.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />

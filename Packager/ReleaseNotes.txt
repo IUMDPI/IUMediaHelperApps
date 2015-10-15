@@ -20,4 +20,10 @@
 1.6.0.0	09/09/2015	should clear all bext metadata fields before setting new values
 					should set bext metadata values via command-line, not xml
 1.7.0.0	09/18/2015	should escape single quotation characters when generating command-line for bwfmetaedit
+1.8.0.0 10/15/2015  added config flag "UseAppendFlagForAudioMetadata." If set to true, will call
+                    bwfmetaedit with the "-append" flag.
+					added config field "SuppressAudioMetadataFields." If set, will not clear or write
+					to the metadata fields in the list.
+					added code to fix issue with utility not receiving all bwf-metaedit output
+					added code to detect bwf metaedit issues (such as "truncated").
 					

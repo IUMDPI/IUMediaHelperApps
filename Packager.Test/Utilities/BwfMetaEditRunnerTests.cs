@@ -67,12 +67,6 @@ namespace Packager.Test.Utilities
             }
 
             [Test]
-            public void ArgsShouldIncludeAppend()
-            {
-                Assert.That(StartInfo.Arguments.Contains("--append"));
-            }
-
-            [Test]
             public void ArgsShouldIncludeEmptyFieldValues()
             {
                 foreach (var property in typeof (BextMetadata).GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
@@ -116,8 +110,13 @@ namespace Packager.Test.Utilities
                 var result = new BextMetadata();
                 foreach (var property in result.GetType().GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
                 {
-                    property.SetValue(result, $"{property.Name} value");
+                    var value = $"{property.Name} value";
+                    property.SetValue(result, value);
                 }
+
+                result.OriginationDate = "2015-10-1";
+                result.OriginationTime = "00:00:00";
+                result.TimeReference = "0";
 
                 return result;
             }
@@ -127,13 +126,7 @@ namespace Packager.Test.Utilities
             {
                 Assert.That(StartInfo.Arguments.EndsWith(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileModel.ToFileName()).ToQuoted()));
             }
-
-            [Test]
-            public void ArgsShouldIncludeAppend()
-            {
-                Assert.That(StartInfo.Arguments.Contains("--append"));
-            }
-
+            
             [Test]
             public void ArgsShouldIncludeCorrectFieldValues()
             {

@@ -61,6 +61,22 @@ namespace Packager.Utilities
             }
         }
 
+        public async Task Normalize(ObjectFileModel original, string originalsFolder)
+        {
+            var originalPath = Path.Combine(originalsFolder, original.ToFileName());
+            if (!FileProvider.FileExists(originalPath))
+            {
+                throw new FileNotFoundException(originalPath);
+            }
+
+            var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.ToFileName());
+            if (FileProvider.FileExists(targetPath))
+            {
+                throw new FileDirectoryExistsException(targetPath);
+            }
+
+        }
+
         public async Task<string> GetFFMPEGVersion()
         {
             try

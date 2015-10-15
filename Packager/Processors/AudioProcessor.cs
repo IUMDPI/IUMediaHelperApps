@@ -42,11 +42,17 @@ namespace Packager.Processors
 
             // add two lists together, but remove duplicates
             // duplicate file entries might happen if a .prod version already exists
-            // because it was create by an audio engineer
+            // because it was created by an audio engineer
             processedList = processedList.Concat(filesToProcess)
                 .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
 
-            // first group by sequence
+            // todo: normalize the original audio files to versions in the processing folder
+
+            // todo: generate .framemd5 files for orginals and normalized versions
+
+            // todo: hash and compare the normalized values
+
+            // next group by sequence
             // then determine which file to use to create derivatives
             // then use that file to create the derivatives
             // then aggregate the results into the processed list

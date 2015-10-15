@@ -7,6 +7,9 @@ namespace Packager.Utilities
     {
         string FFMPEGPath { get; set; }
         Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, string arguments);
+
+        Task Normalize(ObjectFileModel original, string originalsFolder);
+
         Task<string> GetFFMPEGVersion();
     }
 }

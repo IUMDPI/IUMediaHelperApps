@@ -78,6 +78,8 @@ namespace Packager.Processors
 
         public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
 
+        protected abstract string OriginalsDirectory { get; } 
+
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
             Barcode = fileModels.Key;
@@ -89,7 +91,7 @@ namespace Packager.Processors
                 var filesToProcess = GetFilesToProcess(fileModels);
 
                 // now move them to processing
-                await CreateProcessingDirectoryAndMoveFiles(filesToProcess);
+                await CreateProcessingDirectoryAndMoveOriginals(filesToProcess);
 
                 // call internal implementation
                 var processedList = await ProcessFileInternal(filesToProcess);
@@ -123,7 +125,7 @@ namespace Packager.Processors
 
         protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
 
-        private async Task CreateProcessingDirectoryAndMoveFiles(IEnumerable<ObjectFileModel> filesToProcess)
+        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<ObjectFileModel> filesToProcess)
         {
             var sectionKey = Observers.BeginSection("Initializing");
             try
@@ -132,10 +134,16 @@ namespace Packager.Processors
                 Observers.Log("Creating folder: {0}", ProcessingDirectory);
                 DirectoryProvider.CreateDirectory(ProcessingDirectory);
 
+                if (!ProcessingDirectory.Equals(OriginalsDirectory, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Observers.Log("Creating folder: {0}", OriginalsDirectory);
+                    DirectoryProvider.CreateDirectory(OriginalsDirectory);
+                }
+
                 foreach (var fileModel in filesToProcess)
                 {
-                    Observers.Log("Moving file to processing: {0}", fileModel.OriginalFileName);
-                    await MoveFileToProcessing(fileModel);
+                    Observers.Log("Moving originals to processing: {0}", fileModel.OriginalFileName);
+                    await MoveOriginalToProcessing(fileModel);
                 }
 
                 Observers.EndSection(sectionKey, "Initialization successful");
@@ -232,14 +240,14 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<string> MoveFileToProcessing(AbstractFileModel fileModel)
+        private async Task<string> MoveOriginalToProcessing(AbstractFileModel fileModel)
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
-            var targetPath = Path.Combine(ProcessingDirectory, fileModel.ToFileName()); // ToFileName will normalize the filename when we move the file
+            var targetPath = Path.Combine(OriginalsDirectory, fileModel.ToFileName()); // ToFileName will normalize the filename when we move the file
 
             if (FileProvider.FileExists(targetPath))
             {
-                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.ToFileName(), ProcessingDirectory);
+                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.ToFileName(), OriginalsDirectory);
             }
 
             await FileProvider.MoveFileAsync(sourcePath, targetPath);

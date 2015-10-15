@@ -76,6 +76,12 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
+                public void ItShouldCreateOriginalsDirectory()
+                {
+                    DirectoryProvider.Received().CreateDirectory(ExpectedOriginalsDirectory);
+                }
+
+                [Test]
                 public void ItShouldOpenInitializingSection()
                 {
                     Observers.Received().BeginSection("Initializing");
@@ -111,15 +117,15 @@ namespace Packager.Test.Processors
                     {
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalPresFileName),
-                            Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, PreservationFileName));
 
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalPresIntFileName),
-                            Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName));
 
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalProductionFileName),
-                            Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, ProductionFileName));
                     }
                 }
 
@@ -135,10 +141,10 @@ namespace Packager.Test.Processors
                         }
 
                         [Test]
-                        public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
+                        public void ItShouldMovePreservationIntermediateMasterToOriginalsDirectory()
                         {
                             FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationIntermediateFileName),
-                                Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName));
+                                Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName));
                         }
                     }
 
@@ -152,17 +158,17 @@ namespace Packager.Test.Processors
                         }
 
                         [Test]
-                        public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
+                        public void ItShouldMovePreservationIntermediateMasterToOriginalsDirectory()
                         {
                             FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, ProductionFileName),
-                                Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
+                                Path.Combine(ExpectedOriginalsDirectory, ProductionFileName));
                         }
                     }
 
                     [Test]
-                    public void ItShouldMovePresentationFileToProcessingDirectory()
+                    public void ItShouldMovePresentationFileToOriginalsDirectory()
                     {
-                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedOriginalsDirectory, PreservationFileName));
                     }
                 }
             }

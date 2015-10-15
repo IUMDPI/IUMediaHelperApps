@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -10,7 +9,6 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
-using Packager.Utilities;
 
 namespace Packager.Processors
 {
@@ -29,6 +27,8 @@ namespace Packager.Processors
         protected override string MezzanineFileExtension => ".aac";
         protected override string PreservationFileExtension => ".wav";
         protected override string PreservationIntermediateFileExtenstion => ".wav";
+
+        protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
@@ -70,7 +70,7 @@ namespace Packager.Processors
 
             // now add metadata to eligible objects
             await AddMetadata(processedList, metadata);
-            
+
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = await GenerateXml(metadata, processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
@@ -145,8 +145,8 @@ namespace Packager.Processors
                     .Select(m => (ObjectFileModel) m)
                     .Where(m => m.IsAccessVersion() == false).ToList();
 
-                    await BextProcessor.ClearAllBextMetadataFields(targets);
-                
+                await BextProcessor.ClearAllBextMetadataFields(targets);
+
                 success = true;
             }
             catch (Exception e)
@@ -171,13 +171,13 @@ namespace Packager.Processors
         {
             var sectionKey = string.Empty;
             var success = false;
-            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
+            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
             try
             {
                 sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
 
                 await AssignChecksumValues(filesToProcess);
-                
+
                 var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
 
@@ -200,9 +200,6 @@ namespace Packager.Processors
                     Observers.EndSection(sectionKey);
                 }
             }
-
-
-
         }
     }
 }

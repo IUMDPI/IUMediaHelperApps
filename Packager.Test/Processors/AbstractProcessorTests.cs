@@ -42,6 +42,8 @@ namespace Packager.Test.Processors
 
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
 
+        protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
+
         protected string ExpectedObjectFolderName { get; set; }
         protected ConsolidatedPodMetadata Metadata { get; set; }
         protected abstract void DoCustomSetup();

@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace WaveInfo
 {
     public class WaveFile
     {
-
         public string FileName { get; set; }
         public long FileSize { get; set; }
 

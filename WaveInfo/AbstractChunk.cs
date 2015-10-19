@@ -29,20 +29,20 @@ namespace WaveInfo
         }
 
         
-        public string GetReport()
+        public virtual string GetReport()
         {
             var builder = new StringBuilder();
 
-            foreach (var property in GetType().GetProperties())
-            {
-                var lineFormat = "{0,-20}{1}";
-                var line = property.PropertyType.IsArray
-                    ? string.Format(lineFormat, property.Name, "[array]")
-                    : string.Format(lineFormat, property.Name, property.GetValue(this));
-                builder.AppendLine(line);
-            }
+            builder.AppendLine();
+            builder.AppendLine($"{Id} chunk");
+            builder.AppendLine(new string('-', 75));
+            builder.AppendLine(this.ToColumns("Size"));
+            builder.AppendLine(this.ToColumns("ReportedSize"));
+            builder.AppendLine(this.ToColumns("Offset"));
 
             return builder.ToString();
         }
+
+        
     }
 }

@@ -28,6 +28,8 @@ namespace Packager.Extensions
             return preservationIntermediate ?? grouping.SingleOrDefault(m => m.IsPreservationVersion());
         }
 
+       
+
         public static ObjectFileModel GetPreservationOrIntermediateModel(this IEnumerable<ObjectFileModel> models)
         {
             var list = models.ToList();

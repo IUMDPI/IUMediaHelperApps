@@ -44,7 +44,7 @@ namespace Packager.Processors
 
             // create list of files to process and add the original files that
             // we know about
-            var processedList = new List<AbstractFileModel>().Concat(filesToProcess)
+            var processedList = new List<ObjectFileModel>().Concat(filesToProcess)
                 .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
 
             // next group by sequence
@@ -55,8 +55,7 @@ namespace Packager.Processors
                 .GroupBy(m => m.SequenceIndicator)
                 .Select(g => g.GetPreservationOrIntermediateModel()))
             {
-                var derivatives = await CreateDerivatives(model);
-                processedList = processedList.Concat(derivatives).ToList();
+                processedList.Add(await CreateProductionDerivative(model));
             }
 
             // now remove duplicate entries -- this could happen if production master
@@ -68,29 +67,37 @@ namespace Packager.Processors
             // now add metadata to eligible objects
             await AddMetadata(processedList, metadata);
 
+            // finally generate the access versions from production masters
+            processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
+            
             // using the list of files that have been processed
             // make the xml file
-            var xmlModel = await GenerateXml(metadata, processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
+            var xmlModel = await GenerateXml(metadata, processedList);
 
-            processedList.Add(xmlModel);
+            var outputList = new List<AbstractFileModel>().Concat(processedList).ToList();
+            outputList.Add(xmlModel);
 
-            return processedList;
+            return outputList;
         }
 
-        protected virtual async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
+        protected virtual async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel fileModel)
         {
-            var prodModel = await FFPMpegRunner.CreateDerivative(
+            return await FFPMpegRunner.CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
                 FFMPEGAudioProductionArguments);
+        }
 
-            var accessModel = await FFPMpegRunner.CreateDerivative(
-                prodModel,
-                ToAccessFileModel(prodModel),
-                FFMPEGAudioAccessArguments);
+        protected virtual async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
+        {
+            var results = new List<ObjectFileModel>();
 
-            // return models for files
-            return new List<ObjectFileModel> {prodModel, accessModel};
+            // for each production master, create an access version
+            foreach (var model in models.Where(m => m.IsProductionVersion()))
+            {
+                results.Add(await FFPMpegRunner.CreateDerivative(model, ToAccessFileModel(model), FFMPEGAudioAccessArguments));
+            }
+            return results;
         }
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)

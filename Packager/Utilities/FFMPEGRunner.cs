@@ -180,7 +180,7 @@ namespace Packager.Utilities
                     throw new FileDirectoryExistsException(targetPath);
                 }
 
-                var args = $"-i {originalPath.ToQuoted()} -acodec copy -rf64 auto {targetPath.ToQuoted()}";
+                var args = $"-i {originalPath.ToQuoted()} -acodec copy -write_bext 1 -rf64 auto {targetPath.ToQuoted()}";
                 await CreateDerivative(args);
                 Observers.EndSection(sectionKey, $"{original.ToFileName()} normalized successfully");
             }

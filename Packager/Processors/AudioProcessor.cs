@@ -64,10 +64,7 @@ namespace Packager.Processors
             processedList = processedList
                 .GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();
-            
-            // now remove metadata fields that we don't want
-            // await ClearMetadata(processedList);
-
+           
             // now add metadata to eligible objects
             await AddMetadata(processedList, metadata);
 

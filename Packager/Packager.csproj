@@ -138,6 +138,7 @@
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
+    <Compile Include="Exceptions\NormalizeOriginalException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Models\OutputModels\IngestDevice.cs" />

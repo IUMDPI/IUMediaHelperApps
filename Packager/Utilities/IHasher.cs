@@ -7,5 +7,6 @@ namespace Packager.Utilities
     public interface IHasher
     {
         Task<string> Hash(AbstractFileModel model);
+        Task<string> Hash(string path);
     }
 }

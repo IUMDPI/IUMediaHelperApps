@@ -9,6 +9,7 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
+using Packager.Utilities;
 
 namespace Packager.Processors
 {
@@ -35,22 +36,16 @@ namespace Packager.Processors
             // fetch, log, and validate metadata
             var metadata = await GetMetadata(filesToProcess);
 
-            // create derivatives for the various files
-            // and add them to a list of files that have
-            // been processed
-            var processedList = new List<AbstractFileModel>();
+            // normalize originals
+            await FFPMpegRunner.Normalize(filesToProcess);
 
-            // add two lists together, but remove duplicates
-            // duplicate file entries might happen if a .prod version already exists
-            // because it was created by an audio engineer
-            processedList = processedList.Concat(filesToProcess)
+            // verify normalized versions of originals
+            await FFPMpegRunner.Verify(filesToProcess);
+
+            // create list of files to process and add the original files that
+            // we know about
+            var processedList = new List<AbstractFileModel>().Concat(filesToProcess)
                 .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
-
-            // todo: normalize the original audio files to versions in the processing folder
-
-            // todo: generate .framemd5 files for orginals and normalized versions
-
-            // todo: hash and compare the normalized values
 
             // next group by sequence
             // then determine which file to use to create derivatives
@@ -69,10 +64,9 @@ namespace Packager.Processors
             processedList = processedList
                 .GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();
-
-
+            
             // now remove metadata fields that we don't want
-            await ClearMetadata(processedList);
+            // await ClearMetadata(processedList);
 
             // now add metadata to eligible objects
             await AddMetadata(processedList, metadata);
@@ -88,12 +82,12 @@ namespace Packager.Processors
 
         protected virtual async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
         {
-            var prodModel = await IffmpegRunner.CreateDerivative(
+            var prodModel = await FFPMpegRunner.CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
                 FFMPEGAudioProductionArguments);
 
-            var accessModel = await IffmpegRunner.CreateDerivative(
+            var accessModel = await FFPMpegRunner.CreateDerivative(
                 prodModel,
                 ToAccessFileModel(prodModel),
                 FFMPEGAudioAccessArguments);

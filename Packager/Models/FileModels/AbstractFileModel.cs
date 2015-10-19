@@ -55,7 +55,7 @@ namespace Packager.Models.FileModels
 
         public string GetFolderName()
         {
-            return string.Format("{0}_{1}", ProjectCode.ToUpperInvariant(), BarCode);
+            return $"{ProjectCode.ToUpperInvariant()}_{BarCode}";
         }
 
         public abstract string ToFileName();

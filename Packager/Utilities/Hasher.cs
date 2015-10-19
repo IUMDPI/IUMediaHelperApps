@@ -17,7 +17,12 @@ namespace Packager.Utilities
 
         public async Task<string> Hash(AbstractFileModel model)
         {
-            return await Task.Run(() => Hash(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName())));
+            return await Task.Run(() => HashInternal(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName())));
+        }
+
+        public async Task<string> Hash(string path)
+        {
+            return await Task.Run(() => HashInternal(path));
         }
 
         public static string Hash(Stream content)
@@ -32,7 +37,7 @@ namespace Packager.Utilities
             }
         }
         
-        private static string Hash(string path)
+        private static string HashInternal(string path)
         {
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {

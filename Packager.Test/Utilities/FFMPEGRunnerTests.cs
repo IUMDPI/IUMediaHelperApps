@@ -33,6 +33,8 @@ namespace Packager.Test.Utilities
         private ObjectFileModel Result { get; set; }
         private IProcessResult ProcessRunnerResult { get; set; }
 
+        private IHasher Hasher { get; set; }
+
 
         protected virtual void DoCustomSetup()
         {
@@ -52,7 +54,9 @@ namespace Packager.Test.Utilities
             Observers = Substitute.For<IObserverCollection>();
             FileProvider = Substitute.For<IFileProvider>();
 
-            Runner = new FFMPEGRunner(FFMPEGPath, BaseProcessingDirectory, ProcessRunner, Observers, FileProvider);
+            Hasher = Substitute.For<IHasher>();
+
+            Runner = new FFMPEGRunner(FFMPEGPath, BaseProcessingDirectory, ProcessRunner, Observers, FileProvider, Hasher);
 
             DoCustomSetup();
         }

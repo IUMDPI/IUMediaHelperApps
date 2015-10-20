@@ -116,6 +116,7 @@ namespace Packager.Utilities
 
                 var folderPath = Path.Combine(BaseProcessingDirectory, 
                     isOriginal ? model.GetOriginalFolderName() : model.GetFolderName());
+
                 var targetPath = Path.Combine(folderPath, model.ToFileName());
 
                 if (FileProvider.FileDoesNotExist(targetPath))

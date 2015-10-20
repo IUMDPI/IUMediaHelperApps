@@ -165,7 +165,7 @@ namespace Packager.Utilities
                     throw new NormalizeOriginalException("Original and normalized framemd5 hashes not equal: {0} {1}", originalMd5Hash, normalizedMd5Hash);
                 }
 
-                Observers.EndSection(sectionKey, $"{0} (normalized) validated successfully");
+                Observers.EndSection(sectionKey, $"{model.ToFileName()} (normalized) validated successfully");
             }
             catch (Exception e)
             {

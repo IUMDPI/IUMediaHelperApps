@@ -265,10 +265,8 @@ namespace Packager.Processors
                 var metadata = await MetadataProvider.GetObjectMetadata(Barcode);
                 
                 // resolve unit
-                metadata.Unit = ProgramSettings.ResolveUnitNamesUsingPod
-                    ? await MetadataProvider.ResolveUnit(metadata.Unit)
-                    : LookupsProvider.LookupValue(LookupTables.Units, metadata.Unit);
-
+                metadata.Unit = await MetadataProvider.ResolveUnit(metadata.Unit);
+                    
                 // log metadata
                 MetadataProvider.Log(metadata);
 

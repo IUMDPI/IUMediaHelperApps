@@ -259,7 +259,7 @@ namespace Packager.Processors
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
-                var metadata = await MetadataProvider.Get(Barcode);
+                var metadata = await MetadataProvider.GetObjectMetadata(Barcode);
 
                 // log metadata
                 MetadataProvider.Log(metadata);

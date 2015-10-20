@@ -17,7 +17,6 @@ namespace Packager.Providers
         IProgramSettings ProgramSettings { get; }
         IObserverCollection Observers { get; }
         IPodMetadataProvider MetadataProvider { get; }
-        ILookupsProvider LookupsProvider { get; }
         ISystemInfoProvider SystemInfoProvider { get; }
         IBextProcessor BextProcessor { get; }
         IFFMPEGRunner FFMPEGRunner { get; }
@@ -28,6 +27,5 @@ namespace Packager.Providers
         IIngestDataFactory IngestDataFactory { get; }
         IValidatorCollection ValidatorCollection { get; }
         ISuccessFolderCleaner SuccessFolderCleaner { get; }
-       
     }
 }

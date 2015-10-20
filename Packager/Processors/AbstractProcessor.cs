@@ -79,9 +79,7 @@ namespace Packager.Processors
         public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
 
         protected abstract string OriginalsDirectory { get; }
-
-        protected ILookupsProvider LookupsProvider => _dependencyProvider.LookupsProvider;
-
+        
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
             Barcode = fileModels.Key;

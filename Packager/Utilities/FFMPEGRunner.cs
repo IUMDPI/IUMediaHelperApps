@@ -118,7 +118,7 @@ namespace Packager.Utilities
                     isOriginal ? model.GetOriginalFolderName() : model.GetFolderName());
                 var targetPath = Path.Combine(folderPath, model.ToFileName());
 
-                if (!File.Exists(targetPath))
+                if (FileProvider.FileDoesNotExist(targetPath))
                 {
                     throw new FileNotFoundException("Framemd5 target does not exist or is not accessible", targetPath);
                 }
@@ -141,10 +141,22 @@ namespace Packager.Utilities
             var sectionKey = Observers.BeginSection("Validating {0} (normalized)", model.ToFileName());
             try
             {
-                var originalMd5Hash = await Hasher.Hash(Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename()));
-                Observers.Log("original framemd5 hash: {0}", originalMd5Hash);
+                var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
+                if (FileProvider.FileDoesNotExist(originalFrameMd5Path))
+                {
+                    throw new FileNotFoundException("framemd5 file does not exist or is not accessible", originalFrameMd5Path);
+                }
 
-                var normalizedMd5Hash = await Hasher.Hash(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename()));
+                var originalMd5Hash = await Hasher.Hash(originalFrameMd5Path);
+                Observers.Log("original framemd5 hash: {0}", originalMd5Hash);
+                
+                var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename());
+                if (FileProvider.FileDoesNotExist(normalizedFrameMd5Path))
+                {
+                    throw new FileNotFoundException("framemd5 fil does not exist or is not accessible", normalizedFrameMd5Path);
+                }
+
+                var normalizedMd5Hash = await Hasher.Hash(normalizedFrameMd5Path);
                 Observers.Log("normalized framemd5 hash: {0}", normalizedMd5Hash);
                 
                 if (!originalMd5Hash.Equals(normalizedMd5Hash))
@@ -169,7 +181,7 @@ namespace Packager.Utilities
             try
             {
                 var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.ToFileName());
-                if (!FileProvider.FileExists(originalPath))
+                if (FileProvider.FileDoesNotExist(originalPath))
                 {
                     throw new FileNotFoundException("Original does not exist or is not accessible", originalPath);
                 }

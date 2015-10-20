@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
@@ -234,6 +235,21 @@ namespace Packager.Test.Processors
                 public void ItShouldOpenSection()
                 {
                     Observers.Received().BeginSection("Requesting metadata for object: {0}", Barcode);
+                }
+            }
+
+            public class WhenNormalizingOriginals : WhenNothingGoesWrong
+            {
+                [Test]
+                public void ItShouldNormalizeAllOriginalFiles()
+                {
+                    FFMPEGRunner.Received().Normalize(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
+                }
+                
+                [Test]
+                public void ItShouldVerifyAllNormalizedFiles()
+                {
+                    FFMPEGRunner.Received().Verify(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
                 }
             }
 

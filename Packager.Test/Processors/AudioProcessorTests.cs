@@ -309,28 +309,7 @@ namespace Packager.Test.Processors
                         Arg.Any<ConsolidatedPodMetadata>());
                 }
             }
-
-            public class WhenClearingMetadataFields : WhenNothingGoesWrong
-            {
-                [Test]
-                public void ItShouldCloseSection()
-                {
-                    Observers.Received().EndSection(Arg.Any<string>(), "Original BEXT metadata fields cleared successfully");
-                }
-
-                [Test]
-                public void ItShouldOpenSection()
-                {
-                    Observers.Received().BeginSection("Clearing original BEXT metadata fields");
-                }
-
-                [Test]
-                public void ItShouldTellProcessorToRemoveFields()
-                {
-                    BextProcessor.Received().ClearAllBextMetadataFields(Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsSameAs(PreservationFileName)) != null));
-                }
-            }
-
+            
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private CarrierData CarrierData { get; set; }

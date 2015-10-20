@@ -76,6 +76,9 @@ namespace Packager.Models
         [FromBoolConfigSetting("UseAppendFlagForAudioMetadata")]
         public bool UseAppendFlagForAudioMetadata { get; private set; }
 
+        [FromBoolConfigSetting("ResolveUnitNamesUsingPod")]
+        public bool ResolveUnitNamesUsingPod { get; private set; }
+
         public List<string> Issues { get; }
 
         [FromStringConfigSetting("SmtpServer")]

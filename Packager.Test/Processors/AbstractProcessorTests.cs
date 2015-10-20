@@ -38,6 +38,8 @@ namespace Packager.Test.Processors
         protected ICarrierDataFactory MetadataGenerator { get; set; }
         protected IBextProcessor BextProcessor { get; set; }
 
+        protected ILookupsProvider LookupsProvider { get; set; }
+
         protected IFFMPEGRunner FFMPEGRunner { get; set; }
 
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
@@ -89,6 +91,10 @@ namespace Packager.Test.Processors
             MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
 
+            LookupsProvider = Substitute.For<ILookupsProvider>();
+            LookupsProvider.LookupValue(LookupTables.Units, Arg.Any<string>())
+                .Returns(x => $"{x.Arg<string>()} resolved");
+
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFMPEGRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>())
                 .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
@@ -105,6 +111,8 @@ namespace Packager.Test.Processors
             DependencyProvider.BextProcessor.Returns(BextProcessor);
             DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
             DependencyProvider.FFMPEGRunner.Returns(FFMPEGRunner);
+            DependencyProvider.LookupsProvider.Returns(LookupsProvider);
+
             DoCustomSetup();
 
             Result =  await Processor.ProcessFile(GetGrouping(ModelList));

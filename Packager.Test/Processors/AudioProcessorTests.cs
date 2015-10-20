@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -11,6 +10,7 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
+using Packager.Providers;
 
 namespace Packager.Test.Processors
 {
@@ -70,15 +70,15 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldCreateProcessingDirectory()
-                {
-                    DirectoryProvider.Received().CreateDirectory(ExpectedProcessingDirectory);
-                }
-
-                [Test]
                 public void ItShouldCreateOriginalsDirectory()
                 {
                     DirectoryProvider.Received().CreateDirectory(ExpectedOriginalsDirectory);
+                }
+
+                [Test]
+                public void ItShouldCreateProcessingDirectory()
+                {
+                    DirectoryProvider.Received().CreateDirectory(ExpectedProcessingDirectory);
                 }
 
                 [Test]
@@ -175,6 +175,49 @@ namespace Packager.Test.Processors
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
             {
+                public class WhenUsingWebServiceToResolveUnits : WhenGettingMetadata
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.ResolveUnitNamesUsingPod.Returns(true);
+                    }
+
+                    [Test]
+                    public void ItShouldNotUseLookupsProvider()
+                    {
+                        LookupsProvider.DidNotReceive().LookupValue(LookupTables.Units, Arg.Any<string>());
+                    }
+
+                    [Test]
+                    public void ItShouldUseMetadataProvider()
+                    {
+                        MetadataProvider.Received().ResolveUnit(Arg.Any<string>());
+                    }
+                }
+
+                public class WhenUsingLookupsTableToResolveUnits : WhenGettingMetadata
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.ResolveUnitNamesUsingPod.Returns(false);
+                    }
+
+                    [Test]
+                    public void ItShouldUseLookupsProvider()
+                    {
+                        LookupsProvider.Received().LookupValue(LookupTables.Units,Arg.Any<string>());
+                    }
+
+                    [Test]
+                    public void ItShouldNotUseMetadataProvider()
+                    {
+                        MetadataProvider.DidNotReceive().ResolveUnit(Arg.Any<string>());
+                    }
+                }
+
+
                 [Test]
                 public void ItShouldCloseSection()
                 {
@@ -309,7 +352,7 @@ namespace Packager.Test.Processors
                         Arg.Any<ConsolidatedPodMetadata>());
                 }
             }
-            
+
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private CarrierData CarrierData { get; set; }

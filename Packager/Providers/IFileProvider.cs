@@ -13,7 +13,8 @@ namespace Packager.Providers
         Task CopyFileAsync(string sourceFileName, string destFileName);
         Task MoveFileAsync(string sourceFileName, string destFileName);
         bool FileExists(string path);
-        
+        bool FileDoesNotExist(string path);
+
         FileInfo GetFileInfo(string path);
         FileVersionInfo GetFileVersionInfo(string path);
         string GetFileVersion(string path);
@@ -49,6 +50,11 @@ namespace Packager.Providers
         public bool FileExists(string path)
         {
             return File.Exists(path);
+        }
+
+        public bool FileDoesNotExist(string path)
+        {
+            return FileExists(path) ==false;
         }
 
         public FileInfo GetFileInfo(string path)

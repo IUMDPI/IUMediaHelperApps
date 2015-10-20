@@ -31,7 +31,7 @@ namespace Packager.Providers
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
 
-        public async Task<ConsolidatedPodMetadata> Get(string barcode)
+        public async Task<ConsolidatedPodMetadata> GetObjectMetadata(string barcode)
         {
             var client = new RestClient(ProgramSettings.WebServiceUrl)
             {

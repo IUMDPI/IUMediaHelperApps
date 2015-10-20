@@ -44,7 +44,7 @@ namespace Packager.Test.Processors
 
             Metadata = new ConsolidatedPodMetadata {Barcode = Barcode};
 
-            MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
+            MetadataProvider.GetObjectMetadata(Barcode).Returns(Task.FromResult(Metadata));
 
             Processor = new AudioProcessor(DependencyProvider);
 
@@ -184,7 +184,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
-                    MetadataProvider.Received().Get(Barcode);
+                    MetadataProvider.Received().GetObjectMetadata(Barcode);
                 }
 
                 [Test]

@@ -8,7 +8,7 @@ namespace Packager.Providers
 {
     public interface IPodMetadataProvider
     {
-        Task<ConsolidatedPodMetadata> Get(string barcode);
+        Task<ConsolidatedPodMetadata> GetObjectMetadata(string barcode);
         void Validate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> models);
         void Log(ConsolidatedPodMetadata podMetadata);
 

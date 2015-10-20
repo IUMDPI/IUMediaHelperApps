@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
@@ -11,7 +10,6 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
-using Packager.Providers;
 
 namespace Packager.Test.Processors
 {
@@ -176,49 +174,6 @@ namespace Packager.Test.Processors
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
             {
-                public class WhenUsingWebServiceToResolveUnits : WhenGettingMetadata
-                {
-                    protected override void DoCustomSetup()
-                    {
-                        base.DoCustomSetup();
-                        ProgramSettings.ResolveUnitNamesUsingPod.Returns(true);
-                    }
-
-                    [Test]
-                    public void ItShouldNotUseLookupsProvider()
-                    {
-                        LookupsProvider.DidNotReceive().LookupValue(LookupTables.Units, Arg.Any<string>());
-                    }
-
-                    [Test]
-                    public void ItShouldUseMetadataProvider()
-                    {
-                        MetadataProvider.Received().ResolveUnit(Arg.Any<string>());
-                    }
-                }
-
-                public class WhenUsingLookupsTableToResolveUnits : WhenGettingMetadata
-                {
-                    protected override void DoCustomSetup()
-                    {
-                        base.DoCustomSetup();
-                        ProgramSettings.ResolveUnitNamesUsingPod.Returns(false);
-                    }
-
-                    [Test]
-                    public void ItShouldUseLookupsProvider()
-                    {
-                        LookupsProvider.Received().LookupValue(LookupTables.Units,Arg.Any<string>());
-                    }
-
-                    [Test]
-                    public void ItShouldNotUseMetadataProvider()
-                    {
-                        MetadataProvider.DidNotReceive().ResolveUnit(Arg.Any<string>());
-                    }
-                }
-
-
                 [Test]
                 public void ItShouldCloseSection()
                 {
@@ -236,6 +191,12 @@ namespace Packager.Test.Processors
                 {
                     Observers.Received().BeginSection("Requesting metadata for object: {0}", Barcode);
                 }
+
+                [Test]
+                public void ItShouldUseMetadataProvider()
+                {
+                    MetadataProvider.Received().ResolveUnit(Arg.Any<string>());
+                }
             }
 
             public class WhenNormalizingOriginals : WhenNothingGoesWrong
@@ -245,7 +206,7 @@ namespace Packager.Test.Processors
                 {
                     FFMPEGRunner.Received().Normalize(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
                 }
-                
+
                 [Test]
                 public void ItShouldVerifyAllNormalizedFiles()
                 {

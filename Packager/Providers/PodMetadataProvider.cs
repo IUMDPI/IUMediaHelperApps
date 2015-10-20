@@ -18,16 +18,14 @@ namespace Packager.Providers
 {
     internal class PodMetadataProvider : IPodMetadataProvider
     {
-        public PodMetadataProvider(IProgramSettings programSettings, ILookupsProvider lookupsProvider, IObserverCollection observers, IValidatorCollection validators)
+        public PodMetadataProvider(IProgramSettings programSettings, IObserverCollection observers, IValidatorCollection validators)
         {
             ProgramSettings = programSettings;
-            LookupsProvider = lookupsProvider;
             Observers = observers;
             Validators = validators;
         }
 
         private IProgramSettings ProgramSettings { get; }
-        private ILookupsProvider LookupsProvider { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
 
@@ -41,13 +39,32 @@ namespace Packager.Providers
 
 
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
-            
+
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
 
-            VerifyResponse(response);
+            VerifyResponse(response, "retrieve metadata from Pod");
             VerifyResponseMetadata(response.Data);
+            VerifyResponseObjectsPresent(response.Data);
 
             return ConsolidateMetadata(response.Data);
+        }
+
+        public async Task<string> ResolveUnit(string unit)
+        {
+            var client = new RestClient(ProgramSettings.WebServiceUrl)
+            {
+                Authenticator =
+                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
+            };
+
+            var request = new RestRequest($"/responses/packager/units/{unit}");
+
+            var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
+
+            VerifyResponse(response, "resolve unit name using Pod");
+            VerifyResponseMetadata(response.Data);
+            
+            return response.Data.Message;
         }
 
         public void Validate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> models)
@@ -117,7 +134,7 @@ namespace Packager.Providers
             return results;
         }
 
-        private ConsolidatedPodMetadata ConsolidateMetadata(PodMetadata metadata)
+        private static ConsolidatedPodMetadata ConsolidateMetadata(PodMetadata metadata)
         {
             var result = new ConsolidatedPodMetadata
             {
@@ -125,7 +142,7 @@ namespace Packager.Providers
                 Format = metadata.Data.Object.Details.Format,
                 CallNumber = metadata.Data.Object.Details.CallNumber,
                 Title = metadata.Data.Object.Details.Title,
-                Unit = LookupsProvider.LookupValue(LookupTables.Units, metadata.Data.Object.Assignment.Unit),
+                Unit = metadata.Data.Object.Assignment.Unit,
                 Barcode = metadata.Data.Object.Details.MdpiBarcode,
                 Brand = metadata.Data.Object.TechnicalMetadata.TapeStockBrand,
                 DirectionsRecorded = metadata.Data.Object.TechnicalMetadata.DirectionsRecorded,
@@ -168,7 +185,7 @@ namespace Packager.Providers
         {
             foreach (var property in value.GetType().GetProperties().Where(p => p.PropertyType == typeof (string) && p.CanWrite))
             {
-                property.SetValue(value, ((string)property.GetValue(value)).TrimWhiteSpace());
+                property.SetValue(value, ((string) property.GetValue(value)).TrimWhiteSpace());
             }
 
             return value;
@@ -205,16 +222,16 @@ namespace Packager.Providers
             return value.Value ? "Yes" : "No";
         }
 
-        private static void VerifyResponse(IRestResponse response)
+        private static void VerifyResponse(IRestResponse response, string operation)
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
-                throw new PodMetadataException(response.ErrorException, "Could not retrieve metadata from Pod");
+                throw new PodMetadataException(response.ErrorException, "Could not {0}", operation);
             }
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new PodMetadataException(response.ErrorException, "Could not retrieve metadata from Pod: {0} ({1})", response.StatusCode, (int) response.StatusCode);
+                throw new PodMetadataException(response.ErrorException, "Could not {0}: {1} ({2})", operation, response.StatusCode, (int) response.StatusCode);
             }
         }
 
@@ -231,7 +248,10 @@ namespace Packager.Providers
                     "Could not retrieve metadata: {0}",
                     metadata.Message.ToDefaultIfEmpty("[no error message present]"));
             }
+        }
 
+        private static void VerifyResponseObjectsPresent(PodMetadata metadata)
+        {
             if (metadata.Data == null ||
                 metadata.Data.Object == null ||
                 metadata.Data.Object.Assignment == null ||

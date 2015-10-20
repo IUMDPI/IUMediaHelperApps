@@ -78,7 +78,9 @@ namespace Packager.Processors
 
         public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
 
-        protected abstract string OriginalsDirectory { get; } 
+        protected abstract string OriginalsDirectory { get; }
+
+        protected ILookupsProvider LookupsProvider => _dependencyProvider.LookupsProvider;
 
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
@@ -259,7 +261,13 @@ namespace Packager.Processors
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
+                // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata(Barcode);
+                
+                // resolve unit
+                metadata.Unit = ProgramSettings.ResolveUnitNamesUsingPod
+                    ? await MetadataProvider.ResolveUnit(metadata.Unit)
+                    : LookupsProvider.LookupValue(LookupTables.Units, metadata.Unit);
 
                 // log metadata
                 MetadataProvider.Log(metadata);

@@ -28,7 +28,6 @@ namespace Packager.Models
         int DeleteSuccessfulObjectsAfterDays { get; }
         BextFields[] SuppressAudioMetadataFields { get; }
         bool UseAppendFlagForAudioMetadata { get; }
-        bool ResolveUnitNamesUsingPod { get; }
-        List<string> Issues { get; } 
+        List<string> Issues { get; }
     }
 }

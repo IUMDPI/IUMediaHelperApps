@@ -35,6 +35,7 @@ namespace Packager.Test.Utilities
             FileProvider = Substitute.For<IFileProvider>();
 
             Hasher = Substitute.For<IHasher>();
+            Hasher.Hash(Arg.Any<string>()).Returns(x=>Task.FromResult($"{Path.GetFileName(x.Arg<string>())} hash value"));
 
             Runner = new FFMPEGRunner(FFMPEGPath, BaseProcessingDirectory, ProcessRunner, Observers, FileProvider, Hasher);
 
@@ -86,7 +87,7 @@ namespace Packager.Test.Utilities
                 FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), MasterFileName)).Returns(true);
             }
 
-            public List<ObjectFileModel> Originals { get; set; }
+            private List<ObjectFileModel> Originals { get; set; }
 
             private const string ProductionFileName = "MDPI_123456789_01_prod.wav";
 
@@ -174,7 +175,9 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    await Runner.Normalize(Originals);
+                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Normalize(Originals));
+                    Assert.That(issue, Is.Not.Null);
+                    Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
 
                 [Test]
@@ -209,9 +212,17 @@ namespace Packager.Test.Utilities
                 FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetOriginalFolderName(), ProductionFileName)).Returns(false);
                 FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(false);
 
-                // configure file provider to assert normalized versions do not exist
+                // configure file provider to assert normalized versions exist
                 FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileName)).Returns(false);
                 FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), MasterFileName)).Returns(false);
+
+                // configure file provider to assert original framemd5 files exists
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetOriginalFolderName(), ProductionFileModel.ToFrameMd5Filename())).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), PreservationFileModel.ToFrameMd5Filename())).Returns(false);
+
+                // configure file provider to assert normalized framemd5 files exists
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileModel.ToFrameMd5Filename())).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), PreservationFileModel.ToFrameMd5Filename())).Returns(false);
             }
 
             public List<ObjectFileModel> Originals { get; set; }
@@ -258,6 +269,74 @@ namespace Packager.Test.Utilities
                 }
 
                 [Test]
+                public void ItShouldVerifyFrameMd5HashesExists()
+                {
+                    foreach (var model in Originals)
+                    {
+                        var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
+                        var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename());
+                        FileProvider.Received().FileDoesNotExist(originalFrameMd5Path);
+                        FileProvider.Received().FileDoesNotExist(normalizedFrameMd5Path);
+                    }
+                }
+
+                [Test]
+                public void ItShouldVerifyFrameMd5HashesForOriginalVersions()
+                {
+                    foreach (var model in Originals)
+                    {
+                        var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
+                        Hasher.Received().Hash(originalFrameMd5Path);
+                    }
+                }
+
+                [Test]
+                public void ItShouldVerifyFrameMd5HashesForNormalizedVersions()
+                {
+                    foreach (var model in Originals)
+                    {
+                        var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename());
+                        Hasher.Received().Hash(normalizedFrameMd5Path);
+                    }
+                }
+
+                [Test]
+                public void ItShouldOpenValidatingSection()
+                {
+                    foreach (var model in Originals)
+                    {
+                        Observers.Received().BeginSection("Validating {0} (normalized)", model.ToFileName());
+                    }
+                }
+                
+                [Test]
+                public void ItShouldCloseValidatingSection()
+                {
+                    foreach (var model in Originals)
+                    {
+                        Observers.Received().EndSection(Arg.Any<string>(), $"{model.ToFileName()} (normalized) validated successfully");
+                    }
+                }
+
+                [Test]
+                public void ItShouldLogOriginalFrameMd5Hash()
+                {
+                    foreach (var model in Originals)
+                    {
+                        Observers.Received().Log("original framemd5 hash: {0}", $"{model.ToFrameMd5Filename()} hash value");
+                    }    
+                }
+
+                [Test]
+                public void ItShouldLogNormalizedFrameMd5Hash()
+                {
+                    foreach (var model in Originals)
+                    {
+                        Observers.Received().Log("normalized framemd5 hash: {0}", $"{model.ToFrameMd5Filename()} hash value");
+                    }
+                }
+                
+                [Test]
                 public void ItShouldCallProcessRunnerCorrectlyForOriginalVersions()
                 {
                     foreach (var model in Originals)
@@ -282,8 +361,7 @@ namespace Packager.Test.Utilities
                         ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)));
                     }
                 }
-
-
+                
                 [Test]
                 public void ItShouldCloseSectionsCorrectly()
                 {
@@ -295,9 +373,45 @@ namespace Packager.Test.Utilities
                 }
             }
 
+            public class WhenHashesAreNotEqual : WhenVerifyingNormalizedVersions
+            {
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+
+                    Originals = new List<ObjectFileModel> { PreservationFileModel };
+
+                    // make hasher return different values
+                    Hasher.Hash(Arg.Any<string>()).Returns(x => Task.FromResult(x.Arg<string>()));
+
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    {
+                        ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
+                        return Task.FromResult(ProcessRunnerResult);
+                    });
+
+                    var issue = Assert.Throws<LoggedException>(async ()=> await Runner.Verify(Originals));
+                    Assert.That(issue, Is.Not.Null);
+                    Assert.That(issue.InnerException, Is.TypeOf<NormalizeOriginalException>());
+                }
+
+                [Test]
+                public void ItShouldLogExceptionCorrectly()
+                {
+                    Observers.Received().LogProcessingIssue(Arg.Any<NormalizeOriginalException>(), PreservationFileModel.BarCode);
+                }
+
+                [Test]
+                public void ItShouldCloseSectionCorrectly()
+                {
+                    Observers.Received().EndSection(Arg.Any<string>());
+                }
+
+            }
+
             public class WhenThingsGoWrong : WhenVerifyingNormalizedVersions
             {
-                public override async void BeforeEach()
+                public override void BeforeEach()
                 {
                     base.BeforeEach();
 
@@ -312,7 +426,9 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    await Runner.Verify(Originals);
+                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Verify(Originals));
+                    Assert.That(issue, Is.Not.Null);
+                    Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
 
                 [Test]
@@ -328,8 +444,7 @@ namespace Packager.Test.Utilities
                 }
             }
         }
-
-
+        
         public class WhenGeneratingDerivatives : FFMPEGRunnerTests
         {
             public class WhenThingsGoWell : WhenGeneratingDerivatives

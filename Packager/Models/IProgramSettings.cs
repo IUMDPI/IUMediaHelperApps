@@ -29,5 +29,6 @@ namespace Packager.Models
         BextFields[] SuppressAudioMetadataFields { get; }
         bool UseAppendFlagForAudioMetadata { get; }
         List<string> Issues { get; }
+        string UnitPrefix { get; }
     }
 }

@@ -174,6 +174,37 @@ namespace Packager.Test.Processors
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
             {
+                public class WhenUnitPrefixSet : WhenGettingMetadata
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.UnitPrefix.Returns("Indiana University-Bloomington. ");
+                    }
+
+                    [Test]
+                    public void ItShouldUsePrefix()
+                    {
+                        Assert.That(Metadata.Unit.StartsWith("Indiana University-Bloomington. "), Is.True);
+                    }
+                }
+
+                public class WhenUnitPrefixNotSet : WhenGettingMetadata
+                {
+
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.UnitPrefix.Returns((string)null);
+                    }
+
+                    [Test]
+                    public void ItShouldNotUsePrefix()
+                    {
+                        Assert.That(Metadata.Unit.StartsWith("Indiana University-Bloomington. "), Is.False);
+                    }
+                }
+
                 [Test]
                 public void ItShouldCloseSection()
                 {
@@ -193,7 +224,7 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldUseMetadataProvider()
+                public void ItShouldResolveUnit()
                 {
                     MetadataProvider.Received().ResolveUnit(Arg.Any<string>());
                 }

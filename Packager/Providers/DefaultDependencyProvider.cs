@@ -24,7 +24,6 @@ namespace Packager.Providers
             MetadataGenerator = new CarrierDataFactory(SideDataFactory);
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
-            LookupsProvider = new AppConfigLookupsProvider();
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory, 
                 programSettings.SuppressAudioMetadataFields, programSettings.UseAppendFlagForAudioMetadata);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier(), new BextMetadataFactory());
@@ -72,9 +71,6 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IPodMetadataProvider MetadataProvider { get; }
-
-        [ValidateObject]
-        public ILookupsProvider LookupsProvider { get; }
 
         [ValidateObject]
         public IBextProcessor BextProcessor { get; }

@@ -2,7 +2,7 @@
 
 namespace Packager.Exceptions
 {
-    internal class NormalizeOriginalException : AbstractEngineException
+    public class NormalizeOriginalException : AbstractEngineException
     {
         public NormalizeOriginalException(string baseMessage, params object[] parameters) : base(baseMessage, parameters)
         {

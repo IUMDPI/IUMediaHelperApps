@@ -173,6 +173,7 @@ namespace Packager.Engine
             {
                 Observers.Log("Suppress audio metadata fields: {0}", string.Join(", ", _dependencyProvider.ProgramSettings.SuppressAudioMetadataFields));
             }
+            Observers.Log("Unit prefix: {0}", _dependencyProvider.ProgramSettings.UnitPrefix);
             Observers.Log("");
             Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));

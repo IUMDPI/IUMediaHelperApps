@@ -13,7 +13,7 @@ namespace WaveInfo
             try
             {
                 var waveFile = WaveFileFactory.OpenWaveFile(args[0]);
-                
+
                 Console.Clear();
 
                 WriteFileOverView(builder, waveFile);
@@ -22,9 +22,9 @@ namespace WaveInfo
                 OutputLine(builder);
                 WriteChunkOverview(builder, waveFile);
                 OutputLine(builder);
-                
+                WriteChunkReports(builder, waveFile);
                 WriteNotes(builder);
-
+                OutputLine(builder);
                 WriteReport(args[0], builder);
             }
             catch (Exception e)
@@ -35,7 +35,7 @@ namespace WaveInfo
             }
 
 
-           Console.WriteLine();
+            Console.WriteLine();
             Console.WriteLine("Press [return] to exit");
             Console.ReadLine();
             return returnCode;
@@ -60,13 +60,21 @@ namespace WaveInfo
             Console.WriteLine();
         }
 
+        private static void WriteChunkReports(StringBuilder builder, WaveFile wavefile)
+        {
+            foreach (var chunk in wavefile.Chunks)
+            {
+                OutputLine(builder,chunk.GetReport());
+            }
+        }
+
         private static void OutputLine(StringBuilder builder, string baseText, params object[] args)
         {
             var text = string.Format(baseText, args);
             builder.AppendLine(text);
             Console.WriteLine(text);
         }
-                
+
 
         private static void WriteFileOverView(StringBuilder builder, WaveFile file)
         {
@@ -92,7 +100,7 @@ namespace WaveInfo
             {
                 return;
             }
-            
+
             OutputLine(builder, "Size (ds64)         {0}", ds64Chunk.RiffSize);
             if (Convert.ToInt64(ds64Chunk.RiffSize) + 8 != file.FileSize)
             {
@@ -102,7 +110,6 @@ namespace WaveInfo
 
         private static void WriteDataSizeReport(StringBuilder builder, WaveFile file)
         {
-
             var dataChunk = file.GetChunk<DataChunk>();
             if (dataChunk == null)
             {
@@ -116,9 +123,8 @@ namespace WaveInfo
             {
                 OutputLine(builder, "Data size (ds64)     {0}", ds64Chunk.DataSize);
             }
-            
-            OutputLine(builder, "Data MD5 Hash        {0}", dataChunk.Md5Hash);
 
+            OutputLine(builder, "Data MD5 Hash        {0}", dataChunk.Md5Hash);
         }
 
         private static string NormalizeReportedSize(uint value)
@@ -133,10 +139,10 @@ namespace WaveInfo
 
         private static string GetSizeReportText(AbstractChunk chunk)
         {
-            var baseformat = chunk is ListChunk 
+            var baseformat = chunk is ListChunk
                 ? "{0} [3]"
                 : "{0}";
-            
+
             if (chunk.Size == chunk.ReportedSize)
             {
                 return string.Format(baseformat, chunk.Size);
@@ -179,14 +185,14 @@ namespace WaveInfo
 
         private static bool NotesPresent(StringBuilder builder)
         {
-            return NotePresent(builder, "1") || 
-                NotePresent(builder, "2") || 
-                NotePresent(builder, "3");
+            return NotePresent(builder, "1") ||
+                   NotePresent(builder, "2") ||
+                   NotePresent(builder, "3");
         }
 
         private static bool NotePresent(StringBuilder builder, string note)
         {
-            return builder.ToString().Contains($"[{note }]");
+            return builder.ToString().Contains($"[{note}]");
         }
     }
 }

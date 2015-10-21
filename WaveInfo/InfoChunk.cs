@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Text;
+using WaveInfo.Extensions;
 
 namespace WaveInfo
 {
@@ -11,7 +13,15 @@ namespace WaveInfo
         {
             base.ReadChunk(reader);
 
-            Text = new string(reader.ReadChars(Convert.ToInt32(Size)));
+            Text = new string(reader.ReadChars(Convert.ToInt32(Size))).AppendEnd();
+        }
+
+        public override string GetReport()
+        {
+            var builder = new StringBuilder(base.GetReport());
+            builder.AppendLine(this.ToColumns("Text"));
+
+            return builder.ToString();
         }
     }
 }

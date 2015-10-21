@@ -24,11 +24,10 @@ namespace Packager.Providers
             MetadataGenerator = new CarrierDataFactory(SideDataFactory);
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
-            LookupsProvider = new AppConfigLookupsProvider();
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory, 
                 programSettings.SuppressAudioMetadataFields, programSettings.UseAppendFlagForAudioMetadata);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier(), new BextMetadataFactory());
-            FFMPEGRunner = new FFMPEGRunner(ProgramSettings.FFMPEGPath, ProgramSettings.ProcessingDirectory, ProcessRunner, Observers, FileProvider);
+            FFMPEGRunner = new FFMPEGRunner(ProgramSettings.FFMPEGPath, ProgramSettings.ProcessingDirectory, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ValidatorCollection = new StandardValidatorCollection
             {
@@ -38,7 +37,7 @@ namespace Packager.Providers
                 new UriValidator(),
                 new MembersValidator()
             };
-            MetadataProvider = new PodMetadataProvider(ProgramSettings, LookupsProvider, Observers, ValidatorCollection);
+            MetadataProvider = new PodMetadataProvider(ProgramSettings, Observers, ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName, 
                 new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays,0,0,0), Observers);
         }
@@ -72,9 +71,6 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IPodMetadataProvider MetadataProvider { get; }
-
-        [ValidateObject]
-        public ILookupsProvider LookupsProvider { get; }
 
         [ValidateObject]
         public IBextProcessor BextProcessor { get; }

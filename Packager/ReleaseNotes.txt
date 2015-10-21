@@ -26,4 +26,8 @@
 					to the metadata fields in the list.
 					added code to fix issue with utility not receiving all bwf-metaedit output
 					added code to detect bwf metaedit issues (such as "truncated").
+1.9.0.0	10/22/2015	should normalize originals using ffmpeg -acodec copy
+					should pad coding history with a space if size of coding history
+					would cause BEXT chunk to have an odd number of bytes
+					should use POD web-service to resolve unit names
 					

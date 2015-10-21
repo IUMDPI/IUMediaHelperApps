@@ -75,8 +75,11 @@ namespace Packager.Models
 
         [FromBoolConfigSetting("UseAppendFlagForAudioMetadata")]
         public bool UseAppendFlagForAudioMetadata { get; private set; }
-
+        
         public List<string> Issues { get; }
+
+        [FromStringConfigSetting("UnitPrefix")]
+        public string UnitPrefix { get; private set; }
 
         [FromStringConfigSetting("SmtpServer")]
         public string SmtpServer { get; private set; }
@@ -90,9 +93,6 @@ namespace Packager.Models
         [FromStringConfigSetting("WebServiceUrl")]
         [ValidateUri]
         public string WebServiceUrl { get; private set; }
-
-        public string DateFormat => "yyyy-MM-dd HH:mm:ss \"GMT\"zzz";
-
 
         private void ImportMappedConfigSettings(NameValueCollection settings)
         {

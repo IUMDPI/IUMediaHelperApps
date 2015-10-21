@@ -83,6 +83,11 @@ namespace Packager.Utilities
                 args.Add(AppendArgument);
             }
 
+            if (!string.IsNullOrWhiteSpace(core.CodingHistory) && core.CodingHistory.Length%2 != 0)
+            {
+                core.CodingHistory = core.CodingHistory + " ";
+            }
+
             foreach (var info in core.GetType().GetProperties()
                 .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(core, p), p.GetCustomAttribute<BextFieldAttribute>()))
                 .Where(t => t.Item2 != null)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -44,7 +43,7 @@ namespace Packager.Test.Processors
 
             Metadata = new ConsolidatedPodMetadata {Barcode = Barcode};
 
-            MetadataProvider.Get(Barcode).Returns(Task.FromResult(Metadata));
+            MetadataProvider.GetObjectMetadata(Barcode).Returns(Task.FromResult(Metadata));
 
             Processor = new AudioProcessor(DependencyProvider);
 
@@ -67,6 +66,12 @@ namespace Packager.Test.Processors
                 public void ItShouldCloseInitializingSection()
                 {
                     Observers.Received().EndSection(Arg.Any<string>(), "Initialization successful");
+                }
+
+                [Test]
+                public void ItShouldCreateOriginalsDirectory()
+                {
+                    DirectoryProvider.Received().CreateDirectory(ExpectedOriginalsDirectory);
                 }
 
                 [Test]
@@ -111,15 +116,15 @@ namespace Packager.Test.Processors
                     {
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalPresFileName),
-                            Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, PreservationFileName));
 
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalPresIntFileName),
-                            Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName));
 
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalProductionFileName),
-                            Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, ProductionFileName));
                     }
                 }
 
@@ -135,10 +140,10 @@ namespace Packager.Test.Processors
                         }
 
                         [Test]
-                        public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
+                        public void ItShouldMovePreservationIntermediateMasterToOriginalsDirectory()
                         {
                             FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationIntermediateFileName),
-                                Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName));
+                                Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName));
                         }
                     }
 
@@ -152,23 +157,54 @@ namespace Packager.Test.Processors
                         }
 
                         [Test]
-                        public void ItShouldMovePreservationIntermediateMasterToProcessingDirectory()
+                        public void ItShouldMovePreservationIntermediateMasterToOriginalsDirectory()
                         {
                             FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, ProductionFileName),
-                                Path.Combine(ExpectedProcessingDirectory, ProductionFileName));
+                                Path.Combine(ExpectedOriginalsDirectory, ProductionFileName));
                         }
                     }
 
                     [Test]
-                    public void ItShouldMovePresentationFileToProcessingDirectory()
+                    public void ItShouldMovePresentationFileToOriginalsDirectory()
                     {
-                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedProcessingDirectory, PreservationFileName));
+                        FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName), Path.Combine(ExpectedOriginalsDirectory, PreservationFileName));
                     }
                 }
             }
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
             {
+                public class WhenUnitPrefixSet : WhenGettingMetadata
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.UnitPrefix.Returns("Indiana University-Bloomington. ");
+                    }
+
+                    [Test]
+                    public void ItShouldUsePrefix()
+                    {
+                        Assert.That(Metadata.Unit.StartsWith("Indiana University-Bloomington. "), Is.True);
+                    }
+                }
+
+                public class WhenUnitPrefixNotSet : WhenGettingMetadata
+                {
+
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.UnitPrefix.Returns((string)null);
+                    }
+
+                    [Test]
+                    public void ItShouldNotUsePrefix()
+                    {
+                        Assert.That(Metadata.Unit.StartsWith("Indiana University-Bloomington. "), Is.False);
+                    }
+                }
+
                 [Test]
                 public void ItShouldCloseSection()
                 {
@@ -178,13 +214,34 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
-                    MetadataProvider.Received().Get(Barcode);
+                    MetadataProvider.Received().GetObjectMetadata(Barcode);
                 }
 
                 [Test]
                 public void ItShouldOpenSection()
                 {
                     Observers.Received().BeginSection("Requesting metadata for object: {0}", Barcode);
+                }
+
+                [Test]
+                public void ItShouldResolveUnit()
+                {
+                    MetadataProvider.Received().ResolveUnit(Arg.Any<string>());
+                }
+            }
+
+            public class WhenNormalizingOriginals : WhenNothingGoesWrong
+            {
+                [Test]
+                public void ItShouldNormalizeAllOriginalFiles()
+                {
+                    FFMPEGRunner.Received().Normalize(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
+                }
+
+                [Test]
+                public void ItShouldVerifyAllNormalizedFiles()
+                {
+                    FFMPEGRunner.Received().Verify(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
                 }
             }
 
@@ -301,27 +358,6 @@ namespace Packager.Test.Processors
                     BextProcessor.Received().EmbedBextMetadata(
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
                         Arg.Any<ConsolidatedPodMetadata>());
-                }
-            }
-
-            public class WhenClearingMetadataFields : WhenNothingGoesWrong
-            {
-                [Test]
-                public void ItShouldCloseSection()
-                {
-                    Observers.Received().EndSection(Arg.Any<string>(), "Original BEXT metadata fields cleared successfully");
-                }
-
-                [Test]
-                public void ItShouldOpenSection()
-                {
-                    Observers.Received().BeginSection("Clearing original BEXT metadata fields");
-                }
-
-                [Test]
-                public void ItShouldTellProcessorToRemoveFields()
-                {
-                    BextProcessor.Received().ClearAllBextMetadataFields(Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsSameAs(PreservationFileName)) != null));
                 }
             }
 

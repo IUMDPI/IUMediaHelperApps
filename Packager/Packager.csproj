@@ -138,6 +138,7 @@
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
+    <Compile Include="Exceptions\NormalizeOriginalException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Models\OutputModels\IngestDevice.cs" />
@@ -151,7 +152,6 @@
     <Compile Include="Utilities\ISuccessFolderCleaner.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
-    <Compile Include="Attributes\DeserializeAsLookupAttribute.cs" />
     <Compile Include="Attributes\FromStringConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromListConfigSettingAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
@@ -159,7 +159,6 @@
     <Compile Include="Validators\Attributes\ValidateFolderAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateObjectAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateUriAttribute.cs" />
-    <Compile Include="Deserializers\PodMetadataDeserializer.cs" />
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
     <Compile Include="Exceptions\AbstractEngineException.cs" />
@@ -237,7 +236,6 @@
     <Compile Include="Observers\ViewModelObserver.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\AppConfigLookupsProvider.cs" />
     <Compile Include="Models\EmailMessageModels\AbstractEmailMessage.cs" />
     <Compile Include="Providers\ISystemInfoProvider.cs" />
     <Compile Include="Providers\SystemInfoProvider.cs" />
@@ -251,7 +249,6 @@
     <Compile Include="Processors\AudioProcessor.cs" />
     <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Providers\IPodMetadataProvider.cs" />
-    <Compile Include="Providers\ILookupsProvider.cs" />
     <Compile Include="UserInterface\View.xaml.cs">
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>

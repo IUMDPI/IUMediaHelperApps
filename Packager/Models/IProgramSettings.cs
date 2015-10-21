@@ -17,7 +17,6 @@ namespace Packager.Models
         string FFMPEGAudioAccessArguments { get; }
         string ProjectCode { get; }
         string DropBoxDirectoryName { get; }
-        string DateFormat { get; }
         PodAuth PodAuth { get; }
         string WebServiceUrl { get; }
         string ErrorDirectoryName { get; }
@@ -29,7 +28,7 @@ namespace Packager.Models
         int DeleteSuccessfulObjectsAfterDays { get; }
         BextFields[] SuppressAudioMetadataFields { get; }
         bool UseAppendFlagForAudioMetadata { get; }
-
-        List<string> Issues { get; } 
+        List<string> Issues { get; }
+        string UnitPrefix { get; }
     }
 }

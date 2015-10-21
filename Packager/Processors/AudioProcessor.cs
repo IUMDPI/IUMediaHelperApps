@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -30,23 +29,25 @@ namespace Packager.Processors
         protected override string PreservationFileExtension => ".wav";
         protected override string PreservationIntermediateFileExtenstion => ".wav";
 
+        protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
+
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata(filesToProcess);
 
-            // create derivatives for the various files
-            // and add them to a list of files that have
-            // been processed
-            var processedList = new List<AbstractFileModel>();
+            // normalize originals
+            await FFPMpegRunner.Normalize(filesToProcess);
 
-            // add two lists together, but remove duplicates
-            // duplicate file entries might happen if a .prod version already exists
-            // because it was create by an audio engineer
-            processedList = processedList.Concat(filesToProcess)
+            // verify normalized versions of originals
+            await FFPMpegRunner.Verify(filesToProcess);
+
+            // create list of files to process and add the original files that
+            // we know about
+            var processedList = new List<ObjectFileModel>().Concat(filesToProcess)
                 .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
 
-            // first group by sequence
+            // next group by sequence
             // then determine which file to use to create derivatives
             // then use that file to create the derivatives
             // then aggregate the results into the processed list
@@ -54,8 +55,7 @@ namespace Packager.Processors
                 .GroupBy(m => m.SequenceIndicator)
                 .Select(g => g.GetPreservationOrIntermediateModel()))
             {
-                var derivatives = await CreateDerivatives(model);
-                processedList = processedList.Concat(derivatives).ToList();
+                processedList.Add(await CreateProductionDerivative(model));
             }
 
             // now remove duplicate entries -- this could happen if production master
@@ -63,37 +63,41 @@ namespace Packager.Processors
             processedList = processedList
                 .GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();
-
-
-            // now remove metadata fields that we don't want
-            await ClearMetadata(processedList);
-
+           
             // now add metadata to eligible objects
             await AddMetadata(processedList, metadata);
+
+            // finally generate the access versions from production masters
+            processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
             
             // using the list of files that have been processed
             // make the xml file
-            var xmlModel = await GenerateXml(metadata, processedList.Where(m => m.IsObjectModel()).Select(m => (ObjectFileModel) m).ToList());
+            var xmlModel = await GenerateXml(metadata, processedList);
 
-            processedList.Add(xmlModel);
+            var outputList = new List<AbstractFileModel>().Concat(processedList).ToList();
+            outputList.Add(xmlModel);
 
-            return processedList;
+            return outputList;
         }
 
-        protected virtual async Task<List<ObjectFileModel>> CreateDerivatives(ObjectFileModel fileModel)
+        protected virtual async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel fileModel)
         {
-            var prodModel = await IffmpegRunner.CreateDerivative(
+            return await FFPMpegRunner.CreateDerivative(
                 fileModel,
                 ToProductionFileModel(fileModel),
                 FFMPEGAudioProductionArguments);
+        }
 
-            var accessModel = await IffmpegRunner.CreateDerivative(
-                prodModel,
-                ToAccessFileModel(prodModel),
-                FFMPEGAudioAccessArguments);
+        protected virtual async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
+        {
+            var results = new List<ObjectFileModel>();
 
-            // return models for files
-            return new List<ObjectFileModel> {prodModel, accessModel};
+            // for each production master, create an access version
+            foreach (var model in models.Where(m => m.IsProductionVersion()))
+            {
+                results.Add(await FFPMpegRunner.CreateDerivative(model, ToAccessFileModel(model), FFMPEGAudioAccessArguments));
+            }
+            return results;
         }
 
         private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
@@ -145,8 +149,8 @@ namespace Packager.Processors
                     .Select(m => (ObjectFileModel) m)
                     .Where(m => m.IsAccessVersion() == false).ToList();
 
-                    await BextProcessor.ClearAllBextMetadataFields(targets);
-                
+                await BextProcessor.ClearAllBextMetadataFields(targets);
+
                 success = true;
             }
             catch (Exception e)
@@ -171,13 +175,13 @@ namespace Packager.Processors
         {
             var sectionKey = string.Empty;
             var success = false;
-            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
+            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
             try
             {
                 sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
 
                 await AssignChecksumValues(filesToProcess);
-                
+
                 var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
 
@@ -200,9 +204,6 @@ namespace Packager.Processors
                     Observers.EndSection(sectionKey);
                 }
             }
-
-
-
         }
     }
 }

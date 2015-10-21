@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Packager.Extensions;
 
@@ -165,10 +166,20 @@ namespace Packager.Models.FileModels
 
         public override string ToFileName()
         {
-            var parts = new[] {ProjectCode, BarCode, SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture), FileUse};
+            return $"{ToFileNameWithoutExtension()}{Extension}";
+        }
 
-            var fileName = string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
-            return string.Format("{0}{1}", fileName, Extension);
+        public string ToFrameMd5Filename()
+        {
+            
+            return $"{ToFileNameWithoutExtension()}.framemd5";
+        }
+
+        private string ToFileNameWithoutExtension()
+        {
+            var parts = new[] { ProjectCode, BarCode, SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture), FileUse };
+
+            return string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
         }
 
         public override bool IsValid()
@@ -189,6 +200,11 @@ namespace Packager.Models.FileModels
             }
 
             return true;
+        }
+
+        public string GetOriginalFolderName()
+        {
+            return Path.Combine(GetFolderName(), "Originals");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
+using Packager.Models.PodMetadataModels;
 
 namespace Packager.Utilities
 {
@@ -10,6 +11,8 @@ namespace Packager.Utilities
         Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, string arguments);
         
         Task Normalize(List<ObjectFileModel> originals);
+
+        Task Normalize(List<ObjectFileModel> originals, ConsolidatedPodMetadata metadata);
 
         Task Verify(List<ObjectFileModel> originals);
 

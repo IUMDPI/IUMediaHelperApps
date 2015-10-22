@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Packager.Utilities;
 
 namespace Packager.Attributes
@@ -28,5 +29,25 @@ namespace Packager.Attributes
 
             return value.Length <= MaxLength;
         }
+
+        public string GetFFMPEGArgument()
+        {
+            var type = Field.GetType();
+            var name = Enum.GetName(type, Field);
+            var attribute = type.GetField(name).GetCustomAttribute<FFMPEGArgumentAttribute>();
+
+            return attribute == null ? Field.ToString() : attribute.Value;
+        }
     }
+
+    public class FFMPEGArgumentAttribute : Attribute
+    {
+        public string Value { get; set; }
+
+        public FFMPEGArgumentAttribute(string value)
+        {
+            Value = value;
+        }
+    }
+
 }

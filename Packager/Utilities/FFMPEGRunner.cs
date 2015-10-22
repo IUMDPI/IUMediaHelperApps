@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Packager.Attributes;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Factories;
+using Packager.Models.BextModels;
 using Packager.Models.FileModels;
+using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Validators.Attributes;
@@ -15,7 +21,7 @@ namespace Packager.Utilities
     // ReSharper disable once InconsistentNaming
     public class FFMPEGRunner : IFFMPEGRunner
     {
-        public FFMPEGRunner(string ffmpegPath, string baseProcessingDirectory, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
+        public FFMPEGRunner(string ffmpegPath, string baseProcessingDirectory, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher, IBextMetadataFactory metadataFactory)
         {
             FFMPEGPath = ffmpegPath;
             BaseProcessingDirectory = baseProcessingDirectory;
@@ -23,6 +29,7 @@ namespace Packager.Utilities
             Observers = observers;
             FileProvider = fileProvider;
             Hasher = hasher;
+            MetadataFactory = metadataFactory;
         }
 
         private string BaseProcessingDirectory { get; }
@@ -30,6 +37,7 @@ namespace Packager.Utilities
         private IObserverCollection Observers { get; }
         private IFileProvider FileProvider { get; }
         private IHasher Hasher { get; }
+        private IBextMetadataFactory MetadataFactory { get; set; }
 
         [ValidateFile]
         public string FFMPEGPath { get; set; }
@@ -70,6 +78,17 @@ namespace Packager.Utilities
             foreach (var model in originals)
             {
                 await Normalize(model);
+            }
+        }
+
+        public async Task Normalize(List<ObjectFileModel> originals, ConsolidatedPodMetadata metadata)
+        {
+            foreach (var model in originals)
+            {
+                var defaultProvenance = GetDefaultProvenance(originals, metadata, model);
+                var provenance = metadata.FileProvenances.GetFileProvenance(model, defaultProvenance);
+                var core = MetadataFactory.Generate(model, provenance, metadata);
+                await Normalize(model, core);
             }
         }
 
@@ -205,6 +224,69 @@ namespace Packager.Utilities
             }
         }
 
+        private async Task Normalize(ObjectFileModel original, BextMetadata core)
+        {
+            var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
+            try
+            {
+                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.ToFileName());
+                if (FileProvider.FileDoesNotExist(originalPath))
+                {
+                    throw new FileNotFoundException("Original does not exist or is not accessible", originalPath);
+                }
+
+                var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.ToFileName());
+                if (FileProvider.FileExists(targetPath))
+                {
+                    throw new FileDirectoryExistsException(targetPath);
+                }
+
+                
+                var args = $"-i {originalPath.ToQuoted()} -acodec copy -write_bext 1 -rf64 auto {GetArgsForCoreAndModel(original, core)} {targetPath.ToQuoted()}";
+                Observers.Log(args);
+                await CreateDerivative(args);
+                Observers.EndSection(sectionKey, $"{original.ToFileName()} normalized successfully");
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, original.BarCode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+        }
+
+        private string GetArgsForCoreAndModel(AbstractFileModel model, BextMetadata core)
+        {
+            var args = new List<string> { "-map_metadata", "-1" };
+
+            if (!string.IsNullOrWhiteSpace(core.CodingHistory) && core.CodingHistory.Length % 2 == 0)
+            {
+                core.CodingHistory = core.CodingHistory + " ";
+            }
+
+            foreach (var info in core.GetType().GetProperties()
+                .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(core, p), p.GetCustomAttribute<BextFieldAttribute>()))
+                .Where(t => t.Item2 != null && !string.IsNullOrWhiteSpace(t.Item1)))
+            {
+                if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
+                {
+                    throw new BextMetadataException("Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1, info.Item2.MaxLength);
+                }
+
+                args.Add($"-metadata {info.Item2.GetFFMPEGArgument()}={info.Item1.NormalizeForCommandLine().ToQuoted()}");
+            }
+
+            //args.Add(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()).ToQuoted());
+
+            return string.Join(" ", args);
+        }
+
+        private static string GetValueFromField(BextMetadata core, PropertyInfo info)
+        {
+            return info.GetValue(core).ToDefaultIfEmpty();
+        }
+
+
         private async Task CreateDerivative(string args)
         {
             var startInfo = new ProcessStartInfo(FFMPEGPath)
@@ -224,6 +306,24 @@ namespace Packager.Utilities
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
+        }
+
+        private static DigitalFileProvenance GetDefaultProvenance(IEnumerable<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, ObjectFileModel model)
+        {
+            var sequenceInstances = instances.Where(m => m.SequenceIndicator.Equals(model.SequenceIndicator));
+            var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
+            if (sequenceMaster == null)
+            {
+                throw new BextMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
+            }
+
+            var defaultProvenance = podMetadata.FileProvenances.GetFileProvenance(sequenceMaster);
+            if (defaultProvenance == null)
+            {
+                throw new BextMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
+            }
+
+            return defaultProvenance;
         }
     }
 }

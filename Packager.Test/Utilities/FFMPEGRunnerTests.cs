@@ -37,7 +37,7 @@ namespace Packager.Test.Utilities
             Hasher = Substitute.For<IHasher>();
             Hasher.Hash(Arg.Any<string>()).Returns(x=>Task.FromResult($"{Path.GetFileName(x.Arg<string>())} hash value"));
 
-            Runner = new FFMPEGRunner(FFMPEGPath, BaseProcessingDirectory, ProcessRunner, Observers, FileProvider, Hasher);
+            Runner = new FFMPEGRunner(FFMPEGPath, BaseProcessingDirectory, ProcessRunner, Observers, FileProvider, Hasher, null);
 
             DoCustomSetup();
         }

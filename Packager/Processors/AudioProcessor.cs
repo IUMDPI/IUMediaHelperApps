@@ -9,7 +9,6 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
-using Packager.Utilities;
 
 namespace Packager.Processors
 {
@@ -37,7 +36,7 @@ namespace Packager.Processors
             var metadata = await GetMetadata(filesToProcess);
 
             // normalize originals
-            await FFPMpegRunner.Normalize(filesToProcess);
+            await FFPMpegRunner.Normalize(filesToProcess, metadata);
 
             // verify normalized versions of originals
             await FFPMpegRunner.Verify(filesToProcess);
@@ -63,13 +62,13 @@ namespace Packager.Processors
             processedList = processedList
                 .GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();
-           
+
             // now add metadata to eligible objects
             await AddMetadata(processedList, metadata);
 
             // finally generate the access versions from production masters
             processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
-            
+
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = await GenerateXml(metadata, processedList);

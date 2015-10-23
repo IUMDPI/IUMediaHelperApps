@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using Packager.Attributes;
 using Packager.Exceptions;
 using Packager.Extensions;
-
 using Packager.Models;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
@@ -21,6 +17,8 @@ namespace Packager.Utilities
     // ReSharper disable once InconsistentNaming
     public class FFMPEGRunner : IFFMPEGRunner
     {
+        private const string NormalizingArguments = "-acodec copy -write_bext 1 -rf64 auto -map_metadata -1";
+
         public FFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
         {
             FFMPEGPath = programSettings.FFMPEGPath;
@@ -29,31 +27,33 @@ namespace Packager.Utilities
             Observers = observers;
             FileProvider = fileProvider;
             Hasher = hasher;
-            AudioAccessArguments = programSettings.FFMPEGAudioAccessArguments;
-            BaseProductionArgs = programSettings.FFMPEGAudioProductionArguments.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            AccessArguments = programSettings.FFMPEGAudioAccessArguments;
+            ProductionArguments = programSettings.FFMPEGAudioProductionArguments;
         }
 
-        private List<string> BaseNormalizingArgs => new List<string>()  { "-map_metadata", "-1" } ;
-        private List<string> BaseProductionArgs { get; }
-        private string AudioAccessArguments { get; }
-        
+        private string ProductionArguments { get; }
+        private string AccessArguments { get; }
+
+
         private string BaseProcessingDirectory { get; }
         private IProcessRunner ProcessRunner { get; }
         private IObserverCollection Observers { get; }
         private IFileProvider FileProvider { get; }
         private IHasher Hasher { get; }
-       
+
         [ValidateFile]
         public string FFMPEGPath { get; set; }
 
         public async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, BextMetadata metadata)
         {
-            return await CreateDerivative(original, original.ToProductionFileModel(), GetMetadataArguments(BaseProductionArgs, metadata));
+            var args = new ArgumentBuilder(ProductionArguments)
+                .AddArguments(metadata.AsArguments());
+            return await CreateDerivative(original, original.ToProductionFileModel(), args);
         }
 
         public async Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original)
         {
-            return await CreateDerivative(original, original.ToAudioAccessFileModel(), AudioAccessArguments);
+            return await CreateDerivative(original, original.ToAudioAccessFileModel(), new ArgumentBuilder(AccessArguments));
         }
 
         public async Task Verify(List<ObjectFileModel> originals)
@@ -81,7 +81,40 @@ namespace Packager.Utilities
             }
         }
 
-        private async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, string arguments)
+        public async Task Normalize(ObjectFileModel original, BextMetadata core)
+        {
+            var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
+            try
+            {
+                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.ToFileName());
+                if (FileProvider.FileDoesNotExist(originalPath))
+                {
+                    throw new FileNotFoundException("Original does not exist or is not accessible", originalPath);
+                }
+
+                var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.ToFileName());
+                if (FileProvider.FileExists(targetPath))
+                {
+                    throw new FileDirectoryExistsException(targetPath);
+                }
+
+                var arguments = new ArgumentBuilder($"-i {originalPath.ToQuoted()}")
+                    .AddArguments(NormalizingArguments)
+                    .AddArguments(core.AsArguments())
+                    .AddArguments(targetPath.ToQuoted());
+
+                await RunProgram(arguments);
+                Observers.EndSection(sectionKey, $"{original.ToFileName()} normalized successfully");
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, original.BarCode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+        }
+
+        private async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, ArgumentBuilder arguments)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
             try
@@ -97,8 +130,11 @@ namespace Packager.Utilities
                 }
                 else
                 {
-                    var args = $"-i {inputPath} {arguments} {outputPath}";
-                    await RunProgram(args);
+                    var completeArguments = new ArgumentBuilder($"-i {inputPath}")
+                        .AddArguments(arguments)
+                        .AddArguments(outputPath);
+
+                    await RunProgram(completeArguments);
                 }
 
                 Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.ToFileName()}");
@@ -140,7 +176,8 @@ namespace Packager.Utilities
 
                 var md5Path = Path.Combine(folderPath, model.ToFrameMd5Filename());
 
-                await RunProgram(string.Format(commandLineFormat, targetPath, md5Path));
+                var arguments = new ArgumentBuilder(string.Format(commandLineFormat, targetPath, md5Path));
+                await RunProgram(arguments);
                 Observers.EndSection(sectionKey, $"{sectionName} hashed successfully");
             }
             catch (Exception e)
@@ -189,70 +226,11 @@ namespace Packager.Utilities
             }
         }
 
-       /* private async Task Normalize(ObjectFileModel original)
-        {
-            var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
-            try
-            {
-                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.ToFileName());
-                if (FileProvider.FileDoesNotExist(originalPath))
-                {
-                    throw new FileNotFoundException("Original does not exist or is not accessible", originalPath);
-                }
-
-                var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.ToFileName());
-                if (FileProvider.FileExists(targetPath))
-                {
-                    throw new FileDirectoryExistsException(targetPath);
-                }
-
-                var args = $"-i {originalPath.ToQuoted()} -acodec copy -write_bext 1 -rf64 auto {targetPath.ToQuoted()}";
-                await RunProgram(args);
-                Observers.EndSection(sectionKey, $"{original.ToFileName()} normalized successfully");
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, original.BarCode);
-                Observers.EndSection(sectionKey);
-                throw new LoggedException(e);
-            }
-        }*/
-
-        public async Task Normalize(ObjectFileModel original, BextMetadata core)
-        {
-            var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
-            try
-            {
-                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.ToFileName());
-                if (FileProvider.FileDoesNotExist(originalPath))
-                {
-                    throw new FileNotFoundException("Original does not exist or is not accessible", originalPath);
-                }
-
-                var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.ToFileName());
-                if (FileProvider.FileExists(targetPath))
-                {
-                    throw new FileDirectoryExistsException(targetPath);
-                }
-
-                var args = $"-i {originalPath.ToQuoted()} -acodec copy -write_bext 1 -rf64 auto {GetMetadataArguments(BaseNormalizingArgs, core)} {targetPath.ToQuoted()}";
-                Observers.Log(args);
-                await RunProgram(args);
-                Observers.EndSection(sectionKey, $"{original.ToFileName()} normalized successfully");
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, original.BarCode);
-                Observers.EndSection(sectionKey);
-                throw new LoggedException(e);
-            }
-        }
-
-        private async Task RunProgram(string args)
+        private async Task RunProgram(ArgumentBuilder arguments)
         {
             var startInfo = new ProcessStartInfo(FFMPEGPath)
             {
-                Arguments = args,
+                Arguments = arguments.ToString(),
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
@@ -268,41 +246,5 @@ namespace Packager.Utilities
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
         }
-
-
-        private string GetMetadataArguments(List<string> args, BextMetadata metadata)
-        {
-            // normalize the coding history length to ensure that
-            // bext chunk comes out with even number of bytes
-            // this addresses issue where audio-inspector crashes
-            // if bext chunk reports an odd chunk size
-            if (!string.IsNullOrWhiteSpace(metadata.CodingHistory) && metadata.CodingHistory.Length%2 == 0)
-            {
-                metadata.CodingHistory = metadata.CodingHistory + " ";
-            }
-
-            foreach (var info in metadata.GetType().GetProperties()
-                .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(metadata, p), p.GetCustomAttribute<BextFieldAttribute>()))
-                .Where(t => t.Item2 != null && !string.IsNullOrWhiteSpace(t.Item1)))
-            {
-                if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
-                {
-                    throw new BextMetadataException("Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1, info.Item2.MaxLength);
-                }
-
-                args.Add($"-metadata {info.Item2.GetFFMPEGArgument()}={info.Item1.NormalizeForCommandLine().ToQuoted()}");
-            }
-
-            return string.Join(" ", args);
-        }
-
-        private static string GetValueFromField(BextMetadata core, PropertyInfo info)
-        {
-            return info.GetValue(core).ToDefaultIfEmpty();
-        }
-
-        
-
-        
     }
 }

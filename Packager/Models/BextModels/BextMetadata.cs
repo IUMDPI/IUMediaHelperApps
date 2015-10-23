@@ -1,4 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Packager.Attributes;
+using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Utilities;
 
 namespace Packager.Models.BextModels
@@ -79,5 +85,37 @@ namespace Packager.Models.BextModels
 
         [BextField(BextFields.ITCH)]
         public string ITCH { get; set; }
+
+        public ArgumentBuilder AsArguments()
+        {
+            var arguments = new ArgumentBuilder();
+            // normalize the coding history length to ensure that
+            // bext chunk comes out with even number of bytes
+            // this addresses issue where audio-inspector crashes
+            // if bext chunk reports an odd chunk size
+            if (!string.IsNullOrWhiteSpace(CodingHistory) && CodingHistory.Length%2 == 0)
+            {
+                CodingHistory = CodingHistory + " ";
+            }
+
+            foreach (var info in GetType().GetProperties()
+                .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(this, p), p.GetCustomAttribute<BextFieldAttribute>()))
+                .Where(t => t.Item2 != null && !string.IsNullOrWhiteSpace(t.Item1)))
+            {
+                if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
+                {
+                    throw new BextMetadataException("Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1, info.Item2.MaxLength);
+                }
+
+                arguments.Add($"-metadata {info.Item2.GetFFMPEGArgument()}={info.Item1.NormalizeForCommandLine().ToQuoted()}");
+            }
+
+            return arguments;
+        }
+
+        private static string GetValueFromField(BextMetadata core, PropertyInfo info)
+        {
+            return info.GetValue(core).ToDefaultIfEmpty();
+        }
     }
 }

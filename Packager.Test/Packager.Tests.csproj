@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Engine\EngineTests.cs" />
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
+    <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />
     <Compile Include="Utilities\HasherTests.cs" />

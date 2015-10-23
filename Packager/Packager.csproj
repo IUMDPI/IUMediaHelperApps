@@ -146,6 +146,7 @@
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />
+    <Compile Include="Utilities\ArgumentBuilder.cs" />
     <Compile Include="Utilities\FFMPEGRunner.cs" />
     <Compile Include="Utilities\IBwfMetaEditRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />

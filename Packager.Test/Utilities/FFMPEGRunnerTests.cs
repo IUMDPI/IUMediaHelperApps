@@ -8,6 +8,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
 using Packager.Observers;
@@ -23,6 +24,10 @@ namespace Packager.Test.Utilities
         [SetUp]
         public virtual void BeforeEach()
         {
+            ProgramSettings = Substitute.For<IProgramSettings>();
+            ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
+            ProgramSettings.ProcessingDirectory.Returns(BaseProcessingDirectory);
+
             ProcessRunnerResult = Substitute.For<IProcessResult>();
             ProcessRunnerResult.ExitCode.Returns(0);
             ProcessRunnerResult.StandardError.Returns(StandardErrorOutput);
@@ -37,7 +42,7 @@ namespace Packager.Test.Utilities
             Hasher = Substitute.For<IHasher>();
             Hasher.Hash(Arg.Any<string>()).Returns(x=>Task.FromResult($"{Path.GetFileName(x.Arg<string>())} hash value"));
 
-            Runner = new FFMPEGRunner(FFMPEGPath, BaseProcessingDirectory, ProcessRunner, Observers, FileProvider, Hasher, null);
+            Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
 
             DoCustomSetup();
         }
@@ -56,6 +61,7 @@ namespace Packager.Test.Utilities
         private FFMPEGRunner Runner { get; set; }
         private ObjectFileModel Result { get; set; }
         private IProcessResult ProcessRunnerResult { get; set; }
+        private IProgramSettings ProgramSettings { get; set; }
 
         private IHasher Hasher { get; set; }
 
@@ -106,7 +112,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    await Runner.Normalize(Originals);
+                    await Runner.Normalize(PreservationFileModel, null);
                 }
 
                 [Test]
@@ -175,7 +181,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Normalize(Originals));
+                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Normalize(PreservationFileModel, null));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
@@ -459,7 +465,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    Result = await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments);
+                    Result = await Runner.CreateProductionDerivative(MasterFileModel, null);
                 }
 
                 public class WhenDerivativeAlreadyExists : WhenThingsGoWell
@@ -548,7 +554,7 @@ namespace Packager.Test.Utilities
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments));
+                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProductionDerivative(MasterFileModel, null));
                     }
 
                     [Test]
@@ -567,7 +573,7 @@ namespace Packager.Test.Utilities
                         base.BeforeEach();
                         Exception = new Exception("testing");
                         ProcessRunner.Run(null).ReturnsForAnyArgs(x => { throw Exception; });
-                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateDerivative(MasterFileModel, DerivativeFileModel, Arguments));
+                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProductionDerivative(MasterFileModel, null));
                     }
 
                     private Exception Exception { get; set; }

@@ -6,6 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models;
+using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
@@ -85,8 +86,8 @@ namespace Packager.Test.Processors
             MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
-            FFMPEGRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>())
-                .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".mp4")));
+            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".wav")));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);

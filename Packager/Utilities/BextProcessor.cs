@@ -35,9 +35,7 @@ namespace Packager.Utilities
             //var files = new List<ConformancePointDocumentFile>();
             foreach (var fileModel in instances)
             {
-                var defaultProvenance = GetDefaultProvenance(instances, podMetadata, fileModel);
-                var provenance = podMetadata.FileProvenances.GetFileProvenance(fileModel, defaultProvenance);
-                var core = ConformancePointDocumentFactory.Generate(fileModel, provenance, podMetadata);
+                var core = ConformancePointDocumentFactory.Generate(instances, fileModel,  podMetadata);
                 var result = await MetaEditRunner.AddMetadata(fileModel, core);
 
                 if (instances.IsFirst(fileModel) == false)

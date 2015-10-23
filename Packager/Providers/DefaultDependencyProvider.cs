@@ -24,10 +24,11 @@ namespace Packager.Providers
             MetadataGenerator = new CarrierDataFactory(SideDataFactory);
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
+            AudioMetadataFactory = new BextMetadataFactory();
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory, 
                 programSettings.SuppressAudioMetadataFields, programSettings.UseAppendFlagForAudioMetadata);
-            BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier(), new BextMetadataFactory());
-            FFMPEGRunner = new FFMPEGRunner(ProgramSettings.FFMPEGPath, ProgramSettings.ProcessingDirectory, ProcessRunner, Observers, FileProvider, Hasher, new BextMetadataFactory());
+            BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier(), AudioMetadataFactory);
+            FFMPEGRunner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ValidatorCollection = new StandardValidatorCollection
             {
@@ -89,6 +90,7 @@ namespace Packager.Providers
         
         public IValidatorCollection ValidatorCollection { get; }
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
+        public IBextMetadataFactory AudioMetadataFactory { get; }
 
         public IBwfMetaEditRunner MetaEditRunner { get; }
     }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -18,7 +19,7 @@ namespace Packager.Factories
 
         private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
         
-        public BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
+        private BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
             var description = GenerateBextDescription(metadata, model);
 
@@ -36,6 +37,12 @@ namespace Packager.Factories
                 INAM = metadata.Title,
                 CodingHistory = GenerateCodingHistory(metadata, provenance)
             };
+        }
+
+        public BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedPodMetadata metadata)
+        {
+            var provenance = metadata.GetProvenance(models, target);
+            return Generate(target, provenance, metadata);
         }
 
 

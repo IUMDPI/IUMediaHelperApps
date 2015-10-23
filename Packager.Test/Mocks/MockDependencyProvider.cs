@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models;
+using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
@@ -68,9 +69,10 @@ namespace Packager.Test.Mocks
             if (ffmpegRunner == null)
             {
                 ffmpegRunner = Substitute.For<IFFMPEGRunner>();
-                ffmpegRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>())
-                    .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+                ffmpegRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".mp4")));
+                ffmpegRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".wav")));
             }
+
             var result = Substitute.For<IDependencyProvider>();
 
             result.DirectoryProvider.Returns(directoryProvider);

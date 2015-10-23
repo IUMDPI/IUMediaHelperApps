@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
+using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
@@ -235,7 +236,10 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldNormalizeAllOriginalFiles()
                 {
-                    FFMPEGRunner.Received().Normalize(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
+                    foreach (var model in ModelList)
+                    {
+                        FFMPEGRunner.Received().Normalize(model as ObjectFileModel, Arg.Any<BextMetadata>());
+                    }
                 }
 
                 [Test]
@@ -256,13 +260,6 @@ namespace Packager.Test.Processors
                     ExpectedMasterFileName = PreservationFileName;
                 }
 
-                private void AssertCalled(string originalFileName, string newFileName, string settingsArgs)
-                {
-                    FFMPEGRunner.Received()
-                        .CreateDerivative(Arg.Is<ObjectFileModel>(m => m.IsSameAs(originalFileName)),
-                            Arg.Is<ObjectFileModel>(m => m.IsSameAs(newFileName)), settingsArgs);
-                }
-
                 public class WhenPreservationIntermediateMasterPresent : WhenCreatingDerivatives
                 {
                     protected override void DoCustomSetup()
@@ -277,13 +274,13 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCreateAccessFileCorrectly()
                 {
-                    AssertCalled(ProductionFileName, AccessFileName, AccessCommandLineArgs);
+                    FFMPEGRunner.Received().CreateAccessDerivative(ProdObjectFileModel);
                 }
 
                 [Test]
                 public void ItShouldCreateProductionDerivativeFromExpectedMaster()
                 {
-                    AssertCalled(ExpectedMasterFileName, ProductionFileName, ProdCommandLineArgs);
+                    FFMPEGRunner.Received().CreateProductionDerivative(PresObjectFileModel, Arg.Any<BextMetadata>());
                 }
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -33,8 +34,6 @@ namespace Packager.Utilities
 
         private string ProductionArguments { get; }
         private string AccessArguments { get; }
-
-
         private string BaseProcessingDirectory { get; }
         private IProcessRunner ProcessRunner { get; }
         private IObserverCollection Observers { get; }
@@ -226,7 +225,7 @@ namespace Packager.Utilities
             }
         }
 
-        private async Task RunProgram(ArgumentBuilder arguments)
+        private async Task RunProgram(IEnumerable arguments)
         {
             var startInfo = new ProcessStartInfo(FFMPEGPath)
             {

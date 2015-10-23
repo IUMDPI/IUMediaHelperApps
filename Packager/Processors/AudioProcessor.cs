@@ -10,6 +10,7 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
+using Packager.Utilities;
 
 namespace Packager.Processors
 {
@@ -69,6 +70,9 @@ namespace Packager.Processors
                 .GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();
 
+            // now clear the ISFT field from presentation and production masters
+            await BextProcessor.ClearMetadataFields(processedList, new List<BextFields> {BextFields.ISFT});
+            
             // now add metadata to eligible objects
             // await AddMetadata(processedList, metadata);
 
@@ -107,6 +111,42 @@ namespace Packager.Processors
 
             return results;
         }
+/*
+        private async Task ClearMetadata(List<ObjectFileModel> processedList)
+        {
+            var sectionKey = string.Empty;
+            var success = false;
+            try
+            {
+                sectionKey = Observers.BeginSection("Adding BEXT metadata");
+                var filesToAddMetadata = processedList.Where(m => m.IsAccessVersion() == false).ToList();
+
+                if (!filesToAddMetadata.Any())
+                {
+                    throw new BextMetadataException("Could not add metadata: no eligible files");
+                }
+
+                await BextProcessor.ClearMetadataField().EmbedBextMetadata(filesToAddMetadata, podMetadata);
+
+                success = true;
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
+            }
+            finally
+            {
+                if (success)
+                {
+                    Observers.EndSection(sectionKey, "BEXT metadata added successfully");
+                }
+                else
+                {
+                    Observers.EndSection(sectionKey);
+                }
+            }
+        }*/
 
         private async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
         {
@@ -122,7 +162,7 @@ namespace Packager.Processors
 
         
 
-        private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
+      /*  private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
         {
             var sectionKey = string.Empty;
             var success = false;
@@ -158,8 +198,8 @@ namespace Packager.Processors
                     Observers.EndSection(sectionKey);
                 }
             }
-        }
-
+        }*/
+/*
         private async Task ClearMetadata(IEnumerable<AbstractFileModel> processedList)
         {
             var sectionKey = string.Empty;
@@ -191,7 +231,7 @@ namespace Packager.Processors
                     Observers.EndSection(sectionKey);
                 }
             }
-        }
+        }*/
 
         private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {

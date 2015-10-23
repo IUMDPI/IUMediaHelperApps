@@ -30,7 +30,7 @@ namespace Packager.Utilities
         private IBextMetadataFactory ConformancePointDocumentFactory { get; }
 
 
-        public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata)
+       /* public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata)
         {
             //var files = new List<ConformancePointDocumentFile>();
             foreach (var fileModel in instances)
@@ -58,6 +58,27 @@ namespace Packager.Utilities
             foreach (var instance in instances)
             {
                 var result = await MetaEditRunner.ClearMetadata(instance);
+
+                if (instances.IsFirst(instance) == false)
+                {
+                    Observers.Log("");
+                }
+
+                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
+                {
+                    Observers.Log(result.StandardOutput);
+                    throw new BextMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
+                }
+
+                Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
+            }
+        }
+*/
+        public async Task ClearMetadataFields(List<ObjectFileModel> instances, List<BextFields> fields)
+        {
+            foreach (var instance in instances)
+            {
+                var result = await MetaEditRunner.ClearMetadata(instance, fields);
 
                 if (instances.IsFirst(instance) == false)
                 {

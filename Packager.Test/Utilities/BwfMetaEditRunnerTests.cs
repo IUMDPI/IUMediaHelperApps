@@ -60,10 +60,10 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
-                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, new BextFields[0], false);
+               /* var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, new BextFields[0], false);
                 await runner.ClearMetadata(ProductionFileModel);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
-                Assert.That(StartInfo, Is.Not.Null);
+                Assert.That(StartInfo, Is.Not.Null);*/
             }
 
             [Test]
@@ -98,7 +98,7 @@ namespace Packager.Test.Utilities
 
                 Core = GenerateTestingCore();
                 var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, new BextFields[0], false);
-                await runner.AddMetadata(ProductionFileModel, Core);
+                //await runner.AddMetadata(ProductionFileModel, Core);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
                 Assert.That(StartInfo, Is.Not.Null);
             }

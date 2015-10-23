@@ -46,9 +46,10 @@ namespace Packager.Utilities
     public interface IBextProcessor
     {
        
-        Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata);
+       /* Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata);
 
-        Task ClearAllBextMetadataFields(List<ObjectFileModel> instances);
-        
+        Task ClearAllBextMetadataFields(List<ObjectFileModel> instances);*/
+
+        Task ClearMetadataFields(List<ObjectFileModel> instances, List<BextFields> fields);
     }
 }

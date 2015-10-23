@@ -18,8 +18,10 @@ namespace Packager.Utilities
     public interface IBwfMetaEditRunner
     {
         string BwfMetaEditPath { get; }
-        Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core);
-        Task<IProcessResult> ClearMetadata(ObjectFileModel model);
+        //Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core);
+        //Task<IProcessResult> ClearMetadata(ObjectFileModel model);
+
+        Task<IProcessResult> ClearMetadata(ObjectFileModel model, IEnumerable<BextFields> fields);
         Task<string> GetVersion();
     }
 
@@ -47,7 +49,7 @@ namespace Packager.Utilities
         [ValidateFile]
         public string BwfMetaEditPath { get; }
 
-        public async Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core)
+        /*public async Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core)
         {
             var args = GetArgsForCoreAndModel(model, core);
             return await ExecuteBextProcess(args);
@@ -57,13 +59,30 @@ namespace Packager.Utilities
         {
             var args = GetArgsForCoreAndModel(model, new BextMetadata());
             return await ExecuteBextProcess(args);
+        }*/
+
+        public async Task<IProcessResult> ClearMetadata(ObjectFileModel model, IEnumerable<BextFields> fields)
+        {
+            var arguments = new ArgumentBuilder(VerboseArgument);
+            if (UseAppend)
+            {
+                arguments.AddArguments(AppendArgument);
+            }
+
+            foreach (var field in fields)
+            {
+                arguments.AddArguments($"--{field}=\"\"");
+            }
+
+            arguments.AddArguments(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()).ToQuoted());
+            return await ExecuteBextProcess(arguments);
         }
 
         public async Task<string> GetVersion()
         {
             try
             {
-                var result = await ExecuteBextProcess(VersionArgument);
+                var result = await ExecuteBextProcess(new ArgumentBuilder(VersionArgument));
 
                 var parts = result.StandardOutput.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
                 return parts.Last();
@@ -73,7 +92,7 @@ namespace Packager.Utilities
                 return "";
             }
         }
-
+/*
         private string GetArgsForCoreAndModel(AbstractFileModel model, BextMetadata core)
         {
             var args = new List<string> {VerboseArgument}; //, AppendArgument};
@@ -118,6 +137,20 @@ namespace Packager.Utilities
             var startInfo = new ProcessStartInfo(BwfMetaEditPath)
             {
                 Arguments = args,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            return await ProcessRunner.Run(startInfo);
+        }*/
+
+        private async Task<IProcessResult> ExecuteBextProcess(ArgumentBuilder arguments)
+        {
+            var startInfo = new ProcessStartInfo(BwfMetaEditPath)
+            {
+                Arguments = arguments.ToString(),
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,

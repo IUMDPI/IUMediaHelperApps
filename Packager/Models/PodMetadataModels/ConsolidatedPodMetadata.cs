@@ -51,34 +51,5 @@ namespace Packager.Models.PodMetadataModels
         public List<DigitalFileProvenance> FileProvenances { get; set; }
         public string Damage { get; set; }
         public string PreservationProblems { get; set; }
-
-        public DigitalFileProvenance GetProvenance(IEnumerable<ObjectFileModel> instances, ObjectFileModel model)
-        {
-            var sequenceInstances = instances.Where(m => m.SequenceIndicator.Equals(model.SequenceIndicator));
-            var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
-            if (sequenceMaster == null)
-            {
-                throw new BextMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
-            }
-
-            var defaultProvenance = FileProvenances.GetFileProvenance(sequenceMaster);
-            if (defaultProvenance == null)
-            {
-                throw new BextMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
-            }
-
-            return GetProvenance(model, defaultProvenance);
-        }
-
-        private DigitalFileProvenance GetProvenance(AbstractFileModel model, DigitalFileProvenance defaultValue = null)
-        {
-            var result = FileProvenances.SingleOrDefault(dfp => model.IsSameAs(NormalizeFilename(dfp.Filename, model)));
-            return result ?? defaultValue;
-        }
-
-        private static string NormalizeFilename(string value, AbstractFileModel model)
-        {
-            return Path.ChangeExtension(value, model.Extension);
-        }
     }
 }

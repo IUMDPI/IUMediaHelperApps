@@ -97,7 +97,7 @@ namespace Packager.Test.Utilities
                 base.BeforeEach();
 
                 Core = GenerateTestingCore();
-                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, new BextFields[0], false);
+                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, false);
                 //await runner.AddMetadata(ProductionFileModel, Core);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
                 Assert.That(StartInfo, Is.Not.Null);

@@ -56,14 +56,7 @@ namespace Packager.Processors
             // then use that file to create the derivatives
             // then aggregate the results into the processed list
             processedList = processedList.Concat(await CreateProductionDerivatives(processedList, metadata)).ToList();
-            
-            /*foreach (var model in filesToProcess
-                .GroupBy(m => m.SequenceIndicator)
-                .Select(g => g.GetPreservationOrIntermediateModel()))
-            {
-                processedList.Add(await CreateProductionDerivative(model, metadata));
-            }*/
-
+          
             // now remove duplicate entries -- this could happen if production master
             // already exists
             processedList = processedList
@@ -73,9 +66,6 @@ namespace Packager.Processors
             // now clear the ISFT field from presentation and production masters
             await BextProcessor.ClearMetadataFields(processedList, new List<BextFields> {BextFields.ISFT});
             
-            // now add metadata to eligible objects
-            // await AddMetadata(processedList, metadata);
-
             // finally generate the access versions from production masters
             processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
 
@@ -111,42 +101,6 @@ namespace Packager.Processors
 
             return results;
         }
-/*
-        private async Task ClearMetadata(List<ObjectFileModel> processedList)
-        {
-            var sectionKey = string.Empty;
-            var success = false;
-            try
-            {
-                sectionKey = Observers.BeginSection("Adding BEXT metadata");
-                var filesToAddMetadata = processedList.Where(m => m.IsAccessVersion() == false).ToList();
-
-                if (!filesToAddMetadata.Any())
-                {
-                    throw new BextMetadataException("Could not add metadata: no eligible files");
-                }
-
-                await BextProcessor.ClearMetadataField().EmbedBextMetadata(filesToAddMetadata, podMetadata);
-
-                success = true;
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
-            finally
-            {
-                if (success)
-                {
-                    Observers.EndSection(sectionKey, "BEXT metadata added successfully");
-                }
-                else
-                {
-                    Observers.EndSection(sectionKey);
-                }
-            }
-        }*/
 
         private async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
         {
@@ -159,79 +113,6 @@ namespace Packager.Processors
             }
             return results;
         }
-
-        
-
-      /*  private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
-        {
-            var sectionKey = string.Empty;
-            var success = false;
-            try
-            {
-                sectionKey = Observers.BeginSection("Adding BEXT metadata");
-                var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                    .Select(m => (ObjectFileModel)m)
-                    .Where(m => m.IsAccessVersion() == false).ToList();
-
-                if (!filesToAddMetadata.Any())
-                {
-                    throw new BextMetadataException("Could not add metadata: no eligible files");
-                }
-
-                await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata);
-
-                success = true;
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
-            finally
-            {
-                if (success)
-                {
-                    Observers.EndSection(sectionKey, "BEXT metadata added successfully");
-                }
-                else
-                {
-                    Observers.EndSection(sectionKey);
-                }
-            }
-        }*/
-/*
-        private async Task ClearMetadata(IEnumerable<AbstractFileModel> processedList)
-        {
-            var sectionKey = string.Empty;
-            var success = false;
-            try
-            {
-                sectionKey = Observers.BeginSection("Clearing original BEXT metadata fields");
-                var targets = processedList.Where(m => m.IsObjectModel())
-                    .Select(m => (ObjectFileModel)m)
-                    .Where(m => m.IsAccessVersion() == false).ToList();
-
-                await BextProcessor.ClearAllBextMetadataFields(targets);
-
-                success = true;
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
-            finally
-            {
-                if (success)
-                {
-                    Observers.EndSection(sectionKey, "Original BEXT metadata fields cleared successfully");
-                }
-                else
-                {
-                    Observers.EndSection(sectionKey);
-                }
-            }
-        }*/
 
         private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {

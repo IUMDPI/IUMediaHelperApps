@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -33,11 +34,16 @@ namespace WaveInfo.Extensions
 
 
                     toRead = GetLengthToProcess(totalRead, length);
-                    finalBlock = toRead < MaxReadLength;
+                    finalBlock = IsFinalBlock(totalRead, length);
                 }
 
                 return md5.Hash.Aggregate(string.Empty, (current, b) => current + $"{b:x2}");
             }
+        }
+
+        private static bool IsFinalBlock(ulong read, ulong length)
+        {
+            return read + MaxReadLength >= length;
         }
 
         private static int GetLengthToProcess(ulong read, ulong length)

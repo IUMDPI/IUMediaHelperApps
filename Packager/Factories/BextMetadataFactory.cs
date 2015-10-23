@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Kludges;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -117,6 +118,8 @@ namespace Packager.Factories
 
             builder.Append(CodingHistoryLine3);
 
+            CodingHistoryKludge.KludgeForFFMpeg(builder);
+            
             return builder.ToString();
         }
 

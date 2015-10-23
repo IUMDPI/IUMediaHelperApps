@@ -89,15 +89,7 @@ namespace Packager.Models.BextModels
         public ArgumentBuilder AsArguments()
         {
             var arguments = new ArgumentBuilder();
-            // normalize the coding history length to ensure that
-            // bext chunk comes out with even number of bytes
-            // this addresses issue where audio-inspector crashes
-            // if bext chunk reports an odd chunk size
-            if (!string.IsNullOrWhiteSpace(CodingHistory) && CodingHistory.Length%2 == 0)
-            {
-                CodingHistory = CodingHistory + " ";
-            }
-
+           
             foreach (var info in GetType().GetProperties()
                 .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(this, p), p.GetCustomAttribute<BextFieldAttribute>()))
                 .Where(t => t.Item2 != null && !string.IsNullOrWhiteSpace(t.Item1)))

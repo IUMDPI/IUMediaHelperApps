@@ -36,11 +36,7 @@ namespace Packager.Utilities
         private List<string> BaseNormalizingArgs => new List<string>()  { "-map_metadata", "-1" } ;
         private List<string> BaseProductionArgs { get; }
         private string AudioAccessArguments { get; }
-
-        private string ProductionFileExtension => ".wav";
-
-        private string AccessFileExtension => ".mp4";
-
+        
         private string BaseProcessingDirectory { get; }
         private IProcessRunner ProcessRunner { get; }
         private IObserverCollection Observers { get; }
@@ -52,13 +48,12 @@ namespace Packager.Utilities
 
         public async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, BextMetadata metadata)
         {
-            var target = ToProductionFileModel(original);
-            return await CreateDerivative(original, target, GetMetadataArguments(BaseProductionArgs, metadata));
+            return await CreateDerivative(original, original.ToProductionFileModel(), GetMetadataArguments(BaseProductionArgs, metadata));
         }
 
         public async Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original)
         {
-            return await CreateDerivative(original, ToAccessFileModel(original), AudioAccessArguments);
+            return await CreateDerivative(original, original.ToAudioAccessFileModel(), AudioAccessArguments);
         }
 
         public async Task Verify(List<ObjectFileModel> originals)
@@ -306,14 +301,8 @@ namespace Packager.Utilities
             return info.GetValue(core).ToDefaultIfEmpty();
         }
 
-        protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
-        {
-            return original.ToAccessFileModel(AccessFileExtension);
-        }
+        
 
-        protected ObjectFileModel ToProductionFileModel(ObjectFileModel original)
-        {
-            return original.ToProductionFileModel(ProductionFileExtension);
-        }
+        
     }
 }

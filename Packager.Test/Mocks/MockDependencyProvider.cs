@@ -69,8 +69,8 @@ namespace Packager.Test.Mocks
             if (ffmpegRunner == null)
             {
                 ffmpegRunner = Substitute.For<IFFMPEGRunner>();
-                ffmpegRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".mp4")));
-                ffmpegRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".wav")));
+                ffmpegRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
+                ffmpegRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
             }
 
             var result = Substitute.For<IDependencyProvider>();

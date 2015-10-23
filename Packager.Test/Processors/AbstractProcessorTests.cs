@@ -86,8 +86,8 @@ namespace Packager.Test.Processors
             MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".mp4")));
-            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAccessFileModel(".wav")));
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
+            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);

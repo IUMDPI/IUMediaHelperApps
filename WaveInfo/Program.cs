@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace WaveInfo
@@ -8,11 +9,33 @@ namespace WaveInfo
     {
         private static int Main(string[] args)
         {
-            var returnCode = 0;
+            if (args.Any() == false)
+            {
+                Console.WriteLine("No files to process!");
+                Console.WriteLine("Usage: WaveInfo.exe [Path1] [Path2]...");
+            }
+
+            foreach (var path in args)
+            {
+                ProcessFile(path);
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine($"{args.Length} file processed.");
+            Console.WriteLine("Press [return] to exit");
+            Console.ReadLine();
+            return 0;
+        }
+
+
+        private static void ProcessFile(string path)
+        {
             var builder = new StringBuilder();
             try
             {
-                var waveFile = WaveFileFactory.OpenWaveFile(args[0]);
+                Console.Clear();
+
+                var waveFile = WaveFileFactory.OpenWaveFile(path);
 
                 Console.Clear();
 
@@ -25,20 +48,13 @@ namespace WaveInfo
                 WriteChunkReports(builder, waveFile);
                 WriteNotes(builder);
                 OutputLine(builder);
-                WriteReport(args[0], builder);
+                WriteReport(path, builder);
             }
             catch (Exception e)
             {
                 OutputLine(builder, "An {0} exception occurred while attempting to analyze ths file: {1}",
-                    e.GetType(), e.Message);
-                returnCode = -1;
+                   e.GetType(), e.Message);
             }
-
-
-            Console.WriteLine();
-            Console.WriteLine("Press [return] to exit");
-            Console.ReadLine();
-            return returnCode;
         }
 
         private static string ToFixedLength(object value)

@@ -44,6 +44,7 @@ namespace WaveInfo
             }
 
             Console.WriteLine($"Analyzing {path}");
+            Console.WriteLine();
 
             var result = new WaveFile
             {

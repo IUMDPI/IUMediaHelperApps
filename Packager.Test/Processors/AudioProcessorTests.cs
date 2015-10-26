@@ -314,6 +314,12 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
+                public void ItShouldCallMetadataFactoryWithProductionMasterAsTarget()
+                {
+                    AudioMetadataFactory.Received().Generate(Arg.Any<List<ObjectFileModel>>(), Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), Arg.Any<ConsolidatedPodMetadata>());
+                }
+
+                [Test]
                 public void ItShouldCreateProductionDerivativeFromExpectedMasterWithExpectedMetadata()
                 {
                     FFMPEGRunner.Received().CreateProductionDerivative(ExpectedMasterModel, Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), ExpectedMetadata);

@@ -64,7 +64,7 @@ namespace Packager.Processors
                 .Select(g => g.First()).ToList();
 
             // now clear the ISFT field from presentation and production masters
-            await ClearMetadataDataFields(processedList, new List<BextFields> {BextFields.ISFT});
+            await ClearMetadataDataFields(processedList, new List<BextFields> {BextFields.ISFT, BextFields.ITCH});
 
             // finally generate the access versions from production masters
             processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
@@ -91,12 +91,13 @@ namespace Packager.Processors
         private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, ConsolidatedPodMetadata podMetadata)
         {
             var results = new List<ObjectFileModel>();
-            foreach (var model in models
+            foreach (var master in models
                 .GroupBy(m => m.SequenceIndicator)
                 .Select(g => g.GetPreservationOrIntermediateModel()))
             {
-                var metadata = AudioMetadataFactory.Generate(models, model, podMetadata);
-                results.Add(await FFPMpegRunner.CreateProductionDerivative(model, metadata));
+                var derivative = master.ToProductionFileModel();
+                var metadata = AudioMetadataFactory.Generate(models, derivative, podMetadata);
+                results.Add(await FFPMpegRunner.CreateProductionDerivative(master, derivative, metadata));
             }
 
             return results;

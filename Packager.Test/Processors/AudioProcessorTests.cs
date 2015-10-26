@@ -193,11 +193,10 @@ namespace Packager.Test.Processors
 
                 public class WhenUnitPrefixNotSet : WhenGettingMetadata
                 {
-
                     protected override void DoCustomSetup()
                     {
                         base.DoCustomSetup();
-                        ProgramSettings.UnitPrefix.Returns((string)null);
+                        ProgramSettings.UnitPrefix.Returns((string) null);
                     }
 
                     [Test]
@@ -264,9 +263,10 @@ namespace Packager.Test.Processors
             public class WhenClearingMetadata : WhenNothingGoesWrong
             {
                 [Test]
-                public void ItShouldOpenSection()
+                public void ItShouldCallBextProcessorWithCorrectListOfFields()
                 {
-                    Observers.Received().BeginSection("Clearing metadata fields");
+                    BextProcessor.Received().ClearMetadataFields(Arg.Any<List<ObjectFileModel>>(),
+                        Arg.Is<List<BextFields>>(a => a.SequenceEqual(new List<BextFields> {BextFields.ISFT, BextFields.ITCH})));
                 }
 
                 [Test]
@@ -276,10 +276,9 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldCallBextProcessorWithCorrectListOfFields()
+                public void ItShouldOpenSection()
                 {
-                    BextProcessor.Received().ClearMetadataFields(Arg.Any<List<ObjectFileModel>>(), 
-                        Arg.Is<List<BextFields>>(a => a.Single().Equals(BextFields.ISFT)));
+                    Observers.Received().BeginSection("Clearing metadata fields");
                 }
             }
 
@@ -287,6 +286,7 @@ namespace Packager.Test.Processors
             {
                 private ObjectFileModel ExpectedMasterModel { get; set; }
                 private BextMetadata ExpectedMetadata { get; set; }
+
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
@@ -310,13 +310,13 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCreateAccessFileFromProductionMaster()
                 {
-                    FFMPEGRunner.Received().CreateAccessDerivative(Arg.Is<ObjectFileModel>(m=>m.IsProductionVersion()));
+                    FFMPEGRunner.Received().CreateAccessDerivative(Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()));
                 }
 
                 [Test]
                 public void ItShouldCreateProductionDerivativeFromExpectedMasterWithExpectedMetadata()
                 {
-                    FFMPEGRunner.Received().CreateProductionDerivative(ExpectedMasterModel, ExpectedMetadata);
+                    FFMPEGRunner.Received().CreateProductionDerivative(ExpectedMasterModel, Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), ExpectedMetadata);
                 }
             }
 

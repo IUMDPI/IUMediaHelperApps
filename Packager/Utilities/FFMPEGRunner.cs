@@ -43,11 +43,11 @@ namespace Packager.Utilities
         [ValidateFile]
         public string FFMPEGPath { get; set; }
 
-        public async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, BextMetadata metadata)
+        public async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, BextMetadata metadata)
         {
             var args = new ArgumentBuilder(ProductionArguments)
                 .AddArguments(metadata.AsArguments());
-            return await CreateDerivative(original, original.ToProductionFileModel(), args);
+            return await CreateDerivative(original, target, args);
         }
 
         public async Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original)

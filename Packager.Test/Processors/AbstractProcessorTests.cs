@@ -92,7 +92,7 @@ namespace Packager.Test.Processors
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
                 .ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
+            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
                 .ToProductionFileModel()));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();

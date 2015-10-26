@@ -9,7 +9,7 @@ namespace Packager.Utilities
     {
         string FFMPEGPath { get; set; }
 
-        Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, BextMetadata metadata);
+        Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, BextMetadata metadata);
 
         Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
         

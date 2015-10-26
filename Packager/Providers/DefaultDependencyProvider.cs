@@ -27,7 +27,7 @@ namespace Packager.Providers
             AudioMetadataFactory = new BextMetadataFactory();
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory,
                 programSettings.UseAppendFlagForAudioMetadata);
-            BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier(), AudioMetadataFactory);
+            BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
             FFMPEGRunner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ValidatorCollection = new StandardValidatorCollection

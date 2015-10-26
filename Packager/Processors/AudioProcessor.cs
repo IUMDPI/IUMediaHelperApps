@@ -56,7 +56,7 @@ namespace Packager.Processors
             // then use that file to create the derivatives
             // then aggregate the results into the processed list
             processedList = processedList.Concat(await CreateProductionDerivatives(processedList, metadata)).ToList();
-          
+
             // now remove duplicate entries -- this could happen if production master
             // already exists
             processedList = processedList
@@ -64,8 +64,8 @@ namespace Packager.Processors
                 .Select(g => g.First()).ToList();
 
             // now clear the ISFT field from presentation and production masters
-            await BextProcessor.ClearMetadataFields(processedList, new List<BextFields> {BextFields.ISFT});
-            
+            await ClearMetadataDataFields(processedList, new List<BextFields> {BextFields.ISFT});
+
             // finally generate the access versions from production masters
             processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
 
@@ -92,8 +92,8 @@ namespace Packager.Processors
         {
             var results = new List<ObjectFileModel>();
             foreach (var model in models
-               .GroupBy(m => m.SequenceIndicator)
-               .Select(g => g.GetPreservationOrIntermediateModel()))
+                .GroupBy(m => m.SequenceIndicator)
+                .Select(g => g.GetPreservationOrIntermediateModel()))
             {
                 var metadata = AudioMetadataFactory.Generate(models, model, podMetadata);
                 results.Add(await FFPMpegRunner.CreateProductionDerivative(model, metadata));
@@ -114,38 +114,41 @@ namespace Packager.Processors
             return results;
         }
 
-        private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        private async Task ClearMetadataDataFields(List<ObjectFileModel> instances, List<BextFields> fieldsToClear)
         {
-            var sectionKey = string.Empty;
-            var success = false;
-            var result = new XmlFileModel { BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml" };
+            var sectionKey = Observers.BeginSection("Clearing metadata fields");
             try
             {
-                sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
+                await BextProcessor.ClearMetadataFields(instances, fieldsToClear);
+                Observers.EndSection(sectionKey, "Metadata fields cleared successfully");
+            }
+            catch (Exception e)
+            {
+                Observers.EndSection(sectionKey);
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
+            }
+        }
 
+        private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        {
+            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
+            var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
+            try
+            {
                 await AssignChecksumValues(filesToProcess);
 
-                var wrapper = new IU { Carrier = MetadataGenerator.Generate(metadata, filesToProcess) };
+                var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
 
-                success = true;
+                Observers.EndSection(sectionKey, $"{result.ToFileName()} generated successfully");
                 return result;
             }
             catch (Exception e)
             {
+                Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, Barcode);
                 throw new LoggedException(e);
-            }
-            finally
-            {
-                if (success)
-                {
-                    Observers.EndSection(sectionKey, $"{result.ToFileName()} generated successfully");
-                }
-                else
-                {
-                    Observers.EndSection(sectionKey);
-                }
             }
         }
     }

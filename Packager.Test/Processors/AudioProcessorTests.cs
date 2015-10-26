@@ -11,6 +11,7 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
+using Packager.Utilities;
 
 namespace Packager.Test.Processors
 {
@@ -233,12 +234,23 @@ namespace Packager.Test.Processors
 
             public class WhenNormalizingOriginals : WhenNothingGoesWrong
             {
+                private BextMetadata ExpectedMetadata { get; set; }
+
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+
+                    ExpectedMetadata = new BextMetadata();
+                    AudioMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
+                }
+
+
                 [Test]
-                public void ItShouldNormalizeAllOriginalFiles()
+                public void ItShouldNormalizeAllOriginalFilesWithExpectedMetadata()
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(model as ObjectFileModel, Arg.Any<BextMetadata>());
+                        FFMPEGRunner.Received().Normalize(model as ObjectFileModel, ExpectedMetadata);
                     }
                 }
 
@@ -249,15 +261,39 @@ namespace Packager.Test.Processors
                 }
             }
 
+            public class WhenClearingMetadata : WhenNothingGoesWrong
+            {
+                [Test]
+                public void ItShouldOpenSection()
+                {
+                    Observers.Received().BeginSection("Clearing metadata fields");
+                }
+
+                [Test]
+                public void ItShouldCloseSection()
+                {
+                    Observers.Received().EndSection(Arg.Any<string>(), "Metadata fields cleared successfully");
+                }
+
+                [Test]
+                public void ItShouldCallBextProcessorWithCorrectListOfFields()
+                {
+                    BextProcessor.Received().ClearMetadataFields(Arg.Any<List<ObjectFileModel>>(), 
+                        Arg.Is<List<BextFields>>(a => a.Single().Equals(BextFields.ISFT)));
+                }
+            }
+
             public class WhenCreatingDerivatives : WhenNothingGoesWrong
             {
-                private string ExpectedMasterFileName { get; set; }
-
+                private ObjectFileModel ExpectedMasterModel { get; set; }
+                private BextMetadata ExpectedMetadata { get; set; }
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    ExpectedMasterFileName = PreservationFileName;
+                    ExpectedMasterModel = PresObjectFileModel;
+                    ExpectedMetadata = new BextMetadata();
+                    AudioMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
                 }
 
                 public class WhenPreservationIntermediateMasterPresent : WhenCreatingDerivatives
@@ -267,95 +303,21 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                        ExpectedMasterFileName = PreservationIntermediateFileName;
+                        ExpectedMasterModel = PresIntObjectFileModel;
                     }
                 }
 
                 [Test]
-                public void ItShouldCreateAccessFileCorrectly()
+                public void ItShouldCreateAccessFileFromProductionMaster()
                 {
-                    FFMPEGRunner.Received().CreateAccessDerivative(ProdObjectFileModel);
+                    FFMPEGRunner.Received().CreateAccessDerivative(Arg.Is<ObjectFileModel>(m=>m.IsProductionVersion()));
                 }
 
                 [Test]
-                public void ItShouldCreateProductionDerivativeFromExpectedMaster()
+                public void ItShouldCreateProductionDerivativeFromExpectedMasterWithExpectedMetadata()
                 {
-                    FFMPEGRunner.Received().CreateProductionDerivative(PresObjectFileModel, Arg.Any<BextMetadata>());
+                    FFMPEGRunner.Received().CreateProductionDerivative(ExpectedMasterModel, ExpectedMetadata);
                 }
-            }
-
-            public class WhenEmbeddingMetadata : WhenNothingGoesWrong
-            {
-                private int ExpectedModelCount { get; set; }
-
-                protected override void DoCustomSetup()
-                {
-                    base.DoCustomSetup();
-                    ExpectedModelCount = 2; // pres master + prod master
-                }
-
-                public class WhenPreservationIntermediateModelPresent : WhenEmbeddingMetadata
-                {
-                    protected override void DoCustomSetup()
-                    {
-                        base.DoCustomSetup();
-
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                        ExpectedModelCount = 3; // pres master, pres-int master, prod-master
-                    }
-
-                   /* [Test]
-                    public void ItShouldPassSinglePresentationIntermediateModelToBextProcessor()
-                    {
-                        BextProcessor.Received().EmbedBextMetadata(
-                            Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
-                            Arg.Any<ConsolidatedPodMetadata>());
-                    }*/
-                }
-
-                [Test]
-                public void ItShouldCloseSection()
-                {
-                    Observers.Received().EndSection(Arg.Any<string>(), "BEXT metadata added successfully");
-                }
-
-           /*     [Test]
-                public void ItShouldNotPassAccessModelToBextProcessor()
-                {
-                    BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.Any(m => m.IsAccessVersion()) == false),
-                        Arg.Any<ConsolidatedPodMetadata>());
-                }*/
-
-                [Test]
-                public void ItShouldOpenSection()
-                {
-                    Observers.Received().BeginSection("Adding BEXT metadata");
-                }
-
-              /*  [Test]
-                public void ItShouldPassCorrectNumberOfObjectsToBextProcessor()
-                {
-                    BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount),
-                        Arg.Any<ConsolidatedPodMetadata>());
-                }*/
-
-              /*  [Test]
-                public void ItShouldPassSinglePresentationModelToBextProcessor()
-                {
-                    BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
-                        Arg.Any<ConsolidatedPodMetadata>());
-                }*/
-
-              /*  [Test]
-                public void ItShouldPassSingleProductionModelToBextProcessor()
-                {
-                    BextProcessor.Received().EmbedBextMetadata(
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null),
-                        Arg.Any<ConsolidatedPodMetadata>());
-                }*/
             }
 
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
@@ -530,7 +492,7 @@ namespace Packager.Test.Processors
                     }
 
                     [Test]
-                    public void ItShouldCopyPreservationIntermidateMasterToDropbox()
+                    public void ItShouldCopyPreservationIntermediateMasterToDropbox()
                     {
                         var sourcePath = Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName);
                         var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationIntermediateFileName);

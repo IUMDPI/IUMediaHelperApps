@@ -30,22 +30,14 @@ namespace Packager.Test.Utilities
             Verifier = Substitute.For<IBwfMetaEditResultsVerifier>();
             MetaEditRunner = Substitute.For<IBwfMetaEditRunner>();
 
-           /* MetaEditRunner.AddMetadata(null, null).ReturnsForAnyArgs(
-                Task.FromResult((IProcessResult) new ProcessResult {ExitCode = 0, StandardError = Output, StandardOutput = Output}));*/
-
 
             Observers = Substitute.For<IObserverCollection>();
 
-
             Metadata = new ConsolidatedPodMetadata();
-
-            ConformancePointDocumentFactory = Substitute.For<IBextMetadataFactory>();
-            ConformancePointDocumentFactory.Generate(Arg.Any<List<ObjectFileModel>>(), Arg.Any<ObjectFileModel>(), Metadata)
-                .Returns(r => new BextMetadata());
-
+            
             DoCustomSetup();
 
-            BextProcessor = new BextProcessor(MetaEditRunner, Observers, Verifier, ConformancePointDocumentFactory);
+            BextProcessor = new BextProcessor(MetaEditRunner, Observers, Verifier);
             //await BextProcessor.EmbedBextMetadata(Instances, Metadata);
         }
 
@@ -59,7 +51,7 @@ namespace Packager.Test.Utilities
         private IBwfMetaEditRunner MetaEditRunner { get; set; }
 
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
-        private IBextMetadataFactory ConformancePointDocumentFactory { get; set; }
+        
         private IObserverCollection Observers { get; set; }
         private ObjectFileModel ProdFileModel { get; set; }
         private ObjectFileModel PresFileModel { get; set; }

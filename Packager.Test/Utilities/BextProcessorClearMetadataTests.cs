@@ -38,7 +38,7 @@ namespace Packager.Test.Utilities
 
             ConformancePointDocumentFactory = Substitute.For<IBextMetadataFactory>();
 
-            BextProcessor = new BextProcessor(MetaEditRunner, Observers, Verifier, ConformancePointDocumentFactory);
+            BextProcessor = new BextProcessor(MetaEditRunner, Observers, Verifier);
 //            await BextProcessor.ClearAllBextMetadataFields(Instances);
         }
         

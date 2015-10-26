@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Packager.Attributes;
@@ -89,7 +88,7 @@ namespace Packager.Models.BextModels
         public ArgumentBuilder AsArguments()
         {
             var arguments = new ArgumentBuilder();
-           
+
             foreach (var info in GetType().GetProperties()
                 .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(this, p), p.GetCustomAttribute<BextFieldAttribute>()))
                 .Where(t => t.Item2 != null && !string.IsNullOrWhiteSpace(t.Item1)))

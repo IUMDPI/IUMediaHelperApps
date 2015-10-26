@@ -67,6 +67,7 @@
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Kludges\CodingHistoryKludgeTests.cs" />
+    <Compile Include="Mocks\MockBextMetadata.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />

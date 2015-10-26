@@ -11,6 +11,7 @@ using Packager.Extensions;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
+using Packager.Test.Mocks;
 using Packager.Utilities;
 
 namespace Packager.Test.Utilities
@@ -96,7 +97,7 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
-                Core = GenerateTestingCore();
+                Core = MockBextMetadata.Get();
                 var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, false);
                 //await runner.AddMetadata(ProductionFileModel, Core);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
@@ -104,22 +105,7 @@ namespace Packager.Test.Utilities
             }
 
             private BextMetadata Core { get; set; }
-
-            private static BextMetadata GenerateTestingCore()
-            {
-                var result = new BextMetadata();
-                foreach (var property in result.GetType().GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
-                {
-                    var value = $"{property.Name} value";
-                    property.SetValue(result, value);
-                }
-
-                result.OriginationDate = "2015-10-1";
-                result.OriginationTime = "00:00:00";
-                result.TimeReference = "0";
-
-                return result;
-            }
+            
 
             [Test]
             public void ArgsShouldEndWithCorrectPath()

@@ -5,9 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Factories;
 using Packager.Models.FileModels;
-using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Verifiers;
 
@@ -15,65 +13,17 @@ namespace Packager.Utilities
 {
     public class BextProcessor : IBextProcessor
     {
-        public BextProcessor(IBwfMetaEditRunner metaEditRunner, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier,
-            IBextMetadataFactory conformancePointDocumentFactory)
+        public BextProcessor(IBwfMetaEditRunner metaEditRunner, IObserverCollection observers, IBwfMetaEditResultsVerifier verifier)
         {
             MetaEditRunner = metaEditRunner;
             Observers = observers;
             Verifier = verifier;
-            ConformancePointDocumentFactory = conformancePointDocumentFactory;
         }
 
         public IBwfMetaEditRunner MetaEditRunner { get; set; }
         private IObserverCollection Observers { get; }
         private IBwfMetaEditResultsVerifier Verifier { get; }
-        private IBextMetadataFactory ConformancePointDocumentFactory { get; }
 
-
-       /* public async Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata)
-        {
-            //var files = new List<ConformancePointDocumentFile>();
-            foreach (var fileModel in instances)
-            {
-                var core = ConformancePointDocumentFactory.Generate(instances, fileModel,  podMetadata);
-                var result = await MetaEditRunner.AddMetadata(fileModel, core);
-
-                if (instances.IsFirst(fileModel) == false)
-                {
-                    Observers.Log("");
-                }
-
-                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), fileModel.ToFileName().ToLowerInvariant()) == false)
-                {
-                    Observers.Log(result.StandardOutput);
-                    throw new BextMetadataException("Could not add bext metadata to {0}", fileModel.ToFileName());
-                }
-
-                Observers.Log(FormatOutput(result.StandardOutput, fileModel.GetFolderName()));
-            }
-        }
-
-        public async Task ClearAllBextMetadataFields(List<ObjectFileModel> instances)
-        {
-            foreach (var instance in instances)
-            {
-                var result = await MetaEditRunner.ClearMetadata(instance);
-
-                if (instances.IsFirst(instance) == false)
-                {
-                    Observers.Log("");
-                }
-
-                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
-                {
-                    Observers.Log(result.StandardOutput);
-                    throw new BextMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
-                }
-
-                Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
-            }
-        }
-*/
         public async Task ClearMetadataFields(List<ObjectFileModel> instances, List<BextFields> fields)
         {
             foreach (var instance in instances)
@@ -93,24 +43,6 @@ namespace Packager.Utilities
 
                 Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
             }
-        }
-
-        private static DigitalFileProvenance GetDefaultProvenance(IEnumerable<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata, ObjectFileModel model)
-        {
-            var sequenceInstances = instances.Where(m => m.SequenceIndicator.Equals(model.SequenceIndicator));
-            var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
-            if (sequenceMaster == null)
-            {
-                throw new BextMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
-            }
-
-            var defaultProvenance = podMetadata.FileProvenances.GetFileProvenance(sequenceMaster);
-            if (defaultProvenance == null)
-            {
-                throw new BextMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
-            }
-
-            return defaultProvenance;
         }
 
         private static string FormatOutput(string output, string objectFolder)

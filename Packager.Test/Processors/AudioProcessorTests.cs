@@ -320,7 +320,7 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldCreateProductionDerivativeFromExpectedMasterWithExpectedMetadata()
+                public void ItShouldCreateProdFromMasterWithExpectedMetadata()
                 {
                     FFMPEGRunner.Received().CreateProductionDerivative(ExpectedMasterModel, Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), ExpectedMetadata);
                 }

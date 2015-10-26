@@ -48,7 +48,7 @@ namespace Packager.Test.Factories
                 Title = Title,
                 SoundField = "Mono",
                 PlaybackSpeed = "7.5 ips",
-                FileProvenances = new List<DigitalFileProvenance> { GetFileProvenance()}
+                FileProvenances = new List<DigitalFileProvenance> { Provenance}
             };
 
             DoCustomSetup();
@@ -156,7 +156,10 @@ namespace Packager.Test.Factories
 
             const string expected = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
 
-            Assert.That(parts[2], Is.EqualTo(expected));
+            // kludge: trimming possible final space to account for padding
+            // that might be added to fix issues that break AudioInspector and
+            // BatchInspector
+            Assert.That(parts[2].Trim(), Is.EqualTo(expected));
         }
 
         [TestFixture]

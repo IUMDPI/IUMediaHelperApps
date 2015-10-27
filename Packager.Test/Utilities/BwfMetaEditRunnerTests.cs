@@ -52,29 +52,28 @@ namespace Packager.Test.Utilities
 
         private List<ObjectFileModel> Instances { get; set; }
 
-
         private ProcessStartInfo StartInfo { get; set; }
 
         public class WhenClearingMetadata : BwfMetaEditRunnerTests
         {
+            private List<BextFields> FieldsToClear { get; set; } 
             public override async void BeforeEach()
             {
                 base.BeforeEach();
 
-               /* var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, new BextFields[0], false);
-                await runner.ClearMetadata(ProductionFileModel);
+                FieldsToClear = new List<BextFields> {BextFields.IARL, BextFields.ICRD, BextFields.IGNR};
+                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory);
+                await runner.ClearMetadata(ProductionFileModel, FieldsToClear);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
-                Assert.That(StartInfo, Is.Not.Null);*/
+                Assert.That(StartInfo, Is.Not.Null);
             }
 
             [Test]
             public void ArgsShouldIncludeEmptyFieldValues()
             {
-                foreach (var property in typeof (BextMetadata).GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
+                foreach (var field in FieldsToClear)
                 {
-                    var attribute = property.GetCustomAttribute<BextFieldAttribute>();
-
-                    Assert.That(StartInfo.Arguments.Contains($"--{attribute.Field}=\"\""), $"{attribute.Field} should be set correctly");
+                    Assert.That(StartInfo.Arguments.Contains($"{field}=\"\""));
                 }
             }
 

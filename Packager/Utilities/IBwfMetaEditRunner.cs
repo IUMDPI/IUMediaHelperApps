@@ -24,21 +24,20 @@ namespace Packager.Utilities
     public class BwfMetaEditRunner : IBwfMetaEditRunner
     {
         private const string VerboseArgument = "--verbose";
-        private const string AppendArgument = "--append";
         private const string VersionArgument = "--version";
 
-        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory, bool useAppend)
+        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory)
         {
             ProcessRunner = processRunner;
             BwfMetaEditPath = bwfMetaEditPath;
             BaseProcessingDirectory = baseProcessingDirectory;
-            UseAppend = useAppend;
+            
         }
 
         private IProcessRunner ProcessRunner { get; }
         private string BaseProcessingDirectory { get; }
         
-        private bool UseAppend { get; }
+        
 
         [ValidateFile]
         public string BwfMetaEditPath { get; }
@@ -46,11 +45,7 @@ namespace Packager.Utilities
         public async Task<IProcessResult> ClearMetadata(ObjectFileModel model, IEnumerable<BextFields> fields)
         {
             var arguments = new ArgumentBuilder(VerboseArgument);
-            if (UseAppend)
-            {
-                arguments.AddArguments(AppendArgument);
-            }
-
+        
             foreach (var field in fields)
             {
                 arguments.AddArguments($"--{field}=\"\"");

@@ -91,50 +91,6 @@ namespace Packager.Test.Utilities
             }
         }
 
-        public class WhenEmbeddingMetadata : BwfMetaEditRunnerTests
-        {
-            public override async void BeforeEach()
-            {
-                base.BeforeEach();
-
-                Core = MockBextMetadata.Get();
-                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, false);
-                //await runner.AddMetadata(ProductionFileModel, Core);
-                StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
-                Assert.That(StartInfo, Is.Not.Null);
-            }
-
-            private BextMetadata Core { get; set; }
-            
-
-            [Test]
-            public void ArgsShouldEndWithCorrectPath()
-            {
-                Assert.That(StartInfo.Arguments.EndsWith(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileModel.ToFileName()).ToQuoted()));
-            }
-            
-            [Test]
-            public void ArgsShouldIncludeCorrectFieldValues()
-            {
-                foreach (var property in Core.GetType().GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
-                {
-                    var attribute = property.GetCustomAttribute<BextFieldAttribute>();
-
-                    Assert.That(StartInfo.Arguments.Contains($"--{attribute.Field}=\"{property.GetValue(Core)}\""), $"{attribute.Field} should be set correctly");
-                }
-            }
-
-            [Test]
-            public void ArgsShouldIncludeVerbose()
-            {
-                Assert.That(StartInfo.Arguments.Contains("--verbose"));
-            }
-
-            [Test]
-            public void ItShouldUseCorrectUtilityPath()
-            {
-                Assert.That(StartInfo.FileName, Is.EqualTo(BwfMetaEditPath));
-            }
-        }
+       
     }
 }

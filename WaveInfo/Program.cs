@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,24 +10,52 @@ namespace WaveInfo
     {
         private static int Main(string[] args)
         {
-            if (args.Any() == false)
+            var pause = PauseAtEnd(args);
+            var paths = GetPathArgs(args);
+
+            if (paths.Any() == false)
             {
                 Console.WriteLine("No files to process!");
                 Console.WriteLine("Usage: WaveInfo.exe [Path1] [Path2]...");
             }
 
-            foreach (var path in args)
+            foreach (var path in paths)
             {
                 ProcessFile(path);
             }
             
             Console.WriteLine();
-            Console.WriteLine($"{args.Length} file processed.");
-            Console.WriteLine("Press [return] to exit");
-            Console.ReadLine();
+            Console.WriteLine($"{args.Length} file(s) processed.");
+
+            if (pause)
+            {
+                Console.WriteLine("Press [return] to exit");
+                Console.ReadLine();
+            }
+            
             return 0;
         }
 
+        private static bool PauseAtEnd(string[] args)
+        {
+            if (args == null)
+            {
+                return true;
+
+            }
+
+            return !args.Any(a => a.Equals("-nopause", StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private static List<string> GetPathArgs(string[] args)
+        {
+            if (args == null)
+            {
+                return new List<string>();
+            }
+
+            return args.Where(a => a.StartsWith("-") == false).ToList();
+        }
 
         private static void ProcessFile(string path)
         {

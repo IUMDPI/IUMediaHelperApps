@@ -1,17 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
-using Packager.Attributes;
-using Packager.Extensions;
-using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
-using Packager.Test.Mocks;
 using Packager.Utilities;
 
 namespace Packager.Test.Utilities
@@ -56,7 +50,6 @@ namespace Packager.Test.Utilities
 
         public class WhenClearingMetadata : BwfMetaEditRunnerTests
         {
-            private List<BextFields> FieldsToClear { get; set; } 
             public override async void BeforeEach()
             {
                 base.BeforeEach();
@@ -67,6 +60,8 @@ namespace Packager.Test.Utilities
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
                 Assert.That(StartInfo, Is.Not.Null);
             }
+
+            private List<BextFields> FieldsToClear { get; set; }
 
             [Test]
             public void ArgsShouldIncludeEmptyFieldValues()
@@ -89,7 +84,5 @@ namespace Packager.Test.Utilities
                 Assert.That(StartInfo.FileName, Is.EqualTo(BwfMetaEditPath));
             }
         }
-
-       
     }
 }

@@ -632,6 +632,12 @@ namespace Packager.Test.Utilities
                         }
 
                         [Test]
+                        public void ItShouldCloseSectionCorrectly()
+                        {
+                            Observers.Received().EndSection(Arg.Any<string>(), $"Generate {DerivativeFileModel.FullFileUse} skipped - already exists: {DerivativeFileModel.ToFileName()}");
+                        }
+                        
+                        [Test]
                         public void ItShouldNotCallProcessRunner()
                         {
                             ProcessRunner.DidNotReceive().Run(Arg.Any<ProcessStartInfo>());
@@ -647,6 +653,12 @@ namespace Packager.Test.Utilities
                             base.DoCustomSetup();
                             FileProvider.FileExists(null).ReturnsForAnyArgs(false);
                             ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg));
+                        }
+
+                        [Test]
+                        public void ItShouldCallEndSectionCorrectly()
+                        {
+                            Observers.Received().EndSection(Arg.Any<string>(), $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.ToFileName()}");
                         }
 
                         [Test]
@@ -706,6 +718,22 @@ namespace Packager.Test.Utilities
                         {
                             Assert.That(StartInfo.UseShellExecute, Is.False);
                         }
+
+                        [Test]
+                        public void ItShouldTestThatOriginalExists()
+                        {
+                            var path = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), MasterFileName);
+                            FileProvider.Received().FileDoesNotExist(path);
+                        }
+
+                        [Test]
+                        public void ItShouldTestThatTargetDoesNotExists()
+                        {
+                            var path = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(),
+                                MasterFileModel.ToProductionFileModel().ToFileName());
+
+                            FileProvider.Received().FileExists(path);
+                        }
                     }
 
                     [Test]
@@ -714,12 +742,7 @@ namespace Packager.Test.Utilities
                         Observers.Received().BeginSection("Generating {0}: {1}", DerivativeFileModel.FullFileUse, DerivativeFileModel.ToFileName());
                     }
 
-                    [Test]
-                    public void ItShouldCallEndSectionCorrectly()
-                    {
-                        Observers.Received().EndSection(Arg.Any<string>(), $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.ToFileName()}");
-                    }
-
+                
                     [Test]
                     public void ItShouldReturnCorrectResult()
                     {

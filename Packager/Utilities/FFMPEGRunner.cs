@@ -45,8 +45,15 @@ namespace Packager.Utilities
 
         public async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, BextMetadata metadata)
         {
+            if (TargetAlreadyExists(target))
+            {
+                LogAlreadyExists(target);
+                return target;
+            }
+
             var args = new ArgumentBuilder(ProductionArguments)
                 .AddArguments(metadata.AsArguments());
+
             return await CreateDerivative(original, target, args);
         }
 
@@ -94,7 +101,7 @@ namespace Packager.Utilities
                 var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.ToFileName());
                 if (FileProvider.FileExists(targetPath))
                 {
-                    throw new FileDirectoryExistsException(targetPath);
+                    throw new FileDirectoryExistsException("{0} already exists in the processing directory", targetPath);
                 }
 
                 var arguments = new ArgumentBuilder($"-i {originalPath.ToQuoted()}")
@@ -113,6 +120,19 @@ namespace Packager.Utilities
             }
         }
 
+        private void LogAlreadyExists(ObjectFileModel target)
+        {
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
+            Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
+            Observers.EndSection(sectionKey, $"Generate {target.FullFileUse} skipped - already exists: {target.ToFileName()}");
+        }
+
+        private bool TargetAlreadyExists(ObjectFileModel target)
+        {
+            var path = Path.Combine(BaseProcessingDirectory, target.GetFolderName(), target.ToFileName());
+            return FileProvider.FileExists(path);
+        }
+
         private async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, ArgumentBuilder arguments)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
@@ -121,20 +141,23 @@ namespace Packager.Utilities
                 var outputFolder = Path.Combine(BaseProcessingDirectory, original.GetFolderName());
 
                 var inputPath = Path.Combine(outputFolder, original.ToFileName());
-                var outputPath = Path.Combine(outputFolder, target.ToFileName());
+                if (FileProvider.FileDoesNotExist(inputPath))
+                {
+                    throw new FileNotFoundException(inputPath);
+                }
 
+                var outputPath = Path.Combine(outputFolder, target.ToFileName());
                 if (FileProvider.FileExists(outputPath))
                 {
-                    Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
+                    throw new FileDirectoryExistsException("{0} already exists in the processing directory", inputPath);
                 }
-                else
-                {
-                    var completeArguments = new ArgumentBuilder($"-i {inputPath}")
-                        .AddArguments(arguments)
-                        .AddArguments(outputPath);
 
-                    await RunProgram(completeArguments);
-                }
+                var completeArguments = new ArgumentBuilder($"-i {inputPath}")
+                    .AddArguments(arguments)
+                    .AddArguments(outputPath);
+
+                await RunProgram(completeArguments);
+
 
                 Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.ToFileName()}");
                 return target;

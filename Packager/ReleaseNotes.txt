@@ -1,33 +1,35 @@
-﻿1.0.0.0	08/25/2015	initial release
-1.1.0.0	08/25/2015	fixed issue copying to success error folder if preferred folder name already exists
-					fixed various processing issues due to unexpected metadata
-1.2.0.0 08/27/2015  fixed encoding issue when serializing xml files
-					fixed node names (FileData->File, Checksum->CheckSum) in output xml
-1.3.0.0	08/28/2015	fixed node structure in output xml
-1.4.0.0 09/01/2015	should set identifier to call number in output xml
-					should render part numbers without leading zeros in output xml
-					should render extraction workstation as node in output xml
-					updated university names in .config unit lookup xml to be "Indiana University-Bloomington"
-					changed spelling of "Analog" to "Analogue" in coding history
-					should preserve spaces in coding history speed strings
-					should terminate coding history lines with CRLF
-					should clear ISFT bext metadata field for production masters
-					should clear ITCH bext metadata field for production masters
-1.5.0.0	09/01/2015	should clear ISFT bext metadata field for all pres, pres-int, and prod masters
-					should clear ITCH bext metadata field for all pres, pres-int, and prod masters
-					should generate checksum values asynchronously
-					should log generated checksum values
-1.6.0.0	09/09/2015	should clear all bext metadata fields before setting new values
-					should set bext metadata values via command-line, not xml
-1.7.0.0	09/18/2015	should escape single quotation characters when generating command-line for bwfmetaedit
-1.8.0.0 10/15/2015  added config flag "UseAppendFlagForAudioMetadata." If set to true, will call
-                    bwfmetaedit with the "-append" flag.
-					added config field "SuppressAudioMetadataFields." If set, will not clear or write
-					to the metadata fields in the list.
-					added code to fix issue with utility not receiving all bwf-metaedit output
-					added code to detect bwf metaedit issues (such as "truncated").
-1.9.0.0	10/22/2015	should normalize originals using ffmpeg -acodec copy
-					should pad coding history with a space if size of coding history
-					would cause BEXT chunk to have an odd number of bytes
-					should use POD web-service to resolve unit names
+﻿1.0.0.0		08/25/2015	initial release
+1.1.0.0		08/25/2015	fixed issue copying to success error folder if preferred folder name already exists
+						fixed various processing issues due to unexpected metadata
+1.2.0.0		08/27/2015  fixed encoding issue when serializing xml files
+						fixed node names (FileData->File, Checksum->CheckSum) in output xml
+1.3.0.0		08/28/2015	fixed node structure in output xml
+1.4.0.0		09/01/2015	should set identifier to call number in output xml
+						should render part numbers without leading zeros in output xml
+						should render extraction workstation as node in output xml
+						updated university names in .config unit lookup xml to be "Indiana University-Bloomington"
+						changed spelling of "Analog" to "Analogue" in coding history
+						should preserve spaces in coding history speed strings
+						should terminate coding history lines with CRLF
+						should clear ISFT bext metadata field for production masters
+						should clear ITCH bext metadata field for production masters
+1.5.0.0		09/01/2015	should clear ISFT bext metadata field for all pres, pres-int, and prod masters
+						should clear ITCH bext metadata field for all pres, pres-int, and prod masters
+						should generate checksum values asynchronously
+						should log generated checksum values
+1.6.0.0		09/09/2015	should clear all bext metadata fields before setting new values
+						should set bext metadata values via command-line, not xml
+1.7.0.0		09/18/2015	should escape single quotation characters when generating command-line for bwfmetaedit
+1.8.0.0		10/15/2015	added config flag "UseAppendFlagForAudioMetadata." If set to true, will call
+						bwfmetaedit with the "-append" flag.
+						added config field "SuppressAudioMetadataFields." If set, will not clear or write
+						to the metadata fields in the list.
+						added code to fix issue with utility not receiving all bwf-metaedit output
+						added code to detect bwf metaedit issues (such as "truncated").
+1.9.0.0		10/22/2015	should normalize originals using ffmpeg -acodec copy
+						should pad coding history with a space if size of coding history
+						would cause BEXT chunk to have an odd number of bytes
+						should use POD web-service to resolve unit names
+1.10.0.0	10/28/2015	should use ffmpeg to embed metadata while normalizing originals
+						and creating derivatives
 					

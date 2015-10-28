@@ -1,14 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
-using Packager.Attributes;
-using Packager.Extensions;
-using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
 using Packager.Utilities;
@@ -51,7 +46,6 @@ namespace Packager.Test.Utilities
 
         private List<ObjectFileModel> Instances { get; set; }
 
-
         private ProcessStartInfo StartInfo { get; set; }
 
         public class WhenClearingMetadata : BwfMetaEditRunnerTests
@@ -60,81 +54,21 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
-                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, new BextFields[0], false);
-                await runner.ClearMetadata(ProductionFileModel);
+                FieldsToClear = new List<BextFields> {BextFields.IARL, BextFields.ICRD, BextFields.IGNR};
+                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory);
+                await runner.ClearMetadata(ProductionFileModel, FieldsToClear);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
                 Assert.That(StartInfo, Is.Not.Null);
             }
+
+            private List<BextFields> FieldsToClear { get; set; }
 
             [Test]
             public void ArgsShouldIncludeEmptyFieldValues()
             {
-                foreach (var property in typeof (BextMetadata).GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
+                foreach (var field in FieldsToClear)
                 {
-                    var attribute = property.GetCustomAttribute<BextFieldAttribute>();
-
-                    Assert.That(StartInfo.Arguments.Contains($"--{attribute.Field}=\"\""), $"{attribute.Field} should be set correctly");
-                }
-            }
-
-            [Test]
-            public void ArgsShouldIncludeVerbose()
-            {
-                Assert.That(StartInfo.Arguments.Contains("--verbose"));
-            }
-
-            [Test]
-            public void ItShouldUseCorrectUtilityPath()
-            {
-                Assert.That(StartInfo.FileName, Is.EqualTo(BwfMetaEditPath));
-            }
-        }
-
-        public class WhenEmbeddingMetadata : BwfMetaEditRunnerTests
-        {
-            public override async void BeforeEach()
-            {
-                base.BeforeEach();
-
-                Core = GenerateTestingCore();
-                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory, new BextFields[0], false);
-                await runner.AddMetadata(ProductionFileModel, Core);
-                StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
-                Assert.That(StartInfo, Is.Not.Null);
-            }
-
-            private BextMetadata Core { get; set; }
-
-            private static BextMetadata GenerateTestingCore()
-            {
-                var result = new BextMetadata();
-                foreach (var property in result.GetType().GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
-                {
-                    var value = $"{property.Name} value";
-                    property.SetValue(result, value);
-                }
-
-                result.OriginationDate = "2015-10-1";
-                result.OriginationTime = "00:00:00";
-                result.TimeReference = "0";
-
-                return result;
-            }
-
-            [Test]
-            public void ArgsShouldEndWithCorrectPath()
-            {
-                Assert.That(StartInfo.Arguments.EndsWith(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileModel.ToFileName()).ToQuoted()));
-            }
-            
-            [Test]
-            public void ArgsShouldIncludeCorrectFieldValues()
-            {
-                foreach (var property in Core.GetType().GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
-                {
-                    var attribute = property.GetCustomAttribute<BextFieldAttribute>();
-
-                    Assert.That(StartInfo.Arguments.Contains($"--{attribute.Field}=\"{property.GetValue(Core)}\""), $"{attribute.Field} should be set correctly");
+                    Assert.That(StartInfo.Arguments.Contains($"{field}=\"\""));
                 }
             }
 

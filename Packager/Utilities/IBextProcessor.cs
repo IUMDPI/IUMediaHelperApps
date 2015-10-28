@@ -1,20 +1,20 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Packager.Attributes;
 using Packager.Models.FileModels;
-using Packager.Models.PodMetadataModels;
 
 namespace Packager.Utilities
 {
     public enum BextFields
     {
-        Description,
-        Originator,
-        OriginatorReference,
-        OriginationDate,
-        OriginationTime,
-        TimeReference,
-        History,
-        UMID,
+        [FFMPEGArgument("description")] Description,
+        [FFMPEGArgument("originator")] Originator,
+        [FFMPEGArgument("originator_reference")] OriginatorReference,
+        [FFMPEGArgument("origination_date")] OriginationDate,
+        [FFMPEGArgument("origination_time")] OriginationTime,
+        [FFMPEGArgument("time_reference")] TimeReference,
+        [FFMPEGArgument("coding_history")] History,
+        [FFMPEGArgument("umid")] UMID,
         IARL,
         IART,
         ICMS,
@@ -36,10 +36,6 @@ namespace Packager.Utilities
 
     public interface IBextProcessor
     {
-       
-        Task EmbedBextMetadata(List<ObjectFileModel> instances, ConsolidatedPodMetadata podMetadata);
-
-        Task ClearAllBextMetadataFields(List<ObjectFileModel> instances);
-        
+        Task ClearMetadataFields(List<ObjectFileModel> instances, List<BextFields> fields);
     }
 }

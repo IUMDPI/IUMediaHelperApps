@@ -26,5 +26,7 @@ namespace Packager.Providers
         IIngestDataFactory IngestDataFactory { get; }
         IValidatorCollection ValidatorCollection { get; }
         ISuccessFolderCleaner SuccessFolderCleaner { get; }
+
+        IBextMetadataFactory AudioMetadataFactory { get; }
     }
 }

@@ -24,6 +24,8 @@ namespace Packager.Test.Factories
         private DigitalFileProvenance Provenance { get; set; }
         private ConsolidatedPodMetadata Metadata { get; set; }
 
+        private List<ObjectFileModel> Instances { get; set; } 
+
         private string ExpectedDigitalOrAnalog { get; set; }
 
         protected virtual void DoCustomSetup()
@@ -36,7 +38,7 @@ namespace Packager.Test.Factories
         {
             Provenance = GetFileProvenance();
             Model = new ObjectFileModel(PreservationFileName);
-
+            Instances = new List<ObjectFileModel> {Model};
             Metadata = new ConsolidatedPodMetadata
             {
                 DigitizingEntity = DigitizingEntity,
@@ -45,12 +47,13 @@ namespace Packager.Test.Factories
                 Format = "Record",
                 Title = Title,
                 SoundField = "Mono",
-                PlaybackSpeed = "7.5 ips"
+                PlaybackSpeed = "7.5 ips",
+                FileProvenances = new List<DigitalFileProvenance> { Provenance}
             };
 
             DoCustomSetup();
 
-            Result = new BextMetadataFactory().Generate(Model, Provenance, Metadata);
+            Result = new BextMetadataFactory().Generate(Instances, Model, Metadata);
         }
 
         private static DigitalFileProvenance GetFileProvenance()
@@ -153,7 +156,10 @@ namespace Packager.Test.Factories
 
             const string expected = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
 
-            Assert.That(parts[2], Is.EqualTo(expected));
+            // kludge: trimming possible final space to account for padding
+            // that might be added to fix issues that break AudioInspector and
+            // BatchInspector
+            Assert.That(parts[2].Trim(), Is.EqualTo(expected));
         }
 
         [TestFixture]

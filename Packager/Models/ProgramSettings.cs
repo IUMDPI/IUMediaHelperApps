@@ -3,9 +3,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using Packager.Attributes;
-using Packager.Attributes.Packager.Attributes;
 using Packager.Extensions;
-using Packager.Utilities;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models
@@ -70,12 +68,6 @@ namespace Packager.Models
         [FromListConfigSettingAttribute("IssueNotifyEmailAddresses")]
         public string[] IssueNotifyEmailAddresses { get; private set; }
 
-        [FromBextFieldListConfig("SuppressAudioMetadataFields")]
-        public BextFields[] SuppressAudioMetadataFields { get; private set; }
-
-        [FromBoolConfigSetting("UseAppendFlagForAudioMetadata")]
-        public bool UseAppendFlagForAudioMetadata { get; private set; }
-        
         public List<string> Issues { get; }
 
         [FromStringConfigSetting("UnitPrefix")]

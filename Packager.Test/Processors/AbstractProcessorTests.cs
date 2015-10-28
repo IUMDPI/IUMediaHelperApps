@@ -6,6 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models;
+using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
@@ -44,6 +45,8 @@ namespace Packager.Test.Processors
         protected ConsolidatedPodMetadata Metadata { get; set; }
         protected abstract void DoCustomSetup();
 
+        protected IBextMetadataFactory AudioMetadataFactory { get; set; }
+
         protected string PreservationFileName { get; set; }
         protected string PreservationIntermediateFileName { get; set; }
         protected string ProductionFileName { get; set; }
@@ -75,6 +78,8 @@ namespace Packager.Test.Processors
             ProgramSettings.ErrorDirectoryName.Returns(ErrorDirectory);
             ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
 
+            AudioMetadataFactory = Substitute.For<IBextMetadataFactory>();
+
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();
             Hasher = Substitute.For<IHasher>();
@@ -85,8 +90,10 @@ namespace Packager.Test.Processors
             MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
-            FFMPEGRunner.CreateDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<string>())
-                .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
+                .ToAudioAccessFileModel()));
+            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
+                .ToProductionFileModel()));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);
@@ -100,7 +107,8 @@ namespace Packager.Test.Processors
             DependencyProvider.BextProcessor.Returns(BextProcessor);
             DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
             DependencyProvider.FFMPEGRunner.Returns(FFMPEGRunner);
-            
+            DependencyProvider.AudioMetadataFactory.Returns(AudioMetadataFactory);
+
             DoCustomSetup();
 
             Result =  await Processor.ProcessFile(GetGrouping(ModelList));

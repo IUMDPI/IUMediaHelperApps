@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Packager.Exceptions;
+using Packager.Extensions;
+using Packager.Kludges;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -18,7 +20,7 @@ namespace Packager.Factories
 
         private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
         
-        public BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
+        private BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
             var description = GenerateBextDescription(metadata, model);
 
@@ -36,6 +38,12 @@ namespace Packager.Factories
                 INAM = metadata.Title,
                 CodingHistory = GenerateCodingHistory(metadata, provenance)
             };
+        }
+
+        public BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedPodMetadata metadata)
+        {
+            var provenance = GetProvenance(metadata, models, target);
+            return Generate(target, provenance, metadata);
         }
 
 
@@ -110,6 +118,8 @@ namespace Packager.Factories
 
             builder.Append(CodingHistoryLine3);
 
+            CodingHistoryKludge.KludgeForFFMpeg(builder);
+            
             return builder.ToString();
         }
 
@@ -128,6 +138,36 @@ namespace Packager.Factories
             }
 
             return result.Replace(",", ";").Replace("; ", ";");
+        }
+
+
+        private static DigitalFileProvenance GetProvenance(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> instances, ObjectFileModel model)
+        {
+            var sequenceInstances = instances.Where(m => m.SequenceIndicator.Equals(model.SequenceIndicator));
+            var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
+            if (sequenceMaster == null)
+            {
+                throw new BextMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
+            }
+
+            var defaultProvenance = GetProvenance(podMetadata, sequenceMaster);
+            if (defaultProvenance == null)
+            {
+                throw new BextMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
+            }
+
+            return GetProvenance(podMetadata, model, defaultProvenance);
+        }
+
+        private static DigitalFileProvenance GetProvenance(ConsolidatedPodMetadata podMetadata, AbstractFileModel model, DigitalFileProvenance defaultValue = null)
+        {
+            var result = podMetadata.FileProvenances.SingleOrDefault(dfp => model.IsSameAs(NormalizeFilename(dfp.Filename, model)));
+            return result ?? defaultValue;
+        }
+
+        private static string NormalizeFilename(string value, AbstractFileModel model)
+        {
+            return Path.ChangeExtension(value, model.Extension);
         }
     }
 }

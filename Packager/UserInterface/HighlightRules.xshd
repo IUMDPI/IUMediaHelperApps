@@ -37,7 +37,7 @@
     <Span color="SubHeader" begin="Hashing " />
     <Span color="SubHeader" begin="Validating " />
     <Span color="SubHeader" begin="Normalizing " />
-    <Span color="SubHeader" begin="Clearing original BEXT metadata fields" />
+    <Span color="SubHeader" begin="Clearing metadata fields" />
     <Span color="ResultsSummary" begin="Results Summary:" />
     <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />

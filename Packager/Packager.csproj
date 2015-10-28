@@ -141,11 +141,13 @@
     <Compile Include="Exceptions\NormalizeOriginalException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
+    <Compile Include="Kludges\CodingHistoryKludge.cs" />
     <Compile Include="Models\OutputModels\IngestDevice.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />
+    <Compile Include="Utilities\ArgumentBuilder.cs" />
     <Compile Include="Utilities\FFMPEGRunner.cs" />
     <Compile Include="Utilities\IBwfMetaEditRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />

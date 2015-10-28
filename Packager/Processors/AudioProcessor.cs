@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
@@ -21,7 +22,10 @@ namespace Packager.Processors
         public AudioProcessor(IDependencyProvider dependencyProvider)
             : base(dependencyProvider)
         {
+            AudioMetadataFactory = dependencyProvider.AudioMetadataFactory;
         }
+
+        private IBextMetadataFactory AudioMetadataFactory { get; }
 
         protected override string ProductionFileExtension => ".wav";
         protected override string AccessFileExtension => ".mp4";
@@ -37,7 +41,7 @@ namespace Packager.Processors
             var metadata = await GetMetadata(filesToProcess);
 
             // normalize originals
-            await FFPMpegRunner.Normalize(filesToProcess);
+            await NormalizeOriginals(filesToProcess, metadata);
 
             // verify normalized versions of originals
             await FFPMpegRunner.Verify(filesToProcess);
@@ -51,25 +55,20 @@ namespace Packager.Processors
             // then determine which file to use to create derivatives
             // then use that file to create the derivatives
             // then aggregate the results into the processed list
-            foreach (var model in filesToProcess
-                .GroupBy(m => m.SequenceIndicator)
-                .Select(g => g.GetPreservationOrIntermediateModel()))
-            {
-                processedList.Add(await CreateProductionDerivative(model));
-            }
+            processedList = processedList.Concat(await CreateProductionDerivatives(processedList, metadata)).ToList();
 
             // now remove duplicate entries -- this could happen if production master
             // already exists
             processedList = processedList
                 .GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();
-           
-            // now add metadata to eligible objects
-            await AddMetadata(processedList, metadata);
+
+            // now clear the ISFT field from presentation and production masters
+            await ClearMetadataDataFields(processedList, new List<BextFields> {BextFields.ISFT, BextFields.ITCH});
 
             // finally generate the access versions from production masters
             processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
-            
+
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = await GenerateXml(metadata, processedList);
@@ -80,129 +79,77 @@ namespace Packager.Processors
             return outputList;
         }
 
-        protected virtual async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel fileModel)
+        private async Task NormalizeOriginals(List<ObjectFileModel> originals, ConsolidatedPodMetadata podMetadata)
         {
-            return await FFPMpegRunner.CreateDerivative(
-                fileModel,
-                ToProductionFileModel(fileModel),
-                FFMPEGAudioProductionArguments);
+            foreach (var original in originals)
+            {
+                var metadata = AudioMetadataFactory.Generate(originals, original, podMetadata);
+                await FFPMpegRunner.Normalize(original, metadata);
+            }
         }
 
-        protected virtual async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
+        private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, ConsolidatedPodMetadata podMetadata)
+        {
+            var results = new List<ObjectFileModel>();
+            foreach (var master in models
+                .GroupBy(m => m.SequenceIndicator)
+                .Select(g => g.GetPreservationOrIntermediateModel()))
+            {
+                var derivative = master.ToProductionFileModel();
+                var metadata = AudioMetadataFactory.Generate(models, derivative, podMetadata);
+                results.Add(await FFPMpegRunner.CreateProductionDerivative(master, derivative, metadata));
+            }
+
+            return results;
+        }
+
+        private async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
         {
             var results = new List<ObjectFileModel>();
 
             // for each production master, create an access version
             foreach (var model in models.Where(m => m.IsProductionVersion()))
             {
-                results.Add(await FFPMpegRunner.CreateDerivative(model, ToAccessFileModel(model), FFMPEGAudioAccessArguments));
+                results.Add(await FFPMpegRunner.CreateAccessDerivative(model));
             }
             return results;
         }
 
-        private async Task AddMetadata(IEnumerable<AbstractFileModel> processedList, ConsolidatedPodMetadata podMetadata)
+        private async Task ClearMetadataDataFields(List<ObjectFileModel> instances, List<BextFields> fieldsToClear)
         {
-            var sectionKey = string.Empty;
-            var success = false;
+            var sectionKey = Observers.BeginSection("Clearing metadata fields");
             try
             {
-                sectionKey = Observers.BeginSection("Adding BEXT metadata");
-                var filesToAddMetadata = processedList.Where(m => m.IsObjectModel())
-                    .Select(m => (ObjectFileModel) m)
-                    .Where(m => m.IsAccessVersion() == false).ToList();
-
-                if (!filesToAddMetadata.Any())
-                {
-                    throw new BextMetadataException("Could not add metadata: no eligible files");
-                }
-
-                await BextProcessor.EmbedBextMetadata(filesToAddMetadata, podMetadata);
-
-                success = true;
+                await BextProcessor.ClearMetadataFields(instances, fieldsToClear);
+                Observers.EndSection(sectionKey, "Metadata fields cleared successfully");
             }
             catch (Exception e)
             {
+                Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, Barcode);
                 throw new LoggedException(e);
-            }
-            finally
-            {
-                if (success)
-                {
-                    Observers.EndSection(sectionKey, "BEXT metadata added successfully");
-                }
-                else
-                {
-                    Observers.EndSection(sectionKey);
-                }
-            }
-        }
-
-        private async Task ClearMetadata(IEnumerable<AbstractFileModel> processedList)
-        {
-            var sectionKey = string.Empty;
-            var success = false;
-            try
-            {
-                sectionKey = Observers.BeginSection("Clearing original BEXT metadata fields");
-                var targets = processedList.Where(m => m.IsObjectModel())
-                    .Select(m => (ObjectFileModel) m)
-                    .Where(m => m.IsAccessVersion() == false).ToList();
-
-                await BextProcessor.ClearAllBextMetadataFields(targets);
-
-                success = true;
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
-            finally
-            {
-                if (success)
-                {
-                    Observers.EndSection(sectionKey, "Original BEXT metadata fields cleared successfully");
-                }
-                else
-                {
-                    Observers.EndSection(sectionKey);
-                }
             }
         }
 
         private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
-            var sectionKey = string.Empty;
-            var success = false;
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
+            var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
             try
             {
-                sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
-
                 await AssignChecksumValues(filesToProcess);
 
                 var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
 
-                success = true;
+                Observers.EndSection(sectionKey, $"{result.ToFileName()} generated successfully");
                 return result;
             }
             catch (Exception e)
             {
+                Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, Barcode);
                 throw new LoggedException(e);
-            }
-            finally
-            {
-                if (success)
-                {
-                    Observers.EndSection(sectionKey, $"{result.ToFileName()} generated successfully");
-                }
-                else
-                {
-                    Observers.EndSection(sectionKey);
-                }
             }
         }
     }

@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Packager.Exceptions;
+using Packager.Extensions;
+using Packager.Models.FileModels;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels

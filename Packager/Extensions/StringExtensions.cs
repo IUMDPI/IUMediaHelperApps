@@ -43,7 +43,7 @@ namespace Packager.Extensions
             return result;
         }
 
-        public static string FromCamelCaseToSpaces(this string value)
+        private static string FromCamelCaseToSpaces(this string value)
         {
             return string.IsNullOrWhiteSpace(value)
                 ? string.Empty
@@ -57,7 +57,7 @@ namespace Packager.Extensions
                 return value;
             }
 
-            return value.Replace(@"""", @"""""");
+            return value.Replace("\"","\\\"");
 
         }
 

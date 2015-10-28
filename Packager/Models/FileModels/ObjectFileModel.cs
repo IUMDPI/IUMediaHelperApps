@@ -19,6 +19,11 @@ namespace Packager.Models.FileModels
         private const string AccessFileUseLongName = "Access File Version";
         private const string MezzanineFileUseLongName = "Mezzanine File Version";
 
+        public const string AudioAccessExtension = ".mp4";
+        public const string VideoAccessExtension = ".mov"; //todo: verify
+        public const string MezzanineExtension = ".mkv"; //todo: verify
+        public const string ProductionExtension = ".wav"; //todo:verify
+        
         private ObjectFileModel()
         {
         }
@@ -118,19 +123,29 @@ namespace Packager.Models.FileModels
             return FileUse.Equals(MezzanineFileUse, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public ObjectFileModel ToAccessFileModel(string extension)
+        private ObjectFileModel ToAccessFileModel(string extension)
         {
             return ToNewModel(AccessFileUse, extension);
         }
 
-        public ObjectFileModel ToMezzanineFileModel(string extension)
+        public ObjectFileModel ToMezzanineFileModel()
         {
-            return ToNewModel(MezzanineFileUse, extension);
+            return ToNewModel(MezzanineFileUse, MezzanineExtension);
         }
 
-        public ObjectFileModel ToProductionFileModel(string extension)
+        public ObjectFileModel ToProductionFileModel()
         {
-            return ToNewModel(ProductionFileUse, extension);
+            return ToNewModel(ProductionFileUse, ProductionExtension);
+        }
+
+        public ObjectFileModel ToAudioAccessFileModel()
+        {
+            return ToAccessFileModel(AudioAccessExtension);
+        }
+
+        public ObjectFileModel ToVideoAccessFileModel()
+        {
+            return ToAccessFileModel(VideoAccessExtension);
         }
 
         public override bool IsSameAs(string filename)

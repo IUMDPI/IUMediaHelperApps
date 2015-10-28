@@ -100,24 +100,37 @@ namespace Packager.Test.Models.FileModels
         public void ToProductionFileModelShouldWorkCorrectly()
         {
             var model = new ObjectFileModel(GoodPreservationFileName);
-            var result = model.ToProductionFileModel(Extension);
+            var result = model.ToProductionFileModel();
             Assert.That(result.IsProductionVersion());
+            Assert.That(result.Extension, Is.EqualTo(ObjectFileModel.ProductionExtension));
         }
 
         [Test]
-        public void ToAccessFileModelShouldWorkCorrectly()
+        public void ToAudioAccessFileModelShouldWorkCorrectly()
         {
             var model = new ObjectFileModel(GoodPreservationFileName);
-            var result = model.ToAccessFileModel(Extension);
+            var result = model.ToAudioAccessFileModel();
             Assert.That(result.IsAccessVersion());
+            Assert.That(result.Extension, Is.EqualTo(ObjectFileModel.AudioAccessExtension));
         }
+
+        [Test]
+        public void ToVideoAccessFileModelShouldWorkCorrectly()
+        {
+            var model = new ObjectFileModel(GoodPreservationFileName);
+            var result = model.ToVideoAccessFileModel();
+            Assert.That(result.IsAccessVersion());
+            Assert.That(result.Extension, Is.EqualTo(ObjectFileModel.VideoAccessExtension));
+        }
+
 
         [Test]
         public void ToMezzanineFileModelShouldWorkCorrectly()
         {
             var model = new ObjectFileModel(GoodPreservationFileName);
-            var result = model.ToMezzanineFileModel(Extension);
+            var result = model.ToMezzanineFileModel();
             Assert.That(result.IsMezzanineVersion());
+            Assert.That(result.Extension, Is.EqualTo(ObjectFileModel.MezzanineExtension));
         }
     }
 }

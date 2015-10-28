@@ -168,11 +168,6 @@ namespace Packager.Engine
             Observers.Log("");
             Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("Use '--append' flag: {0}", _dependencyProvider.ProgramSettings.UseAppendFlagForAudioMetadata.ToString().ToLowerInvariant());
-            if (_dependencyProvider.ProgramSettings.SuppressAudioMetadataFields.Any())
-            {
-                Observers.Log("Suppress audio metadata fields: {0}", string.Join(", ", _dependencyProvider.ProgramSettings.SuppressAudioMetadataFields));
-            }
             Observers.Log("Unit prefix: {0}", _dependencyProvider.ProgramSettings.UnitPrefix.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));

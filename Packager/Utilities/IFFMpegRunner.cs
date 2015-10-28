@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 
 namespace Packager.Utilities
@@ -7,9 +8,12 @@ namespace Packager.Utilities
     public interface IFFMPEGRunner
     {
         string FFMPEGPath { get; set; }
-        Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, string arguments);
+
+        Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, BextMetadata metadata);
+
+        Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
         
-        Task Normalize(List<ObjectFileModel> originals);
+        Task Normalize(ObjectFileModel original, BextMetadata metadata);
 
         Task Verify(List<ObjectFileModel> originals);
 

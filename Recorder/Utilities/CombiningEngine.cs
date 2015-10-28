@@ -49,6 +49,7 @@ namespace Recorder.Utilities
             Process.StartInfo.Arguments = string.Format(ArgumentFormat, CombineFilePath, ObjectModel.OutputFile);
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={ObjectModel.ProjectCode}_{ ObjectModel.Barcode}.log:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.OutputFolder;
+
             Process.Start();
 
             Process.BeginErrorReadLine();

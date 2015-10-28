@@ -292,19 +292,5 @@ namespace Packager.Processors
             }
         } 
 
-        protected ObjectFileModel ToAccessFileModel(ObjectFileModel original)
-        {
-            return original.ToAccessFileModel(AccessFileExtension);
-        }
-
-        protected ObjectFileModel ToMezzanineFileModel(ObjectFileModel original)
-        {
-            return original.ToMezzanineFileModel(MezzanineFileExtension);
-        }
-
-        protected ObjectFileModel ToProductionFileModel(ObjectFileModel original)
-        {
-            return original.ToProductionFileModel(ProductionFileExtension);
-        }
     }
 }

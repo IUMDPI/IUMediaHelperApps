@@ -63,6 +63,10 @@
       <HintPath>..\packages\WindowsAPICodePack-ShellExtensions.1.1.1\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -127,6 +131,9 @@
     <Compile Include="Controls\ActionPanel.xaml.cs">
       <DependentUpon>ActionPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AudioMeter.xaml.cs">
+      <DependentUpon>AudioMeter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\BarcodePanel.xaml.cs">
       <DependentUpon>BarcodePanel.xaml</DependentUpon>
     </Compile>
@@ -161,6 +168,7 @@
     <Compile Include="Dialogs\OutputWindow.xaml.cs">
       <DependentUpon>OutputWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\VolumeMeter.cs" />
     <Compile Include="ViewModels\AbstractNotifyModel.cs" />
     <Compile Include="ViewModels\AskExitViewModel.cs" />
     <Compile Include="ViewModels\IssueNotifyModel.cs" />
@@ -179,11 +187,16 @@
     <Compile Include="ViewModels\FinishPanelViewModel.cs" />
     <Compile Include="ViewModels\RecordPanelViewModel.cs" />
     <Compile Include="ViewModels\BarcodePanelViewModel.cs" />
+    <Compile Include="ViewModels\VolumeMeterViewModel.cs" />
     <Page Include="Controls\ActionButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ActionPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AudioMeter.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

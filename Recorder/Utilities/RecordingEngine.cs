@@ -16,6 +16,7 @@ namespace Recorder.Utilities
     {
         private readonly InfoEngine _infoEngine;
         private bool _recording;
+        private readonly VolumeMeter _volumeMeter;
 
         public RecordingEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel, IssueNotifyModel issueNotifyModel)
             : base(settings, objectModel, outputModel, issueNotifyModel)
@@ -29,12 +30,18 @@ namespace Recorder.Utilities
             Process.OutputDataReceived += TimestampHandler.OnDataReceived;
 
             _infoEngine = new InfoEngine(settings);
+            _volumeMeter = new VolumeMeter(settings);
+            _volumeMeter.SampleAggregator.MaximumCalculated += MaximumCalculatedHandler;
         }
 
-
+        private void MaximumCalculatedHandler(object sender, MaxSampleEventArgs e)
+        {
+            var lastPeak = Math.Max(e.MaxSample, Math.Abs(e.MinSample));
+            OutputWindowViewModel.VolumeMeterViewModel.InputLevel = lastPeak*100;
+        }
+        
         private TimestampReceivedHandler TimestampHandler { get; }
-
-
+        
         public bool Recording
         {
             get { return _recording; }
@@ -83,6 +90,8 @@ namespace Recorder.Utilities
                 Directory.CreateDirectory(ObjectModel.WorkingFolderPath);
             }
 
+            _volumeMeter.StartMonitoring();
+
             var part = GetNewPart();
 
             OutputWindowViewModel.StartOutput($"Recording {GetTargetPartFilename(part)}");
@@ -122,6 +131,7 @@ namespace Recorder.Utilities
 
 
                 Recording = false;
+                _volumeMeter.StopMonitoring();
                 CheckExitCode();
             }
             finally
@@ -207,6 +217,7 @@ namespace Recorder.Utilities
         public override void Dispose()
         {
             StopRecording();
+            _volumeMeter.Dispose();
             base.Dispose();
         }
 

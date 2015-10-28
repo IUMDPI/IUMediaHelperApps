@@ -4,16 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Recorder"
+        xmlns:controls="clr-namespace:Recorder.Controls"
         mc:Ignorable="d"
         Title="Output" Height="600" Width="400"
         Visibility="{Binding Visibility, Mode=TwoWay}" ShowInTaskbar="False" FontSize="14" ResizeMode="CanResizeWithGrip" Closing="OnWindowClosing"  >
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBox Name="OutputText" Grid.Row="0" IsUndoEnabled="False" IsTabStop="False" IsReadOnly="True" IsReadOnlyCaretVisible="True" Text="{Binding Text, FallbackValue='testing'}" VerticalScrollBarVisibility="Visible" Padding="8" TextChanged="OnOutputTextChanged" />
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Background="LightGray" Height="56" VerticalAlignment="Center" >
+        <controls:AudioMeter Grid.Row="0" Margin="8,8,8,8" DataContext="{Binding VolumeMeterViewModel}" />
+        <TextBox Name="OutputText" Grid.Row="1" IsUndoEnabled="False" IsTabStop="False" IsReadOnly="True" IsReadOnlyCaretVisible="True" Text="{Binding Text, FallbackValue='testing'}" VerticalScrollBarVisibility="Visible" Padding="8" TextChanged="OnOutputTextChanged" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Background="LightGray" Height="56" VerticalAlignment="Center" >
             <CheckBox Margin="8,16,4,16" VerticalAlignment="Center" IsChecked="{Binding Clear, FallbackValue=True}"></CheckBox>
             <Label VerticalAlignment="Center">Clear when new action starts</Label>
         </StackPanel>

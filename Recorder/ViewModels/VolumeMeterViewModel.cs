@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Configuration;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 

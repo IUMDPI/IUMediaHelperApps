@@ -24,11 +24,12 @@ namespace Recorder.Utilities
             Recording = false;
             CumulativeTimeSpan = new TimeSpan();
             Process.Exited += ProcessExitHandler;
-            TimestampHandler = new TimestampReceivedHandler(this);
 
-            Process.ErrorDataReceived += TimestampHandler.OnDataReceived;
-            Process.OutputDataReceived += TimestampHandler.OnDataReceived;
-
+            ProcessObservers.Add(new TimestampReceivedHandler(this));
+            ProcessObservers.Add(new DroppedFramesHandler(outputModel.FrameStatsViewModel));
+            ProcessObservers.Add(new DuplicateFrameHandler(outputModel.FrameStatsViewModel));
+            ProcessObservers.Add(new CurrentFrameHandler(outputModel.FrameStatsViewModel));
+            
             _infoEngine = new InfoEngine(settings);
             _volumeMeter = new VolumeMeter(settings);
             _volumeMeter.SampleAggregator.MaximumCalculated += MaximumCalculatedHandler;
@@ -39,9 +40,7 @@ namespace Recorder.Utilities
             var lastPeak = Math.Max(e.MaxSample, Math.Abs(e.MinSample));
             OutputWindowViewModel.VolumeMeterViewModel.InputLevel = lastPeak*100;
         }
-        
-        private TimestampReceivedHandler TimestampHandler { get; }
-        
+
         public bool Recording
         {
             get { return _recording; }
@@ -90,6 +89,7 @@ namespace Recorder.Utilities
                 Directory.CreateDirectory(ObjectModel.WorkingFolderPath);
             }
 
+            ResetObservers();
             _volumeMeter.StartMonitoring();
 
             var part = GetNewPart();
@@ -97,7 +97,7 @@ namespace Recorder.Utilities
             OutputWindowViewModel.StartOutput($"Recording {GetTargetPartFilename(part)}");
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
-            TimestampHandler.Reset();
+            
 
             Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={GetTargetPartLogFilename(part)}:level=32";

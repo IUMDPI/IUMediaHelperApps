@@ -15,9 +15,11 @@ namespace Recorder.ViewModels
         public OutputWindowViewModel()
         {
             VolumeMeterViewModel = new VolumeMeterViewModel();
+            FrameStatsViewModel = new FrameStatsViewModel();
         }
 
         public VolumeMeterViewModel VolumeMeterViewModel { get; }
+        public FrameStatsViewModel FrameStatsViewModel { get; }
 
         public string Text
         {
@@ -68,12 +70,6 @@ namespace Recorder.ViewModels
         public void StartOutput(string header)
         {
             Visibility = Visibility.Visible;
-
-            if (Clear)
-            {
-                Text = string.Empty;
-            }
-
             Text += $"{header}\n\n";
         }
     }

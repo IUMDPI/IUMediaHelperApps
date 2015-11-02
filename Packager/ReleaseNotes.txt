@@ -32,4 +32,5 @@
 						should use POD web-service to resolve unit names
 1.10.0.0	10/28/2015	should use ffmpeg to embed metadata while normalizing originals
 						and creating derivatives
+1.11.0.0	11/03/2015	removing BEXT chunk kludge
 					

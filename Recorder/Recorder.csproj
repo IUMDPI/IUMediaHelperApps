@@ -63,6 +63,10 @@
       <HintPath>..\packages\WindowsAPICodePack-ShellExtensions.1.1.1\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -127,11 +131,17 @@
     <Compile Include="Controls\ActionPanel.xaml.cs">
       <DependentUpon>ActionPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AudioMeter.xaml.cs">
+      <DependentUpon>AudioMeter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\BarcodePanel.xaml.cs">
       <DependentUpon>BarcodePanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FinishPanel.xaml.cs">
       <DependentUpon>FinishPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FrameStats.xaml.cs">
+      <DependentUpon>FrameStats.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\NavigationPanel.xaml.cs">
       <DependentUpon>NavigationPanel.xaml</DependentUpon>
@@ -154,15 +164,21 @@
     <Compile Include="Exceptions\ConfigurationException.cs" />
     <Compile Include="Exceptions\RecordingException.cs" />
     <Compile Include="Extensions\UserInterfaceExtensions.cs" />
-    <Compile Include="Handlers\OutputReceivedHandler.cs" />
+    <Compile Include="Handlers\AbstractProcessOutputHandler.cs" />
+    <Compile Include="Handlers\CurrentFrameHandler.cs" />
+    <Compile Include="Handlers\DroppedFramesHandler.cs" />
+    <Compile Include="Handlers\DuplicateFrameHandler.cs" />
+    <Compile Include="Handlers\OutputLogHandler.cs" />
     <Compile Include="Models\ObjectModel.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Handlers\TimestampReceivedHandler.cs" />
     <Compile Include="Dialogs\OutputWindow.xaml.cs">
       <DependentUpon>OutputWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\VolumeMeter.cs" />
     <Compile Include="ViewModels\AbstractNotifyModel.cs" />
     <Compile Include="ViewModels\AskExitViewModel.cs" />
+    <Compile Include="ViewModels\FrameStatsViewModel.cs" />
     <Compile Include="ViewModels\IssueNotifyModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Utilities\AbstractEngine.cs" />
@@ -179,6 +195,7 @@
     <Compile Include="ViewModels\FinishPanelViewModel.cs" />
     <Compile Include="ViewModels\RecordPanelViewModel.cs" />
     <Compile Include="ViewModels\BarcodePanelViewModel.cs" />
+    <Compile Include="ViewModels\VolumeMeterViewModel.cs" />
     <Page Include="Controls\ActionButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -187,11 +204,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\AudioMeter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\BarcodePanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\FinishPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\FrameStats.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

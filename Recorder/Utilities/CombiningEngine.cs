@@ -41,6 +41,9 @@ namespace Recorder.Utilities
                 return;
             }
 
+            ResetObservers();
+
+            OutputWindowViewModel.HideVolumeMeter();
             OutputWindowViewModel.StartOutput("Combining");
             GenerateCombineList();
             Combining = true;

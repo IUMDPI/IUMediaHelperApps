@@ -5,7 +5,7 @@ using Recorder.Utilities;
 
 namespace Recorder.Handlers
 {
-    public class TimestampReceivedHandler
+    public class TimestampReceivedHandler:AbstractProcessOutputHandler
     {
         private RecordingEngine Recorder { get; }
         private readonly Regex _timestampExpression = new Regex(@"time=(\d{2}:\d{2}:\d{2}\.\d{2})");
@@ -15,12 +15,12 @@ namespace Recorder.Handlers
             Recorder = recorder;
         }
 
-        public void Reset()
+        public override void Reset()
         {
             Recorder.OnTimestampUpdated(new TimeSpan());
         }
 
-        public void OnDataReceived(object sender, DataReceivedEventArgs args)
+        public override void OnDataReceived(object sender, DataReceivedEventArgs args)
         {
             if (string.IsNullOrWhiteSpace(args.Data))
             {

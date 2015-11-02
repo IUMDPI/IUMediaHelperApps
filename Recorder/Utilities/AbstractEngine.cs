@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -12,7 +13,8 @@ namespace Recorder.Utilities
     public abstract class AbstractEngine : IDisposable, INotifyPropertyChanged
     {
         protected readonly Process Process;
-        private OutputWindowViewModel _outputWindowViewModel;
+
+        protected readonly List<AbstractProcessOutputHandler> ProcessObservers = new List<AbstractProcessOutputHandler>();
 
         protected AbstractEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel, IssueNotifyModel issueNotifyModel)
         {
@@ -34,14 +36,13 @@ namespace Recorder.Utilities
 
             OutputWindowViewModel = outputModel;
             IssueNotifyModel = issueNotifyModel;
-            OutputReceivedHandler = new OutputReceivedHandler(OutputWindowViewModel);
 
-            Process.OutputDataReceived += OutputReceivedHandler.OnDataReceived;
-            Process.ErrorDataReceived += OutputReceivedHandler.OnDataReceived;
+            ProcessObservers.Add(new OutputLogHandler(OutputWindowViewModel));
+            ProcessObservers.Add(new DroppedFramesHandler(outputModel.FrameStatsViewModel));
+            ProcessObservers.Add(new DuplicateFrameHandler(outputModel.FrameStatsViewModel));
+            ProcessObservers.Add(new CurrentFrameHandler(outputModel.FrameStatsViewModel));
         }
 
-
-        private OutputReceivedHandler OutputReceivedHandler { get; }
         protected OutputWindowViewModel OutputWindowViewModel { get; }
         protected IssueNotifyModel IssueNotifyModel { get; set; }
 
@@ -55,6 +56,23 @@ namespace Recorder.Utilities
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public virtual void Initialize()
+        {
+            foreach (var observer in ProcessObservers)
+            {
+                Process.OutputDataReceived += observer.OnDataReceived;
+                Process.ErrorDataReceived += observer.OnDataReceived;
+            }
+        }
+
+        public virtual void ResetObservers()
+        {
+            foreach (var observer in ProcessObservers)
+            {
+                observer.Reset();
+            }
+        }
 
         protected string GetErrorMessageFromOutput(string baseFormat)
         {
@@ -74,8 +92,8 @@ namespace Recorder.Utilities
         }
 
         protected abstract void CheckExitCode();
-        
-        
+
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

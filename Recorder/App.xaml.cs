@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using Recorder.Dialogs;
 using Recorder.Exceptions;
 using Recorder.Models;
+using Recorder.Utilities;
 using Recorder.ViewModels;
 
 namespace Recorder
@@ -16,7 +17,7 @@ namespace Recorder
         private OutputWindow _outputWindow;
         private UserControls _userControls;
         private UserControlsViewModel _viewModel;
-
+       
         public App()
         {
             Dispatcher.UnhandledException += OnDispatcherUnhandledException;
@@ -33,7 +34,7 @@ namespace Recorder
             };
 
             _viewModel = new UserControlsViewModel(programSettings, objectModel);
-
+            
             ConfigureWindows();
             ShowWindows();
 

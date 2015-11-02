@@ -7,12 +7,19 @@ namespace Recorder.ViewModels
 {
     public class OutputWindowViewModel : INotifyPropertyChanged, IClosing
     {
-        private readonly UserControlsViewModel _parent;
         private bool _clear;
 
         private string _text;
         private Visibility _visibility;
+       
+        public OutputWindowViewModel()
+        {
+            VolumeMeterViewModel = new VolumeMeterViewModel();
+            FrameStatsViewModel = new FrameStatsViewModel();
+        }
 
+        public VolumeMeterViewModel VolumeMeterViewModel { get; }
+        public FrameStatsViewModel FrameStatsViewModel { get; }
 
         public string Text
         {
@@ -22,6 +29,16 @@ namespace Recorder.ViewModels
                 _text = value;
                 OnPropertyChanged();
             }
+        }
+        
+        public void ShowVolumeMeter()
+        {
+            VolumeMeterViewModel.VolumeMeterVisibility = Visibility.Visible;
+        }
+
+        public void HideVolumeMeter()
+        {
+            VolumeMeterViewModel.VolumeMeterVisibility = Visibility.Collapsed;
         }
 
         public bool Clear
@@ -41,8 +58,13 @@ namespace Recorder.ViewModels
             {
                 _visibility = value;
                 OnPropertyChanged();
-                
             }
+        }
+
+        public bool CancelWindowClose()
+        {
+            Visibility = Visibility.Hidden;
+            return true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -58,19 +80,7 @@ namespace Recorder.ViewModels
         public void StartOutput(string header)
         {
             Visibility = Visibility.Visible;
-
-            if (Clear)
-            {
-                Text = string.Empty;
-            }
-
             Text += $"{header}\n\n";
-        }
-
-        public bool CancelWindowClose()
-        {
-            Visibility = Visibility.Hidden;
-            return true;
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Kludges;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -18,8 +17,14 @@ namespace Packager.Factories
         private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1};A/D,\r\n";
         private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
 
-        private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
-        
+        private readonly List<string> _knownDigitalFormats = new List<string> {"cd-r", "dat"};
+
+        public BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedPodMetadata metadata)
+        {
+            var provenance = GetProvenance(metadata, models, target);
+            return Generate(target, provenance, metadata);
+        }
+
         private BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
         {
             var description = GenerateBextDescription(metadata, model);
@@ -38,12 +43,6 @@ namespace Packager.Factories
                 INAM = metadata.Title,
                 CodingHistory = GenerateCodingHistory(metadata, provenance)
             };
-        }
-
-        public BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedPodMetadata metadata)
-        {
-            var provenance = GetProvenance(metadata, models, target);
-            return Generate(target, provenance, metadata);
         }
 
 
@@ -117,8 +116,6 @@ namespace Packager.Factories
                 GenerateAdTextField(provenance));
 
             builder.Append(CodingHistoryLine3);
-
-            CodingHistoryKludge.KludgeForFFMpeg(builder);
             
             return builder.ToString();
         }

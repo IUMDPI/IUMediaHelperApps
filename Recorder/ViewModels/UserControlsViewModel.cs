@@ -31,6 +31,10 @@ namespace Recorder.ViewModels
 
             Recorder = new RecordingEngine(settings, objectModel, OutputWindowViewModel, NotifyIssueModel);
             Combiner = new CombiningEngine(settings, objectModel, OutputWindowViewModel, NotifyIssueModel);
+
+            Recorder.Initialize();
+            Combiner.Initialize();
+
             BarcodeHandler = new BarcodeHandler(settings.BarcodeScannerIdentifiers);
 
             ConfigurePanels(objectModel);

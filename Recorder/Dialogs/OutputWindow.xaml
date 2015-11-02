@@ -17,7 +17,7 @@
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
-            <controls:AudioMeter Grid.Row="0" Padding="8,16,8,8" DataContext="{Binding VolumeMeterViewModel}" Background="LightGray" />
+            <controls:AudioMeter Grid.Row="0" Padding="8,16,8,8" DataContext="{Binding VolumeMeterViewModel}" Background="LightGray" Visibility="{Binding VolumeMeterVisibility}" />
             <controls:FrameStats Grid.Row="1" Padding="8,8,8,16" DataContext="{Binding FrameStatsViewModel}" Background="LightGray" />
             <TextBox Name="OutputText" Grid.Row="2" 
                  IsUndoEnabled="False" IsTabStop="False" IsReadOnly="True" IsReadOnlyCaretVisible="True" Text="{Binding Text, FallbackValue='testing'}" VerticalScrollBarVisibility="Visible" 

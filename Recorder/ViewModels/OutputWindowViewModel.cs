@@ -11,7 +11,7 @@ namespace Recorder.ViewModels
 
         private string _text;
         private Visibility _visibility;
-
+       
         public OutputWindowViewModel()
         {
             VolumeMeterViewModel = new VolumeMeterViewModel();
@@ -29,6 +29,16 @@ namespace Recorder.ViewModels
                 _text = value;
                 OnPropertyChanged();
             }
+        }
+        
+        public void ShowVolumeMeter()
+        {
+            VolumeMeterViewModel.VolumeMeterVisibility = Visibility.Visible;
+        }
+
+        public void HideVolumeMeter()
+        {
+            VolumeMeterViewModel.VolumeMeterVisibility = Visibility.Collapsed;
         }
 
         public bool Clear

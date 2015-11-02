@@ -22,7 +22,7 @@ namespace Recorder.Utilities
 
         private void RecordingStoppedHandler(object sender, StoppedEventArgs e)
         {
-            // todo: handle this?
+            SampleAggregator.ResetValues();
         }
 
         public SampleAggregator SampleAggregator { get; }
@@ -55,7 +55,7 @@ namespace Recorder.Utilities
                 return;
             }
             
-            SampleAggregator.Reset();
+            SampleAggregator.ResetValues();
             _waveIn.StartRecording();
         }
 
@@ -77,7 +77,7 @@ namespace Recorder.Utilities
             }
         }
 
-        private int FindDevice(string deviceName)
+        private static int FindDevice(string deviceName)
         {
             var deviceCount = WaveIn.DeviceCount;
             for (var index = 0; index < deviceCount; index++)
@@ -100,17 +100,17 @@ namespace Recorder.Utilities
         private float _minValue;
         public int NotificationCount { get; set; }
         public event EventHandler<MaxSampleEventArgs> MaximumCalculated;
-        public event EventHandler Restart = delegate { };
-
-        public void RaiseRestart()
-        {
-            Restart(this, EventArgs.Empty);
-        }
-
-        public void Reset()
+        
+        private void Reset()
         {
             _count = 0;
             _maxValue = _minValue = 0;
+        }
+
+        public void ResetValues()
+        {
+            Reset();
+            MaximumCalculated?.Invoke(this, new MaxSampleEventArgs(_minValue, _maxValue));
         }
 
         public void Add(float value)

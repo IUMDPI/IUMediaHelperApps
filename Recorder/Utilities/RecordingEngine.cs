@@ -26,10 +26,7 @@ namespace Recorder.Utilities
             Process.Exited += ProcessExitHandler;
 
             ProcessObservers.Add(new TimestampReceivedHandler(this));
-            ProcessObservers.Add(new DroppedFramesHandler(outputModel.FrameStatsViewModel));
-            ProcessObservers.Add(new DuplicateFrameHandler(outputModel.FrameStatsViewModel));
-            ProcessObservers.Add(new CurrentFrameHandler(outputModel.FrameStatsViewModel));
-            
+     
             _infoEngine = new InfoEngine(settings);
             _volumeMeter = new VolumeMeter(settings);
             _volumeMeter.SampleAggregator.MaximumCalculated += MaximumCalculatedHandler;
@@ -89,16 +86,17 @@ namespace Recorder.Utilities
                 Directory.CreateDirectory(ObjectModel.WorkingFolderPath);
             }
 
-            ResetObservers();
-            _volumeMeter.StartMonitoring();
 
+            ResetObservers();
             var part = GetNewPart();
 
             OutputWindowViewModel.StartOutput($"Recording {GetTargetPartFilename(part)}");
+            OutputWindowViewModel.ShowVolumeMeter();
+
+            _volumeMeter.StartMonitoring();
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
             
-
             Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={GetTargetPartLogFilename(part)}:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
@@ -132,6 +130,7 @@ namespace Recorder.Utilities
 
                 Recording = false;
                 _volumeMeter.StopMonitoring();
+                OutputWindowViewModel.HideVolumeMeter();
                 CheckExitCode();
             }
             finally

@@ -38,6 +38,9 @@ namespace Recorder.Utilities
             IssueNotifyModel = issueNotifyModel;
 
             ProcessObservers.Add(new OutputLogHandler(OutputWindowViewModel));
+            ProcessObservers.Add(new DroppedFramesHandler(outputModel.FrameStatsViewModel));
+            ProcessObservers.Add(new DuplicateFrameHandler(outputModel.FrameStatsViewModel));
+            ProcessObservers.Add(new CurrentFrameHandler(outputModel.FrameStatsViewModel));
         }
 
         protected OutputWindowViewModel OutputWindowViewModel { get; }

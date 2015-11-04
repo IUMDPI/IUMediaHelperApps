@@ -105,7 +105,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _recordCommand ?? (_recordCommand =
-                    new RelayCommand(async param => await DoRecordAction(), param => Recorder.OkToRecord().IsValid));
+                    new RelayCommand(async param => await DoRecordAction(), param => Recorder.OkToProcess().IsValid));
             }
         }
 

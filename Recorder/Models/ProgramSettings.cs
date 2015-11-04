@@ -2,12 +2,13 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Security.RightsManagement;
 using Recorder.Exceptions;
+using Recorder.Utilities;
+using Recorder.ViewModels;
 
 namespace Recorder.Models
 {
-    public interface IProgramSettings
+    public interface IProgramSettings : ICanLogConfiguration
     {
         string ProjectCode { get; }
         string PathToFFMPEG { get; }
@@ -17,7 +18,7 @@ namespace Recorder.Models
         string FFMPEGArguments { get; }
 
         string WorkingFolder { get; }
-        
+
         string[] BarcodeScannerIdentifiers { get; }
 
         string AudioDeviceToMonitor { get; }
@@ -35,24 +36,10 @@ namespace Recorder.Models
             FFMPEGArguments = settings["FFMPEGArguments"];
             WorkingFolder = settings["WorkingDirectoryName"];
             PathToFFProbe = settings["PathToFFProbe"];
-            BarcodeScannerIdentifiers =ToArray(settings["BarcodeScannerIdentifiers"]);
+            BarcodeScannerIdentifiers = ToArray(settings["BarcodeScannerIdentifiers"]);
             AudioDeviceToMonitor = settings["AudioDeviceToMonitor"];
         }
 
-
-
-
-        private static string[] ToArray(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return new string[0];
-            }
-
-            return value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(s => s.Trim()).ToArray();
-        }
-        
 
         public string ProjectCode { get; }
         public string PathToFFMPEG { get; }
@@ -94,6 +81,30 @@ namespace Recorder.Models
             {
                 throw new ConfigurationException("OutputFolder in app.config is not set or invalid");
             }
+        }
+
+        public void LogConfiguration(OutputWindowViewModel outputModel)
+        {
+            outputModel.WriteLine($"Project code: {ProjectCode}");
+            outputModel.WriteLine($"FFMPEG Path: {PathToFFMPEG}");
+            outputModel.WriteLine($"FFProbe Path: {PathToFFProbe}");
+            outputModel.WriteLine($"FFMPEG Arguments: {FFMPEGArguments}");
+            outputModel.WriteLine($"Working folder: {WorkingFolder}");
+            outputModel.WriteLine($"Output folder: {OutputFolder}");
+            outputModel.WriteLine($"Barcode scanner identifiers: {string.Join(", ", BarcodeScannerIdentifiers)}");
+            outputModel.WriteLine($"Audio device to monitor: {AudioDeviceToMonitor}");
+        }
+
+
+        private static string[] ToArray(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return new string[0];
+            }
+
+            return value.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim()).ToArray();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -39,6 +40,7 @@ namespace Recorder.ViewModels
 
             ConfigurePanels(objectModel);
 
+            LogConfiguration();
          
         }
 
@@ -53,9 +55,7 @@ namespace Recorder.ViewModels
 
             RegisterChildViewModels();
         }
-
         
-
         private void RegisterChildViewModels()
         {
             foreach (var child in Panels.Select(p => p as INotifyPropertyChanged).Where(p => p != null))
@@ -130,8 +130,6 @@ namespace Recorder.ViewModels
                     param =>EnableShowOutputCommand()));
             }
         }
-
-
         
         private bool EnableShowOutputCommand()
         {
@@ -163,6 +161,19 @@ namespace Recorder.ViewModels
             Recorder?.Dispose();
             Combiner?.Dispose();
             BarcodeHandler?.Dispose();
+        }
+
+        private void LogConfiguration()
+        {
+            OutputWindowViewModel.WriteLine($"{Title} ({Assembly.GetExecutingAssembly().GetName().Version})");
+            OutputWindowViewModel.WriteLine("");
+            ProgramSettings.LogConfiguration(OutputWindowViewModel);
+            OutputWindowViewModel.WriteLine("");
+            BarcodeHandler.LogConfiguration(OutputWindowViewModel);
+            Combiner.LogConfiguration(OutputWindowViewModel);
+            Recorder.LogConfiguration(OutputWindowViewModel);
+           
+            
         }
     }
 }

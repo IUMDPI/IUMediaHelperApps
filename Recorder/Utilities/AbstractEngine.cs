@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 using JetBrains.Annotations;
 using Recorder.Handlers;
 using Recorder.Models;
@@ -10,7 +12,7 @@ using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
-    public abstract class AbstractEngine : IDisposable, INotifyPropertyChanged
+    public abstract class AbstractEngine : IDisposable, INotifyPropertyChanged, ICanLogConfiguration
     {
         protected readonly Process Process;
 
@@ -44,9 +46,8 @@ namespace Recorder.Utilities
         }
 
         protected OutputWindowViewModel OutputWindowViewModel { get; }
-        protected IssueNotifyModel IssueNotifyModel { get; set; }
-
-
+        protected IssueNotifyModel IssueNotifyModel { get; }
+        
         protected IProgramSettings Settings { get; }
         protected ObjectModel ObjectModel { get; }
 
@@ -64,6 +65,34 @@ namespace Recorder.Utilities
                 Process.OutputDataReceived += observer.OnDataReceived;
                 Process.ErrorDataReceived += observer.OnDataReceived;
             }
+        }
+
+        public ValidationResult OkToProcess()
+        {
+            var globalConfigOk = IsGlobalConfigurationOk();
+            return globalConfigOk.IsValid
+                ? ObjectModel.FilePartsValid()
+                : globalConfigOk;
+        }
+
+        protected virtual ValidationResult IsGlobalConfigurationOk()
+        {
+            if (!Directory.Exists(Settings.WorkingFolder))
+            {
+                return new ValidationResult(false, "working folder does not exist");
+            }
+
+            if (!Directory.Exists(Settings.OutputFolder))
+            {
+                return new ValidationResult(false, "output folder does not exist");
+            }
+
+            if (!File.Exists(Settings.PathToFFMPEG))
+            {
+                return new ValidationResult(false, "invalid FFMPEG path");
+            }
+
+            return ValidationResult.ValidResult;
         }
 
         public virtual void ResetObservers()
@@ -99,5 +128,7 @@ namespace Recorder.Utilities
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public abstract void LogConfiguration(OutputWindowViewModel outputModel);
     }
 }

@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using NAudio.Wave;
 using Recorder.Models;
+using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
-    public class VolumeMeter : IDisposable
+    public class VolumeMeter : IDisposable, ICanLogConfiguration
     {
         private readonly WaveIn _waveIn;
+        private readonly string _deviceName;
 
         public VolumeMeter(IProgramSettings settings)
         {
-            _waveIn = new WaveIn {DeviceNumber = FindDevice(GetDeviceName(settings.FFMPEGArguments)) };
-
+            _deviceName = settings.AudioDeviceToMonitor;
+            _waveIn = new WaveIn {DeviceNumber = FindDevice(_deviceName) };
+          
             _waveIn.DataAvailable += DataAvailableHandler;
             _waveIn.RecordingStopped += RecordingStoppedHandler;
 
@@ -31,23 +33,7 @@ namespace Recorder.Utilities
         {
             _waveIn?.Dispose();
         }
-
-        private static string GetDeviceName(string arguments)
-        {
-            var match = Regex.Match(arguments, "(:audio=)\"(.*)\"");
-            if (match.Success == false)
-            {
-                return "";
-            }
-
-            if (match.Groups.Count < 3)
-            {
-                return "";
-            }
-
-            return match.Groups[2].Value;
-        }
-
+        
         public void StartMonitoring()
         {
             if (_waveIn.DeviceNumber < 0)
@@ -79,6 +65,8 @@ namespace Recorder.Utilities
 
         private static int FindDevice(string deviceName)
         {
+            
+
             var deviceCount = WaveIn.DeviceCount;
             for (var index = 0; index < deviceCount; index++)
             {
@@ -90,6 +78,24 @@ namespace Recorder.Utilities
             }
 
             return -1;
+        }
+        
+        public void LogConfiguration(OutputWindowViewModel outputModel)
+        {
+            if (_waveIn.DeviceNumber >= 0)
+            {
+                outputModel.WriteLine("Audio meter: initialized");
+                return;
+            }
+
+            outputModel.WriteLine($"Audio meter: could not initialize audio meter for device {_deviceName}.");
+            outputModel.WriteLine("Audio meter: eligible devices are: ");
+            var deviceCount = WaveIn.DeviceCount;
+            for (var index = 0; index < deviceCount; index++)
+            {
+                var deviceInfo = WaveIn.GetCapabilities(index);
+                outputModel.WriteLine($"   {deviceInfo.ProductName}");
+            }
         }
     }
 

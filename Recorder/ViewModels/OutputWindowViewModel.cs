@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Windows;
 using JetBrains.Annotations;
 
@@ -76,11 +77,17 @@ namespace Recorder.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-
         public void StartOutput(string header)
         {
             Visibility = Visibility.Visible;
             Text += $"{header}\n\n";
+        }
+
+        public void WriteLine(string text)
+        {
+            var builder = new StringBuilder(Text);
+            builder.AppendLine(text);
+            Text = builder.ToString();
         }
     }
 }

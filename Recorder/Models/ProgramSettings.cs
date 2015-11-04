@@ -20,6 +20,8 @@ namespace Recorder.Models
         
         string[] BarcodeScannerIdentifiers { get; }
 
+        string AudioDeviceToMonitor { get; }
+
         void Verify();
     }
 
@@ -34,6 +36,7 @@ namespace Recorder.Models
             WorkingFolder = settings["WorkingDirectoryName"];
             PathToFFProbe = settings["PathToFFProbe"];
             BarcodeScannerIdentifiers =ToArray(settings["BarcodeScannerIdentifiers"]);
+            AudioDeviceToMonitor = settings["AudioDeviceToMonitor"];
         }
 
 
@@ -58,6 +61,8 @@ namespace Recorder.Models
         public string FFMPEGArguments { get; }
         public string WorkingFolder { get; }
         public string[] BarcodeScannerIdentifiers { get; }
+        public string AudioDeviceToMonitor { get; }
+
         public void Verify()
         {
             if (string.IsNullOrWhiteSpace(ProjectCode))

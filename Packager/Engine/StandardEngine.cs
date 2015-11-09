@@ -172,8 +172,8 @@ namespace Packager.Engine
             Observers.Log("");
             Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("FFMPeg audio production args: {0}", ProgramSettings.FFMPEGAudioProductionArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg audio access args: {0}", ProgramSettings.FFMPEGAudioAccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg audio production args: {0}", _dependencyProvider.FFMPEGRunner.ProductionArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg audio access args: {0}", _dependencyProvider.FFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("Success folder cleaning: {0}", _dependencyProvider.SuccessFolderCleaner.Enabled ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}" : "disabled");
 

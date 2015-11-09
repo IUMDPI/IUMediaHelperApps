@@ -19,6 +19,8 @@ namespace Packager.Utilities
     public class FFMPEGRunner : IFFMPEGRunner
     {
         private const string NormalizingArguments = "-acodec copy -write_bext 1 -rf64 auto -map_metadata -1";
+        private const string RequiredProductionBextArguments = "-write_bext 1";
+        private const string RequiredProductionRiffArguments = "-rf64 auto";
 
         public FFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
         {
@@ -29,11 +31,11 @@ namespace Packager.Utilities
             FileProvider = fileProvider;
             Hasher = hasher;
             AccessArguments = programSettings.FFMPEGAudioAccessArguments;
-            ProductionArguments = programSettings.FFMPEGAudioProductionArguments;
+            ProductionArguments = AddRequiredArguments(programSettings.FFMPEGAudioProductionArguments);
         }
 
-        private string ProductionArguments { get; }
-        private string AccessArguments { get; }
+        public string ProductionArguments { get; }
+        public string AccessArguments { get; }
         private string BaseProcessingDirectory { get; }
         private IProcessRunner ProcessRunner { get; }
         private IObserverCollection Observers { get; }
@@ -55,6 +57,26 @@ namespace Packager.Utilities
                 .AddArguments(metadata.AsArguments());
 
             return await CreateDerivative(original, target, args);
+        }
+
+        private static string AddRequiredArguments(string arguments)
+        {
+            if (string.IsNullOrWhiteSpace(arguments))
+            {
+                return arguments;
+            }
+
+            if (!arguments.ToLowerInvariant().Contains(RequiredProductionBextArguments.ToLowerInvariant()))
+            {
+                arguments = $"{arguments} {RequiredProductionBextArguments}";
+            }
+
+            if (!arguments.ToLowerInvariant().Contains(RequiredProductionRiffArguments.ToLowerInvariant()))
+            {
+                arguments = $"{arguments} {RequiredProductionRiffArguments}";
+            }
+
+            return arguments;
         }
 
         public async Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original)

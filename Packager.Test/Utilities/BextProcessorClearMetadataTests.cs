@@ -8,6 +8,7 @@ using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Models.ResultModels;
 using Packager.Observers;
 using Packager.Utilities;

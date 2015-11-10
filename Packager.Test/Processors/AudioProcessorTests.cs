@@ -10,6 +10,7 @@ using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Processors;
 using Packager.Utilities;
 

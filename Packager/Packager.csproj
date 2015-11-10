@@ -142,7 +142,7 @@
     <Compile Include="Models\PodMetadataModels\Assignment.cs" />
     <Compile Include="Models\PodMetadataModels\Basics.cs" />
     <Compile Include="Models\PodMetadataModels\ConditionStatus.cs" />
-    <Compile Include="Models\PodMetadataModels\ConsolidatedPodMetadata.cs" />
+    <Compile Include="Models\PodMetadataModels\ConsolidatedModels\ConsolidatedPodMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\Damage.cs" />
     <Compile Include="Models\PodMetadataModels\Data.cs" />
     <Compile Include="Models\PodMetadataModels\DataObject.cs" />

@@ -9,6 +9,7 @@ using Packager.Models;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Packager.Validators.Attributes;
 
-namespace Packager.Models.PodMetadataModels
+namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
     public class ConsolidatedPodMetadata
     {

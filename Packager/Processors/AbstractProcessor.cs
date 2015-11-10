@@ -9,6 +9,7 @@ using Packager.Factories;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;

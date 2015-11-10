@@ -2,6 +2,7 @@
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.PodMetadataModels.ConsolidatedModels;
 
 namespace Packager.Factories
 {

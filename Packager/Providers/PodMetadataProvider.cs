@@ -9,6 +9,7 @@ using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Observers;
 using Packager.Validators;
 using RestSharp;
@@ -36,8 +37,7 @@ namespace Packager.Providers
                 Authenticator =
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
             };
-
-
+            
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
 
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);

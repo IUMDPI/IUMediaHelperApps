@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
+using Packager.Deserializers;
+using Packager.Extensions;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
-    public abstract class AbstractConsolidatedDigitalFile
+    public abstract class AbstractConsolidatedDigitalFile:IImportableFromPod
     {
         private const string AdDeviceType = "AD";
         private const string PlayerDeviceType = "Player";
@@ -18,6 +21,24 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             Filename = original.Filename;
             Comment = original.Comment;
             CreatedBy = original.CreatedBy;
+        }
+
+        protected AbstractConsolidatedDigitalFile()
+        {
+            
+        }
+
+        public virtual void ImportFromXml(XDocument document)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void ImportFromXml(XElement element)
+        {
+            DateDigitized = element.Element("date_digitized").GetValue((DateTime?) null);
+            Filename = element.Element("filename").GetValue(string.Empty);
+            Comment = element.Element("comment").GetValue(string.Empty);
+            CreatedBy = element.Element("created_by").GetValue(string.Empty);
         }
 
         [Required]

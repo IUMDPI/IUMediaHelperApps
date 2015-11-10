@@ -5,5 +5,9 @@
         public ConsolidatedDigitalVideoFile(DigitalFileProvenance original) : base(original)
         {
         }
+
+        public ConsolidatedDigitalVideoFile()
+        {
+        }
     }
 }

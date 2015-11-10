@@ -37,17 +37,18 @@ namespace Packager.Providers
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
             };
 
+            client.AddHandler("application/xml", new PodResultDeserializer());
             
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
             
 
-            var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
+            var response = await client.ExecuteGetTaskAsync<T>(request);
 
             VerifyResponse(response, "retrieve metadata from Pod");
-            VerifyResponseMetadata(response.Data);
-            VerifyResponseObjectsPresent(response.Data);
+            //VerifyResponseMetadata(response.Data);
+            //VerifyResponseObjectsPresent(response.Data);
 
-            return ConsolidateMetadata<T>(response.Data);
+            return response.Data; //ConsolidateMetadata<T>(response.Data);
         }
 
         public async Task<string> ResolveUnit(string unit)

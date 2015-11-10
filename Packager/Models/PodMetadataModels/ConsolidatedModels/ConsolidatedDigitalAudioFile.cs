@@ -11,5 +11,9 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
         {
             SpeedUsed = original.SpeedUsed;
         }
+
+        public ConsolidatedDigitalAudioFile()
+        {
+        }
     }
 }

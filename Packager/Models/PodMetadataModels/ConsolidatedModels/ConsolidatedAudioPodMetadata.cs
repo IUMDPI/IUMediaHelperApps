@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
+using Packager.Extensions;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
@@ -36,6 +38,12 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
         {
             return originals.Select(provenance => new ConsolidatedDigitalAudioFile(provenance))
                 .Cast<AbstractConsolidatedDigitalFile>().ToList();
+        }
+
+        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(XDocument document)
+        {
+            return document.ImportFromChildNodes<ConsolidatedDigitalAudioFile>("/pod/data/object/digital_provenance/digital_files")
+                .Select(e=>e as AbstractConsolidatedDigitalFile).ToList();
         }
     }
 }

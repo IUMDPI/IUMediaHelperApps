@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -80,6 +82,92 @@ namespace Packager.Test.Utilities
         {
         }
 
+        public class WhenInitializing : FFMPEGRunnerTests
+        {
+            public class WhenProductionWriteBextArgsNotPresent : WhenInitializing
+            {
+            
+                [Test]
+                public void ItShouldSetArgsCorrectly()
+                {
+                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -write_bext 1").Count, Is.EqualTo(1));
+                }
+            }
+
+            public class WhenProductionRiffArgsNotPresent : WhenInitializing
+            {
+                [Test]
+                public void ItShouldSetArgsCorrectly()
+                {
+                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -rf64 auto").Count, Is.EqualTo(1));
+                }
+            }
+
+            public class WhenProductionWriteBextArgsPresent : WhenInitializing
+            {
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+                    ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -write_bext 1");
+                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                }
+
+                [Test]
+                public void ItShouldSetArgsCorrectly()
+                {
+                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -write_bext 1").Count, Is.EqualTo(1));
+                }
+            }
+
+            public class WhenProductionRiffArgsPresent : WhenInitializing
+            {
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+                    ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -rf64 auto");
+                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                }
+
+                [Test]
+                public void ItShouldSetArgsCorrectly()
+                {
+                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -rf64 auto").Count, Is.EqualTo(1));
+                }
+            }
+
+            public class WhenPassedInProductionArgumentsNull : WhenInitializing
+            {
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+                    ProgramSettings.FFMPEGAudioProductionArguments.Returns((string)null);
+                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                }
+
+                [Test]
+                public void ItShouldNotModifyArguments()
+                {
+                    Assert.That(Runner.ProductionArguments, Is.Null);
+                }
+            }
+
+            public class WhenPassedInProductionArgumentsEmpty : WhenInitializing
+            {
+                public override void BeforeEach()
+                {
+                    base.BeforeEach();
+                    ProgramSettings.FFMPEGAudioProductionArguments.Returns("");
+                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                }
+
+                [Test]
+                public void ItShouldNotModifyArguments()
+                {
+                    Assert.That(Runner.ProductionArguments, Is.EqualTo(""));
+                }
+            }
+        }
+
         public class WhenNormalizingOriginals : FFMPEGRunnerTests
         {
             public override async void BeforeEach()
@@ -110,6 +198,7 @@ namespace Packager.Test.Utilities
             private ObjectFileModel ProductionFileModel { get; set; }
             private ObjectFileModel PreservationFileModel => MasterFileModel;
 
+            
             public class WhenThingsGoWell : WhenNormalizingOriginals
             {
                 public override async void BeforeEach()

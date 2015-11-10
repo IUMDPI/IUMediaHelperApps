@@ -18,5 +18,9 @@ namespace Packager.Utilities
         Task Verify(List<ObjectFileModel> originals);
 
         Task<string> GetFFMPEGVersion();
+
+        string ProductionArguments { get; }
+        string AccessArguments { get; }
+
     }
 }

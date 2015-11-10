@@ -87,6 +87,7 @@
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Models\OutputModels\IngestDevice.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
+    <Compile Include="Processors\VideoProcessor.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />

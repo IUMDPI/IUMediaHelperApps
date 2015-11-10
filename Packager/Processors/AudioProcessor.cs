@@ -33,8 +33,6 @@ namespace Packager.Processors
         protected override string PreservationFileExtension => ".wav";
         protected override string PreservationIntermediateFileExtenstion => ".wav";
 
-        protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
-
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
             // fetch, log, and validate metadata

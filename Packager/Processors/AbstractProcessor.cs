@@ -77,9 +77,8 @@ namespace Packager.Processors
         public string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
 
         public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
+        protected virtual string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
-        protected abstract string OriginalsDirectory { get; }
-        
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
             Barcode = fileModels.Key;

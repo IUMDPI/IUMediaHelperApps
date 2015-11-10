@@ -44,7 +44,8 @@ namespace Packager
             // initialize processors
             var processors = new Dictionary<string, IProcessor>
             {
-                {".wav", new AudioProcessor(dependencyProvider)}
+                {".wav", new AudioProcessor(dependencyProvider)},
+                {".mkv", new VideoProcessor(dependencyProvider)}
             };
 
             // initialize engine

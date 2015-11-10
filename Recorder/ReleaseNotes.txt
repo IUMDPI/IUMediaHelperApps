@@ -5,3 +5,4 @@
 					added dropped, duplicate frames display
 1.4.0.0	11/10/2015	changing how audio meter is configured
 					adding configuration logging at startup
+					removing unused dependencies

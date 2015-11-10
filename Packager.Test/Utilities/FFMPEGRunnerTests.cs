@@ -881,7 +881,7 @@ namespace Packager.Test.Utilities
                         base.BeforeEach();
                         DerivativeFileModel = MasterFileModel.ToProductionFileModel();
                         Exception = new Exception("testing");
-                        ProcessRunner.Run(null).ReturnsForAnyArgs(x => { throw Exception; });
+                        ProcessRunner.WhenForAnyArgs(x=>x.Run(null)).Do(x => { throw Exception; });
                         FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProductionDerivative(MasterFileModel, DerivativeFileModel, Metadata));
                     }
 

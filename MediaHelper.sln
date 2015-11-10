@@ -33,6 +33,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaveInfo", "WaveInfo\WaveInfo.csproj", "{FD737CE4-6FD8-4EF9-88F4-3105F499190D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{AE3B0A62-0256-4802-915D-FC5CABDD7A97}"
+	ProjectSection(SolutionItems) = preProject
+		deploy.bat = deploy.bat
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{031C313B-FF3F-458D-82B4-667AAF2B5FF8}"
 EndProject

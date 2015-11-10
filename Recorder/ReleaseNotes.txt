@@ -3,3 +3,5 @@
 1.2.0.0	10/22/2015	combiner should now write logs
 1.3.0.0	11/03/2015	added audio meter
 					added dropped, duplicate frames display
+1.4.0.0	11/10/2015	changing how audio meter is configured
+					adding configuration logging at startup

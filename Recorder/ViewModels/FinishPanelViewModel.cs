@@ -69,7 +69,7 @@ namespace Recorder.ViewModels
             get
             {
                 return _combineCommand
-                       ?? (_combineCommand = new RelayCommand(param => DoCombine(), param => Combiner.OkToCombine().IsValid));
+                       ?? (_combineCommand = new RelayCommand(param => DoCombine(), param => Combiner.OkToProcess().IsValid));
             }
         }
 

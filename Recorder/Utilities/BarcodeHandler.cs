@@ -9,7 +9,7 @@ using Recorder.ViewModels;
 
 namespace Recorder.Utilities
 {
-    public class BarcodeHandler : IDisposable
+    public class BarcodeHandler : IDisposable, ICanLogConfiguration
     {
         private readonly string[] _barcodeScannerIdentifiers;
         private readonly List<char> _buffer = new List<char>();
@@ -79,6 +79,11 @@ namespace Recorder.Utilities
 
             _viewModel.BarcodePanelViewModel.Barcode = value;
             await _viewModel.ShowPanel<BarcodePanelViewModel>();
+        }
+
+        public void LogConfiguration(OutputWindowViewModel outputModel)
+        {
+            outputModel.WriteLine("Barcode scanner: initialized");
         }
     }
 }

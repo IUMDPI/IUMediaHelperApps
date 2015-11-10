@@ -15,8 +15,8 @@ namespace Recorder.Utilities
     public class RecordingEngine : AbstractEngine
     {
         private readonly InfoEngine _infoEngine;
-        private bool _recording;
         private readonly VolumeMeter _volumeMeter;
+        private bool _recording;
 
         public RecordingEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel, IssueNotifyModel issueNotifyModel)
             : base(settings, objectModel, outputModel, issueNotifyModel)
@@ -26,16 +26,10 @@ namespace Recorder.Utilities
             Process.Exited += ProcessExitHandler;
 
             ProcessObservers.Add(new TimestampReceivedHandler(this));
-     
+
             _infoEngine = new InfoEngine(settings);
             _volumeMeter = new VolumeMeter(settings);
             _volumeMeter.SampleAggregator.MaximumCalculated += MaximumCalculatedHandler;
-        }
-
-        private void MaximumCalculatedHandler(object sender, MaxSampleEventArgs e)
-        {
-            var lastPeak = Math.Max(e.MaxSample, Math.Abs(e.MinSample));
-            OutputWindowViewModel.VolumeMeterViewModel.InputLevel = lastPeak*100;
         }
 
         public bool Recording
@@ -49,26 +43,36 @@ namespace Recorder.Utilities
         }
 
         public TimeSpan CumulativeTimeSpan { get; private set; }
+
+        private void MaximumCalculatedHandler(object sender, MaxSampleEventArgs e)
+        {
+            var lastPeak = Math.Max(e.MaxSample, Math.Abs(e.MinSample));
+            OutputWindowViewModel.VolumeMeterViewModel.InputLevel = lastPeak*100;
+        }
+
         public event EventHandler<TimeSpan> TimestampUpdated;
 
-        public ValidationResult OkToRecord()
+        
+
+        protected override ValidationResult IsGlobalConfigurationOk()
         {
+            var baseResult = base.IsGlobalConfigurationOk();
+            if (!baseResult.IsValid)
+            {
+                return baseResult;
+            }
+
             if (!File.Exists(Settings.PathToFFMPEG))
             {
                 return new ValidationResult(false, "invalid FFMPEG path");
             }
 
-            if (!Directory.Exists(Settings.WorkingFolder))
+            if (!File.Exists(Settings.PathToFFProbe))
             {
-                return new ValidationResult(false, "working folder does not exist");
+                return new ValidationResult(false, "invalid FFProbe path");
             }
 
-            if (!Directory.Exists(Settings.OutputFolder))
-            {
-                return new ValidationResult(false, "output folder does not exist");
-            }
-
-            return ObjectModel.FilePartsValid();
+            return ValidationResult.ValidResult;
         }
 
         public async Task StartRecording()
@@ -96,7 +100,7 @@ namespace Recorder.Utilities
             _volumeMeter.StartMonitoring();
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
-            
+
             Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={GetTargetPartLogFilename(part)}:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
@@ -142,7 +146,7 @@ namespace Recorder.Utilities
 
         public void ClearExistingParts()
         {
-            if (OkToRecord().IsValid == false)
+            if (OkToProcess().IsValid == false)
             {
                 return;
             }
@@ -177,7 +181,7 @@ namespace Recorder.Utilities
 
         private async Task<TimeSpan> GetDurationOfExistingParts()
         {
-            if (OkToRecord().IsValid == false)
+            if (OkToProcess().IsValid == false)
             {
                 return new TimeSpan();
             }
@@ -228,6 +232,23 @@ namespace Recorder.Utilities
             }
 
             IssueNotifyModel.Notify(GetErrorMessageFromOutput("Something went wrong while recording parts: {0}"));
+        }
+
+        public override void LogConfiguration(OutputWindowViewModel outputModel)
+        {
+            var globalConfigOk = IsGlobalConfigurationOk();
+            if (globalConfigOk.IsValid)
+            {
+                outputModel.WriteLine("Recorder: initialized");
+            }
+            else
+            {
+                outputModel.WriteLine("Recorder: not initialized");
+                outputModel.WriteLine($"Recorder: {globalConfigOk.ErrorContent}");
+                outputModel.WriteLine("");
+            }
+
+            _volumeMeter.LogConfiguration(outputModel);
         }
     }
 }

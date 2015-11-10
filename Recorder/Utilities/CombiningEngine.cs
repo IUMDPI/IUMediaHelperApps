@@ -36,7 +36,7 @@ namespace Recorder.Utilities
 
         public void Combine()
         {
-            if (OkToCombine().IsValid == false)
+            if (OkToProcess().IsValid == false)
             {
                 return;
             }
@@ -90,25 +90,6 @@ namespace Recorder.Utilities
             }
         }
 
-        public ValidationResult OkToCombine()
-        {
-            if (!File.Exists(Settings.PathToFFMPEG))
-            {
-                return new ValidationResult(false, "invalid FFMPEG path");
-            }
-
-            if (!Directory.Exists(Settings.WorkingFolder))
-            {
-                return new ValidationResult(false, "working folder does not exist");
-            }
-
-            if (!Directory.Exists(Settings.OutputFolder))
-            {
-                return new ValidationResult(false, "output folder does not exist");
-            }
-
-            return ObjectModel.FilePartsValid();
-        }
 
         private void GenerateCombineList()
         {
@@ -130,6 +111,42 @@ namespace Recorder.Utilities
             }
 
             IssueNotifyModel.Notify(GetErrorMessageFromOutput("Something went wrong while combining parts: {0}"));
+        }
+
+        protected override ValidationResult IsGlobalConfigurationOk()
+        {
+            var baseResult = base.IsGlobalConfigurationOk();
+            if (!baseResult.IsValid)
+            {
+                return baseResult;
+            }
+
+            if (!File.Exists(Settings.PathToFFMPEG))
+            {
+                return new ValidationResult(false, "invalid FFMPEG path");
+            }
+
+            if (!File.Exists(Settings.PathToFFProbe))
+            {
+                return new ValidationResult(false, "invalid FFProbe path");
+            }
+
+            return ValidationResult.ValidResult;
+        }
+
+        public override void LogConfiguration(OutputWindowViewModel outputModel)
+        {
+            var globalConfigOk = IsGlobalConfigurationOk();
+            if (globalConfigOk.IsValid)
+            {
+                outputModel.WriteLine("Combiner: initialized");
+            }
+            else
+            {
+                outputModel.WriteLine("Combiner: not initialized");
+                outputModel.WriteLine($"Combiner: {globalConfigOk.ErrorContent}");
+                outputModel.WriteLine("");
+            }
         }
     }
 }

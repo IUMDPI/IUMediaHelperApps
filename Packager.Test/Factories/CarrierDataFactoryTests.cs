@@ -26,7 +26,7 @@ namespace Packager.Test.Factories
        
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
-        private ConsolidatedPodMetadata PodMetadata { get; set; }
+        private ConsolidatedAudioPodMetadata PodMetadata { get; set; }
         private ISideDataFactory SideDataFactory { get; set; }
         private CarrierData Result { get; set; }
 
@@ -41,7 +41,7 @@ namespace Packager.Test.Factories
             ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
             AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
             
-            PodMetadata = new ConsolidatedPodMetadata
+            PodMetadata = new ConsolidatedAudioPodMetadata
             {
                 Barcode = "4890764553278906",
                 Brand = "Brand",

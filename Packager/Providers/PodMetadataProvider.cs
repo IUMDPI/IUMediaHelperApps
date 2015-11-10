@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -30,14 +28,14 @@ namespace Packager.Providers
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
 
-        public async Task<ConsolidatedPodMetadata> GetObjectMetadata(string barcode)
+        public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractConsolidatedPodMetadata, new()
         {
             var client = new RestClient(ProgramSettings.WebServiceUrl)
             {
                 Authenticator =
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
             };
-            
+
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
 
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
@@ -46,7 +44,7 @@ namespace Packager.Providers
             VerifyResponseMetadata(response.Data);
             VerifyResponseObjectsPresent(response.Data);
 
-            return ConsolidateMetadata(response.Data);
+            return ConsolidateMetadata<T>(response.Data);
         }
 
         public async Task<string> ResolveUnit(string unit)
@@ -63,11 +61,11 @@ namespace Packager.Providers
 
             VerifyResponse(response, "resolve unit name using Pod");
             VerifyResponseMetadata(response.Data);
-            
+
             return response.Data.Message;
         }
 
-        public void Validate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> models)
+        public void Validate<T>(T podMetadata, List<ObjectFileModel> models) where T : AbstractConsolidatedPodMetadata
         {
             var results = ValidateMetadata(podMetadata);
             results.AddRange(ValidateMetadataProvenances(podMetadata.FileProvenances, models));
@@ -80,7 +78,7 @@ namespace Packager.Providers
             throw new PodMetadataException(results);
         }
 
-        public void Log(ConsolidatedPodMetadata podMetadata)
+        public void Log<T>(T podMetadata) where T : AbstractConsolidatedPodMetadata
         {
             Observers.Log(podMetadata.GetStringPropertiesAndValues());
 
@@ -103,7 +101,7 @@ namespace Packager.Providers
             }
         }
 
-        private ValidationResults ValidateMetadata(ConsolidatedPodMetadata podMetadata)
+        private ValidationResults ValidateMetadata<T>(T podMetadata) where T : AbstractConsolidatedPodMetadata
         {
             return Validators.Validate(podMetadata);
         }
@@ -134,37 +132,15 @@ namespace Packager.Providers
             return results;
         }
 
-        private static ConsolidatedPodMetadata ConsolidateMetadata(PodMetadata metadata)
+        private static T ConsolidateMetadata<T>(PodMetadata metadata) where T : AbstractConsolidatedPodMetadata, new()
         {
-            var result = new ConsolidatedPodMetadata
-            {
-                Identifier = metadata.Data.Object.Details.Id,
-                Format = metadata.Data.Object.Details.Format,
-                CallNumber = metadata.Data.Object.Details.CallNumber,
-                Title = metadata.Data.Object.Details.Title,
-                Unit = metadata.Data.Object.Assignment.Unit,
-                Barcode = metadata.Data.Object.Details.MdpiBarcode,
-                Brand = metadata.Data.Object.TechnicalMetadata.TapeStockBrand,
-                DirectionsRecorded = metadata.Data.Object.TechnicalMetadata.DirectionsRecorded,
-                CleaningDate = metadata.Data.Object.DigitalProvenance.CleaningDate,
-                CleaningComment = metadata.Data.Object.DigitalProvenance.CleaningComment,
-                BakingDate = metadata.Data.Object.DigitalProvenance.Baking,
-                Repaired = ToYesNo(metadata.Data.Object.DigitalProvenance.Repaired),
-                DigitizingEntity = metadata.Data.Object.DigitalProvenance.DigitizingEntity,
-                PlaybackSpeed = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PlaybackSpeed),
-                TrackConfiguration = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TrackConfiguration),
-                SoundField = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.SoundField),
-                TapeThickness = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TapeThickness),
-                FileProvenances = metadata.Data.Object.DigitalProvenance.DigitalFiles,
-                Damage = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.Damage, "None"),
-                PreservationProblems = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PreservationProblems)
-            };
-
+            var result = new T();
+            result.ImportFromFullMetadata(metadata);
             return NormalizeResultFields(result);
         }
 
         // go through the result's string fields and remove leading and trailing whitespace
-        private static ConsolidatedPodMetadata NormalizeResultFields(ConsolidatedPodMetadata metadata)
+        private static T NormalizeResultFields<T>(T metadata) where T : AbstractConsolidatedPodMetadata
         {
             metadata = NormalizeFields(metadata);
 
@@ -191,36 +167,6 @@ namespace Packager.Providers
             return value;
         }
 
-        private static string GetBoolValuesAsList(object instance, string defaultValue = "")
-        {
-            if (instance == null)
-            {
-                return defaultValue;
-            }
-
-            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof (bool));
-            var results = (properties.Where(property => (bool) property.GetValue(instance))
-                .Select(GetNameOrDescription)).Distinct().ToList();
-
-            return results.Any()
-                ? string.Join(", ", results)
-                : defaultValue;
-        }
-
-        private static string GetNameOrDescription(MemberInfo propertyInfo)
-        {
-            var description = propertyInfo.GetCustomAttribute<DescriptionAttribute>();
-            return description == null ? propertyInfo.Name : description.Description;
-        }
-
-        private static string ToYesNo(bool? value)
-        {
-            if (value.HasValue == false)
-            {
-                return "No";
-            }
-            return value.Value ? "Yes" : "No";
-        }
 
         private static void VerifyResponse(IRestResponse response, string operation)
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
+using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Providers;
 
 namespace Packager.Processors
@@ -18,9 +19,13 @@ namespace Packager.Processors
         protected override string PreservationFileExtension => ".mkv";
         protected override string PreservationIntermediateFileExtenstion => ".mkv";
 
-        protected override Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
+        protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
-            throw new NotImplementedException();
+            // fetch, log, and validate metadata
+            var metadata = await GetMetadata<ConsolidatedVideoPodMetadata>(filesToProcess);
+
+            // temporary
+            return filesToProcess;
         }
     }
 }

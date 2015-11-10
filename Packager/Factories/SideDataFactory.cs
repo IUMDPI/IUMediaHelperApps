@@ -19,7 +19,7 @@ namespace Packager.Factories
 
         private IIngestDataFactory IngestDataFactory { get; }
 
-        public SideData[] Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        public SideData[] Generate(ConsolidatedAudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())

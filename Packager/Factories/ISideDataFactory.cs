@@ -9,6 +9,6 @@ namespace Packager.Factories
 {
     public interface ISideDataFactory
     {
-        SideData[] Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess);
+        SideData[] Generate(ConsolidatedAudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess);
     }
 }

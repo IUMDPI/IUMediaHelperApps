@@ -254,19 +254,19 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected async Task<ConsolidatedPodMetadata> GetMetadata(List<ObjectFileModel> filesToProcess)
+        protected async Task<T> GetMetadata<T>(List<ObjectFileModel> filesToProcess) where T:AbstractConsolidatedPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
                 // get base metadata
-                var metadata = await MetadataProvider.GetObjectMetadata(Barcode);
+                var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
                 
                 // resolve unit
                 metadata.Unit = $"{ProgramSettings.UnitPrefix}{await MetadataProvider.ResolveUnit(metadata.Unit)}";
                 
                 // log metadata
-                MetadataProvider.Log(metadata);
+                MetadataProvider.Log<T>(metadata);
 
                 // validate base metadata fields
                 MetadataProvider.Validate(metadata, filesToProcess);

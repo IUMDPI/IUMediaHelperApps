@@ -37,7 +37,7 @@ namespace Packager.Processors
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
             // fetch, log, and validate metadata
-            var metadata = await GetMetadata(filesToProcess);
+            var metadata = await GetMetadata<ConsolidatedAudioPodMetadata>(filesToProcess);
 
             // normalize originals
             await NormalizeOriginals(filesToProcess, metadata);
@@ -78,7 +78,7 @@ namespace Packager.Processors
             return outputList;
         }
 
-        private async Task NormalizeOriginals(List<ObjectFileModel> originals, ConsolidatedPodMetadata podMetadata)
+        private async Task NormalizeOriginals(List<ObjectFileModel> originals, ConsolidatedAudioPodMetadata podMetadata)
         {
             foreach (var original in originals)
             {
@@ -87,7 +87,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, ConsolidatedPodMetadata podMetadata)
+        private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, ConsolidatedAudioPodMetadata podMetadata)
         {
             var results = new List<ObjectFileModel>();
             foreach (var master in models
@@ -130,7 +130,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        private async Task<XmlFileModel> GenerateXml(ConsolidatedAudioPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
             var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());

@@ -16,7 +16,7 @@ namespace Packager.Test.Factories
     {
         private const string GoodFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string MissingFileName = "MDPI_111111111111_01_pres.wav";
-        private ConsolidatedPodMetadata PodMetadata { get; set; }
+        private ConsolidatedAudioPodMetadata PodMetadata { get; set; }
         private AbstractFileModel FileModel { get; set; }
         private DigitalFileProvenance Provenance { get; set; }
         private IngestData Result { get; set; }
@@ -54,7 +54,7 @@ namespace Packager.Test.Factories
                 FileModel = new ObjectFileModel(MissingFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
-                PodMetadata = new ConsolidatedPodMetadata
+                PodMetadata = new ConsolidatedAudioPodMetadata
                 {
                     Format = "CD-R",
                     FileProvenances = new List<DigitalFileProvenance> {Provenance}
@@ -77,7 +77,7 @@ namespace Packager.Test.Factories
                 FileModel = new ObjectFileModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
-                PodMetadata = new ConsolidatedPodMetadata
+                PodMetadata = new ConsolidatedAudioPodMetadata
                 {
                     Format = "CD-R",
                     FileProvenances = new List<DigitalFileProvenance> {Provenance}

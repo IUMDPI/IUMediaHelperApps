@@ -7,6 +7,6 @@ namespace Packager.Factories
 {
     public interface IIngestDataFactory
     {
-        IngestData Generate(ConsolidatedPodMetadata podMetadata, AbstractFileModel masterFileModel);
+        IngestData Generate(ConsolidatedAudioPodMetadata podMetadata, AbstractFileModel masterFileModel);
     }
 }

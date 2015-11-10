@@ -18,7 +18,7 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public CarrierData Generate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
+        public CarrierData Generate(ConsolidatedAudioPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
         {
             var result = new CarrierData
             {
@@ -50,7 +50,7 @@ namespace Packager.Factories
             return result;
         }
 
-        private PartsData GeneratePartsData(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        private PartsData GeneratePartsData(ConsolidatedAudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             return new PartsData
             {

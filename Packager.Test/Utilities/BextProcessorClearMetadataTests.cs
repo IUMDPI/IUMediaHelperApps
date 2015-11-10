@@ -59,7 +59,7 @@ namespace Packager.Test.Utilities
         private ObjectFileModel PresFileModel { get; set; }
         private ObjectFileModel PresIntFileModel { get; set; }
         private List<ObjectFileModel> Instances { get; set; }
-        private ConsolidatedPodMetadata Metadata { get; set; }
+        private ConsolidatedAudioPodMetadata Metadata { get; set; }
 
         [Test]
         public void ItShouldCallUtilityCorrectly()

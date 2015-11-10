@@ -10,7 +10,7 @@ namespace Packager.Factories
 {
     public class IngestDataFactory : IIngestDataFactory
     {
-        public IngestData Generate(ConsolidatedPodMetadata podMetadata, AbstractFileModel masterFileModel)
+        public IngestData Generate(ConsolidatedAudioPodMetadata podMetadata, AbstractFileModel masterFileModel)
         {
             var digitalFileProvenance = podMetadata.FileProvenances.GetFileProvenance(masterFileModel);
             if (digitalFileProvenance == null)

@@ -31,7 +31,7 @@ namespace Packager.Test.Factories
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
             IngestDataFactory.Generate(null, null).ReturnsForAnyArgs(new IngestData());
 
-            PodMetadata = new ConsolidatedPodMetadata();
+            PodMetadata = new ConsolidatedAudioPodMetadata();
 
             DoCustomSetup();
 
@@ -60,7 +60,7 @@ namespace Packager.Test.Factories
         private List<ObjectFileModel> FilesToProcess { get; set; }
 
         private IIngestDataFactory IngestDataFactory { get; set; }
-        private ConsolidatedPodMetadata PodMetadata { get; set; }
+        private ConsolidatedAudioPodMetadata PodMetadata { get; set; }
         private string ProcessingDirectory { get; set; }
         private SideData[] Results { get; set; }
 

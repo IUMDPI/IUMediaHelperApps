@@ -44,9 +44,9 @@ namespace Packager.Test.Processors
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new ConsolidatedPodMetadata {Barcode = Barcode};
+            Metadata = new ConsolidatedAudioPodMetadata {Barcode = Barcode};
 
-            MetadataProvider.GetObjectMetadata(Barcode).Returns(Task.FromResult(Metadata));
+            MetadataProvider.GetObjectMetadata<ConsolidatedAudioPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
 
             Processor = new AudioProcessor(DependencyProvider);
 
@@ -216,7 +216,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
-                    MetadataProvider.Received().GetObjectMetadata(Barcode);
+                    MetadataProvider.Received().GetObjectMetadata<ConsolidatedAudioPodMetadata>(Barcode);
                 }
 
                 [Test]
@@ -317,7 +317,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallMetadataFactoryWithProductionMasterAsTarget()
                 {
-                    AudioMetadataFactory.Received().Generate(Arg.Any<List<ObjectFileModel>>(), Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), Arg.Any<ConsolidatedPodMetadata>());
+                    AudioMetadataFactory.Received().Generate(Arg.Any<List<ObjectFileModel>>(), Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), Arg.Any<ConsolidatedAudioPodMetadata>());
                 }
 
                 [Test]
@@ -355,7 +355,7 @@ namespace Packager.Test.Processors
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
                         MetadataGenerator.Received().Generate(
-                            Arg.Any<ConsolidatedPodMetadata>(),
+                            Arg.Any<ConsolidatedAudioPodMetadata>(),
                             Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
                 }
@@ -383,7 +383,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassExpectedNumberOfObjectsToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Any<ConsolidatedAudioPodMetadata>(),
                         Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount));
                 }
 
@@ -391,7 +391,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassSingleAccessModelToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Any<ConsolidatedAudioPodMetadata>(),
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
                 }
 
@@ -399,7 +399,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Any<ConsolidatedAudioPodMetadata>(),
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
 
@@ -407,7 +407,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassSingleProductionModelToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<ConsolidatedPodMetadata>(),
+                        Arg.Any<ConsolidatedAudioPodMetadata>(),
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null));
                 }
             }

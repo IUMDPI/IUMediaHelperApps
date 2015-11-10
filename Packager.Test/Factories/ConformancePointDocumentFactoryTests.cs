@@ -23,7 +23,7 @@ namespace Packager.Test.Factories
         private BextMetadata Result { get; set; }
         private ObjectFileModel Model { get; set; }
         private DigitalFileProvenance Provenance { get; set; }
-        private ConsolidatedPodMetadata Metadata { get; set; }
+        private ConsolidatedAudioPodMetadata Metadata { get; set; }
 
         private List<ObjectFileModel> Instances { get; set; } 
 
@@ -40,7 +40,7 @@ namespace Packager.Test.Factories
             Provenance = GetFileProvenance();
             Model = new ObjectFileModel(PreservationFileName);
             Instances = new List<ObjectFileModel> {Model};
-            Metadata = new ConsolidatedPodMetadata
+            Metadata = new ConsolidatedAudioPodMetadata
             {
                 DigitizingEntity = DigitizingEntity,
                 Unit = Unit,

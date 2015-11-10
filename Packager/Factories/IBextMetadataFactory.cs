@@ -8,7 +8,7 @@ namespace Packager.Factories
 {
     public interface IBextMetadataFactory
     {
-        BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedPodMetadata metadata);
+        BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedAudioPodMetadata metadata);
         
     }
 }

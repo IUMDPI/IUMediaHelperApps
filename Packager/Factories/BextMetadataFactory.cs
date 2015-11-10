@@ -20,13 +20,13 @@ namespace Packager.Factories
 
         private readonly List<string> _knownDigitalFormats = new List<string> {"cd-r", "dat"};
 
-        public BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedPodMetadata metadata)
+        public BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, ConsolidatedAudioPodMetadata metadata)
         {
             var provenance = GetProvenance(metadata, models, target);
             return Generate(target, provenance, metadata);
         }
 
-        private BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedPodMetadata metadata)
+        private BextMetadata Generate(ObjectFileModel model, DigitalFileProvenance provenance, ConsolidatedAudioPodMetadata metadata)
         {
             var description = GenerateBextDescription(metadata, model);
 
@@ -52,19 +52,19 @@ namespace Packager.Factories
             return date.HasValue == false ? defaultValue : date.Value.ToString(format);
         }
 
-        private static string GenerateBextDescription(ConsolidatedPodMetadata metadata, ObjectFileModel fileModel)
+        private static string GenerateBextDescription(ConsolidatedAudioPodMetadata metadata, ObjectFileModel fileModel)
         {
             return $"{metadata.Unit}. {metadata.CallNumber}. File use: {fileModel.FullFileUse}. {Path.GetFileNameWithoutExtension(fileModel.ToFileName())}";
         }
 
-        private string GetFormatText(ConsolidatedPodMetadata metadata)
+        private string GetFormatText(ConsolidatedAudioPodMetadata metadata)
         {
             return _knownDigitalFormats.Contains(metadata.Format.ToLowerInvariant())
                 ? "DIGITAL"
                 : "ANALOGUE";
         }
 
-        private static string GeneratePlayerTextField(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
+        private static string GeneratePlayerTextField(ConsolidatedAudioPodMetadata metadata, DigitalFileProvenance provenance)
         {
             if (!provenance.PlayerDevices.Any())
             {
@@ -103,7 +103,7 @@ namespace Packager.Factories
             return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
         }
 
-        private string GenerateCodingHistory(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
+        private string GenerateCodingHistory(ConsolidatedAudioPodMetadata metadata, DigitalFileProvenance provenance)
         {
             var builder = new StringBuilder();
 
@@ -124,7 +124,7 @@ namespace Packager.Factories
         // if provenance.speedUsed is present
         // otherwise use metadata.playback speed
         // finally, replace comma delimiters with semi-colons and remove spaces
-        private static string DetermineSpeedUsed(ConsolidatedPodMetadata metadata, DigitalFileProvenance provenance)
+        private static string DetermineSpeedUsed(ConsolidatedAudioPodMetadata metadata, DigitalFileProvenance provenance)
         {
             var result = string.IsNullOrWhiteSpace(provenance.SpeedUsed)
                 ? metadata.PlaybackSpeed
@@ -139,7 +139,7 @@ namespace Packager.Factories
         }
 
 
-        private static DigitalFileProvenance GetProvenance(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> instances, ObjectFileModel model)
+        private static DigitalFileProvenance GetProvenance(ConsolidatedAudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> instances, ObjectFileModel model)
         {
             var sequenceInstances = instances.Where(m => m.SequenceIndicator.Equals(model.SequenceIndicator));
             var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
@@ -157,7 +157,7 @@ namespace Packager.Factories
             return GetProvenance(podMetadata, model, defaultProvenance);
         }
 
-        private static DigitalFileProvenance GetProvenance(ConsolidatedPodMetadata podMetadata, AbstractFileModel model, DigitalFileProvenance defaultValue = null)
+        private static DigitalFileProvenance GetProvenance(ConsolidatedAudioPodMetadata podMetadata, AbstractFileModel model, DigitalFileProvenance defaultValue = null)
         {
             var result = podMetadata.FileProvenances.SingleOrDefault(dfp => model.IsSameAs(NormalizeFilename(dfp.Filename, model)));
             return result ?? defaultValue;

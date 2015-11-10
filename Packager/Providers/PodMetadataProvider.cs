@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Packager.Deserializers;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
@@ -36,7 +37,9 @@ namespace Packager.Providers
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
             };
 
+            
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
+            
 
             var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
 

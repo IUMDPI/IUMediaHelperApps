@@ -106,7 +106,7 @@ namespace Packager.Providers
             return Validators.Validate(podMetadata);
         }
 
-        private ValidationResults ValidateMetadataProvenances(List<DigitalFileProvenance> provenances, IEnumerable<ObjectFileModel> filesToProcess)
+        private ValidationResults ValidateMetadataProvenances(List<AbstractConsolidatedDigitalFile> provenances, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var results = new ValidationResults();
             if (provenances == null)

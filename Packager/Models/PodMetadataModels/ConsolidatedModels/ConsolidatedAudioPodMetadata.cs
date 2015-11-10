@@ -1,4 +1,6 @@
-﻿using Packager.Validators.Attributes;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
@@ -15,7 +17,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
         public string SoundField { get; set; }
 
         public string TapeThickness { get; set; }
-
+        
         public override void ImportFromFullMetadata(PodMetadata metadata)
         {
             base.ImportFromFullMetadata(metadata);
@@ -26,6 +28,14 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             TrackConfiguration = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TrackConfiguration);
             SoundField = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.SoundField);
             TapeThickness = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TapeThickness);
+            FileProvenances = new List<AbstractConsolidatedDigitalFile>();
+            
+        }
+
+        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<DigitalFileProvenance> originals)
+        {
+            return originals.Select(provenance => new ConsolidatedDigitalAudioFile(provenance))
+                .Cast<AbstractConsolidatedDigitalFile>().ToList();
         }
     }
 }

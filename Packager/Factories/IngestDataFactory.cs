@@ -30,7 +30,7 @@ namespace Packager.Factories
                     SerialNumber = digitalFileProvenance.ExtractionWorkstation.SerialNumber,
                     Manufacturer = digitalFileProvenance.ExtractionWorkstation.Manufacturer
                 },
-                SpeedUsed = digitalFileProvenance.SpeedUsed,
+                SpeedUsed = ((ConsolidatedDigitalAudioFile)digitalFileProvenance).SpeedUsed,
                 Date = digitalFileProvenance.DateDigitized.ToString(),
                 Players = digitalFileProvenance.PlayerDevices
                     .Select(d=>new IngestDevice {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})

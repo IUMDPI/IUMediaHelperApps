@@ -22,7 +22,7 @@ namespace Packager.Test.Factories
 
         private BextMetadata Result { get; set; }
         private ObjectFileModel Model { get; set; }
-        private DigitalFileProvenance Provenance { get; set; }
+        private ConsolidatedDigitalAudioFile Provenance { get; set; }
         private ConsolidatedAudioPodMetadata Metadata { get; set; }
 
         private List<ObjectFileModel> Instances { get; set; } 
@@ -49,7 +49,7 @@ namespace Packager.Test.Factories
                 Title = Title,
                 SoundField = "Mono",
                 PlaybackSpeed = "7.5 ips",
-                FileProvenances = new List<DigitalFileProvenance> { Provenance}
+                FileProvenances = new List<AbstractConsolidatedDigitalFile> { Provenance}
             };
 
             DoCustomSetup();
@@ -57,9 +57,9 @@ namespace Packager.Test.Factories
             Result = new BextMetadataFactory().Generate(Instances, Model, Metadata);
         }
 
-        private static DigitalFileProvenance GetFileProvenance()
+        private static ConsolidatedDigitalAudioFile GetFileProvenance()
         {
-            return new DigitalFileProvenance
+            var original = new DigitalFileProvenance
             {
                 Comment = "Comment",
                 CreatedBy = "Created by",
@@ -68,6 +68,8 @@ namespace Packager.Test.Factories
                 SignalChain = GetSignalChain(),
                 SpeedUsed = "7.5 ips"
             };
+
+            return new ConsolidatedDigitalAudioFile(original);
         }
 
         private static List<Device> GetSignalChain()

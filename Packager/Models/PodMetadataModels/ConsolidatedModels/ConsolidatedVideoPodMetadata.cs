@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
-    public class ConsolidatedVideoPodMetadata:AbstractConsolidatedPodMetadata
+    public class ConsolidatedVideoPodMetadata : AbstractConsolidatedPodMetadata
     {
+        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<DigitalFileProvenance> originals)
+        {
+            return originals.Select(provenance => new ConsolidatedDigitalVideoFile(provenance))
+                    .Cast<AbstractConsolidatedDigitalFile>().ToList();
+        }
     }
 }

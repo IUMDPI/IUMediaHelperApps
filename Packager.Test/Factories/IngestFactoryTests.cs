@@ -18,20 +18,23 @@ namespace Packager.Test.Factories
         private const string MissingFileName = "MDPI_111111111111_01_pres.wav";
         private ConsolidatedAudioPodMetadata PodMetadata { get; set; }
         private AbstractFileModel FileModel { get; set; }
-        private DigitalFileProvenance Provenance { get; set; }
+        private ConsolidatedDigitalAudioFile Provenance { get; set; }
         private IngestData Result { get; set; }
 
-        private DigitalFileProvenance GenerateFileProvenance(string fileName)
+        private ConsolidatedDigitalAudioFile GenerateFileProvenance(string fileName)
         {
-            return new DigitalFileProvenance
+            var original = new DigitalFileProvenance
             {
+                Comment = "Comment",
+                CreatedBy = "Created by",
+                DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
                 Filename = fileName,
-                Comment = "File provenance comment",
-                CreatedBy = "Test user",
-                DateDigitized = new DateTime(2015, 05, 01),
-                SpeedUsed = "7.5 ips",
-                SignalChain = GetSignalChain()
+                SignalChain = GetSignalChain(),
+                SpeedUsed = "7.5 ips"
             };
+
+
+            return new ConsolidatedDigitalAudioFile(original);
         }
         
         private static List<Device> GetSignalChain()
@@ -57,7 +60,7 @@ namespace Packager.Test.Factories
                 PodMetadata = new ConsolidatedAudioPodMetadata
                 {
                     Format = "CD-R",
-                    FileProvenances = new List<DigitalFileProvenance> {Provenance}
+                    FileProvenances = new List<AbstractConsolidatedDigitalFile> {Provenance}
                 };
             }
 
@@ -80,7 +83,7 @@ namespace Packager.Test.Factories
                 PodMetadata = new ConsolidatedAudioPodMetadata
                 {
                     Format = "CD-R",
-                    FileProvenances = new List<DigitalFileProvenance> {Provenance}
+                    FileProvenances = new List<AbstractConsolidatedDigitalFile> {Provenance}
                 };
 
                 var factory = new IngestDataFactory();

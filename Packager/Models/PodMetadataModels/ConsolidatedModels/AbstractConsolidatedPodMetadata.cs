@@ -34,9 +34,10 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
         [Required]
         public string DigitizingEntity { get; set; }
 
-        public List<DigitalFileProvenance> FileProvenances { get; set; }
         public string Damage { get; set; }
         public string PreservationProblems { get; set; }
+
+        public List<AbstractConsolidatedDigitalFile> FileProvenances { get; set; }
 
         public virtual void ImportFromFullMetadata(PodMetadata metadata)
         {
@@ -46,16 +47,15 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             Title = metadata.Data.Object.Details.Title;
             Unit = metadata.Data.Object.Assignment.Unit;
             Barcode = metadata.Data.Object.Details.MdpiBarcode;
-         
+
             CleaningDate = metadata.Data.Object.DigitalProvenance.CleaningDate;
             CleaningComment = metadata.Data.Object.DigitalProvenance.CleaningComment;
             BakingDate = metadata.Data.Object.DigitalProvenance.Baking;
             Repaired = ToYesNo(metadata.Data.Object.DigitalProvenance.Repaired);
             DigitizingEntity = metadata.Data.Object.DigitalProvenance.DigitizingEntity;
-            
-            FileProvenances = metadata.Data.Object.DigitalProvenance.DigitalFiles;
             Damage = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.Damage, "None");
             PreservationProblems = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PreservationProblems);
+            FileProvenances = ImportFileProvenances(metadata.Data.Object.DigitalProvenance.DigitalFiles);
         }
 
         protected static string GetBoolValuesAsList(object instance, string defaultValue = "")
@@ -65,9 +65,9 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
                 return defaultValue;
             }
 
-            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof(bool));
-            var results = (properties.Where(property => (bool)property.GetValue(instance))
-                .Select(GetNameOrDescription)).Distinct().ToList();
+            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof (bool));
+            var results = properties.Where(property => (bool) property.GetValue(instance))
+                .Select(GetNameOrDescription).Distinct().ToList();
 
             return results.Any()
                 ? string.Join(", ", results)
@@ -88,5 +88,8 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             }
             return value.Value ? "Yes" : "No";
         }
+
+        protected abstract List<AbstractConsolidatedDigitalFile> ImportFileProvenances(
+            IEnumerable<DigitalFileProvenance> originals);
     }
 }

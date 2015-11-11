@@ -73,6 +73,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             CallNumber = document.GetValue("/pod/data/object/details/call_number", string.Empty);
             Title = document.GetValue("/pod/data/object/details/title", string.Empty);
             Unit = document.GetValue("/pod/data/object/assignment/unit", string.Empty);
+            Barcode = document.GetValue("/pod/data/object/details/mdpi_barcode", string.Empty);
 
             CleaningDate = document.GetValue("/pod/data/object/digital_provenance/cleaning_date", (DateTime?) null);
             CleaningComment = document.GetValue("/pod/data/object/digital_provenance/cleaning_comment", string.Empty);
@@ -80,6 +81,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             Repaired = ToYesNo(document.GetValue("/pod/data/object/digital_provenance/repaired", false));
             Damage = document.BoolValuesToString("/pod/data/object/technical_metadata/damage", "None");
             PreservationProblems = document.BoolValuesToString("/pod/data/object/technical_metadata/preservation_problems", string.Empty);
+            DigitizingEntity = document.GetValue("/pod/data/object/digital_provenance/digitizing_entity", string.Empty);
             FileProvenances = ImportFileProvenances(document);
         }
 

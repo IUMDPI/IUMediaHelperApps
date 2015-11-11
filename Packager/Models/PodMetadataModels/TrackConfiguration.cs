@@ -7,10 +7,10 @@ namespace Packager.Models.PodMetadataModels
         [Description("Full track")]
         public bool FullTrack { get; set; }
 
-        [Description("Full track")]
+        [Description("Half track")]
         public bool HalfTrack { get; set; }
 
-        [Description("Full track")]
+        [Description("Quarter track")]
         public bool QuarterTrack { get; set; }
 
         [Description("Unknown")]

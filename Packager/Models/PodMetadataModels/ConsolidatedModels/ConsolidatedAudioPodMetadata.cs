@@ -9,6 +9,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
     public class ConsolidatedAudioPodMetadata : AbstractConsolidatedPodMetadata
     {
         public string Brand { get; set; }
+
         public string DirectionsRecorded { get; set; }
 
         public string PlaybackSpeed { get; set; }
@@ -32,6 +33,18 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             TapeThickness = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TapeThickness);
             FileProvenances = new List<AbstractConsolidatedDigitalFile>();
             
+        }
+
+        public override void ImportFromXml(XDocument document)
+        {
+            base.ImportFromXml(document);
+            Brand = document.GetValue("/pod/data/object/technical_metadata/tape_stock_brand", string.Empty);
+            DirectionsRecorded = document.GetValue("/pod/data/object/technical_metadata/directions_recorded", string.Empty);
+            PlaybackSpeed = document.BoolValuesToString("/pod/data/object/technical_metadata/playback_speed", string.Empty);
+            TrackConfiguration = document.BoolValuesToString("/pod/data/object/technical_metadata/track_configuration", string.Empty);
+            SoundField = document.BoolValuesToString("/pod/data/object/technical_metadata/sound_field", string.Empty);
+            TapeThickness = document.BoolValuesToString("/pod/data/object/technical_metadata/tape_thickness", string.Empty);
+
         }
 
         protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<DigitalFileProvenance> originals)

@@ -86,9 +86,11 @@
     <Compile Include="Exceptions\NormalizeOriginalException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
+    <Compile Include="Factories\IPodMetadataFactory.cs" />
     <Compile Include="Models\OutputModels\IngestDevice.cs" />
     <Compile Include="Models\PodMetadataModels\ConsolidatedModels\AbstractConsolidatedDigitalFile.cs" />
     <Compile Include="Models\PodMetadataModels\ConsolidatedModels\AbstractConsolidatedPodMetadata.cs" />
+    <Compile Include="Models\PodMetadataModels\ConsolidatedModels\Device.cs" />
     <Compile Include="Models\PodMetadataModels\ConsolidatedModels\ConsolidatedDigitalAudioFile.cs" />
     <Compile Include="Models\PodMetadataModels\ConsolidatedModels\ConsolidatedDigitalVideoFile.cs" />
     <Compile Include="Models\PodMetadataModels\ConsolidatedModels\ConsolidatedVideoPodMetadata.cs" />

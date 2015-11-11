@@ -8,6 +8,7 @@ using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.PodMetadataModels.ConsolidatedModels;
+using Device = Packager.Models.PodMetadataModels.ConsolidatedModels.Device;
 
 namespace Packager.Test.Factories
 {
@@ -65,7 +66,7 @@ namespace Packager.Test.Factories
                 CreatedBy = "Created by",
                 DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
                 Filename = PreservationFileName,
-                SignalChain = GetSignalChain(),
+                //SignalChain = GetSignalChain(),
                 SpeedUsed = "7.5 ips"
             };
 

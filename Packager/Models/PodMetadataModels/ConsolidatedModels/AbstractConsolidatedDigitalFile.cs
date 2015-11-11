@@ -17,7 +17,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
         protected AbstractConsolidatedDigitalFile(DigitalFileProvenance original)
         {
             DateDigitized = original.DateDigitized;
-            SignalChain = original.SignalChain;
+            //SignalChain = original.SignalChain;
             Filename = original.Filename;
             Comment = original.Comment;
             CreatedBy = original.CreatedBy;
@@ -39,6 +39,25 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             Filename = element.Element("filename").GetValue(string.Empty);
             Comment = element.Element("comment").GetValue(string.Empty);
             CreatedBy = element.Element("created_by").GetValue(string.Empty);
+            SignalChain = ImportDevicesFromXml(element.Element("signal_chain"));
+        }
+
+        private List<Device> ImportDevicesFromXml(XElement element)
+        {
+            if (element == null)
+            {
+                return new List<Device>();
+            }
+
+            var result = new List<Device>();
+            foreach (var deviceElement in element.Elements("device"))
+            {
+                var device = new Device();
+                device.ImportFromXml(deviceElement);
+                result.Add(device);
+            }
+
+            return result;
         }
 
         [Required]

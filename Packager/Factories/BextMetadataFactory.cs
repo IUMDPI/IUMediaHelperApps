@@ -9,6 +9,7 @@ using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.PodMetadataModels.ConsolidatedModels;
+using Device = Packager.Models.PodMetadataModels.ConsolidatedModels.Device;
 
 namespace Packager.Factories
 {

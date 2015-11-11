@@ -53,7 +53,7 @@ namespace Packager.Test.Factories
                 CallNumber = "Call number",
                 DigitizingEntity = "Test entity",
                 SoundField = "Mono",
-                PlaybackSpeed = "7.5 ips",
+                //PlaybackSpeed = "7.5 ips",
                 Identifier = "1",
                 TapeThickness = "1 mm",
                 Repaired = "Yes",

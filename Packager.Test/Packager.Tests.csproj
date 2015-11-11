@@ -68,6 +68,11 @@
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
+    <Compile Include="Models\MetadataModels\SampleRateTests.cs" />
+    <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />
+    <Compile Include="Models\MetadataModels\TapeThicknessTests.cs" />
+    <Compile Include="Models\MetadataModels\TrackConfigurationTests.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />

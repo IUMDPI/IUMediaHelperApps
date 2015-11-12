@@ -8,7 +8,7 @@ using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
-    public abstract class AbstractConsolidatedDigitalFile:IImportableFromPod
+    public abstract class AbstractConsolidatedDigitalFile:IImportable
     {
         private const string AdDeviceType = "AD";
         private const string PlayerDeviceType = "Player";

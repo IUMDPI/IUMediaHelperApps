@@ -82,6 +82,7 @@
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
     <Compile Include="Deserializers\FromXPathAttribute.cs" />
+    <Compile Include="Deserializers\IImportable.cs" />
     <Compile Include="Deserializers\PodResultDeserializer.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
     <Compile Include="Exceptions\NormalizeOriginalException.cs" />

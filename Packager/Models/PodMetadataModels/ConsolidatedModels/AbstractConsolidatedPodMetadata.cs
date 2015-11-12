@@ -11,7 +11,7 @@ using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
-    public abstract class AbstractConsolidatedPodMetadata : IImportableFromPod
+    public abstract class AbstractConsolidatedPodMetadata : IImportable
     {
         private static readonly Dictionary<string, string> KnownPreservationProblems = new Dictionary<string, string>
         {
@@ -71,25 +71,6 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 
         public List<AbstractConsolidatedDigitalFile> FileProvenances { get; set; }
 
-        public virtual void ImportFromFullMetadata(PodMetadata metadata)
-        {
-            Identifier = metadata.Data.Object.Details.Id;
-            Format = metadata.Data.Object.Details.Format;
-            CallNumber = metadata.Data.Object.Details.CallNumber;
-            Title = metadata.Data.Object.Details.Title;
-            Unit = metadata.Data.Object.Assignment.Unit;
-            Barcode = metadata.Data.Object.Details.MdpiBarcode;
-
-            CleaningDate = metadata.Data.Object.DigitalProvenance.CleaningDate;
-            CleaningComment = metadata.Data.Object.DigitalProvenance.CleaningComment;
-            BakingDate = metadata.Data.Object.DigitalProvenance.Baking;
-            Repaired = ToYesNo(metadata.Data.Object.DigitalProvenance.Repaired);
-            DigitizingEntity = metadata.Data.Object.DigitalProvenance.DigitizingEntity;
-            Damage = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.Damage, "None");
-            PreservationProblems = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PreservationProblems);
-            FileProvenances = ImportFileProvenances(metadata.Data.Object.DigitalProvenance.DigitalFiles);
-        }
-
         public virtual void ImportFromXml(XElement element)
         {
             Success = element.ToBooleanValue("success");
@@ -110,41 +91,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             DigitizingEntity = element.ToStringValue("data/object/digital_provenance/digitizing_entity");
             FileProvenances = ImportFileProvenances(element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"));
         }
-
-        protected static string GetBoolValuesAsList(object instance, string defaultValue = "")
-        {
-            if (instance == null)
-            {
-                return defaultValue;
-            }
-
-            var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof (bool));
-            var results = properties.Where(property => (bool) property.GetValue(instance))
-                .Select(GetNameOrDescription).Distinct().ToList();
-
-            return results.Any()
-                ? string.Join(", ", results)
-                : defaultValue;
-        }
-
-        private static string GetNameOrDescription(MemberInfo propertyInfo)
-        {
-            var description = propertyInfo.GetCustomAttribute<DescriptionAttribute>();
-            return description == null ? propertyInfo.Name : description.Description;
-        }
-
-        private static string ToYesNo(bool? value)
-        {
-            if (value.HasValue == false)
-            {
-                return "No";
-            }
-            return value.Value ? "Yes" : "No";
-        }
-
-        protected abstract List<AbstractConsolidatedDigitalFile> ImportFileProvenances(
-            IEnumerable<DigitalFileProvenance> originals);
-
+        
         protected abstract List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements);
     }
 }

@@ -6,11 +6,6 @@ using RestSharp.Deserializers;
 
 namespace Packager.Deserializers
 {
-    public interface IImportableFromPod
-    {
-        void ImportFromXml(XElement element);
-    }
-
     public class PodResultDeserializer : IDeserializer
     {
         public T Deserialize<T>(IRestResponse response)

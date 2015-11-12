@@ -5,7 +5,7 @@ using Packager.Extensions;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
-    public class Device : IImportableFromPod
+    public class Device : IImportable
     {
         public string DeviceType { get; set; }
         public string SerialNumber { get; set; }

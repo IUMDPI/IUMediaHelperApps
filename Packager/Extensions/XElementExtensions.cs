@@ -78,7 +78,7 @@ namespace Packager.Extensions
 
         public static T ToImportable<T>(this XElement element)
         {
-            var result = (IImportableFromPod) Activator.CreateInstance<T>();
+            var result = (IImportable) Activator.CreateInstance<T>();
             result.ImportFromXml(element);
             return (T)result;
         }

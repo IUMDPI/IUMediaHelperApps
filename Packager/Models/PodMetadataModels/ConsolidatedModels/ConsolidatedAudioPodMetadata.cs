@@ -57,20 +57,6 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 
         public string TapeThickness { get; set; }
         
-        public override void ImportFromFullMetadata(PodMetadata metadata)
-        {
-            base.ImportFromFullMetadata(metadata);
-
-            Brand = metadata.Data.Object.TechnicalMetadata.TapeStockBrand;
-            DirectionsRecorded = metadata.Data.Object.TechnicalMetadata.DirectionsRecorded;
-            PlaybackSpeed = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PlaybackSpeed);
-            TrackConfiguration = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TrackConfiguration);
-            SoundField = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.SoundField);
-            TapeThickness = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.TapeThickness);
-            FileProvenances = new List<AbstractConsolidatedDigitalFile>();
-            
-        }
-
         public override void ImportFromXml(XElement element)
         {
             base.ImportFromXml(element);
@@ -82,14 +68,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             TapeThickness = element.ToResolvedDelimitedString("data/object/technical_metadata/tape_thickness", KnownTapeThicknesses);
 
         }
-
-        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<DigitalFileProvenance> originals)
-        {
-            throw new NotImplementedException();
-            /*return originals.Select(provenance => new ConsolidatedDigitalAudioFile())
-                .Cast<AbstractConsolidatedDigitalFile>().ToList();*/
-        }
-
+        
         protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements)
         {
             return elements.Select(element => element.ToImportable<ConsolidatedDigitalAudioFile>())

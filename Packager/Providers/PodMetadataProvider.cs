@@ -45,10 +45,7 @@ namespace Packager.Providers
             var response = await client.ExecuteGetTaskAsync<T>(request);
 
             VerifyResponse(response, "retrieve metadata from Pod");
-            //VerifyResponseMetadata(response.Data);
-            //VerifyResponseObjectsPresent(response.Data);
-
-            return response.Data; //ConsolidateMetadata<T>(response.Data);
+            return Normalize(response.Data);
         }
 
         public async Task<string> ResolveUnit(string unit)
@@ -136,15 +133,8 @@ namespace Packager.Providers
             return results;
         }
 
-        private static T ConsolidateMetadata<T>(PodMetadata metadata) where T : AbstractConsolidatedPodMetadata, new()
-        {
-            var result = new T();
-            result.ImportFromFullMetadata(metadata);
-            return NormalizeResultFields(result);
-        }
-
         // go through the result's string fields and remove leading and trailing whitespace
-        private static T NormalizeResultFields<T>(T metadata) where T : AbstractConsolidatedPodMetadata
+        private static T Normalize<T>(T metadata) where T : AbstractConsolidatedPodMetadata
         {
             metadata = NormalizeFields(metadata);
 
@@ -170,8 +160,7 @@ namespace Packager.Providers
 
             return value;
         }
-
-
+        
         private static void VerifyResponse(IRestResponse response, string operation)
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
@@ -197,20 +186,6 @@ namespace Packager.Providers
                 throw new PodMetadataException(
                     "Could not retrieve metadata: {0}",
                     metadata.Message.ToDefaultIfEmpty("[no error message present]"));
-            }
-        }
-
-        private static void VerifyResponseObjectsPresent(PodMetadata metadata)
-        {
-            if (metadata.Data == null ||
-                metadata.Data.Object == null ||
-                metadata.Data.Object.Assignment == null ||
-                metadata.Data.Object.Basics == null ||
-                metadata.Data.Object.Details == null ||
-                metadata.Data.Object.DigitalProvenance == null ||
-                metadata.Data.Object.TechnicalMetadata == null)
-            {
-                throw new PodMetadataException("Could not retrieve metadata from Pod: required sub-section not present");
             }
         }
     }

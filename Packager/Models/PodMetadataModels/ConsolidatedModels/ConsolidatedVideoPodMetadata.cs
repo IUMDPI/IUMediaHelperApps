@@ -6,12 +6,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
     public class ConsolidatedVideoPodMetadata : AbstractConsolidatedPodMetadata
     {
-        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<DigitalFileProvenance> originals)
-        {
-            throw new NotImplementedException();
-        }
-
-
+        
         protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements)
         {
             var result = new List<AbstractConsolidatedDigitalFile>();

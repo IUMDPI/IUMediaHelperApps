@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
-using Packager.Extensions;
 
 namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
@@ -9,14 +8,21 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
     {
         protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<DigitalFileProvenance> originals)
         {
-            return originals.Select(provenance => new ConsolidatedDigitalVideoFile(provenance))
-                    .Cast<AbstractConsolidatedDigitalFile>().ToList();
+            throw new NotImplementedException();
         }
 
-        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(XDocument document)
+
+        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements)
         {
-            return document.ImportFromChildNodes<ConsolidatedDigitalVideoFile>("/pod/data/object/digital_provenance/digital_files")
-                .Select(e => e as AbstractConsolidatedDigitalFile).ToList();
+            var result = new List<AbstractConsolidatedDigitalFile>();
+            foreach (var element in elements)
+            {
+                var file = new ConsolidatedDigitalVideoFile();
+                file.ImportFromXml(element);
+                result.Add(file);
+            }
+
+            return result;
         }
     }
 }

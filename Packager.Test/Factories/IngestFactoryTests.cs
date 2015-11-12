@@ -35,7 +35,7 @@ namespace Packager.Test.Factories
             };
 
 
-            return new ConsolidatedDigitalAudioFile(original);
+            return new ConsolidatedDigitalAudioFile();
         }
         
         private static List<Device> GetSignalChain()

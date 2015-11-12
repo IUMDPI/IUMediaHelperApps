@@ -4,97 +4,83 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Packager.Deserializers;
+using Packager.Exceptions;
 
 namespace Packager.Extensions
 {
     public static class XElementExtensions
     {
-        public static string GetValue(this XDocument document, string path, string defaultValue)
+        public static string ToStringValue(this XElement parent, string path)
         {
-            return document.XPathSelectElement(path).GetValue(defaultValue);
-            
-        }
-
-        public static string GetValue(this XElement element, string defaultValue)
-        {
+            var element = parent.XPathSelectElement(path);
             if (element == null)
             {
-                return defaultValue;
+                return string.Empty;
             }
 
             return string.IsNullOrWhiteSpace(element.Value)
-                ? defaultValue
+                ? string.Empty
                 : element.Value;
         }
 
-        public static bool GetValue(this XDocument document, string path, bool defaultValue)
+        public static bool ToBooleanValue(this XElement parent, string path)
         {
-            return document.XPathSelectElement(path).GetValue(defaultValue);
-            
-        }
-
-        public static bool GetValue(this XElement element, bool defaultValue)
-        {
-            if (element == null)
+            var value = parent.ToStringValue(path);
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return defaultValue;
+                return false;
             }
 
             bool result;
-            return bool.TryParse(element.Value, out result)
-                ? result
-                : defaultValue;
+            return bool.TryParse(value, out result) && result;
         }
 
-        public static DateTime? GetValue(this XDocument document, string path, DateTime? defaultValue)
+        public static DateTime? ToDateTimeValue(this XElement parent, string path)
         {
-            return document.XPathSelectElement(path).GetValue(defaultValue);
-        }
-
-        public static DateTime? GetValue(this XElement element, DateTime? defaultValue)
-        {
-            if (element == null)
+            var value = parent.ToStringValue(path);
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return defaultValue;
+                return null;
             }
 
             DateTime result;
-            return DateTime.TryParse(element.Value, out result)
-                ? result
-                : defaultValue;
-        }
-
-        public static string BoolValuesToString(this XDocument document, string path, string defaultValue)
-        {
-            var element = document.XPathSelectElement(path);
-            if (element == null)
+            if (DateTime.TryParse(value, out result) == false)
             {
-                return defaultValue;
+                return null;
             }
 
-            var result = element.Elements()
-                .Where(d => d.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
-                .Select(d => d.Name).ToList();
-
-            return result.Any() ? string.Join(",", result) : defaultValue;
-        }
-
-        public static List<T> ImportFromChildNodes<T>(this XDocument document, string path) where T : IImportableFromPod, new()
-        {
-            var element = document.XPathSelectElement(path);
-            if (element == null)
-            {
-                return new List<T>();
-            }
-
-            return element.Elements().Select(CreateAndImport<T>).ToList();
-        }
-
-        private static T CreateAndImport<T>(XElement parent) where T : IImportableFromPod, new()
-        {
-            var result = new T();
-            result.ImportFromXml(parent);
             return result;
+        }
+
+        public static string ToResolvedDelimitedString(this XElement parent, string path, Dictionary<string, string> lookupDictionary)
+        {
+            var result = new List<string>();
+            var element = parent.XPathSelectElement(path);
+            if (element == null || !element.HasElements)
+            {
+                return string.Empty;
+            }
+
+            foreach (var key in element.Elements()
+                .Where(e => e.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                .Select(e => e.Name.LocalName))
+            {
+                if (!lookupDictionary.ContainsKey(key))
+                {
+                    throw new PodMetadataException("Lookup value missing for key {0}", key);
+                }                
+
+                result.Add(lookupDictionary[key]);
+            };
+
+            return string.Join(",", result);
+        }
+
+        public static T ToImportable<T>(this XElement element)
+        {
+            var result = (IImportableFromPod) Activator.CreateInstance<T>();
+            result.ImportFromXml(element);
+            return (T)result;
         }
     }
 }

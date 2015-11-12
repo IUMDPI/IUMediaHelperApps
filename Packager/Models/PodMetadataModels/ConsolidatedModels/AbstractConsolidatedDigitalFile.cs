@@ -28,17 +28,12 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             
         }
 
-        public virtual void ImportFromXml(XDocument document)
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual void ImportFromXml(XElement element)
         {
-            DateDigitized = element.Element("date_digitized").GetValue((DateTime?) null);
-            Filename = element.Element("filename").GetValue(string.Empty);
-            Comment = element.Element("comment").GetValue(string.Empty);
-            CreatedBy = element.Element("created_by").GetValue(string.Empty);
+            DateDigitized = element.ToDateTimeValue("date_digitized");
+            Filename = element.ToStringValue("filename");
+            Comment = element.ToStringValue("comment");
+            CreatedBy = element.ToStringValue("created_by");
             SignalChain = ImportDevicesFromXml(element.Element("signal_chain"));
         }
 

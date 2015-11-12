@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
+using Packager.Extensions;
 using RestSharp;
 using RestSharp.Deserializers;
 
@@ -12,11 +8,10 @@ namespace Packager.Deserializers
 {
     public interface IImportableFromPod
     {
-        void ImportFromXml(XDocument document);
         void ImportFromXml(XElement element);
     }
 
-    public class PodResultDeserializer:IDeserializer
+    public class PodResultDeserializer : IDeserializer
     {
         public T Deserialize<T>(IRestResponse response)
         {
@@ -27,16 +22,7 @@ namespace Packager.Deserializers
 
             var document = XDocument.Parse(response.Content);
 
-            var result = Activator.CreateInstance<T>();
-            var typedResult = result as AbstractConsolidatedPodMetadata;
-            if (typedResult == null)
-            {
-                throw new InvalidCastException($"cannot cast {typeof(T).Name} to AbstractConsolidatedPodMetadata");
-            }
-
-            typedResult.ImportFromXml(document);
-
-            return result;
+            return document.Root.ToImportable<T>();
         }
 
         public string RootElement { get; set; }

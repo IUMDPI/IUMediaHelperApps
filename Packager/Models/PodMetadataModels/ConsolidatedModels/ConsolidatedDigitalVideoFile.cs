@@ -2,12 +2,6 @@
 {
     public class ConsolidatedDigitalVideoFile : AbstractConsolidatedDigitalFile
     {
-        public ConsolidatedDigitalVideoFile(DigitalFileProvenance original) : base(original)
-        {
-        }
-
-        public ConsolidatedDigitalVideoFile()
-        {
-        }
+        
     }
 }

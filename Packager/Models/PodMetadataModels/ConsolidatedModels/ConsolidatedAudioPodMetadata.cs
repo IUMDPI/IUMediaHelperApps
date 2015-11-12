@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Packager.Extensions;
@@ -8,6 +9,41 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
 {
     public class ConsolidatedAudioPodMetadata : AbstractConsolidatedPodMetadata
     {
+
+        private static readonly Dictionary<string, string> KnownPlaybackSpeeds = new Dictionary<string, string>
+        {
+            {"zero_point9375_ips",".9375 ips" },
+            {"one_point875_ips","1.875 ips" },
+            {"three_point75_ips","3.75 ips" },
+            {"seven_point5_ips","7.5 ips" },
+            {"fifteen_ips", "15 ips" },
+            {"thirty_ips", "30 ips" },
+            {"unknown_playback_speed", "Unknown" }
+        }; 
+
+        private static readonly Dictionary<string, string> KnownTrackConfigurations = new Dictionary<string, string>
+        {
+            {"full_track", "Full track" },
+            {"half_track", "Half track" },
+            {"quarter_track", "Quarter track" },
+            {"unknown_track", "Unknown" }
+        }; 
+
+        private static  readonly Dictionary<string, string> KnownSoundFields = new Dictionary<string, string>
+        {
+            {"mono", "Mono" },
+            {"stereo", "Stereo" },
+            {"unknown_sound_field", "unknown"  }
+
+        }; 
+
+        private static readonly Dictionary<string, string> KnownTapeThicknesses = new Dictionary<string, string>
+        {
+            {"zero_point5_mils", ".5" },
+            {"one_mils", "1.0" },
+            {"one_point5_mils", "1.5" },
+        }; 
+
         public string Brand { get; set; }
 
         public string DirectionsRecorded { get; set; }
@@ -35,28 +71,29 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             
         }
 
-        public override void ImportFromXml(XDocument document)
+        public override void ImportFromXml(XElement element)
         {
-            base.ImportFromXml(document);
-            Brand = document.GetValue("/pod/data/object/technical_metadata/tape_stock_brand", string.Empty);
-            DirectionsRecorded = document.GetValue("/pod/data/object/technical_metadata/directions_recorded", string.Empty);
-            PlaybackSpeed = document.BoolValuesToString("/pod/data/object/technical_metadata/playback_speed", string.Empty);
-            TrackConfiguration = document.BoolValuesToString("/pod/data/object/technical_metadata/track_configuration", string.Empty);
-            SoundField = document.BoolValuesToString("/pod/data/object/technical_metadata/sound_field", string.Empty);
-            TapeThickness = document.BoolValuesToString("/pod/data/object/technical_metadata/tape_thickness", string.Empty);
+            base.ImportFromXml(element);
+            Brand = element.ToStringValue("data/object/technical_metadata/tape_stock_brand");
+            DirectionsRecorded = element.ToStringValue("data/object/technical_metadata/directions_recorded");
+            PlaybackSpeed = element.ToResolvedDelimitedString("data/object/technical_metadata/playback_speed", KnownPlaybackSpeeds);
+            TrackConfiguration = element.ToResolvedDelimitedString("data/object/technical_metadata/track_configuration", KnownTrackConfigurations);
+            SoundField = element.ToResolvedDelimitedString("data/object/technical_metadata/sound_field", KnownSoundFields);
+            TapeThickness = element.ToResolvedDelimitedString("data/object/technical_metadata/tape_thickness", KnownTapeThicknesses);
 
         }
 
         protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<DigitalFileProvenance> originals)
         {
-            return originals.Select(provenance => new ConsolidatedDigitalAudioFile(provenance))
-                .Cast<AbstractConsolidatedDigitalFile>().ToList();
+            throw new NotImplementedException();
+            /*return originals.Select(provenance => new ConsolidatedDigitalAudioFile())
+                .Cast<AbstractConsolidatedDigitalFile>().ToList();*/
         }
 
-        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(XDocument document)
+        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements)
         {
-            return document.ImportFromChildNodes<ConsolidatedDigitalAudioFile>("/pod/data/object/digital_provenance/digital_files")
-                .Select(e=>e as AbstractConsolidatedDigitalFile).ToList();
+            return elements.Select(element => element.ToImportable<ConsolidatedDigitalAudioFile>())
+                .Cast<AbstractConsolidatedDigitalFile>().ToList();
         }
     }
 }

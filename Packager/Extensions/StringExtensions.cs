@@ -102,5 +102,10 @@ namespace Packager.Extensions
                 ? value
                 : value.Trim();
         }
+
+        public static string ToYesNo(this bool value)
+        {
+            return value ? "Yes" : "No";
+        }
     }
 }

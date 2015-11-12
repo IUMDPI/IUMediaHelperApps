@@ -70,7 +70,7 @@ namespace Packager.Test.Factories
                 SpeedUsed = "7.5 ips"
             };
 
-            return new ConsolidatedDigitalAudioFile(original);
+            return new ConsolidatedDigitalAudioFile();
         }
 
         private static List<Device> GetSignalChain()

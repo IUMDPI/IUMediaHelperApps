@@ -9,7 +9,6 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Providers;
 using Packager.Utilities;
 
@@ -37,7 +36,7 @@ namespace Packager.Processors
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
             // fetch, log, and validate metadata
-            var metadata = await GetMetadata<ConsolidatedAudioPodMetadata>(filesToProcess);
+            var metadata = await GetMetadata<AudioPodMetadata>(filesToProcess);
 
             // normalize originals
             await NormalizeOriginals(filesToProcess, metadata);
@@ -78,7 +77,7 @@ namespace Packager.Processors
             return outputList;
         }
 
-        private async Task NormalizeOriginals(List<ObjectFileModel> originals, ConsolidatedAudioPodMetadata podMetadata)
+        private async Task NormalizeOriginals(List<ObjectFileModel> originals, AudioPodMetadata podMetadata)
         {
             foreach (var original in originals)
             {
@@ -87,7 +86,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, ConsolidatedAudioPodMetadata podMetadata)
+        private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, AudioPodMetadata podMetadata)
         {
             var results = new List<ObjectFileModel>();
             foreach (var master in models
@@ -130,7 +129,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFileModel> GenerateXml(ConsolidatedAudioPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        private async Task<XmlFileModel> GenerateXml(AudioPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
             var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
             var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());

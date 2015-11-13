@@ -6,7 +6,6 @@ using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 
 namespace Packager.Factories
 {
@@ -19,7 +18,7 @@ namespace Packager.Factories
 
         private IIngestDataFactory IngestDataFactory { get; }
 
-        public SideData[] Generate(ConsolidatedAudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        public SideData[] Generate(AudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())

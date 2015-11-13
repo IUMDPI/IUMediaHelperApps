@@ -5,7 +5,6 @@ using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 
 namespace Packager.Factories
 {
@@ -18,7 +17,7 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public CarrierData Generate(ConsolidatedAudioPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
+        public CarrierData Generate(AudioPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
         {
             var result = new CarrierData
             {
@@ -50,7 +49,7 @@ namespace Packager.Factories
             return result;
         }
 
-        private PartsData GeneratePartsData(ConsolidatedAudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        private PartsData GeneratePartsData(AudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             return new PartsData
             {

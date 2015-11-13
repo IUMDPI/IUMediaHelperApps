@@ -7,7 +7,6 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 
 namespace Packager.Test.Factories
 {
@@ -31,7 +30,7 @@ namespace Packager.Test.Factories
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
             IngestDataFactory.Generate(null, null).ReturnsForAnyArgs(new IngestData());
 
-            PodMetadata = new ConsolidatedAudioPodMetadata();
+            PodMetadata = new AudioPodMetadata();
 
             DoCustomSetup();
 
@@ -60,7 +59,7 @@ namespace Packager.Test.Factories
         private List<ObjectFileModel> FilesToProcess { get; set; }
 
         private IIngestDataFactory IngestDataFactory { get; set; }
-        private ConsolidatedAudioPodMetadata PodMetadata { get; set; }
+        private AudioPodMetadata PodMetadata { get; set; }
         private string ProcessingDirectory { get; set; }
         private SideData[] Results { get; set; }
 

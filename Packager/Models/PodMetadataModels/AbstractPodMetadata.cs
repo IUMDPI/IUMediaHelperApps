@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using Packager.Deserializers;
 using Packager.Extensions;
 using Packager.Validators.Attributes;
 
-namespace Packager.Models.PodMetadataModels.ConsolidatedModels
+namespace Packager.Models.PodMetadataModels
 {
-    public abstract class AbstractConsolidatedPodMetadata : IImportable
+    public abstract class AbstractPodMetadata : BasePodMetadata
     {
         private static readonly Dictionary<string, string> KnownPreservationProblems = new Dictionary<string, string>
         {
@@ -35,12 +31,7 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             {"warped", "Warped"},
             {"worn", "Worn"}
         };
-
-
-        public bool Success { get; set; }
-
-        public string Message { get; set; }
-
+        
         [Required]
         public string Identifier { get; set; }
 
@@ -69,12 +60,12 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
         public string Damage { get; set; }
         public string PreservationProblems { get; set; }
 
-        public List<AbstractConsolidatedDigitalFile> FileProvenances { get; set; }
+        public List<AbstractDigitalFile> FileProvenances { get; set; }
 
-        public virtual void ImportFromXml(XElement element)
+        public override void ImportFromXml(XElement element)
         {
-            Success = element.ToBooleanValue("success");
-            Message = element.ToStringValue("message");
+            base.ImportFromXml(element);
+
             Identifier = element.ToStringValue("data/object/details/id");
             Format = element.ToStringValue("data/object/details/format");
             CallNumber = element.ToStringValue("data/object/details/call_number");
@@ -92,6 +83,6 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             FileProvenances = ImportFileProvenances(element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"));
         }
         
-        protected abstract List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements);
+        protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements);
     }
 }

@@ -9,7 +9,6 @@ using Packager.Models;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
@@ -43,7 +42,7 @@ namespace Packager.Test.Processors
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
         protected string ExpectedObjectFolderName { get; set; }
-        protected ConsolidatedAudioPodMetadata Metadata { get; set; }
+        protected AudioPodMetadata Metadata { get; set; }
         protected abstract void DoCustomSetup();
 
         protected IBextMetadataFactory AudioMetadataFactory { get; set; }

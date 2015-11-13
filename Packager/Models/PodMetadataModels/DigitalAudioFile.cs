@@ -2,9 +2,9 @@
 using Packager.Extensions;
 using Packager.Validators.Attributes;
 
-namespace Packager.Models.PodMetadataModels.ConsolidatedModels
+namespace Packager.Models.PodMetadataModels
 {
-    public class ConsolidatedDigitalAudioFile : AbstractConsolidatedDigitalFile
+    public class DigitalAudioFile : AbstractDigitalFile
     {
         [Required]
         public string SpeedUsed { get; set; }

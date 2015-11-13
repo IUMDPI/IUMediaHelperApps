@@ -8,7 +8,6 @@ using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Models.ResultModels;
 using Packager.Observers;
 using Packager.Utilities;
@@ -59,7 +58,7 @@ namespace Packager.Test.Utilities
         private ObjectFileModel PresFileModel { get; set; }
         private ObjectFileModel PresIntFileModel { get; set; }
         private List<ObjectFileModel> Instances { get; set; }
-        private ConsolidatedAudioPodMetadata Metadata { get; set; }
+        private AudioPodMetadata Metadata { get; set; }
 
         [Test]
         public void ItShouldCallUtilityCorrectly()

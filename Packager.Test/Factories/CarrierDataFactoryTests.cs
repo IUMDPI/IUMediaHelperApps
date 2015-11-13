@@ -8,7 +8,6 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 
 namespace Packager.Test.Factories
 {
@@ -26,7 +25,7 @@ namespace Packager.Test.Factories
        
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
-        private ConsolidatedAudioPodMetadata PodMetadata { get; set; }
+        private AudioPodMetadata PodMetadata { get; set; }
         private ISideDataFactory SideDataFactory { get; set; }
         private CarrierData Result { get; set; }
 
@@ -41,7 +40,7 @@ namespace Packager.Test.Factories
             ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
             AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
             
-            PodMetadata = new ConsolidatedAudioPodMetadata
+            PodMetadata = new AudioPodMetadata
             {
                 Barcode = "4890764553278906",
                 Brand = "Brand",

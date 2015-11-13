@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Packager.Exceptions;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
+using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories
 {
@@ -21,9 +21,9 @@ namespace Packager.Factories
 
     }
 
-    public class PodAudioMetadataFactory : AbstractPodMetadataFactory<ConsolidatedAudioPodMetadata>
+    public class PodAudioMetadataFactory : AbstractPodMetadataFactory<AudioPodMetadata>
     {
-        public override ConsolidatedAudioPodMetadata Generate(string xml)
+        public override AudioPodMetadata Generate(string xml)
         {
             if (string.IsNullOrWhiteSpace(xml))
             {
@@ -32,7 +32,7 @@ namespace Packager.Factories
 
             var document = XDocument.Parse(xml);
 
-            var metadata = new ConsolidatedAudioPodMetadata();
+            var metadata = new AudioPodMetadata();
 
 
             return metadata;
@@ -41,9 +41,9 @@ namespace Packager.Factories
     }
 
 
-    public class PodVideoMetadataFactory : AbstractPodMetadataFactory<ConsolidatedVideoPodMetadata>
+    public class PodVideoMetadataFactory : AbstractPodMetadataFactory<VideoPodMetadata>
     {
-        public override ConsolidatedVideoPodMetadata Generate(string xml)
+        public override VideoPodMetadata Generate(string xml)
         {
             if (string.IsNullOrWhiteSpace(xml))
             {
@@ -52,7 +52,7 @@ namespace Packager.Factories
 
             var document = XDocument.Parse(xml);
 
-            var metadata = new ConsolidatedVideoPodMetadata();
+            var metadata = new VideoPodMetadata();
 
 
             return metadata;

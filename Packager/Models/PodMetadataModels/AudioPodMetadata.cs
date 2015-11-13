@@ -4,9 +4,9 @@ using System.Xml.Linq;
 using Packager.Extensions;
 using Packager.Validators.Attributes;
 
-namespace Packager.Models.PodMetadataModels.ConsolidatedModels
+namespace Packager.Models.PodMetadataModels
 {
-    public class ConsolidatedAudioPodMetadata : AbstractConsolidatedPodMetadata
+    public class AudioPodMetadata : AbstractPodMetadata
     {
         private static readonly Dictionary<string, string> KnownPlaybackSpeeds = new Dictionary<string, string>
         {
@@ -65,10 +65,10 @@ namespace Packager.Models.PodMetadataModels.ConsolidatedModels
             TapeThickness = element.ToResolvedDelimitedString("data/object/technical_metadata/tape_thickness", KnownTapeThicknesses);
         }
 
-        protected override List<AbstractConsolidatedDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements)
+        protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements)
         {
-            return elements.Select(element => element.ToImportable<ConsolidatedDigitalAudioFile>())
-                .Cast<AbstractConsolidatedDigitalFile>().ToList();
+            return elements.Select(element => element.ToImportable<DigitalAudioFile>())
+                .Cast<AbstractDigitalFile>().ToList();
         }
     }
 }

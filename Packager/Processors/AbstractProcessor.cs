@@ -9,7 +9,6 @@ using Packager.Factories;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
@@ -254,7 +253,7 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected async Task<T> GetMetadata<T>(List<ObjectFileModel> filesToProcess) where T:AbstractConsolidatedPodMetadata, new()
+        protected async Task<T> GetMetadata<T>(List<ObjectFileModel> filesToProcess) where T:AbstractPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try

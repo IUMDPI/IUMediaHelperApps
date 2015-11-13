@@ -7,8 +7,7 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
-using Device = Packager.Models.PodMetadataModels.ConsolidatedModels.Device;
+using Device = Packager.Models.PodMetadataModels.Device;
 
 namespace Packager.Test.Factories
 {
@@ -17,14 +16,14 @@ namespace Packager.Test.Factories
     {
         private const string GoodFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string MissingFileName = "MDPI_111111111111_01_pres.wav";
-        private ConsolidatedAudioPodMetadata PodMetadata { get; set; }
+        private AudioPodMetadata PodMetadata { get; set; }
         private AbstractFileModel FileModel { get; set; }
-        private ConsolidatedDigitalAudioFile Provenance { get; set; }
+        private DigitalAudioFile Provenance { get; set; }
         private IngestData Result { get; set; }
 
-        private ConsolidatedDigitalAudioFile GenerateFileProvenance(string fileName)
+        private DigitalAudioFile GenerateFileProvenance(string fileName)
         {
-            var original = new DigitalFileProvenance
+          /*  var original = new DigitalFileProvenance
             {
                 Comment = "Comment",
                 CreatedBy = "Created by",
@@ -32,10 +31,10 @@ namespace Packager.Test.Factories
                 Filename = fileName,
                 //SignalChain = GetSignalChain(),
                 SpeedUsed = "7.5 ips"
-            };
+            };*/
 
 
-            return new ConsolidatedDigitalAudioFile();
+            return new DigitalAudioFile();
         }
         
         private static List<Device> GetSignalChain()
@@ -58,10 +57,10 @@ namespace Packager.Test.Factories
                 FileModel = new ObjectFileModel(MissingFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
-                PodMetadata = new ConsolidatedAudioPodMetadata
+                PodMetadata = new AudioPodMetadata
                 {
                     Format = "CD-R",
-                    FileProvenances = new List<AbstractConsolidatedDigitalFile> {Provenance}
+                    FileProvenances = new List<AbstractDigitalFile> {Provenance}
                 };
             }
 
@@ -81,10 +80,10 @@ namespace Packager.Test.Factories
                 FileModel = new ObjectFileModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
-                PodMetadata = new ConsolidatedAudioPodMetadata
+                PodMetadata = new AudioPodMetadata
                 {
                     Format = "CD-R",
-                    FileProvenances = new List<AbstractConsolidatedDigitalFile> {Provenance}
+                    FileProvenances = new List<AbstractDigitalFile> {Provenance}
                 };
 
                 var factory = new IngestDataFactory();

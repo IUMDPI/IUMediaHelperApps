@@ -7,8 +7,7 @@ using Packager.Factories;
 using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
-using Device = Packager.Models.PodMetadataModels.ConsolidatedModels.Device;
+using Device = Packager.Models.PodMetadataModels.Device;
 
 namespace Packager.Test.Factories
 {
@@ -23,8 +22,8 @@ namespace Packager.Test.Factories
 
         private BextMetadata Result { get; set; }
         private ObjectFileModel Model { get; set; }
-        private ConsolidatedDigitalAudioFile Provenance { get; set; }
-        private ConsolidatedAudioPodMetadata Metadata { get; set; }
+        private DigitalAudioFile Provenance { get; set; }
+        private AudioPodMetadata Metadata { get; set; }
 
         private List<ObjectFileModel> Instances { get; set; } 
 
@@ -41,7 +40,7 @@ namespace Packager.Test.Factories
             Provenance = GetFileProvenance();
             Model = new ObjectFileModel(PreservationFileName);
             Instances = new List<ObjectFileModel> {Model};
-            Metadata = new ConsolidatedAudioPodMetadata
+            Metadata = new AudioPodMetadata
             {
                 DigitizingEntity = DigitizingEntity,
                 Unit = Unit,
@@ -50,7 +49,7 @@ namespace Packager.Test.Factories
                 Title = Title,
                 SoundField = "Mono",
                 PlaybackSpeed = "7.5 ips",
-                FileProvenances = new List<AbstractConsolidatedDigitalFile> { Provenance}
+                FileProvenances = new List<AbstractDigitalFile> { Provenance}
             };
 
             DoCustomSetup();
@@ -58,9 +57,9 @@ namespace Packager.Test.Factories
             Result = new BextMetadataFactory().Generate(Instances, Model, Metadata);
         }
 
-        private static ConsolidatedDigitalAudioFile GetFileProvenance()
+        private static DigitalAudioFile GetFileProvenance()
         {
-            var original = new DigitalFileProvenance
+           /* var original = new DigitalFileProvenance
             {
                 Comment = "Comment",
                 CreatedBy = "Created by",
@@ -68,9 +67,9 @@ namespace Packager.Test.Factories
                 Filename = PreservationFileName,
                 //SignalChain = GetSignalChain(),
                 SpeedUsed = "7.5 ips"
-            };
+            };*/
 
-            return new ConsolidatedDigitalAudioFile();
+            return new DigitalAudioFile();
         }
 
         private static List<Device> GetSignalChain()

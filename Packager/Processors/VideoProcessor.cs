@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
+using Packager.Models.PodMetadataModels;
 using Packager.Providers;
 
 namespace Packager.Processors
@@ -22,7 +22,7 @@ namespace Packager.Processors
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
             // fetch, log, and validate metadata
-            var metadata = await GetMetadata<ConsolidatedVideoPodMetadata>(filesToProcess);
+            var metadata = await GetMetadata<VideoPodMetadata>(filesToProcess);
 
             // temporary
             return filesToProcess;

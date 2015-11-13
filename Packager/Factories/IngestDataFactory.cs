@@ -4,13 +4,12 @@ using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 
 namespace Packager.Factories
 {
     public class IngestDataFactory : IIngestDataFactory
     {
-        public IngestData Generate(ConsolidatedAudioPodMetadata podMetadata, AbstractFileModel masterFileModel)
+        public IngestData Generate(AudioPodMetadata podMetadata, AbstractFileModel masterFileModel)
         {
             var digitalFileProvenance = podMetadata.FileProvenances.GetFileProvenance(masterFileModel);
             if (digitalFileProvenance == null)
@@ -30,7 +29,7 @@ namespace Packager.Factories
                     SerialNumber = digitalFileProvenance.ExtractionWorkstation.SerialNumber,
                     Manufacturer = digitalFileProvenance.ExtractionWorkstation.Manufacturer
                 },
-                SpeedUsed = ((ConsolidatedDigitalAudioFile)digitalFileProvenance).SpeedUsed,
+                SpeedUsed = ((DigitalAudioFile)digitalFileProvenance).SpeedUsed,
                 Date = digitalFileProvenance.DateDigitized.ToString(),
                 Players = digitalFileProvenance.PlayerDevices
                     .Select(d=>new IngestDevice {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})

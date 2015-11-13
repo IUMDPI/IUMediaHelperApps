@@ -8,7 +8,6 @@ using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.PodMetadataModels.ConsolidatedModels;
 using Packager.Observers;
 using Packager.Validators;
 using RestSharp;
@@ -29,44 +28,34 @@ namespace Packager.Providers
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
 
-        public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractConsolidatedPodMetadata, new()
+        public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractPodMetadata, new()
         {
-            var client = new RestClient(ProgramSettings.WebServiceUrl)
-            {
-                Authenticator =
-                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
-            };
-
-            client.AddHandler("application/xml", new PodResultDeserializer());
-            
+            var client = GetClient();
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
-            
+
 
             var response = await client.ExecuteGetTaskAsync<T>(request);
 
             VerifyResponse(response, "retrieve metadata from Pod");
+            VerifyResponseMetadata(response.Data);
+
             return Normalize(response.Data);
         }
 
         public async Task<string> ResolveUnit(string unit)
         {
-            var client = new RestClient(ProgramSettings.WebServiceUrl)
-            {
-                Authenticator =
-                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
-            };
+            var client = GetClient();
 
             var request = new RestRequest($"/responses/packager/units/{unit}");
 
-            var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
+            var response = await client.ExecuteGetTaskAsync<BasePodMetadata>(request);
 
             VerifyResponse(response, "resolve unit name using Pod");
-            VerifyResponseMetadata(response.Data);
 
             return response.Data.Message;
         }
 
-        public void Validate<T>(T podMetadata, List<ObjectFileModel> models) where T : AbstractConsolidatedPodMetadata
+        public void Validate<T>(T podMetadata, List<ObjectFileModel> models) where T : AbstractPodMetadata
         {
             var results = ValidateMetadata(podMetadata);
             results.AddRange(ValidateMetadataProvenances(podMetadata.FileProvenances, models));
@@ -79,7 +68,7 @@ namespace Packager.Providers
             throw new PodMetadataException(results);
         }
 
-        public void Log<T>(T podMetadata) where T : AbstractConsolidatedPodMetadata
+        public void Log<T>(T podMetadata) where T : AbstractPodMetadata
         {
             Observers.Log(podMetadata.GetStringPropertiesAndValues());
 
@@ -102,12 +91,24 @@ namespace Packager.Providers
             }
         }
 
-        private ValidationResults ValidateMetadata<T>(T podMetadata) where T : AbstractConsolidatedPodMetadata
+        private RestClient GetClient()
+        {
+            var client = new RestClient(ProgramSettings.WebServiceUrl)
+            {
+                Authenticator =
+                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
+            };
+
+            client.AddHandler("application/xml", new PodResultDeserializer());
+            return client;
+        }
+
+        private ValidationResults ValidateMetadata<T>(T podMetadata) where T : AbstractPodMetadata
         {
             return Validators.Validate(podMetadata);
         }
 
-        private ValidationResults ValidateMetadataProvenances(List<AbstractConsolidatedDigitalFile> provenances, IEnumerable<ObjectFileModel> filesToProcess)
+        private ValidationResults ValidateMetadataProvenances(List<AbstractDigitalFile> provenances, IEnumerable<ObjectFileModel> filesToProcess)
         {
             var results = new ValidationResults();
             if (provenances == null)
@@ -134,7 +135,7 @@ namespace Packager.Providers
         }
 
         // go through the result's string fields and remove leading and trailing whitespace
-        private static T Normalize<T>(T metadata) where T : AbstractConsolidatedPodMetadata
+        private static T Normalize<T>(T metadata) where T : AbstractPodMetadata
         {
             metadata = NormalizeFields(metadata);
 
@@ -160,8 +161,8 @@ namespace Packager.Providers
 
             return value;
         }
-        
-        private static void VerifyResponse(IRestResponse response, string operation)
+
+        private static void VerifyResponse<T>(IRestResponse<T> response, string operation) where T : BasePodMetadata
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
@@ -172,9 +173,19 @@ namespace Packager.Providers
             {
                 throw new PodMetadataException(response.ErrorException, "Could not {0}: {1} ({2})", operation, response.StatusCode, (int) response.StatusCode);
             }
+
+            if (response.Data == null)
+            {
+                throw new PodMetadataException("Could not {0}: expected result object not present", operation);
+            }
+
+            if (response.Data.Success == false)
+            {
+                throw new PodMetadataException("Could not {0}: {1}", operation, response.Data.Message.ToDefaultIfEmpty("unknown issue returned from server"));
+            }
         }
 
-        private static void VerifyResponseMetadata(PodMetadata metadata)
+        private static void VerifyResponseMetadata(BasePodMetadata metadata)
         {
             if (metadata == null)
             {

@@ -7,7 +7,7 @@ using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
 {
-    public abstract class AbstractPodMetadata : BasePodMetadata
+    public abstract class AbstractPodMetadata : BasePodResponse
     {
         private static readonly Dictionary<string, string> KnownPreservationProblems = new Dictionary<string, string>
         {

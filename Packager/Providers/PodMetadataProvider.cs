@@ -48,7 +48,7 @@ namespace Packager.Providers
 
             var request = new RestRequest($"/responses/packager/units/{unit}");
 
-            var response = await client.ExecuteGetTaskAsync<BasePodMetadata>(request);
+            var response = await client.ExecuteGetTaskAsync<BasePodResponse>(request);
 
             VerifyResponse(response, "resolve unit name using Pod");
 
@@ -162,7 +162,7 @@ namespace Packager.Providers
             return value;
         }
 
-        private static void VerifyResponse<T>(IRestResponse<T> response, string operation) where T : BasePodMetadata
+        private static void VerifyResponse<T>(IRestResponse<T> response, string operation) where T : BasePodResponse
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
@@ -185,7 +185,7 @@ namespace Packager.Providers
             }
         }
 
-        private static void VerifyResponseMetadata(BasePodMetadata metadata)
+        private static void VerifyResponseMetadata(BasePodResponse metadata)
         {
             if (metadata == null)
             {

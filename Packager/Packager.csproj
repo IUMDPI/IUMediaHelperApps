@@ -98,6 +98,8 @@
     <Compile Include="Models\PodMetadataModels\DigitalVideoFile.cs" />
     <Compile Include="Models\PodMetadataModels\VideoPodMetadata.cs" />
     <Compile Include="Processors\VideoProcessor.cs" />
+    <Compile Include="Providers\AppConfigLookupsProvider.cs" />
+    <Compile Include="Providers\ILookupsProvider.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />

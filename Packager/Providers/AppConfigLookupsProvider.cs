@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Packager.Validators.Attributes;
 
 namespace Packager.Providers
 {
@@ -26,11 +27,22 @@ namespace Packager.Providers
             Damage = InitializeDictionary(DamagePath);
         }
 
+        [HasMembers]
         public Dictionary<string, string> PlaybackSpeed { get; }
+
+        [HasMembers]
         public Dictionary<string, string> TrackConfiguration { get; }
+
+        [HasMembers]
         public Dictionary<string, string> SoundField { get; }
+
+        [HasMembers]
         public Dictionary<string, string> TapeThickness { get; }
+
+        [HasMembers]
         public Dictionary<string, string> PreservationProblem { get; set; }
+
+        [HasMembers]
         public Dictionary<string, string> Damage { get; set; }
 
         private static Dictionary<string, string> InitializeDictionary(string section)

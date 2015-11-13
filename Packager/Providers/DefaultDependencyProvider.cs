@@ -91,6 +91,8 @@ namespace Packager.Providers
         public IValidatorCollection ValidatorCollection { get; }
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
         public IBextMetadataFactory AudioMetadataFactory { get; }
+
+        [ValidateObject]
         public ILookupsProvider LookupsProvider { get; }
 
         public IBwfMetaEditRunner MetaEditRunner { get; }

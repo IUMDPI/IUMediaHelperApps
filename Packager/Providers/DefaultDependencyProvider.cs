@@ -29,6 +29,7 @@ namespace Packager.Providers
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
             FFMPEGRunner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
+            LookupsProvider = new AppConfigLookupsProvider();
             ValidatorCollection = new StandardValidatorCollection
             {
                 new ValueRequiredValidator(),
@@ -37,7 +38,7 @@ namespace Packager.Providers
                 new UriValidator(),
                 new MembersValidator()
             };
-            MetadataProvider = new PodMetadataProvider(ProgramSettings, Observers, ValidatorCollection);
+            MetadataProvider = new PodMetadataProvider(ProgramSettings, Observers, ValidatorCollection, LookupsProvider);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName, 
                 new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays,0,0,0), Observers);
         }
@@ -90,6 +91,7 @@ namespace Packager.Providers
         public IValidatorCollection ValidatorCollection { get; }
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
         public IBextMetadataFactory AudioMetadataFactory { get; }
+        public ILookupsProvider LookupsProvider { get; }
 
         public IBwfMetaEditRunner MetaEditRunner { get; }
     }

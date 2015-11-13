@@ -3,35 +3,13 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Packager.Extensions;
+using Packager.Providers;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
 {
     public abstract class AbstractPodMetadata : BasePodResponse
     {
-        private static readonly Dictionary<string, string> KnownPreservationProblems = new Dictionary<string, string>
-        {
-            {"breakdown_of_materials", "Breakdown of materials"},
-            {"delamination", "Delamination"},
-            {"exudation", "Exudation"},
-            {"fungus", "Fungus"},
-            {"other_contaminants", "Other contaiminants"},
-            {"oxidation", "Oxidation"},
-            {"soft_binder_syndrome", "Soft binder syndrome"},
-            {"vinegar_syndrome", "Vinegar syndrome"}
-        };
-
-        private static readonly Dictionary<string, string> KnownDamageValues = new Dictionary<string, string>
-        {
-            {"broken", "Broken"},
-            {"cracked", "Cracked"},
-            {"dirty", "Dirty"},
-            {"fungus", "Fungus"},
-            {"scratched", "Scratched"},
-            {"warped", "Warped"},
-            {"worn", "Worn"}
-        };
-        
         [Required]
         public string Identifier { get; set; }
 
@@ -62,9 +40,9 @@ namespace Packager.Models.PodMetadataModels
 
         public List<AbstractDigitalFile> FileProvenances { get; set; }
 
-        public override void ImportFromXml(XElement element)
+        public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
         {
-            base.ImportFromXml(element);
+            base.ImportFromXml(element, lookupsProvider);
 
             Identifier = element.ToStringValue("data/object/details/id");
             Format = element.ToStringValue("data/object/details/format");
@@ -77,12 +55,13 @@ namespace Packager.Models.PodMetadataModels
             CleaningComment = element.ToStringValue("data/object/digital_provenance/cleaning_comment");
             BakingDate = element.ToDateTimeValue("data/object/digital_provenance/baking_date");
             Repaired = element.ToBooleanValue("data/object/digital_provenance/repaired").ToYesNo();
-            Damage = element.ToResolvedDelimitedString("data/object/technical_metadata/damage", KnownDamageValues).ToDefaultIfEmpty("None");
-            PreservationProblems = element.ToResolvedDelimitedString("data/object/technical_metadata/preservation_problems", KnownPreservationProblems);
+            Damage = element.ToResolvedDelimitedString("data/object/technical_metadata/damage", lookupsProvider.Damage)
+                .ToDefaultIfEmpty("None");
+            PreservationProblems = element.ToResolvedDelimitedString("data/object/technical_metadata/preservation_problems", lookupsProvider.PreservationProblem);
             DigitizingEntity = element.ToStringValue("data/object/digital_provenance/digitizing_entity");
-            FileProvenances = ImportFileProvenances(element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"));
+            FileProvenances = ImportFileProvenances(element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"), lookupsProvider);
         }
         
-        protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements);
+        protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements, ILookupsProvider lookupsProvider);
     }
 }

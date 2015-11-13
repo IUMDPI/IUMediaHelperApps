@@ -2,24 +2,15 @@
 
 namespace Packager.Providers
 {
-    public enum LookupTables
-    {
-        Units,
-        PlaybackSpeeds,
-        TrackConfigurations,
-        SoundFields,
-        TapeThicknesses
-    }
-
     public interface ILookupsProvider
     {
-        Dictionary<string, string> Units { get; }
-        Dictionary<string, string> PlaybackSpeeds { get; }
-        Dictionary<string, string> TrackConfigurations { get; }
-        Dictionary<string, string> SoundFields { get; }
-        Dictionary<string, string> TapeThicknesses { get; }
+        Dictionary<string, string> PlaybackSpeed { get; }
+        Dictionary<string, string> TrackConfiguration { get; }
+        Dictionary<string, string> SoundField { get; }
+        Dictionary<string, string> TapeThickness { get; }
 
-        string LookupValue(LookupTables table, string value);
-        string[] LookupValue(LookupTables table, string[] values);
+        Dictionary<string, string> PreservationProblem { get; set; }
+        Dictionary<string, string> Damage { get; set; }
+
     }
 }

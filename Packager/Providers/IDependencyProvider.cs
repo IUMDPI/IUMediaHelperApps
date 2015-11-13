@@ -28,5 +28,7 @@ namespace Packager.Providers
         ISuccessFolderCleaner SuccessFolderCleaner { get; }
 
         IBextMetadataFactory AudioMetadataFactory { get; }
+
+        ILookupsProvider LookupsProvider { get; }
     }
 }

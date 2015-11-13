@@ -1,5 +1,6 @@
 ﻿using System.Xml.Linq;
 using Packager.Extensions;
+using Packager.Providers;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -9,9 +10,9 @@ namespace Packager.Models.PodMetadataModels
         [Required]
         public string SpeedUsed { get; set; }
         
-        public override void ImportFromXml(XElement element)
+        public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
         {
-            base.ImportFromXml(element);
+            base.ImportFromXml(element, lookupsProvider);
             SpeedUsed = element.ToStringValue("speed_used");
         }
     }

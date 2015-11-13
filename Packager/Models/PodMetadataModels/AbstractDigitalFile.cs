@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Packager.Deserializers;
 using Packager.Extensions;
+using Packager.Providers;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -14,30 +15,16 @@ namespace Packager.Models.PodMetadataModels
         private const string PlayerDeviceType = "Player";
         private const string ExtractionWorkstationDeviceType = "Extraction Workstation";
 
-      /*  protected AbstractConsolidatedDigitalFile(DigitalFileProvenance original)
-        {
-            DateDigitized = original.DateDigitized;
-            //SignalChain = original.SignalChain;
-            Filename = original.Filename;
-            Comment = original.Comment;
-            CreatedBy = original.CreatedBy;
-        }*/
-
-        protected AbstractDigitalFile()
-        {
-            
-        }
-
-        public virtual void ImportFromXml(XElement element)
+        public virtual void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
         {
             DateDigitized = element.ToDateTimeValue("date_digitized");
             Filename = element.ToStringValue("filename");
             Comment = element.ToStringValue("comment");
             CreatedBy = element.ToStringValue("created_by");
-            SignalChain = ImportDevicesFromXml(element.Element("signal_chain"));
+            SignalChain = ImportDevices(element.Element("signal_chain"), lookupsProvider);
         }
 
-        private List<Device> ImportDevicesFromXml(XElement element)
+        private static List<Device> ImportDevices(XContainer element, ILookupsProvider lookupsProvider)
         {
             if (element == null)
             {
@@ -48,7 +35,7 @@ namespace Packager.Models.PodMetadataModels
             foreach (var deviceElement in element.Elements("device"))
             {
                 var device = new Device();
-                device.ImportFromXml(deviceElement);
+                device.ImportFromXml(deviceElement, lookupsProvider);
                 result.Add(device);
             }
 

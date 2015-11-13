@@ -17,16 +17,21 @@ namespace Packager.Providers
 {
     internal class PodMetadataProvider : IPodMetadataProvider
     {
-        public PodMetadataProvider(IProgramSettings programSettings, IObserverCollection observers, IValidatorCollection validators)
+        public PodMetadataProvider(IProgramSettings programSettings, 
+            IObserverCollection observers, 
+            IValidatorCollection validators, 
+            ILookupsProvider lookupsProvider)
         {
             ProgramSettings = programSettings;
             Observers = observers;
             Validators = validators;
+            LookupsProvider = lookupsProvider;
         }
 
         private IProgramSettings ProgramSettings { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
+        private ILookupsProvider LookupsProvider { get; }
 
         public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractPodMetadata, new()
         {
@@ -99,7 +104,7 @@ namespace Packager.Providers
                     new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
             };
 
-            client.AddHandler("application/xml", new PodResultDeserializer());
+            client.AddHandler("application/xml", new PodResultDeserializer(LookupsProvider));
             return client;
         }
 

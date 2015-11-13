@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using Packager.Deserializers;
 using Packager.Exceptions;
+using Packager.Providers;
 
 namespace Packager.Extensions
 {
@@ -65,21 +66,22 @@ namespace Packager.Extensions
                 .Where(e => e.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
                 .Select(e => e.Name.LocalName))
             {
-                if (!lookupDictionary.ContainsKey(key))
+                string value;
+                if (lookupDictionary.TryGetValue(key, out value)==false)
                 {
                     throw new PodMetadataException("Lookup value missing for key {0}", key);
-                }                
+                }
 
-                result.Add(lookupDictionary[key]);
+                result.Add(value);
             };
 
             return string.Join(",", result);
         }
 
-        public static T ToImportable<T>(this XElement element)
+        public static T ToImportable<T>(this XElement element, ILookupsProvider lookupsProvider)
         {
             var result = (IImportable) Activator.CreateInstance<T>();
-            result.ImportFromXml(element);
+            result.ImportFromXml(element, lookupsProvider);
             return (T)result;
         }
     }

@@ -2,6 +2,7 @@
 using System.Xml.Linq;
 using Packager.Deserializers;
 using Packager.Extensions;
+using Packager.Providers;
 
 namespace Packager.Models.PodMetadataModels
 {
@@ -12,7 +13,7 @@ namespace Packager.Models.PodMetadataModels
         public string Manufacturer { get; set; }
         public string Model { get; set; }
 
-        public void ImportFromXml(XElement element)
+        public void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
         {
             DeviceType = element.ToStringValue("device_type");
             SerialNumber = element.ToStringValue("serial_number");

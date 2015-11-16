@@ -67,11 +67,12 @@ namespace Packager.Providers
         public void Log(ConsolidatedPodMetadata podMetadata)
         {
             Observers.Log(podMetadata.GetStringPropertiesAndValues());
-
+            Observers.Log(podMetadata.GetDatePropertiesAndValues());
             foreach (var provenance in podMetadata.FileProvenances)
             {
                 var sectionKey = Observers.BeginSection("File Provenance: {0}", provenance.Filename.ToDefaultIfEmpty("[not set]"));
                 Observers.Log(provenance.GetStringPropertiesAndValues("\t"));
+                Observers.Log(provenance.GetDatePropertiesAndValues("\t"));
 
                 foreach (var device in provenance.PlayerDevices)
                 {

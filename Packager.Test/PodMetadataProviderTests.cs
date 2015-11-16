@@ -121,8 +121,7 @@ namespace Packager.Test
             }
 
             private ConsolidatedPodMetadata Result { get; set; }
-
-
+            
             public class WhenThingsGoWell : WhenGettingObjectMetadata
             {
                 public override async void BeforeEach()

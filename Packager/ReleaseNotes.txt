@@ -36,4 +36,5 @@
 1.12.0.0	11/10/2015	should provide critical ffmpeg arguments if they are missing
 						removing unused depedencies
 1.13.0.0	11/11/2015	fixing issue with track configuration descriptions
+1.14.0.0	11/16/2015	should convert timestamps from Pod to universal time
 					

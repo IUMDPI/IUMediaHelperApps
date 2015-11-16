@@ -6,41 +6,32 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Validators;
 using RestSharp;
-using RestSharp.Authenticators;
 
 namespace Packager.Providers
 {
-    internal class PodMetadataProvider : IPodMetadataProvider
+    public class PodMetadataProvider : IPodMetadataProvider
     {
-        public PodMetadataProvider(IProgramSettings programSettings, IObserverCollection observers, IValidatorCollection validators)
+        public PodMetadataProvider(IRestClient client, IObserverCollection observers, IValidatorCollection validators)
         {
-            ProgramSettings = programSettings;
+            Client = client;
             Observers = observers;
             Validators = validators;
         }
 
-        private IProgramSettings ProgramSettings { get; }
+        private IRestClient Client { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
 
         public async Task<ConsolidatedPodMetadata> GetObjectMetadata(string barcode)
         {
-            var client = new RestClient(ProgramSettings.WebServiceUrl)
-            {
-                Authenticator =
-                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
-            };
-
-
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
 
-            var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
+            var response = await Client.ExecuteGetTaskAsync<PodMetadata>(request);
 
             VerifyResponse(response, "retrieve metadata from Pod");
             VerifyResponseMetadata(response.Data);
@@ -51,19 +42,12 @@ namespace Packager.Providers
 
         public async Task<string> ResolveUnit(string unit)
         {
-            var client = new RestClient(ProgramSettings.WebServiceUrl)
-            {
-                Authenticator =
-                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
-            };
-
             var request = new RestRequest($"/responses/packager/units/{unit}");
-
-            var response = await client.ExecuteGetTaskAsync<PodMetadata>(request);
+            var response = await Client.ExecuteGetTaskAsync<PodMetadata>(request);
 
             VerifyResponse(response, "resolve unit name using Pod");
             VerifyResponseMetadata(response.Data);
-            
+
             return response.Data.Message;
         }
 
@@ -196,7 +180,7 @@ namespace Packager.Providers
 
             foreach (var provenance in metadata.FileProvenances)
             {
-                if (provenance.DateDigitized.HasValue ==false)
+                if (provenance.DateDigitized.HasValue == false)
                 {
                     continue;
                 }
@@ -225,8 +209,8 @@ namespace Packager.Providers
             }
 
             var properties = instance.GetType().GetProperties().Where(p => p.PropertyType == typeof (bool));
-            var results = (properties.Where(property => (bool) property.GetValue(instance))
-                .Select(GetNameOrDescription)).Distinct().ToList();
+            var results = properties.Where(property => (bool) property.GetValue(instance))
+                .Select(GetNameOrDescription).Distinct().ToList();
 
             return results.Any()
                 ? string.Join(", ", results)

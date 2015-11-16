@@ -6,6 +6,8 @@ using Packager.Utilities;
 using Packager.Validators;
 using Packager.Validators.Attributes;
 using Packager.Verifiers;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace Packager.Providers
 {
@@ -37,9 +39,19 @@ namespace Packager.Providers
                 new UriValidator(),
                 new MembersValidator()
             };
-            MetadataProvider = new PodMetadataProvider(ProgramSettings, Observers, ValidatorCollection);
-            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName, 
-                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays,0,0,0), Observers);
+            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings), Observers, ValidatorCollection);
+            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName,
+                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
+        }
+
+
+        private static IRestClient GetRestClient(IProgramSettings programSettings)
+        {
+            return new RestClient(programSettings.WebServiceUrl)
+            {
+                Authenticator =
+                    new HttpBasicAuthenticator(programSettings.PodAuth.UserName, programSettings.PodAuth.Password)
+            };
         }
 
         [ValidateObject]
@@ -53,7 +65,7 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IDirectoryProvider DirectoryProvider { get; }
-        
+
         [ValidateObject]
         public IFileProvider FileProvider { get; }
 
@@ -76,7 +88,7 @@ namespace Packager.Providers
         public IBextProcessor BextProcessor { get; }
 
         [ValidateObject]
-        public IFFMPEGRunner FFMPEGRunner {get; }
+        public IFFMPEGRunner FFMPEGRunner { get; }
 
         [ValidateObject]
         public IEmailSender EmailSender { get; }
@@ -86,7 +98,7 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IIngestDataFactory IngestDataFactory { get; }
-        
+
         public IValidatorCollection ValidatorCollection { get; }
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
         public IBextMetadataFactory AudioMetadataFactory { get; }

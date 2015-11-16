@@ -160,6 +160,7 @@ namespace Packager.Providers
                 PreservationProblems = GetBoolValuesAsList(metadata.Data.Object.TechnicalMetadata.PreservationProblems)
             };
 
+            result = NormalizeDateFields(result);
             return NormalizeResultFields(result);
         }
 
@@ -176,6 +177,31 @@ namespace Packager.Providers
                 {
                     metadata.FileProvenances[i].SignalChain[j] = NormalizeFields(metadata.FileProvenances[i].SignalChain[j]);
                 }
+            }
+
+            return metadata;
+        }
+
+        private static ConsolidatedPodMetadata NormalizeDateFields(ConsolidatedPodMetadata metadata)
+        {
+            if (metadata.BakingDate.HasValue)
+            {
+                metadata.BakingDate = metadata.BakingDate.Value.ToUniversalTime();
+            }
+
+            if (metadata.CleaningDate.HasValue)
+            {
+                metadata.CleaningDate = metadata.CleaningDate.Value.ToUniversalTime();
+            }
+
+            foreach (var provenance in metadata.FileProvenances)
+            {
+                if (provenance.DateDigitized.HasValue ==false)
+                {
+                    continue;
+                }
+
+                provenance.DateDigitized = provenance.DateDigitized.Value.ToUniversalTime();
             }
 
             return metadata;

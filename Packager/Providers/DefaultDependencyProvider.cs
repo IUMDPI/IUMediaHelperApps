@@ -1,4 +1,5 @@
 ﻿using System;
+using Packager.Deserializers;
 using Packager.Factories;
 using Packager.Models;
 using Packager.Observers;
@@ -6,6 +7,8 @@ using Packager.Utilities;
 using Packager.Validators;
 using Packager.Validators.Attributes;
 using Packager.Verifiers;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace Packager.Providers
 {
@@ -38,9 +41,23 @@ namespace Packager.Providers
                 new UriValidator(),
                 new MembersValidator()
             };
-            MetadataProvider = new PodMetadataProvider(ProgramSettings, Observers, ValidatorCollection, LookupsProvider);
-            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName, 
-                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays,0,0,0), Observers);
+            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, LookupsProvider), Observers, ValidatorCollection);
+            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName,
+                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
+        }
+
+
+        private static IRestClient GetRestClient(IProgramSettings programSettings, ILookupsProvider lookupsProvider)
+        {
+            var result = new RestClient(programSettings.WebServiceUrl)
+            {
+                Authenticator =
+                    new HttpBasicAuthenticator(programSettings.PodAuth.UserName, programSettings.PodAuth.Password)
+            };
+
+            result.AddHandler("application/xml", new PodResultDeserializer(lookupsProvider));
+            return result;
+
         }
 
         [ValidateObject]
@@ -54,7 +71,7 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IDirectoryProvider DirectoryProvider { get; }
-        
+
         [ValidateObject]
         public IFileProvider FileProvider { get; }
 
@@ -77,7 +94,7 @@ namespace Packager.Providers
         public IBextProcessor BextProcessor { get; }
 
         [ValidateObject]
-        public IFFMPEGRunner FFMPEGRunner {get; }
+        public IFFMPEGRunner FFMPEGRunner { get; }
 
         [ValidateObject]
         public IEmailSender EmailSender { get; }
@@ -87,7 +104,7 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IIngestDataFactory IngestDataFactory { get; }
-        
+
         public IValidatorCollection ValidatorCollection { get; }
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
         public IBextMetadataFactory AudioMetadataFactory { get; }

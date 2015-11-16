@@ -48,6 +48,10 @@
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -68,6 +72,12 @@
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
+    <Compile Include="Models\MetadataModels\SampleRateTests.cs" />
+    <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />
+    <Compile Include="Models\MetadataModels\TapeThicknessTests.cs" />
+    <Compile Include="Models\MetadataModels\TrackConfigurationTests.cs" />
+    <Compile Include="PodMetadataProviderTests.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />

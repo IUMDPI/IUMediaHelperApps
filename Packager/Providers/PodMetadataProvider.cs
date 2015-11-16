@@ -2,44 +2,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Packager.Deserializers;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Validators;
 using RestSharp;
-using RestSharp.Authenticators;
 
 namespace Packager.Providers
 {
-    internal class PodMetadataProvider : IPodMetadataProvider
+    public class PodMetadataProvider : IPodMetadataProvider
     {
-        public PodMetadataProvider(IProgramSettings programSettings, 
-            IObserverCollection observers, 
-            IValidatorCollection validators, 
-            ILookupsProvider lookupsProvider)
+        public PodMetadataProvider(IRestClient client, IObserverCollection observers, IValidatorCollection validators)
         {
-            ProgramSettings = programSettings;
+            Client = client;
             Observers = observers;
             Validators = validators;
-            LookupsProvider = lookupsProvider;
+          
         }
 
-        private IProgramSettings ProgramSettings { get; }
+        private IRestClient Client { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
-        private ILookupsProvider LookupsProvider { get; }
-
+        
         public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractPodMetadata, new()
         {
-            var client = GetClient();
             var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
-
-
-            var response = await client.ExecuteGetTaskAsync<T>(request);
+            
+            var response = await Client.ExecuteGetTaskAsync<T>(request);
 
             VerifyResponse(response, "retrieve metadata from Pod");
             VerifyResponseMetadata(response.Data);
@@ -49,13 +40,11 @@ namespace Packager.Providers
 
         public async Task<string> ResolveUnit(string unit)
         {
-            var client = GetClient();
-
             var request = new RestRequest($"/responses/packager/units/{unit}");
-
-            var response = await client.ExecuteGetTaskAsync<BasePodResponse>(request);
+            var response = await Client.ExecuteGetTaskAsync<BasePodResponse>(request);
 
             VerifyResponse(response, "resolve unit name using Pod");
+            VerifyResponseMetadata(response.Data);
 
             return response.Data.Message;
         }
@@ -76,11 +65,12 @@ namespace Packager.Providers
         public void Log<T>(T podMetadata) where T : AbstractPodMetadata
         {
             Observers.Log(podMetadata.GetStringPropertiesAndValues());
-
+            Observers.Log(podMetadata.GetDatePropertiesAndValues());
             foreach (var provenance in podMetadata.FileProvenances)
             {
                 var sectionKey = Observers.BeginSection("File Provenance: {0}", provenance.Filename.ToDefaultIfEmpty("[not set]"));
                 Observers.Log(provenance.GetStringPropertiesAndValues("\t"));
+                Observers.Log(provenance.GetDatePropertiesAndValues("\t"));
 
                 foreach (var device in provenance.PlayerDevices)
                 {
@@ -94,18 +84,6 @@ namespace Packager.Providers
 
                 Observers.EndSection(sectionKey);
             }
-        }
-
-        private RestClient GetClient()
-        {
-            var client = new RestClient(ProgramSettings.WebServiceUrl)
-            {
-                Authenticator =
-                    new HttpBasicAuthenticator(ProgramSettings.PodAuth.UserName, ProgramSettings.PodAuth.Password)
-            };
-
-            client.AddHandler("application/xml", new PodResultDeserializer(LookupsProvider));
-            return client;
         }
 
         private ValidationResults ValidateMetadata<T>(T podMetadata) where T : AbstractPodMetadata
@@ -139,6 +117,7 @@ namespace Packager.Providers
             return results;
         }
 
+
         // go through the result's string fields and remove leading and trailing whitespace
         private static T Normalize<T>(T metadata) where T : AbstractPodMetadata
         {
@@ -152,6 +131,31 @@ namespace Packager.Providers
                 {
                     metadata.FileProvenances[i].SignalChain[j] = NormalizeFields(metadata.FileProvenances[i].SignalChain[j]);
                 }
+            }
+
+            return metadata;
+        }
+
+        private static T NormalizeDateFields<T>(T metadata) where T : AbstractPodMetadata
+        {
+            if (metadata.BakingDate.HasValue)
+            {
+                metadata.BakingDate = metadata.BakingDate.Value.ToUniversalTime();
+            }
+
+            if (metadata.CleaningDate.HasValue)
+            {
+                metadata.CleaningDate = metadata.CleaningDate.Value.ToUniversalTime();
+            }
+
+            foreach (var provenance in metadata.FileProvenances)
+            {
+                if (provenance.DateDigitized.HasValue == false)
+                {
+                    continue;
+                }
+
+                provenance.DateDigitized = provenance.DateDigitized.Value.ToUniversalTime();
             }
 
             return metadata;
@@ -189,6 +193,7 @@ namespace Packager.Providers
                 throw new PodMetadataException("Could not {0}: {1}", operation, response.Data.Message.ToDefaultIfEmpty("unknown issue returned from server"));
             }
         }
+
 
         private static void VerifyResponseMetadata(BasePodResponse metadata)
         {

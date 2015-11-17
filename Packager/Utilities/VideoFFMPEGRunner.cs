@@ -19,22 +19,31 @@ namespace Packager.Utilities
             AccessArguments = programSettings.FFMPEGAudioAccessArguments;
         }
 
-        public Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target, VideoPodMetadata metadata)
+        public async Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target, VideoPodMetadata metadata)
+        {
+            if (TargetAlreadyExists(target))
+            {
+                LogAlreadyExists(target);
+                return target;
+            }
+
+            var args = new ArgumentBuilder(MezzanineArguments);
+            //.AddArguments(metadata.AsArguments());
+
+            return await CreateDerivative(original, target, args);
+        }
+
+        public async Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original)
+        {
+            return await CreateDerivative(original, original.ToAudioAccessFileModel(), new ArgumentBuilder(AccessArguments));
+        }
+
+        public async Task Normalize(ObjectFileModel original, BextMetadata metadata)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Normalize(ObjectFileModel original, BextMetadata metadata)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Verify(List<ObjectFileModel> originals)
+        public async Task Verify(List<ObjectFileModel> originals)
         {
             throw new NotImplementedException();
         }

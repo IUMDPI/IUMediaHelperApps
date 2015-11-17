@@ -20,8 +20,8 @@ namespace Packager.Models.FileModels
         private const string MezzanineFileUseLongName = "Mezzanine File Version";
 
         public const string AudioAccessExtension = ".mp4";
-        public const string VideoAccessExtension = ".mov"; //todo: verify
-        public const string MezzanineExtension = ".mkv"; //todo: verify
+        public const string VideoAccessExtension = ".mp4"; //todo: verify
+        public const string MezzanineExtension = ".mov"; //todo: verify
         public const string ProductionExtension = ".wav"; //todo:verify
         
         private ObjectFileModel()

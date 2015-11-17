@@ -30,11 +30,7 @@ namespace Packager.Processors
         
         private IBextMetadataFactory AudioMetadataFactory { get; }
 
-        protected override string ProductionFileExtension => ".wav";
-        protected override string AccessFileExtension => ".mp4";
-        protected override string MezzanineFileExtension => ".aac";
-        protected override string PreservationFileExtension => ".wav";
-        protected override string PreservationIntermediateFileExtenstion => ".wav";
+        protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
@@ -77,7 +73,7 @@ namespace Packager.Processors
 
             return outputList;
         }
-
+        
         private async Task NormalizeOriginals(List<ObjectFileModel> originals, AudioPodMetadata podMetadata)
         {
             foreach (var original in originals)
@@ -149,6 +145,15 @@ namespace Packager.Processors
                 Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, Barcode);
                 throw new LoggedException(e);
+            }
+        }
+
+        protected async Task AssignChecksumValues(IEnumerable<ObjectFileModel> models)
+        {
+            foreach (var model in models)
+            {
+                model.Checksum = await Hasher.Hash(model);
+                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.ToFileName()), model.Checksum);
             }
         }
     }

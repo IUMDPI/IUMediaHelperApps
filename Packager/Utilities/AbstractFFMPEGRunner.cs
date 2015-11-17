@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Models;
+using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Validators.Attributes;
@@ -64,6 +66,56 @@ namespace Packager.Utilities
             if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
+            }
+        }
+
+        protected void LogAlreadyExists(ObjectFileModel target)
+        {
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
+            Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
+            Observers.EndSection(sectionKey, $"Generate {target.FullFileUse} skipped - already exists: {target.ToFileName()}");
+        }
+
+        protected bool TargetAlreadyExists(ObjectFileModel target)
+        {
+            var path = Path.Combine(BaseProcessingDirectory, target.GetFolderName(), target.ToFileName());
+            return FileProvider.FileExists(path);
+        }
+
+        protected async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, ArgumentBuilder arguments)
+        {
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
+            try
+            {
+                var outputFolder = Path.Combine(BaseProcessingDirectory, original.GetFolderName());
+
+                var inputPath = Path.Combine(outputFolder, original.ToFileName());
+                if (FileProvider.FileDoesNotExist(inputPath))
+                {
+                    throw new FileNotFoundException(inputPath);
+                }
+
+                var outputPath = Path.Combine(outputFolder, target.ToFileName());
+                if (FileProvider.FileExists(outputPath))
+                {
+                    throw new FileDirectoryExistsException("{0} already exists in the processing directory", inputPath);
+                }
+
+                var completeArguments = new ArgumentBuilder($"-i {inputPath}")
+                    .AddArguments(arguments)
+                    .AddArguments(outputPath);
+
+                await RunProgram(completeArguments);
+
+
+                Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.ToFileName()}");
+                return target;
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, original.BarCode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
             }
         }
     }

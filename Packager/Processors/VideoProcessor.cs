@@ -18,11 +18,7 @@ namespace Packager.Processors
 
         private IVideoFFMPEGRunner FFPMPEGRunner => DependencyProvider.VideoFFMPEGRunner;
 
-        protected override string ProductionFileExtension => ".mkv";
-        protected override string AccessFileExtension => ".mp4";
-        protected override string MezzanineFileExtension => ".mkv";
-        protected override string PreservationFileExtension => ".mkv";
-        protected override string PreservationIntermediateFileExtenstion => ".mkv";
+        protected override string OriginalsDirectory => ProcessingDirectory;
 
         protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
         {
@@ -45,11 +41,11 @@ namespace Packager.Processors
 
             // create QC files
             var qcFiles = await CreateQualityControlFiles(processedList);
-             
+
             // concat processed list and output list and return
             return new List<AbstractFileModel>().Concat(processedList).Concat(qcFiles).ToList();
         }
-
+        
         private async Task<List<ObjectFileModel>> CreateMezzanineDerivatives(List<ObjectFileModel> models, VideoPodMetadata metadata)
         {
             var results = new List<ObjectFileModel>();
@@ -69,7 +65,7 @@ namespace Packager.Processors
             var results = new List<ObjectFileModel>();
 
             // for each production master, create an access version
-            foreach (var model in models.Where(m => m.IsProductionVersion()))
+            foreach (var model in models.Where(m => m.IsMezzanineVersion()))
             {
                 results.Add(await FFPMPEGRunner.CreateAccessDerivative(model));
             }
@@ -78,7 +74,8 @@ namespace Packager.Processors
 
         private async Task<List<AbstractFileModel>> CreateQualityControlFiles(List<ObjectFileModel> processedList)
         {
-            throw new NotImplementedException();
+            //todo: implement
+            return new List<AbstractFileModel>();
         }
     }
 }

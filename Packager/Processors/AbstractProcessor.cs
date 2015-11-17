@@ -18,22 +18,17 @@ namespace Packager.Processors
 {
     public abstract class AbstractProcessor : IProcessor
     {
-        protected  IDependencyProvider DependencyProvider { get; }
         // constructor
         protected AbstractProcessor(IDependencyProvider dependencyProvider)
         {
             DependencyProvider = dependencyProvider;
         }
 
+        protected IDependencyProvider DependencyProvider { get; }
+
         private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
 
         protected IObserverCollection Observers => DependencyProvider.Observers;
-
-        protected abstract string ProductionFileExtension { get; }
-        protected abstract string AccessFileExtension { get; }
-        protected abstract string MezzanineFileExtension { get; }
-        protected abstract string PreservationFileExtension { get; }
-        protected abstract string PreservationIntermediateFileExtenstion { get; }
 
         private IPodMetadataProvider MetadataProvider => DependencyProvider.MetadataProvider;
 
@@ -49,33 +44,27 @@ namespace Packager.Processors
 
         protected string Barcode { get; private set; }
 
-        private string InputDirectory => ProgramSettings.InputDirectory;
+        protected string InputDirectory => ProgramSettings.InputDirectory;
 
         private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
 
         private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
 
-        private IHasher Hasher => DependencyProvider.Hasher;
+        protected IHasher Hasher => DependencyProvider.Hasher;
+        
+        protected IFileProvider FileProvider => DependencyProvider.FileProvider;
 
-        // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioProductionArguments => ProgramSettings.FFMPEGAudioProductionArguments;
-
-        // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioAccessArguments => ProgramSettings.FFMPEGAudioAccessArguments;
-
-        private IFileProvider FileProvider => DependencyProvider.FileProvider;
-
-        private IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
+        protected IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
 
         protected ICarrierDataFactory MetadataGenerator => DependencyProvider.MetadataGenerator;
 
         protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
 
-      
-        public string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
+        private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
 
-        public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
-        protected virtual string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
+        private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
+
+        protected  abstract string OriginalsDirectory { get; }
 
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
         {
@@ -122,36 +111,6 @@ namespace Packager.Processors
 
         protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
 
-        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<ObjectFileModel> filesToProcess)
-        {
-            var sectionKey = Observers.BeginSection("Initializing");
-            try
-            {
-                // make folder to hold processed files
-                Observers.Log("Creating folder: {0}", ProcessingDirectory);
-                DirectoryProvider.CreateDirectory(ProcessingDirectory);
-
-                if (!ProcessingDirectory.Equals(OriginalsDirectory, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Observers.Log("Creating folder: {0}", OriginalsDirectory);
-                    DirectoryProvider.CreateDirectory(OriginalsDirectory);
-                }
-
-                foreach (var fileModel in filesToProcess)
-                {
-                    Observers.Log("Moving originals to processing: {0}", fileModel.OriginalFileName);
-                    await MoveOriginalToProcessing(fileModel);
-                }
-
-                Observers.EndSection(sectionKey, "Initialization successful");
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                Observers.EndSection(sectionKey);
-                throw new LoggedException(e);
-            }
-        }
 
         private async Task MoveToSuccessFolder()
         {
@@ -237,6 +196,37 @@ namespace Packager.Processors
             }
         }
 
+        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<ObjectFileModel> filesToProcess)
+        {
+            var sectionKey = Observers.BeginSection("Initializing");
+            try
+            {
+                // make folder to hold processed files
+                Observers.Log("Creating folder: {0}", ProcessingDirectory);
+                DirectoryProvider.CreateDirectory(ProcessingDirectory);
+
+                if (!ProcessingDirectory.Equals(OriginalsDirectory, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Observers.Log("Creating folder: {0}", OriginalsDirectory);
+                    DirectoryProvider.CreateDirectory(OriginalsDirectory);
+                }
+
+                foreach (var fileModel in filesToProcess)
+                {
+                    Observers.Log("Moving originals to processing: {0}", fileModel.OriginalFileName);
+                    await MoveOriginalToProcessing(fileModel);
+                }
+
+                Observers.EndSection(sectionKey, "Initialization successful");
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+        }
+
         private async Task<string> MoveOriginalToProcessing(AbstractFileModel fileModel)
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
@@ -251,19 +241,19 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected async Task<T> GetMetadata<T>(List<ObjectFileModel> filesToProcess) where T:AbstractPodMetadata, new()
+        protected async Task<T> GetMetadata<T>(List<ObjectFileModel> filesToProcess) where T : AbstractPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
-                
+
                 // resolve unit
                 metadata.Unit = $"{ProgramSettings.UnitPrefix}{await MetadataProvider.ResolveUnit(metadata.Unit)}";
-                
+
                 // log metadata
-                MetadataProvider.Log<T>(metadata);
+                MetadataProvider.Log(metadata);
 
                 // validate base metadata fields
                 MetadataProvider.Validate(metadata, filesToProcess);
@@ -280,14 +270,6 @@ namespace Packager.Processors
             }
         }
 
-        protected async Task AssignChecksumValues(IEnumerable<ObjectFileModel> models)
-        {
-            foreach (var model in models)
-            {
-                model.Checksum = await Hasher.Hash(model);
-                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.ToFileName()), model.Checksum);
-            }
-        } 
-
+       
     }
 }

@@ -6,6 +6,7 @@ using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
+using Packager.Utilities;
 
 namespace Packager.Processors
 {
@@ -14,6 +15,8 @@ namespace Packager.Processors
         public VideoProcessor(IDependencyProvider dependencyProvider) : base(dependencyProvider)
         {
         }
+
+        private IVideoFFMPEGRunner FFPMPEGRunner => DependencyProvider.VideoFFMPEGRunner;
 
         protected override string ProductionFileExtension => ".mkv";
         protected override string AccessFileExtension => ".mp4";
@@ -30,23 +33,32 @@ namespace Packager.Processors
             // we know about
             var processedList = new List<ObjectFileModel>().Concat(filesToProcess)
                 .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
-            
-            // temporary
 
+            processedList = processedList.Concat(await CreateMezzanineDerivatives(processedList, metadata)).ToList();
 
-            return filesToProcess;
+            // now remove duplicate entries -- this could happen if mezzanine master
+            // already exists
+            processedList = processedList.RemoveDuplicates();
+
+            // now create access models
+            processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
+
+            // create QC files
+            var qcFiles = await CreateQualityControlFiles(processedList);
+             
+            // concat processed list and output list and return
+            return new List<AbstractFileModel>().Concat(processedList).Concat(qcFiles).ToList();
         }
 
-        private async Task<List<ObjectFileModel>> CreateMezzanineDerivatives(List<ObjectFileModel> models, AudioPodMetadata podMetadata)
+        private async Task<List<ObjectFileModel>> CreateMezzanineDerivatives(List<ObjectFileModel> models, VideoPodMetadata metadata)
         {
             var results = new List<ObjectFileModel>();
             foreach (var master in models
                 .GroupBy(m => m.SequenceIndicator)
                 .Select(g => g.GetPreservationOrIntermediateModel()))
             {
-                var derivative = master.ToProductionFileModel();
-                //var metadata = null;// AudioMetadataFactory.Generate(models, derivative, podMetadata);
-                //results.Add(await FFPMpegRunner.CreateProductionDerivative(master, derivative, metadata));
+                var derivative = master.ToMezzanineFileModel();
+                results.Add(await FFPMPEGRunner.CreateMezzanineDerivative(master, derivative, metadata));
             }
 
             return results;
@@ -59,9 +71,14 @@ namespace Packager.Processors
             // for each production master, create an access version
             foreach (var model in models.Where(m => m.IsProductionVersion()))
             {
-                results.Add(await FFPMpegRunner.CreateAccessDerivative(model));
+                results.Add(await FFPMPEGRunner.CreateAccessDerivative(model));
             }
             return results;
+        }
+
+        private async Task<List<AbstractFileModel>> CreateQualityControlFiles(List<ObjectFileModel> processedList)
+        {
+            throw new NotImplementedException();
         }
     }
 }

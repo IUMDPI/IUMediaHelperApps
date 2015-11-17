@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Packager.Extensions
 {
@@ -12,7 +9,6 @@ namespace Packager.Extensions
         {
             return parts.Length >= index + 1 ? parts[index] : defaultValue;
         }
-
 
         public static string ToSingularOrPlural<T>(this IEnumerable<T> values, string singular, string plural)
         {

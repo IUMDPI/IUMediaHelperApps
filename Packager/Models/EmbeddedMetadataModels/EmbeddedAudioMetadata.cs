@@ -8,7 +8,7 @@ using Packager.Utilities;
 
 namespace Packager.Models.EmbeddedMetadataModels
 {
-    public class EmbeddedAudioMetadata
+    public class EmbeddedAudioMetadata:AbstractEmbeddedMetadata
     {
         [BextField(BextFields.Description, 256)]
         public string Description { get; set; }
@@ -85,7 +85,7 @@ namespace Packager.Models.EmbeddedMetadataModels
         [BextField(BextFields.ITCH)]
         public string ITCH { get; set; }
 
-        public ArgumentBuilder AsArguments()
+        public override ArgumentBuilder AsArguments()
         {
             var arguments = new ArgumentBuilder();
 

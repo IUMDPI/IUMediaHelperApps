@@ -3,7 +3,7 @@ using Packager.Utilities;
 
 namespace Packager.Models.EmbeddedMetadataModels
 {
-    public class EmbeddedVideoMetadata
+    public class EmbeddedVideoMetadata:AbstractEmbeddedMetadata
     {
         public string Title { get; set; }
         public string Description { get; set; }
@@ -11,7 +11,7 @@ namespace Packager.Models.EmbeddedMetadataModels
 
         public string Comment { get; set; }
 
-        public ArgumentBuilder AsArguments()
+        public override ArgumentBuilder AsArguments()
         {
             var arguments = new ArgumentBuilder();
             arguments.Add($"-metadata title={Title.NormalizeForCommandLine().ToQuoted()}");

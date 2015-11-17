@@ -8,6 +8,7 @@ namespace Packager.Models
         string BwfMetaEditPath { get; }
         // ReSharper disable once InconsistentNaming
         string FFMPEGPath { get; }
+        string FFProbePath { get; }
         string InputDirectory { get; }
         string ProcessingDirectory { get; }
         string FFMPEGAudioProductionArguments { get; }

@@ -24,6 +24,10 @@ namespace Packager.Models
         [ValidateFile]
         public string FFMPEGPath { get; private set; }
 
+        [FromStringConfigSetting("PathToFFProbe")]
+        [ValidateFile]
+        public string FFProbePath { get; private set; }
+
         [FromStringConfigSetting("WhereStaffWorkDirectoryName")]
         [ValidateFolder]
         public string InputDirectory { get; private set; }

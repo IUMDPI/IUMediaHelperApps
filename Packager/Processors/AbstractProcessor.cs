@@ -18,16 +18,16 @@ namespace Packager.Processors
 {
     public abstract class AbstractProcessor : IProcessor
     {
-        private readonly IDependencyProvider _dependencyProvider;
+        protected  IDependencyProvider DependencyProvider { get; }
         // constructor
         protected AbstractProcessor(IDependencyProvider dependencyProvider)
         {
-            _dependencyProvider = dependencyProvider;
+            DependencyProvider = dependencyProvider;
         }
 
-        private IProgramSettings ProgramSettings => _dependencyProvider.ProgramSettings;
+        private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
 
-        protected IObserverCollection Observers => _dependencyProvider.Observers;
+        protected IObserverCollection Observers => DependencyProvider.Observers;
 
         protected abstract string ProductionFileExtension { get; }
         protected abstract string AccessFileExtension { get; }
@@ -35,9 +35,9 @@ namespace Packager.Processors
         protected abstract string PreservationFileExtension { get; }
         protected abstract string PreservationIntermediateFileExtenstion { get; }
 
-        private IPodMetadataProvider MetadataProvider => _dependencyProvider.MetadataProvider;
+        private IPodMetadataProvider MetadataProvider => DependencyProvider.MetadataProvider;
 
-        protected IXmlExporter XmlExporter => _dependencyProvider.XmlExporter;
+        protected IXmlExporter XmlExporter => DependencyProvider.XmlExporter;
 
         protected string ProjectCode => ProgramSettings.ProjectCode;
 
@@ -55,7 +55,7 @@ namespace Packager.Processors
 
         private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
 
-        private IHasher Hasher => _dependencyProvider.Hasher;
+        private IHasher Hasher => DependencyProvider.Hasher;
 
         // ReSharper disable once InconsistentNaming
         protected string FFMPEGAudioProductionArguments => ProgramSettings.FFMPEGAudioProductionArguments;
@@ -63,17 +63,15 @@ namespace Packager.Processors
         // ReSharper disable once InconsistentNaming
         protected string FFMPEGAudioAccessArguments => ProgramSettings.FFMPEGAudioAccessArguments;
 
-        private IFileProvider FileProvider => _dependencyProvider.FileProvider;
+        private IFileProvider FileProvider => DependencyProvider.FileProvider;
 
-        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
+        private IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
 
-        protected ICarrierDataFactory MetadataGenerator => _dependencyProvider.MetadataGenerator;
+        protected ICarrierDataFactory MetadataGenerator => DependencyProvider.MetadataGenerator;
 
-        protected IBextProcessor BextProcessor => _dependencyProvider.BextProcessor;
+        protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
 
-        // ReSharper disable once InconsistentNaming
-        protected IAudioFFMPEGRunner FFPMpegRunner => _dependencyProvider.AudioFFMPEGRunner;
-
+      
         public string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
 
         public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;

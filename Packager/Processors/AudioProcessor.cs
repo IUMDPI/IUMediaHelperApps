@@ -25,6 +25,9 @@ namespace Packager.Processors
             AudioMetadataFactory = dependencyProvider.AudioMetadataFactory;
         }
 
+        // ReSharper disable once InconsistentNaming
+        private IAudioFFMPEGRunner FFPMpegRunner => DependencyProvider.AudioFFMPEGRunner;
+        
         private IBextMetadataFactory AudioMetadataFactory { get; }
 
         protected override string ProductionFileExtension => ".wav";
@@ -57,9 +60,7 @@ namespace Packager.Processors
 
             // now remove duplicate entries -- this could happen if production master
             // already exists
-            processedList = processedList
-                .GroupBy(o => o.ToFileName())
-                .Select(g => g.First()).ToList();
+            processedList = processedList.RemoveDuplicates();
 
             // now clear the ISFT field from presentation and production masters
             await ClearMetadataDataFields(processedList, new List<BextFields> {BextFields.ISFT, BextFields.ITCH});

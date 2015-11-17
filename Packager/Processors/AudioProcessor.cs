@@ -26,7 +26,7 @@ namespace Packager.Processors
         }
 
         // ReSharper disable once InconsistentNaming
-        private IAudioFFMPEGRunner FFPMpegRunner => DependencyProvider.AudioFFMPEGRunner;
+        private IFFMPEGRunner FFPMpegRunner => DependencyProvider.AudioFFMPEGRunner;
         
         private IBextMetadataFactory AudioMetadataFactory { get; }
 
@@ -92,7 +92,7 @@ namespace Packager.Processors
             {
                 var derivative = master.ToProductionFileModel();
                 var metadata = AudioMetadataFactory.Generate(models, derivative, podMetadata);
-                results.Add(await FFPMpegRunner.CreateProductionDerivative(master, derivative, metadata));
+                results.Add(await FFPMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
             }
 
             return results;

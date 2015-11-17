@@ -38,7 +38,7 @@ namespace Packager.Test.Processors
         protected IPodMetadataProvider MetadataProvider { get; set; }
         protected ICarrierDataFactory MetadataGenerator { get; set; }
         protected IBextProcessor BextProcessor { get; set; }
-        protected IAudioFFMPEGRunner FFMPEGRunner { get; set; }
+        protected IFFMPEGRunner FFMPEGRunner { get; set; }
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
         protected string ExpectedObjectFolderName { get; set; }
@@ -89,10 +89,10 @@ namespace Packager.Test.Processors
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
             MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
-            FFMPEGRunner = Substitute.For<IAudioFFMPEGRunner>();
+            FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
                 .ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
                 .ToProductionFileModel()));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();

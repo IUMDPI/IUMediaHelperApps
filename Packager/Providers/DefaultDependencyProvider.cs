@@ -95,9 +95,9 @@ namespace Packager.Providers
         public IBextProcessor BextProcessor { get; }
 
         [ValidateObject]
-        public IAudioFFMPEGRunner AudioFFMPEGRunner { get; }
+        public IFFMPEGRunner AudioFFMPEGRunner { get; }
 
-        public IVideoFFMPEGRunner VideoFFMPEGRunner { get; }
+        public IFFMPEGRunner VideoFFMPEGRunner { get; }
 
         [ValidateObject]
         public IEmailSender EmailSender { get; }

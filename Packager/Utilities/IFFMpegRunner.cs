@@ -6,41 +6,22 @@ using Packager.Models.PodMetadataModels;
 
 namespace Packager.Utilities
 {
-    public interface IAudioFFMPEGRunner:IFFMPEGRunner
-    {
-        Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, EmbeddedAudioMetadata metadata);
-
-        Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
-
-        Task Normalize(ObjectFileModel original, EmbeddedAudioMetadata metadata);
-
-        Task Verify(List<ObjectFileModel> originals);
-
-        string ProductionArguments { get; }
-        string AccessArguments { get; }
-
-    }
-
-    public interface IVideoFFMPEGRunner : IFFMPEGRunner
-    {
-        Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target, EmbeddedVideoMetadata metadata);
-
-        Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
-        
-        Task Normalize(ObjectFileModel original, EmbeddedVideoMetadata metadata);
-
-        Task Verify(List<ObjectFileModel> originals);
-
-        string MezzanineArguments { get; }
-        string AccessArguments { get; }
-
-    }
-
-
     public interface IFFMPEGRunner
     {
         string FFMPEGPath { get; set; }
         
         Task<string> GetFFMPEGVersion();
+
+        Task Normalize(ObjectFileModel original, AbstractEmbeddedMetadata metadata);
+
+        Task Verify(List<ObjectFileModel> originals);
+
+        Task<ObjectFileModel> CreateProdOrMezzDerivative(ObjectFileModel original, ObjectFileModel target, AbstractEmbeddedMetadata metadata);
+
+        Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
+
+        string ProdOrMezzArguments { get; }
+        string AccessArguments { get; }
+
     }
 }

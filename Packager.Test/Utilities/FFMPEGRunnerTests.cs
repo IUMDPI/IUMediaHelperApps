@@ -90,7 +90,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -write_bext 1").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -write_bext 1").Count, Is.EqualTo(1));
                 }
             }
 
@@ -99,7 +99,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -rf64 auto").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -rf64 auto").Count, Is.EqualTo(1));
                 }
             }
 
@@ -115,7 +115,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -write_bext 1").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -write_bext 1").Count, Is.EqualTo(1));
                 }
             }
 
@@ -131,7 +131,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -rf64 auto").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -rf64 auto").Count, Is.EqualTo(1));
                 }
             }
 
@@ -147,7 +147,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldNotModifyArguments()
                 {
-                    Assert.That(Runner.ProductionArguments, Is.Null);
+                    Assert.That(Runner.ProdOrMezzArguments, Is.Null);
                 }
             }
 
@@ -163,7 +163,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldNotModifyArguments()
                 {
-                    Assert.That(Runner.ProductionArguments, Is.EqualTo(""));
+                    Assert.That(Runner.ProdOrMezzArguments, Is.EqualTo(""));
                 }
             }
         }
@@ -703,7 +703,7 @@ namespace Packager.Test.Utilities
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        Result = await Runner.CreateProductionDerivative(MasterFileModel, DerivativeFileModel, Metadata);
+                        Result = await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata);
                     }
 
                     public class WhenDerivativeAlreadyExists : WhenThingsGoWell
@@ -862,7 +862,7 @@ namespace Packager.Test.Utilities
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProductionDerivative(MasterFileModel, DerivativeFileModel, Metadata));
+                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata));
                     }
 
                     [Test]
@@ -882,7 +882,7 @@ namespace Packager.Test.Utilities
                         DerivativeFileModel = MasterFileModel.ToProductionFileModel();
                         Exception = new Exception("testing");
                         ProcessRunner.WhenForAnyArgs(x=>x.Run(null)).Do(x => { throw Exception; });
-                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProductionDerivative(MasterFileModel, DerivativeFileModel, Metadata));
+                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata));
                     }
 
                     private Exception Exception { get; set; }

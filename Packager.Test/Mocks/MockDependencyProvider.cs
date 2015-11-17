@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models;
 using Packager.Models.EmbeddedMetadataModels;
@@ -14,7 +13,6 @@ namespace Packager.Test.Mocks
     public static class MockDependencyProvider
     {
         public static IDependencyProvider Get(
-            
             IDirectoryProvider directoryProvider = null,
             IFileProvider fileProvider = null,
             IHasher hasher = null,
@@ -23,7 +21,7 @@ namespace Packager.Test.Mocks
             IXmlExporter xmlExporter = null,
             IObserverCollection observers = null,
             IValidatorCollection validators = null,
-            IAudioFFMPEGRunner ffmpegRunner = null)
+            IFFMPEGRunner ffmpegRunner = null)
         {
             if (directoryProvider == null)
             {
@@ -65,12 +63,13 @@ namespace Packager.Test.Mocks
                 validators = Substitute.For<IValidatorCollection>();
                 validators.Validate(null).ReturnsForAnyArgs(new ValidationResults());
             }
-            
+
             if (ffmpegRunner == null)
             {
-                ffmpegRunner = Substitute.For<IAudioFFMPEGRunner>();
+                ffmpegRunner = Substitute.For<IFFMPEGRunner>();
                 ffmpegRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
-                ffmpegRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
+                ffmpegRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>())
+                    .Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
             }
 
             var result = Substitute.For<IDependencyProvider>();

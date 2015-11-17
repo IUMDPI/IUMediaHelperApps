@@ -18,7 +18,7 @@ namespace Packager.Processors
             MetadataFactory = dependencyProvider.VideoMetadataFactory;
         }
 
-        private IVideoFFMPEGRunner FFPMPEGRunner => DependencyProvider.VideoFFMPEGRunner;
+        private IFFMPEGRunner FFPMPEGRunner => DependencyProvider.VideoFFMPEGRunner;
 
         private IVideoMetadataFactory MetadataFactory { get; }
 
@@ -73,7 +73,7 @@ namespace Packager.Processors
             {
                 var derivative = master.ToMezzanineFileModel();
                 var embeddedMetadata = MetadataFactory.Generate(models, derivative, metadata);
-                results.Add(await FFPMPEGRunner.CreateMezzanineDerivative(master, derivative, embeddedMetadata));
+                results.Add(await FFPMPEGRunner.CreateProdOrMezzDerivative(master, derivative, embeddedMetadata));
             }
 
             return results;

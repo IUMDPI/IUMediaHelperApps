@@ -30,7 +30,7 @@ namespace Packager.Providers
         ISuccessFolderCleaner SuccessFolderCleaner { get; }
 
         IBextMetadataFactory AudioMetadataFactory { get; }
-
+        IVideoMetadataFactory VideoMetadataFactory { get; }
         ILookupsProvider LookupsProvider { get; }
     }
 }

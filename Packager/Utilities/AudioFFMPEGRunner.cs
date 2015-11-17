@@ -61,7 +61,7 @@ namespace Packager.Utilities
             }
         }
 
-        public async Task Normalize(ObjectFileModel original, EmbeddedAudioMetadata core)
+        public async Task Normalize(ObjectFileModel original, EmbeddedAudioMetadata metadata)
         {
             var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
             try
@@ -80,7 +80,7 @@ namespace Packager.Utilities
 
                 var arguments = new ArgumentBuilder($"-i {originalPath.ToQuoted()}")
                     .AddArguments(NormalizingArguments)
-                    .AddArguments(core.AsArguments())
+                    .AddArguments(metadata.AsArguments())
                     .AddArguments(targetPath.ToQuoted());
 
                 await RunProgram(arguments);

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Observers;
@@ -101,9 +102,9 @@ namespace Packager.Utilities
                     throw new FileDirectoryExistsException("{0} already exists in the processing directory", inputPath);
                 }
 
-                var completeArguments = new ArgumentBuilder($"-i {inputPath}")
+                var completeArguments = new ArgumentBuilder($"-i {inputPath.ToQuoted()}")
                     .AddArguments(arguments)
-                    .AddArguments(outputPath);
+                    .AddArguments(outputPath.ToQuoted());
 
                 await RunProgram(completeArguments);
 

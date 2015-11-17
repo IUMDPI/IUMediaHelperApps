@@ -23,11 +23,13 @@ namespace Packager.Utilities
 
     public interface IVideoFFMPEGRunner : IFFMPEGRunner
     {
-        Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target);
+        Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target, EmbeddedVideoMetadata metadata);
 
         Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
+        
+        Task Normalize(ObjectFileModel original, EmbeddedVideoMetadata metadata);
 
-        Task EmbedMetadata(List<ObjectFileModel> fileModels, VideoPodMetadata metadata);
+        Task Verify(List<ObjectFileModel> originals);
 
         string MezzanineArguments { get; }
         string AccessArguments { get; }

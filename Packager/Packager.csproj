@@ -81,6 +81,7 @@
     <Compile Include="Attributes\FromBextFieldListConfigAttribute.cs" />
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
+    <Compile Include="Factories\IVideoMetadataFactory.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
     <Compile Include="Deserializers\FromXPathAttribute.cs" />

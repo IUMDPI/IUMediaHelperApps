@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Packager.Models;
-using Packager.Models.BextModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
@@ -19,7 +19,7 @@ namespace Packager.Utilities
             AccessArguments = programSettings.FFMPEGAudioAccessArguments;
         }
 
-        public async Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target, VideoPodMetadata metadata)
+        public async Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target)
         {
             if (TargetAlreadyExists(target))
             {
@@ -28,8 +28,7 @@ namespace Packager.Utilities
             }
 
             var args = new ArgumentBuilder(MezzanineArguments);
-            //.AddArguments(metadata.AsArguments());
-
+            
             return await CreateDerivative(original, target, args);
         }
 
@@ -38,14 +37,12 @@ namespace Packager.Utilities
             return await CreateDerivative(original, original.ToAudioAccessFileModel(), new ArgumentBuilder(AccessArguments));
         }
 
-        public async Task Normalize(ObjectFileModel original, BextMetadata metadata)
+        public async Task EmbedMetadata(List<ObjectFileModel> fileModels, VideoPodMetadata metadata)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task Verify(List<ObjectFileModel> originals)
-        {
-            throw new NotImplementedException();
+            foreach (var model in fileModels.Where(m => m.IsMezzanineVersion() || m.IsPreservationIntermediateVersion() || m.IsPreservationVersion()))
+            {
+                
+            }
         }
 
         public string MezzanineArguments { get; }

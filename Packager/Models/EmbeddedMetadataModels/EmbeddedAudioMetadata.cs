@@ -6,9 +6,9 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Utilities;
 
-namespace Packager.Models.BextModels
+namespace Packager.Models.EmbeddedMetadataModels
 {
-    public class BextMetadata
+    public class EmbeddedAudioMetadata
     {
         [BextField(BextFields.Description, 256)]
         public string Description { get; set; }
@@ -104,7 +104,7 @@ namespace Packager.Models.BextModels
             return arguments;
         }
 
-        private static string GetValueFromField(BextMetadata core, PropertyInfo info)
+        private static string GetValueFromField(EmbeddedAudioMetadata core, PropertyInfo info)
         {
             return info.GetValue(core).ToDefaultIfEmpty();
         }

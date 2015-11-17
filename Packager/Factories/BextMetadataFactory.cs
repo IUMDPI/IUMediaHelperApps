@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Device = Packager.Models.PodMetadataModels.Device;
@@ -20,17 +20,17 @@ namespace Packager.Factories
 
         private readonly List<string> _knownDigitalFormats = new List<string> {"cd-r", "dat"};
 
-        public BextMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, AudioPodMetadata metadata)
+        public EmbeddedAudioMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, AudioPodMetadata metadata)
         {
             var provenance = GetProvenance(metadata, models, target);
             return Generate(target, provenance, metadata);
         }
 
-        private BextMetadata Generate(ObjectFileModel model, AbstractDigitalFile provenance, AudioPodMetadata metadata)
+        private EmbeddedAudioMetadata Generate(ObjectFileModel model, AbstractDigitalFile provenance, AudioPodMetadata metadata)
         {
             var description = GenerateBextDescription(metadata, model);
 
-            return new BextMetadata
+            return new EmbeddedAudioMetadata
             {
                 Originator = metadata.DigitizingEntity,
                 OriginatorReference = Path.GetFileNameWithoutExtension(model.ToFileName()),

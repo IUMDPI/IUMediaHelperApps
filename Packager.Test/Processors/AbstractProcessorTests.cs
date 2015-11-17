@@ -6,7 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
@@ -92,7 +92,7 @@ namespace Packager.Test.Processors
             FFMPEGRunner = Substitute.For<IAudioFFMPEGRunner>();
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
                 .ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
+            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
                 .ToProductionFileModel()));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();

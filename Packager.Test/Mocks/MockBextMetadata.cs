@@ -1,15 +1,15 @@
 ﻿using System.Linq;
 using System.Reflection;
 using Packager.Attributes;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 
 namespace Packager.Test.Mocks
 {
     public static class MockBextMetadata
     {
-        public static BextMetadata Get()
+        public static EmbeddedAudioMetadata Get()
         {
-            var result = new BextMetadata();
+            var result = new EmbeddedAudioMetadata();
             foreach (var property in result.GetType().GetProperties().Where(p => p.GetCustomAttribute<BextFieldAttribute>() != null))
             {
                 var value = $"{property.Name} value";

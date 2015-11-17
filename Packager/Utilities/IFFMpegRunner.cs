@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 
@@ -8,11 +8,11 @@ namespace Packager.Utilities
 {
     public interface IAudioFFMPEGRunner:IFFMPEGRunner
     {
-        Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, BextMetadata metadata);
+        Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, EmbeddedAudioMetadata metadata);
 
         Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
 
-        Task Normalize(ObjectFileModel original, BextMetadata metadata);
+        Task Normalize(ObjectFileModel original, EmbeddedAudioMetadata metadata);
 
         Task Verify(List<ObjectFileModel> originals);
 
@@ -23,13 +23,11 @@ namespace Packager.Utilities
 
     public interface IVideoFFMPEGRunner : IFFMPEGRunner
     {
-        Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target, VideoPodMetadata metadata);
+        Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target);
 
         Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
 
-        Task Normalize(ObjectFileModel original, BextMetadata metadata);
-
-        Task Verify(List<ObjectFileModel> originals);
+        Task EmbedMetadata(List<ObjectFileModel> fileModels, VideoPodMetadata metadata);
 
         string MezzanineArguments { get; }
         string AccessArguments { get; }

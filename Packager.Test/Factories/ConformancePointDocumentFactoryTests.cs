@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using NUnit.Framework;
 using Packager.Factories;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Device = Packager.Models.PodMetadataModels.Device;
@@ -20,7 +20,7 @@ namespace Packager.Test.Factories
         private const string CallNumber = "AB1243";
         private const string Title = "Test title";
 
-        private BextMetadata Result { get; set; }
+        private EmbeddedAudioMetadata Result { get; set; }
         private ObjectFileModel Model { get; set; }
         private DigitalAudioFile Provenance { get; set; }
         private AudioPodMetadata Metadata { get; set; }

@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
 using Packager.Observers;
@@ -73,7 +73,7 @@ namespace Packager.Test.Utilities
         private IProcessResult ProcessRunnerResult { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
 
-        private BextMetadata Metadata { get; set; }
+        private EmbeddedAudioMetadata Metadata { get; set; }
 
         private IHasher Hasher { get; set; }
 

@@ -4,7 +4,7 @@ using ICSharpCode.AvalonEdit.Rendering;
 using NUnit.Framework;
 using Packager.Attributes;
 using Packager.Extensions;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Utilities;
 
 namespace Packager.Test.Models.BextModels
@@ -12,9 +12,9 @@ namespace Packager.Test.Models.BextModels
     [TestFixture]
     public class BextMetadataTests
     {
-        private BextMetadata GetMetadata()
+        private EmbeddedAudioMetadata GetMetadata()
         {
-            return new BextMetadata
+            return new EmbeddedAudioMetadata
             {
                 CodingHistory = "Coding History",
                 Description = "Description",
@@ -46,7 +46,7 @@ namespace Packager.Test.Models.BextModels
 
 
 
-        private static void ConfirmArgumentsPresentAndCorrect(BextMetadata metadata, ArgumentBuilder arguments)
+        private static void ConfirmArgumentsPresentAndCorrect(EmbeddedAudioMetadata metadata, ArgumentBuilder arguments)
         {
             foreach (var property in metadata.GetType().GetProperties())
             {
@@ -93,7 +93,7 @@ namespace Packager.Test.Models.BextModels
         [Test]
         public void AllPropertiesShouldHaveBextFieldAttribute()
         {
-            foreach (var property in typeof(BextMetadata).GetProperties())
+            foreach (var property in typeof(EmbeddedAudioMetadata).GetProperties())
             {
                 var attribute = property.GetCustomAttribute<BextFieldAttribute>();
                 Assert.That(attribute, Is.Not.Null, $"{property.Name} should have bext field attribute");

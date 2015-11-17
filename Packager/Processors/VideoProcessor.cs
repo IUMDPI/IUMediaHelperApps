@@ -36,6 +36,9 @@ namespace Packager.Processors
             // already exists
             processedList = processedList.RemoveDuplicates();
 
+            // now embed metadata
+            await FFPMPEGRunner.EmbedMetadata(processedList, metadata);
+
             // now create access models
             processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
 
@@ -54,7 +57,7 @@ namespace Packager.Processors
                 .Select(g => g.GetPreservationOrIntermediateModel()))
             {
                 var derivative = master.ToMezzanineFileModel();
-                results.Add(await FFPMPEGRunner.CreateMezzanineDerivative(master, derivative, metadata));
+                results.Add(await FFPMPEGRunner.CreateMezzanineDerivative(master, derivative));
             }
 
             return results;

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
@@ -33,7 +33,7 @@ namespace Packager.Utilities
         public string AccessArguments { get; }
 
 
-        public async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, BextMetadata metadata)
+        public async Task<ObjectFileModel> CreateProductionDerivative(ObjectFileModel original, ObjectFileModel target, EmbeddedAudioMetadata metadata)
         {
             if (TargetAlreadyExists(target))
             {
@@ -61,7 +61,7 @@ namespace Packager.Utilities
             }
         }
 
-        public async Task Normalize(ObjectFileModel original, BextMetadata core)
+        public async Task Normalize(ObjectFileModel original, EmbeddedAudioMetadata core)
         {
             var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
             try

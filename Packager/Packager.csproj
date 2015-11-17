@@ -81,6 +81,7 @@
     <Compile Include="Attributes\FromBextFieldListConfigAttribute.cs" />
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
+    <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
     <Compile Include="Deserializers\FromXPathAttribute.cs" />
     <Compile Include="Deserializers\IImportable.cs" />
@@ -139,7 +140,7 @@
     <Compile Include="Extensions\XElementExtensions.cs" />
     <Compile Include="Factories\IngestDataFactory.cs" />
     <Compile Include="Factories\SideDataFactory.cs" />
-    <Compile Include="Models\BextModels\BextMetadata.cs" />
+    <Compile Include="Models\EmbeddedMetadataModels\EmbeddedAudioMetadata.cs" />
     <Compile Include="Models\EmailMessageModels\EngineIssueMessage.cs" />
     <Compile Include="Models\FileModels\FileModelFactory.cs" />
     <Compile Include="Models\FileModels\AbstractFileModel.cs" />

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
@@ -233,13 +233,13 @@ namespace Packager.Test.Processors
 
             public class WhenNormalizingOriginals : WhenNothingGoesWrong
             {
-                private BextMetadata ExpectedMetadata { get; set; }
+                private EmbeddedAudioMetadata ExpectedMetadata { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    ExpectedMetadata = new BextMetadata();
+                    ExpectedMetadata = new EmbeddedAudioMetadata();
                     AudioMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
                 }
 
@@ -285,14 +285,14 @@ namespace Packager.Test.Processors
             public class WhenCreatingDerivatives : WhenNothingGoesWrong
             {
                 private ObjectFileModel ExpectedMasterModel { get; set; }
-                private BextMetadata ExpectedMetadata { get; set; }
+                private EmbeddedAudioMetadata ExpectedMetadata { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
                     ExpectedMasterModel = PresObjectFileModel;
-                    ExpectedMetadata = new BextMetadata();
+                    ExpectedMetadata = new EmbeddedAudioMetadata();
                     AudioMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
                 }
 

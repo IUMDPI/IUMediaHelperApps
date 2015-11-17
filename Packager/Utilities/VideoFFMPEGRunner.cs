@@ -15,6 +15,8 @@ namespace Packager.Utilities
         public VideoFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider)
             : base(programSettings, processRunner, observers, fileProvider)
         {
+            MezzanineArguments = programSettings.FFMPEGVideoMezzanineArguments;
+            AccessArguments = programSettings.FFMPEGAudioAccessArguments;
         }
 
         public Task<ObjectFileModel> CreateMezzanineDerivative(ObjectFileModel original, ObjectFileModel target, VideoPodMetadata metadata)

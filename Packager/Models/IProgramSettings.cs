@@ -10,10 +10,10 @@ namespace Packager.Models
         string FFMPEGPath { get; }
         string InputDirectory { get; }
         string ProcessingDirectory { get; }
-        // ReSharper disable once InconsistentNaming
         string FFMPEGAudioProductionArguments { get; }
-        // ReSharper disable once InconsistentNaming
         string FFMPEGAudioAccessArguments { get; }
+        string FFMPEGVideoMezzanineArguments { get; }
+        string FFMPEGVideoAccessArguments { get; }
         string ProjectCode { get; }
         string DropBoxDirectoryName { get; }
         PodAuth PodAuth { get; }

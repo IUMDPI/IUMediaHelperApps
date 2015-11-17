@@ -40,6 +40,14 @@ namespace Packager.Models
         [Required]
         public string FFMPEGAudioAccessArguments { get; private set; }
 
+        [FromStringConfigSetting("ffmpegVideoMezzanineArguments")]
+        [Required]
+        public string FFMPEGVideoMezzanineArguments { get; private set; }
+
+        [FromStringConfigSetting("ffmpegVideoAccessArguments")]
+        [Required]
+        public string FFMPEGVideoAccessArguments { get; private set; }
+
         [FromStringConfigSetting("ProjectCode")]
         [Required]
         public string ProjectCode { get; private set; }

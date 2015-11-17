@@ -23,7 +23,7 @@ namespace Packager.Test.Mocks
             IXmlExporter xmlExporter = null,
             IObserverCollection observers = null,
             IValidatorCollection validators = null,
-            IFFMPEGRunner ffmpegRunner = null)
+            IAudioFFMPEGRunner ffmpegRunner = null)
         {
             if (directoryProvider == null)
             {
@@ -68,7 +68,7 @@ namespace Packager.Test.Mocks
             
             if (ffmpegRunner == null)
             {
-                ffmpegRunner = Substitute.For<IFFMPEGRunner>();
+                ffmpegRunner = Substitute.For<IAudioFFMPEGRunner>();
                 ffmpegRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
                 ffmpegRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
             }
@@ -83,7 +83,7 @@ namespace Packager.Test.Mocks
             result.ProgramSettings.Returns(programSettings);
             result.Observers.Returns(observers);
             result.ValidatorCollection.Returns(validators);
-            result.FFMPEGRunner.Returns(ffmpegRunner);
+            result.AudioFFMPEGRunner.Returns(ffmpegRunner);
             return result;
         }
     }

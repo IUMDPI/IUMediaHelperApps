@@ -19,7 +19,9 @@ namespace Packager.Providers
         IPodMetadataProvider MetadataProvider { get; }
         ISystemInfoProvider SystemInfoProvider { get; }
         IBextProcessor BextProcessor { get; }
-        IFFMPEGRunner FFMPEGRunner { get; }
+        IAudioFFMPEGRunner AudioFFMPEGRunner { get; }
+        IVideoFFMPEGRunner VideoFFMPEGRunner { get; }
+
         IBwfMetaEditRunner MetaEditRunner { get; }
         IEmailSender EmailSender { get; }
         ISideDataFactory SideDataFactory { get; }

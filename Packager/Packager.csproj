@@ -103,11 +103,13 @@
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />
+    <Compile Include="Utilities\AbstractFFMPEGRunner.cs" />
     <Compile Include="Utilities\ArgumentBuilder.cs" />
-    <Compile Include="Utilities\FFMPEGRunner.cs" />
+    <Compile Include="Utilities\AudioFFMPEGRunner.cs" />
     <Compile Include="Utilities\IBwfMetaEditRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />
     <Compile Include="Utilities\ISuccessFolderCleaner.cs" />
+    <Compile Include="Utilities\VideoFFMPEGRunner.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Attributes\FromStringConfigSettingAttribute.cs" />

@@ -50,7 +50,7 @@ namespace Packager.Test.Utilities
 
             Metadata = MockBextMetadata.Get();
 
-            Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
 
             DoCustomSetup();
         }
@@ -68,7 +68,7 @@ namespace Packager.Test.Utilities
         private IProcessRunner ProcessRunner { get; set; }
         private IObserverCollection Observers { get; set; }
         private IFileProvider FileProvider { get; set; }
-        private FFMPEGRunner Runner { get; set; }
+        private AudioFFMPEGRunner Runner { get; set; }
         private ObjectFileModel Result { get; set; }
         private IProcessResult ProcessRunnerResult { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
@@ -109,7 +109,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -write_bext 1");
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
@@ -125,7 +125,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -rf64 auto");
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
@@ -141,7 +141,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns((string)null);
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
@@ -157,7 +157,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns("");
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
@@ -913,7 +913,7 @@ namespace Packager.Test.Utilities
         [Test]
         public void FFMPEGPathPropertyShouldHaveValidateAttribute()
         {
-            var info = typeof (FFMPEGRunner).GetProperty("FFMPEGPath");
+            var info = typeof (AudioFFMPEGRunner).GetProperty("FFMPEGPath");
             Assert.That(info.GetCustomAttribute<ValidateFileAttribute>(), Is.Not.Null);
         }
     }

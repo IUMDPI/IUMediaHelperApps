@@ -170,10 +170,10 @@ namespace Packager.Engine
             Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("Unit prefix: {0}", _dependencyProvider.ProgramSettings.UnitPrefix.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
-            Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("FFMPeg audio production args: {0}", _dependencyProvider.FFMPEGRunner.ProductionArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg audio access args: {0}", _dependencyProvider.FFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPEG path: {0}", _dependencyProvider.AudioFFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.AudioFFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFMPeg audio production args: {0}", _dependencyProvider.AudioFFMPEGRunner.ProductionArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg audio access args: {0}", _dependencyProvider.AudioFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("Success folder cleaning: {0}", _dependencyProvider.SuccessFolderCleaner.Enabled ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}" : "disabled");
 

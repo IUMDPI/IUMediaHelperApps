@@ -30,7 +30,8 @@ namespace Packager.Providers
             AudioMetadataFactory = new BextMetadataFactory();
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
-            FFMPEGRunner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             LookupsProvider = new AppConfigLookupsProvider();
             ValidatorCollection = new StandardValidatorCollection
@@ -94,7 +95,9 @@ namespace Packager.Providers
         public IBextProcessor BextProcessor { get; }
 
         [ValidateObject]
-        public IFFMPEGRunner FFMPEGRunner { get; }
+        public IAudioFFMPEGRunner AudioFFMPEGRunner { get; }
+
+        public IVideoFFMPEGRunner VideoFFMPEGRunner { get; }
 
         [ValidateObject]
         public IEmailSender EmailSender { get; }

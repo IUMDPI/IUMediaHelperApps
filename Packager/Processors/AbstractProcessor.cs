@@ -72,7 +72,7 @@ namespace Packager.Processors
         protected IBextProcessor BextProcessor => _dependencyProvider.BextProcessor;
 
         // ReSharper disable once InconsistentNaming
-        protected IFFMPEGRunner FFPMpegRunner => _dependencyProvider.FFMPEGRunner;
+        protected IAudioFFMPEGRunner FFPMpegRunner => _dependencyProvider.AudioFFMPEGRunner;
 
         public string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
 

@@ -54,7 +54,7 @@ namespace Packager.Test.Factories
 
             DoCustomSetup();
 
-            Result = new BextMetadataFactory().Generate(Instances, Model, Metadata);
+            Result = new EmbeddedAudioMetadataFactory().Generate(Instances, Model, Metadata) as EmbeddedAudioMetadata;
         }
 
         private static DigitalAudioFile GetFileProvenance()

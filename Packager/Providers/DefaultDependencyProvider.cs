@@ -2,6 +2,7 @@
 using Packager.Deserializers;
 using Packager.Factories;
 using Packager.Models;
+using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Utilities;
 using Packager.Validators;
@@ -27,8 +28,8 @@ namespace Packager.Providers
             MetadataGenerator = new CarrierDataFactory(SideDataFactory);
             SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
             Observers = new ObserverCollection();
-            AudioMetadataFactory = new BextMetadataFactory();
-            VideoMetadataFactory = new VideoMetadataFactory();
+            AudioMetadataFactory = new EmbeddedAudioMetadataFactory();
+            VideoMetadataFactory = new EmbeddedVideoMetadataFactory();
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
             AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
@@ -110,8 +111,8 @@ namespace Packager.Providers
 
         public IValidatorCollection ValidatorCollection { get; }
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
-        public IBextMetadataFactory AudioMetadataFactory { get; }
-        public IVideoMetadataFactory VideoMetadataFactory { get; }
+        public IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
+        public IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
 
         [ValidateObject]
         public ILookupsProvider LookupsProvider { get; }

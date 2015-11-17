@@ -28,7 +28,7 @@ namespace Packager.Processors
         // ReSharper disable once InconsistentNaming
         private IFFMPEGRunner FFPMpegRunner => DependencyProvider.AudioFFMPEGRunner;
         
-        private IBextMetadataFactory AudioMetadataFactory { get; }
+        private IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
 
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 

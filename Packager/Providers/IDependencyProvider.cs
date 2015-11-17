@@ -1,5 +1,6 @@
 ﻿using Packager.Factories;
 using Packager.Models;
+using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Utilities;
 using Packager.Validators;
@@ -29,8 +30,8 @@ namespace Packager.Providers
         IValidatorCollection ValidatorCollection { get; }
         ISuccessFolderCleaner SuccessFolderCleaner { get; }
 
-        IBextMetadataFactory AudioMetadataFactory { get; }
-        IVideoMetadataFactory VideoMetadataFactory { get; }
+        IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
+        IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
         ILookupsProvider LookupsProvider { get; }
     }
 }

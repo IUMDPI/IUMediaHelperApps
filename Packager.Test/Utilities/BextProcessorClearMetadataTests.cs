@@ -36,7 +36,7 @@ namespace Packager.Test.Utilities
                 Task.FromResult((IProcessResult) new ProcessResult {ExitCode = 0, StandardError = Output, StandardOutput = Output}));
 */
 
-            ConformancePointDocumentFactory = Substitute.For<IBextMetadataFactory>();
+            ConformancePointDocumentFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
 
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, Verifier);
 //            await BextProcessor.ClearAllBextMetadataFields(Instances);
@@ -52,7 +52,7 @@ namespace Packager.Test.Utilities
         private IBwfMetaEditRunner MetaEditRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
-        private IBextMetadataFactory ConformancePointDocumentFactory { get; set; }
+        private IEmbeddedMetadataFactory<AudioPodMetadata> ConformancePointDocumentFactory { get; set; }
         private IObserverCollection Observers { get; set; }
         private ObjectFileModel ProdFileModel { get; set; }
         private ObjectFileModel PresFileModel { get; set; }

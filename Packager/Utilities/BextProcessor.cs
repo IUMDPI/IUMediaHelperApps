@@ -38,7 +38,7 @@ namespace Packager.Utilities
                 if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
                 {
                     Observers.Log(result.StandardOutput);
-                    throw new BextMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
+                    throw new EmbeddedMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
                 }
 
                 Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));

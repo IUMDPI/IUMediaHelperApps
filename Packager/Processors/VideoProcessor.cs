@@ -20,7 +20,7 @@ namespace Packager.Processors
 
         private IFFMPEGRunner FFPMPEGRunner => DependencyProvider.VideoFFMPEGRunner;
 
-        private IVideoMetadataFactory MetadataFactory { get; }
+        private IEmbeddedMetadataFactory<VideoPodMetadata> MetadataFactory { get; }
 
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 

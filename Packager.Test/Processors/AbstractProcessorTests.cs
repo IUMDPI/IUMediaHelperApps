@@ -45,7 +45,7 @@ namespace Packager.Test.Processors
         protected AudioPodMetadata Metadata { get; set; }
         protected abstract void DoCustomSetup();
 
-        protected IBextMetadataFactory AudioMetadataFactory { get; set; }
+        protected IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; set; }
 
         protected string PreservationFileName { get; set; }
         protected string PreservationIntermediateFileName { get; set; }
@@ -78,7 +78,7 @@ namespace Packager.Test.Processors
             ProgramSettings.ErrorDirectoryName.Returns(ErrorDirectory);
             ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
 
-            AudioMetadataFactory = Substitute.For<IBextMetadataFactory>();
+            AudioMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
 
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();

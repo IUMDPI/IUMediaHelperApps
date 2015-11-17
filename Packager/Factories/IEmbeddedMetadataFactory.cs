@@ -5,9 +5,8 @@ using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories
 {
-    public interface IBextMetadataFactory
+    public interface IEmbeddedMetadataFactory<in T> where T : AbstractPodMetadata
     {
-        EmbeddedAudioMetadata Generate(List<ObjectFileModel> models, ObjectFileModel target, AudioPodMetadata metadata);
-        
+        AbstractEmbeddedMetadata Generate(IEnumerable<ObjectFileModel> models, ObjectFileModel target, T metadata);
     }
 }

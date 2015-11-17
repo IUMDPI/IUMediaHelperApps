@@ -81,7 +81,10 @@
     <Compile Include="Attributes\FromBextFieldListConfigAttribute.cs" />
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
-    <Compile Include="Factories\IVideoMetadataFactory.cs" />
+    <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
+    <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
+    <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
+    <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
@@ -125,7 +128,7 @@
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
     <Compile Include="Exceptions\AbstractEngineException.cs" />
-    <Compile Include="Exceptions\BextMetadataException.cs" />
+    <Compile Include="Exceptions\EmbeddedMetadataException.cs" />
     <Compile Include="Exceptions\DeserializeValueException.cs" />
     <Compile Include="Exceptions\DetermineProcessorException.cs" />
     <Compile Include="Exceptions\GenerateDerivativeException.cs" />
@@ -182,7 +185,6 @@
     <Compile Include="Models\EmailMessageModels\AbstractEmailMessage.cs" />
     <Compile Include="Providers\ISystemInfoProvider.cs" />
     <Compile Include="Providers\SystemInfoProvider.cs" />
-    <Compile Include="Factories\BextMetadataFactory.cs" />
     <Compile Include="Utilities\EmailSender.cs" />
     <Compile Include="Utilities\Hasher.cs" />
     <Compile Include="Utilities\IBextProcessor.cs" />
@@ -196,7 +198,6 @@
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\ViewModel.cs" />
-    <Compile Include="Factories\IBextMetadataFactory.cs" />
     <Compile Include="Utilities\IEmailSender.cs" />
     <Compile Include="Utilities\IHasher.cs" />
     <Compile Include="Models\OutputModels\CarrierData.cs" />

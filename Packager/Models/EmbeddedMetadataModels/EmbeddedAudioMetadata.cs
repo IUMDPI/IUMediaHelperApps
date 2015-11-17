@@ -95,7 +95,7 @@ namespace Packager.Models.EmbeddedMetadataModels
             {
                 if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
                 {
-                    throw new BextMetadataException("Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1, info.Item2.MaxLength);
+                    throw new EmbeddedMetadataException("Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1, info.Item2.MaxLength);
                 }
 
                 arguments.Add($"-metadata {info.Item2.GetFFMPEGArgument()}={info.Item1.NormalizeForCommandLine().ToQuoted()}");

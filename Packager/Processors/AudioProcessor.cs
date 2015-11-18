@@ -128,7 +128,7 @@ namespace Packager.Processors
 
         private async Task<XmlFileModel> GenerateXml(AudioPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
-            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
+            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode};
             var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
             try
             {

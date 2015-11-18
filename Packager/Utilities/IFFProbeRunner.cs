@@ -17,6 +17,8 @@ namespace Packager.Utilities
         string FFProbePath { get; }
         string VideoQualityControlArguments { get; }
         Task<QualityControlFileModel> GenerateQualityControlFile(ObjectFileModel target);
+
+        Task<string> GetVersion();
     }
 
     public class FFProbeRunner : IFFProbeRunner
@@ -87,7 +89,23 @@ namespace Packager.Utilities
                 throw new LoggedException(e);
             }
         }
-        
+
+        public async Task<string> GetVersion()
+        {
+            try
+            {
+                var info = new ProcessStartInfo(FFProbePath) { Arguments = "-version" };
+                var result = await ProcessRunner.Run(info);
+
+                var parts = result.StandardOutput.Split(' ');
+                return parts[2];
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+        }
+
         private async Task<string> RunProgram(IEnumerable arguments, string workingFolder)
         {
             var startInfo = new ProcessStartInfo(FFProbePath)

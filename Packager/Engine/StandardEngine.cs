@@ -174,6 +174,12 @@ namespace Packager.Engine
             Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.AudioFFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("FFMPeg audio production args: {0}", _dependencyProvider.AudioFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPeg audio access args: {0}", _dependencyProvider.AudioFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg video mezzanine args: {0}", _dependencyProvider.VideoFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg video access args: {0}", _dependencyProvider.VideoFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("");
+            Observers.Log("FFProbe path: {0}", _dependencyProvider.FFProbeRunner.FFProbePath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFProbe version: {0}", (await _dependencyProvider.FFProbeRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFProbe video QC args: {0}", _dependencyProvider.FFProbeRunner.VideoQualityControlArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("Success folder cleaning: {0}", _dependencyProvider.SuccessFolderCleaner.Enabled ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}" : "disabled");
 

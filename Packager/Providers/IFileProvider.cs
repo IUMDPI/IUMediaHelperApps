@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 
 namespace Packager.Providers
@@ -14,10 +15,11 @@ namespace Packager.Providers
         Task MoveFileAsync(string sourceFileName, string destFileName);
         bool FileExists(string path);
         bool FileDoesNotExist(string path);
-
         FileInfo GetFileInfo(string path);
         FileVersionInfo GetFileVersionInfo(string path);
         string GetFileVersion(string path);
+
+        Task ArchiveFile(string filePath, string archivePath);
     }
 
     public class FileProvider : IFileProvider
@@ -75,6 +77,25 @@ namespace Packager.Providers
             return info == null 
                 ? "" 
                 : info.FileVersion;
+        }
+
+        private void ArchiveFileInternal(string filePath, string archivePath)
+        {
+            if (FileDoesNotExist(filePath))
+            {
+                throw new FileNotFoundException($"The file {filePath} does not exist or is not accessible");
+            }
+
+            var mode = FileExists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create;
+            using (var archive = ZipFile.Open(archivePath, mode))
+            {
+                archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath));
+            }
+        }
+
+        public async Task ArchiveFile(string filePath, string archivePath)
+        {
+            await Task.Run(() => ArchiveFileInternal(filePath, archivePath));
         }
     }
 }

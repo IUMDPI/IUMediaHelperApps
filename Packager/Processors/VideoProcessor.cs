@@ -19,6 +19,7 @@ namespace Packager.Processors
         }
 
         private IFFMPEGRunner FFPMPEGRunner => DependencyProvider.VideoFFMPEGRunner;
+        private IFFProbeRunner FFProbeRunner => DependencyProvider.FFProbeRunner;
 
         private IEmbeddedMetadataFactory<VideoPodMetadata> MetadataFactory { get; }
 
@@ -91,10 +92,15 @@ namespace Packager.Processors
             return results;
         }
 
-        private async Task<List<AbstractFileModel>> CreateQualityControlFiles(List<ObjectFileModel> processedList)
+        private async Task<List<QualityControlFileModel>> CreateQualityControlFiles(IEnumerable<ObjectFileModel> processedList)
         {
-            //todo: implement
-            return new List<AbstractFileModel>();
+            var results = new List<QualityControlFileModel>();
+            foreach (var model in processedList)
+            {
+                results.Add(await FFProbeRunner.GenerateQualityControlFile(model));
+            }
+
+            return results;
         }
     }
 }

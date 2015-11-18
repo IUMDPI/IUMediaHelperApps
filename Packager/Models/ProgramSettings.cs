@@ -52,6 +52,10 @@ namespace Packager.Models
         [Required]
         public string FFMPEGVideoAccessArguments { get; private set; }
 
+        [FromStringConfigSetting("ffprobeVideoQualityControlArguments")]
+        [Required]
+        public string FFProbeVideoQualityControlArguments { get; private set; }
+
         [FromStringConfigSetting("ProjectCode")]
         [Required]
         public string ProjectCode { get; private set; }

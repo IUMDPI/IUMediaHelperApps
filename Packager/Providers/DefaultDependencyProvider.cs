@@ -47,6 +47,7 @@ namespace Packager.Providers
             MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, LookupsProvider), Observers, ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName,
                 new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
+            FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
         }
         
         private static IRestClient GetRestClient(IProgramSettings programSettings, ILookupsProvider lookupsProvider)
@@ -116,6 +117,8 @@ namespace Packager.Providers
 
         [ValidateObject]
         public ILookupsProvider LookupsProvider { get; }
+
+        public IFFProbeRunner FFProbeRunner { get; }
 
         public IBwfMetaEditRunner MetaEditRunner { get; }
     }

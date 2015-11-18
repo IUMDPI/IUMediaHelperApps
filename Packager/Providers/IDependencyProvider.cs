@@ -33,5 +33,7 @@ namespace Packager.Providers
         IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
         IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
         ILookupsProvider LookupsProvider { get; }
+
+        IFFProbeRunner FFProbeRunner { get; }
     }
 }

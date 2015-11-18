@@ -60,6 +60,8 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -87,6 +89,8 @@
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMetadata.cs" />
+    <Compile Include="Models\FileModels\AbstractObjectFileModel.cs" />
+    <Compile Include="Models\FileModels\QualityControlFileModel.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
     <Compile Include="Deserializers\FromXPathAttribute.cs" />
     <Compile Include="Deserializers\IImportable.cs" />
@@ -114,6 +118,7 @@
     <Compile Include="Utilities\AudioFFMPEGRunner.cs" />
     <Compile Include="Utilities\IBwfMetaEditRunner.cs" />
     <Compile Include="Utilities\IFFMpegRunner.cs" />
+    <Compile Include="Utilities\IFFProbeRunner.cs" />
     <Compile Include="Utilities\ISuccessFolderCleaner.cs" />
     <Compile Include="Utilities\VideoFFMPEGRunner.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />

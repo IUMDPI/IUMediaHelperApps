@@ -8,7 +8,15 @@ namespace Packager.Factories
     {
         protected override AbstractEmbeddedMetadata Generate(ObjectFileModel model, AbstractDigitalFile provenance, VideoPodMetadata metadata)
         {
-            return new EmbeddedVideoMetadata
+            return model.IsMezzanineVersion()
+                ? GetForUse<EmbeddedVideoMezzanineMetadata>(model, provenance, metadata)
+                : GetForUse<EmbeddedVideoPreservationMetadata>(model, provenance, metadata);
+        }
+
+
+        private AbstractEmbeddedMetadata GetForUse<T>(ObjectFileModel model, AbstractDigitalFile provenance, VideoPodMetadata metadata) where T : AbstractEmbeddedVideoMetadata, new()
+        {
+            return new T
             {
                 Description = GenerateDescription(metadata, model),
                 Title = metadata.Title,
@@ -16,5 +24,6 @@ namespace Packager.Factories
                 Comment = $"File created by {metadata.DigitizingEntity}"
             };
         }
+        
     }
 }

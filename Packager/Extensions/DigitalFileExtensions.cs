@@ -6,9 +6,9 @@ using System.IO;
 
 namespace Packager.Extensions
 {
-    public static class PodMetadataExtensions
+    public static class DigitalFileExtensionss
     {
-        public static AbstractDigitalFile GetFileProvenance(this List<AbstractDigitalFile> provenances, AbstractFileModel model, AbstractDigitalFile defaultValue = null)
+        public static AbstractDigitalFile GetFileProvenance(this IEnumerable<AbstractDigitalFile> provenances, AbstractFileModel model, AbstractDigitalFile defaultValue = null)
         {
             var result = provenances.SingleOrDefault(dfp => model.IsSameAs(NormalizeFilename(dfp.Filename, model)));
             return result ?? defaultValue;

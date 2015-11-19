@@ -96,7 +96,7 @@ namespace Packager.Processors
                 Observers.LogProcessingIssue(e, Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return new ValidationResult(e.GetFirstMessage());
+                return new ValidationResult(e.GetBaseMessage());
             }
         }
 

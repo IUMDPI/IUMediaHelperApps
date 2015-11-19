@@ -35,7 +35,7 @@ namespace Packager.Extensions
             return preservationIntermediate ?? list.FirstOrDefault(m => m.IsPreservationVersion());
         }
 
-        public static List<ObjectFileModel> RemoveDuplicates(this List<ObjectFileModel> models)
+        public static List<ObjectFileModel> RemoveDuplicates(this IEnumerable<ObjectFileModel> models)
         {
             return models.GroupBy(o => o.ToFileName())
                 .Select(g => g.First()).ToList();

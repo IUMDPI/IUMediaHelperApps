@@ -73,6 +73,7 @@
     <Compile Include="Extensions\DigitalFileExtensionTests.cs" />
     <Compile Include="Extensions\ExceptionExtensionTests.cs" />
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
+    <Compile Include="Extensions\StringBuilderExtensionsTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />

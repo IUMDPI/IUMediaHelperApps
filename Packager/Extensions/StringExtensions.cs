@@ -9,39 +9,7 @@ namespace Packager.Extensions
     {
         public static string ToQuoted(this string value)
         {
-            return string.Format("\"{0}\"", value);
-        }
-
-        public static int? ToInteger(this string value, int? defaultValue = null)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return defaultValue;
-            }
-
-            int result;
-            if (!int.TryParse(value, out result))
-            {
-                return defaultValue;
-            }
-
-            return result;
-        }
-
-        public static bool? ToBool(this string value, bool? defaultValue = null)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return defaultValue;
-            }
-
-            bool result;
-            if (!bool.TryParse(value, out result))
-            {
-                return defaultValue;
-            }
-
-            return result;
+            return $"\"{value}\"";
         }
 
         private static string FromCamelCaseToSpaces(this string value)
@@ -87,7 +55,7 @@ namespace Packager.Extensions
                     property.GetValue(instance).ToDefaultIfEmpty("[not set]"));
             }
 
-            return builder.ToString();
+            return builder.ToString().TrimEnd('\n');
         }
 
         public static string GetDatePropertiesAndValues(this object instance, string indent = "")
@@ -104,7 +72,7 @@ namespace Packager.Extensions
                     property.GetValue(instance).ToDefaultIfEmpty("[not set]"));
             }
 
-            return builder.ToString();
+            return builder.ToString().TrimEnd('\n');
         }
 
         public static string RemoveSpaces(this string value)

@@ -18,7 +18,7 @@ namespace Packager.Extensions
 
         public static string ToSingularOrPlural<T, TU>(this Dictionary<T, TU> values, string singular, string plural)
         {
-            var count = values?.Count() ?? 0;
+            var count = values?.Count ?? 0;
             return count.ToSingularOrPlural(singular, plural);
         }
 

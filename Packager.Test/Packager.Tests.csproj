@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Engine\EngineTests.cs" />
     <Compile Include="Extensions\ArrayExtensionTests.cs" />
+    <Compile Include="Extensions\ExceptionExtensionTests.cs" />
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />

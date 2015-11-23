@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
@@ -59,6 +61,11 @@ namespace Packager.UserInterface
             TextEditor.TextArea.TextView.ElementGenerators.Clear();
             TextArea.TextView.ElementGenerators.Add(new BarcodeElementGenerator(this));
 
+            // set selection formatting
+            TextArea.SelectionCornerRadius = 0;
+            TextArea.SelectionBorder = new Pen(SystemColors.HighlightBrush, 1);
+            TextArea.SelectionBrush = SystemColors.HighlightBrush;
+
             outputWindow.DataContext = this;
             outputWindow.Show();
 
@@ -68,9 +75,6 @@ namespace Packager.UserInterface
             Title = $"{programSettings.ProjectCode.ToUpperInvariant()} Media Packager";
 
             FoldingManager = FoldingManager.Install(TextArea);
-
-            var test = TextEditor.TextArea.TextView.Services;
-            //TextArea.TextView.ElementGenerators.Clear();
         }
 
         private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)

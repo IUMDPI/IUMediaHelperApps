@@ -7,7 +7,7 @@ namespace Packager.Models.FileModels
         public QualityControlFileModel(AbstractObjectFileModel fileModel)
         {
             SequenceIndicator = fileModel.SequenceIndicator;
-            Extension = ".gz";
+            Extension = ".qctools.xml.gz";
             FileUse = fileModel.FileUse;
             ProjectCode = fileModel.ProjectCode;
             BarCode = fileModel.BarCode;

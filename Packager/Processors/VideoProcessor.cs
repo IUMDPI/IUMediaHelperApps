@@ -95,7 +95,7 @@ namespace Packager.Processors
         private async Task<List<QualityControlFileModel>> CreateQualityControlFiles(IEnumerable<ObjectFileModel> processedList)
         {
             var results = new List<QualityControlFileModel>();
-            foreach (var model in processedList)
+            foreach (var model in processedList.Where(m=> m.IsPreservationVersion() || m.IsPreservationIntermediateVersion()))
             {
                 results.Add(await FFProbeRunner.GenerateQualityControlFile(model));
             }

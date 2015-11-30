@@ -10,7 +10,7 @@ namespace Packager.Utilities
             : base(programSettings, processRunner, observers, fileProvider, hasher)
         {
             ProdOrMezzArguments = programSettings.FFMPEGVideoMezzanineArguments;
-            AccessArguments = programSettings.FFMPEGAudioAccessArguments;
+            AccessArguments = programSettings.FFMPEGVideoAccessArguments;
         }
 
         protected override string NormalizingArguments => "-acodec copy -vcodec copy";

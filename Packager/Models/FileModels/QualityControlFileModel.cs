@@ -15,7 +15,7 @@ namespace Packager.Models.FileModels
 
         public string ToIntermediateFileName()
         {
-            return $"{ToFileNameWithoutExtension()}.xml";
+            return $"{ToFileNameWithoutExtension()}.qctools.xml";
         }
     }
 }

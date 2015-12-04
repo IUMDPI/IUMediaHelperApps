@@ -6,6 +6,7 @@ using Packager.Attributes;
 using Packager.Extensions;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Utilities;
+using Packager.Utilities.Process;
 
 namespace Packager.Test.Models.BextModels
 {

@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Packager.Utilities
+﻿namespace Packager.Utilities.Xml
 {
     public interface IXmlExporter
     {

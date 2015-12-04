@@ -3,7 +3,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Xml
 {
     internal class XmlExporter : IXmlExporter
     {

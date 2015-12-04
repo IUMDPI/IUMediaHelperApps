@@ -11,9 +11,10 @@ using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
+using Packager.Utilities.Hashing;
 using Packager.Validators.Attributes;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Process
 {
     public abstract class AbstractFFMPEGRunner : IFFMPEGRunner
     {
@@ -44,7 +45,7 @@ namespace Packager.Utilities
                 var info = new ProcessStartInfo(FFMPEGPath) {Arguments = "-version"};
                 var result = await ProcessRunner.Run(info);
 
-                var parts = result.StandardOutput.Split(' ');
+                var parts = result.StandardOutput.GetContent().Split(' ');
                 return parts[2];
             }
             catch (Exception)
@@ -130,7 +131,7 @@ namespace Packager.Utilities
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.Log(result.StandardError);
+            Observers.Log(result.StandardError.GetContent());
 
             if (result.ExitCode != 0)
             {

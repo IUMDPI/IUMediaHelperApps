@@ -12,6 +12,7 @@ using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
 using Packager.Utilities;
+using Packager.Utilities.Bext;
 
 namespace Packager.Test.Processors
 {

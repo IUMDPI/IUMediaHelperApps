@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,15 +6,8 @@ using Packager.Extensions;
 using Packager.Observers;
 using Packager.Providers;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.FileSystem
 {
-    public interface ISuccessFolderCleaner
-    {
-        bool Enabled { get; }
-        string ConfiguredInterval { get; }
-        Task DoCleaning();
-    }
-
     public class SuccessFolderCleaner : ISuccessFolderCleaner
     {
         public SuccessFolderCleaner(IDirectoryProvider directoryProvider, string successFolder, TimeSpan interval, IObserverCollection observers)

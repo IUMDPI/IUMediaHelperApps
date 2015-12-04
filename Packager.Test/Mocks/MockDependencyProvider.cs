@@ -6,6 +6,9 @@ using Packager.Models.FileModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Utilities.Hashing;
+using Packager.Utilities.Process;
+using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Test.Mocks

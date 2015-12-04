@@ -2,6 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Packager.Utilities;
+using Packager.Utilities.Hashing;
 
 namespace Packager.Test.Utilities
 {

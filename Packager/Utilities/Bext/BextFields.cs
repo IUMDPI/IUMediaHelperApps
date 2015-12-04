@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Packager.Attributes;
-using Packager.Models.FileModels;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Bext
 {
     public enum BextFields
     {
@@ -32,10 +29,5 @@ namespace Packager.Utilities
         ISRC,
         ISRF,
         ITCH
-    }
-
-    public interface IBextProcessor
-    {
-        Task ClearMetadataFields(List<ObjectFileModel> instances, List<BextFields> fields);
     }
 }

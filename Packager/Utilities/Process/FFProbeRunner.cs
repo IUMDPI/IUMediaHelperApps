@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
@@ -10,17 +10,8 @@ using Packager.Observers;
 using Packager.Providers;
 using Packager.Validators.Attributes;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Process
 {
-    public interface IFFProbeRunner
-    {
-        string FFProbePath { get; }
-        string VideoQualityControlArguments { get; }
-        Task<QualityControlFileModel> GenerateQualityControlFile(ObjectFileModel target);
-
-        Task<string> GetVersion();
-    }
-
     public class FFProbeRunner : IFFProbeRunner
     {
         public FFProbeRunner(IProgramSettings programSettings, IProcessRunner processRunner, IFileProvider fileProvider, IObserverCollection observers)
@@ -73,9 +64,12 @@ namespace Packager.Utilities
 
                 var args = new ArgumentBuilder(string.Format(VideoQualityControlArguments, target.ToFileName()));
 
-                var xml = await RunProgram(args, Path.Combine(BaseProcessingDirectory, target.GetFolderName()));
+                using (var fileOutputBuffer = new FileOutputBuffer(xmlPath, FileProvider))
+                {
+                    await RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()));
+                } 
 
-                FileProvider.WriteAllText(xmlPath, xml);
+                //FileProvider.WriteAllText(xmlPath, xml);
                 await FileProvider.ArchiveFile(xmlPath, archivePath);
 
                 Observers.EndSection(sectionKey, $"Quality control file generated successfully: {target.ToFileName()}");
@@ -97,7 +91,7 @@ namespace Packager.Utilities
                 var info = new ProcessStartInfo(FFProbePath) { Arguments = "-version" };
                 var result = await ProcessRunner.Run(info);
 
-                var parts = result.StandardOutput.Split(' ');
+                var parts = result.StandardOutput.GetContent().Split(' ');
                 return parts[2];
             }
             catch (Exception)
@@ -106,28 +100,26 @@ namespace Packager.Utilities
             }
         }
 
-        private async Task<string> RunProgram(IEnumerable arguments, string workingFolder)
+        private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder)
         {
             var startInfo = new ProcessStartInfo(FFProbePath)
             {
                 Arguments = arguments.ToString(),
                 RedirectStandardError = true,
-                RedirectStandardOutput = true,
+                RedirectStandardOutput = false,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = workingFolder
             };
 
-            var result = await ProcessRunner.Run(startInfo);
+            var result = await ProcessRunner.Run(startInfo, outputbuffer);
 
-            Observers.Log(result.StandardError);
+            Observers.Log(result.StandardError.GetContent());
 
             if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
-
-            return result.StandardOutput;
         }
     }
 }

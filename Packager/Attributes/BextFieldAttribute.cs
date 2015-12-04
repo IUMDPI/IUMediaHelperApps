@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Packager.Utilities;
+using Packager.Utilities.Bext;
 
 namespace Packager.Attributes
 {
@@ -39,15 +40,4 @@ namespace Packager.Attributes
             return attribute == null ? Field.ToString() : attribute.Value;
         }
     }
-
-    public class FFMPEGArgumentAttribute : Attribute
-    {
-        public string Value { get; set; }
-
-        public FFMPEGArgumentAttribute(string value)
-        {
-            Value = value;
-        }
-    }
-
 }

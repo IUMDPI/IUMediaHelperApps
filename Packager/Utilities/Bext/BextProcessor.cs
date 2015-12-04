@@ -7,9 +7,10 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Observers;
+using Packager.Utilities.Process;
 using Packager.Verifiers;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Bext
 {
     public class BextProcessor : IBextProcessor
     {
@@ -35,13 +36,13 @@ namespace Packager.Utilities
                     Observers.Log("");
                 }
 
-                if (Verifier.Verify(result.StandardOutput.ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
+                if (Verifier.Verify(result.StandardOutput.GetContent().ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
                 {
-                    Observers.Log(result.StandardOutput);
+                    Observers.Log(result.StandardOutput.GetContent());
                     throw new EmbeddedMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
                 }
 
-                Observers.Log(FormatOutput(result.StandardOutput, instance.GetFolderName()));
+                Observers.Log(FormatOutput(result.StandardOutput.GetContent(), instance.GetFolderName()));
             }
         }
 

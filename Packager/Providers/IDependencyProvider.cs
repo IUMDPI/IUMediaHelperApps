@@ -3,6 +3,12 @@ using Packager.Models;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Utilities;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Email;
+using Packager.Utilities.FileSystem;
+using Packager.Utilities.Hashing;
+using Packager.Utilities.Process;
+using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Providers

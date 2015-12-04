@@ -12,6 +12,9 @@ using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Hashing;
+using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Processors

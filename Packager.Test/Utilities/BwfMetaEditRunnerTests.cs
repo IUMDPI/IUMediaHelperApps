@@ -7,6 +7,8 @@ using NUnit.Framework;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
 using Packager.Utilities;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Process;
 
 namespace Packager.Test.Utilities
 {

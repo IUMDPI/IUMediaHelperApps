@@ -5,6 +5,7 @@ using Packager.Models;
 using Packager.Models.EmailMessageModels;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Utilities.Email;
 
 namespace Packager.Observers
 {

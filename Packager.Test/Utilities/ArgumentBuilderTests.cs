@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Packager.Utilities;
+using Packager.Utilities.Process;
 
 namespace Packager.Test.Utilities
 {

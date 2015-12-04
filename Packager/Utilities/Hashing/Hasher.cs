@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Hashing
 {
     public class Hasher : IHasher
     {

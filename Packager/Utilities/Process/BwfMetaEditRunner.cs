@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,20 +7,11 @@ using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
+using Packager.Utilities.Bext;
 using Packager.Validators.Attributes;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Process
 {
-    public interface IBwfMetaEditRunner
-    {
-        string BwfMetaEditPath { get; }
-        //Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core);
-        //Task<IProcessResult> ClearMetadata(ObjectFileModel model);
-
-        Task<IProcessResult> ClearMetadata(ObjectFileModel model, IEnumerable<BextFields> fields);
-        Task<string> GetVersion();
-    }
-
     public class BwfMetaEditRunner : IBwfMetaEditRunner
     {
         private const string VerboseArgument = "--verbose";
@@ -61,7 +52,7 @@ namespace Packager.Utilities
             {
                 var result = await ExecuteBextProcess(new ArgumentBuilder(VersionArgument));
 
-                var parts = result.StandardOutput.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+                var parts = result.StandardOutput.GetContent().Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
                 return parts.Last();
             }
             catch (Exception)

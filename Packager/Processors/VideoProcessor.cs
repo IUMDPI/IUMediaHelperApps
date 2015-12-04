@@ -8,6 +8,7 @@ using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Utilities.Process;
 
 namespace Packager.Processors
 {

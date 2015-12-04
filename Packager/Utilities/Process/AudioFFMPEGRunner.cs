@@ -1,8 +1,9 @@
 ﻿using Packager.Models;
 using Packager.Observers;
 using Packager.Providers;
+using Packager.Utilities.Hashing;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Process
 {
     // ReSharper disable once InconsistentNaming
     public class AudioFFMPEGRunner : AbstractFFMPEGRunner

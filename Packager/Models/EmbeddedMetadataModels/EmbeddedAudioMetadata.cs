@@ -5,6 +5,8 @@ using Packager.Attributes;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Utilities;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Process;
 
 namespace Packager.Models.EmbeddedMetadataModels
 {

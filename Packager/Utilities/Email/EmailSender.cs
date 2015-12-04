@@ -6,7 +6,7 @@ using System.Net.Mime;
 using Packager.Models.EmailMessageModels;
 using Packager.Providers;
 
-namespace Packager.Utilities
+namespace Packager.Utilities.Email
 {
     public class EmailSender : IEmailSender
     {

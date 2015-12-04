@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Utilities.FileSystem;
 
 namespace Packager.Test.Utilities
 {

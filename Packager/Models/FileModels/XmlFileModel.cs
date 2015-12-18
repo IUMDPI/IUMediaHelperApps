@@ -12,7 +12,6 @@ namespace Packager.Models.FileModels
 
         public XmlFileModel(string path) : base(path)
         {
-            Extension = ".xml";
         }
 
         public override bool IsSameAs(string filename)

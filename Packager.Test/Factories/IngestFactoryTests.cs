@@ -23,18 +23,15 @@ namespace Packager.Test.Factories
 
         private DigitalAudioFile GenerateFileProvenance(string fileName)
         {
-          /*  var original = new DigitalFileProvenance
+            return new DigitalAudioFile()
             {
                 Comment = "Comment",
                 CreatedBy = "Created by",
                 DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
                 Filename = fileName,
-                //SignalChain = GetSignalChain(),
+                SignalChain = GetSignalChain(),
                 SpeedUsed = "7.5 ips"
-            };*/
-
-
-            return new DigitalAudioFile();
+            };
         }
         
         private static List<Device> GetSignalChain()

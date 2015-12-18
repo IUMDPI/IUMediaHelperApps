@@ -22,7 +22,7 @@ namespace Packager.Factories
 
         protected static string GenerateDescription(AbstractPodMetadata metadata, ObjectFileModel model)
         {
-            return $"{metadata.Unit}. {metadata.CallNumber}. File Use: {model.FullFileUse}. Original Filename: {Path.GetFileNameWithoutExtension(model.OriginalFileName)}";
+            return $"{metadata.Unit}. {metadata.CallNumber}. File use: {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.OriginalFileName)}";
         }
 
         protected static string GetDateString(DateTime? date, string format, string defaultValue)

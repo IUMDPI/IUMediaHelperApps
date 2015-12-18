@@ -59,17 +59,16 @@ namespace Packager.Test.Factories
 
         private static DigitalAudioFile GetFileProvenance()
         {
-           /* var original = new DigitalFileProvenance
+    
+            return new DigitalAudioFile
             {
                 Comment = "Comment",
                 CreatedBy = "Created by",
                 DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
                 Filename = PreservationFileName,
-                //SignalChain = GetSignalChain(),
-                SpeedUsed = "7.5 ips"
-            };*/
-
-            return new DigitalAudioFile();
+                SpeedUsed = "7.5 ips",
+                SignalChain = GetSignalChain()
+            };
         }
 
         private static List<Device> GetSignalChain()

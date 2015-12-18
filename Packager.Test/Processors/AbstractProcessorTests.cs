@@ -83,6 +83,9 @@ namespace Packager.Test.Processors
             ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
 
             AudioMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
+            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(), Arg.Any<ObjectFileModel>(),
+                Arg.Any<AudioPodMetadata>())
+                .Returns(new EmbeddedAudioMetadata());
 
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();
@@ -96,8 +99,8 @@ namespace Packager.Test.Processors
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
                 .ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
-                .ToProductionFileModel()));
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>())
+                .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);

@@ -19,5 +19,10 @@ namespace Packager.Models.PodMetadataModels
 
             return result;
         }
+
+        protected override void NormalizeFileProvenances()
+        {
+            // ignore
+        }
     }
 }

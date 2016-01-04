@@ -60,8 +60,10 @@ namespace Packager.Models.PodMetadataModels
             PreservationProblems = element.ToResolvedDelimitedString("data/object/technical_metadata/preservation_problems", lookupsProvider.PreservationProblem);
             DigitizingEntity = element.ToStringValue("data/object/digital_provenance/digitizing_entity");
             FileProvenances = ImportFileProvenances(element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"), lookupsProvider);
+            NormalizeFileProvenances();
         }
         
         protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements, ILookupsProvider lookupsProvider);
+        protected abstract void NormalizeFileProvenances();
     }
 }

@@ -14,6 +14,7 @@ namespace Packager.Models.PodMetadataModels
         public string Peak { get; set; }
         public string StylusSize { get; set; }
         public string TurnOver { get; set; }
+        public string Gain { get; set; }
 
         public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
         {
@@ -24,6 +25,7 @@ namespace Packager.Models.PodMetadataModels
             Peak = element.ToStringValue("peak");
             StylusSize = element.ToStringValue("stylus_size");
             TurnOver = element.ToStringValue("turnover");
+            Gain = element.ToStringValue("volume_units");
         }
     }
 }

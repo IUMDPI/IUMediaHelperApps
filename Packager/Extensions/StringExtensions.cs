@@ -93,5 +93,15 @@ namespace Packager.Extensions
         {
             return value ? "Yes" : "No";
         }
+
+        public static string AppendIfValuePresent(this string value, string toAppend)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            return value.Trim() + toAppend;
+        }
     }
 }

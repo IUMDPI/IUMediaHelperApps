@@ -37,7 +37,7 @@ namespace Packager.Factories
                     XsiType = $"Configuration{podMetadata.Format}".RemoveSpaces(),
                     Track = podMetadata.TrackConfiguration,
                     SoundField = podMetadata.SoundField,
-                    Speed = podMetadata.PlaybackSpeed
+                    Speed = podMetadata.PlaybackSpeed,
                 },
                 PhysicalCondition = new PhysicalConditionData
                 {

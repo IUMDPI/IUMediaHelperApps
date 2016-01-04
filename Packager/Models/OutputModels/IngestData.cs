@@ -36,5 +36,26 @@ namespace Packager.Models.OutputModels
 
         [XmlElement("Preamp_serial_number", Order = 9)]
         public string PreAmpSerialNumber { get; set; }
+
+        [XmlElement("Stylus", Order = 10)]
+        public string Stylus { get; set; }
+
+        [XmlElement("Turnover", Order = 11)]
+        public string Turnover { get; set; }
+
+        [XmlElement("ReferenceFluxivity", Order = 12)]
+        public string ReferenceFluxivity { get; set; }
+
+        [XmlElement("Gain", Order = 13)]
+        public string Gain { get; set; }
+
+        [XmlElement("AnalogOutputVoltage", Order = 14)]
+        public string AnalogOutputVoltage { get; set; }
+
+        [XmlElement("Peak", Order = 15)]
+        public string Peak { get; set; }
+
+        [XmlElement("Rolloff", Order = 16)]
+        public string Rolloff { get; set; }
     }
 }

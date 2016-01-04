@@ -57,9 +57,17 @@ namespace Packager.Extensions
         {
             var result = new List<string>();
             var element = parent.XPathSelectElement(path);
-            if (element == null || !element.HasElements)
+            if (element == null)
             {
                 return string.Empty;
+            }
+            
+            // if there are no children, try to match
+            // value assigned in dictionary to known lookup value
+            // this ensures that the value is normalized correctly
+            if (!element.HasElements)
+            {
+                return FindValueInDictionary(element.Value, lookupDictionary);
             }
 
             foreach (var key in element.Elements()
@@ -69,13 +77,26 @@ namespace Packager.Extensions
                 string value;
                 if (lookupDictionary.TryGetValue(key, out value)==false)
                 {
-                    throw new PodMetadataException("Lookup value missing for key {0}", key);
+                    return string.Empty;
                 }
 
                 result.Add(value);
             };
 
             return string.Join(",", result);
+        }
+
+        private static string FindValueInDictionary(string value, Dictionary<string, string> dictionary)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            var dictionaryValue =
+                dictionary.Values.FirstOrDefault(v => v.ToLowerInvariant().Equals(value.ToLowerInvariant()));
+
+            return string.IsNullOrWhiteSpace(dictionaryValue) == false ?  dictionaryValue: string.Empty;
         }
 
         public static T ToImportable<T>(this XElement element, ILookupsProvider lookupsProvider)

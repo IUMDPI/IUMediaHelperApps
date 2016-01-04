@@ -54,6 +54,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -75,6 +76,7 @@
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
     <Compile Include="Extensions\StringBuilderExtensionsTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
+    <Compile Include="Extensions\XElementExtensionTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\MetadataModels\SampleRateTests.cs" />

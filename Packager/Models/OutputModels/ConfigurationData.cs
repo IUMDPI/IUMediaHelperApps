@@ -9,10 +9,15 @@ namespace Packager.Models.OutputModels
     {
          [XmlAttribute("type", Form = XmlSchemaForm.Qualified, Namespace = "http://www.w3.org/2001/XMLSchema-instance")]
         public string XsiType { get; set; }
-        
         public string Track { get; set; }
         public string SoundField { get; set; }
         public string Speed { get; set; }
         public string RecordingType { get; set; }
+        public string Stylus { get; set; }
+        public string Turnover { get; set; }
+        public string ReferenceFluxivity { get; set; }
+        public string Gain { get; set; }
+        public string AnalogOutputVoltage { get; set; }
+        public string Peak { get; set; }
     }
 }

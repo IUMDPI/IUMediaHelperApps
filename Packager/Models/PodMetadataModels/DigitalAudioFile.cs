@@ -9,23 +9,25 @@ namespace Packager.Models.PodMetadataModels
     {
         [Required]
         public string SpeedUsed { get; set; }
-        public string TapeFluxivity { get; set; }
+        public string ReferenceFluxivity { get; set; }
         public string AnalogOutputVoltage { get; set; }
         public string Peak { get; set; }
         public string StylusSize { get; set; }
-        public string TurnOver { get; set; }
+        public string Turnover { get; set; }
         public string Gain { get; set; }
+        public string Rolloff { get; set; }
 
         public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
         {
             base.ImportFromXml(element, lookupsProvider);
             SpeedUsed = element.ToStringValue("speed_used");
-            TapeFluxivity = element.ToStringValue("tape_fluxivity");
-            AnalogOutputVoltage = element.ToStringValue("analog_output_voltage");
-            Peak = element.ToStringValue("peak");
+            ReferenceFluxivity = element.ToStringValue("tape_fluxivity").AppendIfValuePresent(" nWb/m");
+            AnalogOutputVoltage = element.ToStringValue("analog_output_voltage").AppendIfValuePresent(" dBu");
+            Peak = element.ToStringValue("peak").AppendIfValuePresent(" dBfs");
             StylusSize = element.ToStringValue("stylus_size");
-            TurnOver = element.ToStringValue("turnover");
-            Gain = element.ToStringValue("volume_units");
+            Turnover = element.ToStringValue("turnover");
+            Gain = element.ToStringValue("volume_units").AppendIfValuePresent(" dB");
+            Rolloff = element.ToStringValue("rolloff");
         }
     }
 }

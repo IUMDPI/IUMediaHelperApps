@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
+using NSubstitute;
 using NUnit.Framework;
 using Packager.Models.PodMetadataModels;
+using Packager.Providers;
 
 namespace Packager.Test.Models.MetadataModels
 {
@@ -24,6 +28,111 @@ namespace Packager.Test.Models.MetadataModels
                         new Device {DeviceType = "ad", Model = "Ad model", Manufacturer = "Ad manufacturer", SerialNumber = "Ad serial number"}
                     }
                 };
+            }
+
+            public class WhenImporting 
+            {
+                private XElement Element { get; set; }
+                private ILookupsProvider LookupsProvider { get; set; }
+                private DigitalAudioFile Result { get; set; }
+
+                [SetUp]
+                public void BeforeEach()
+                {
+                    LookupsProvider = Substitute.For<ILookupsProvider>();
+
+                    Element = new XElement("digital_file_provenance", 
+                        new XElement("filename") {Value= "MDPI_40000001210717_01_pres.wav" },
+                        new XElement("date_digitized") {Value= "2015-10-14T20:00:00-04:00" },
+                        new XElement("comment") { Value = "comment" },
+                        new XElement("created_by") { Value = "username" },
+                        new XElement("speed_used") { Value="3.75 ips" },
+                        new XElement("tape_fluxivity") { Value = "250" },
+                        new XElement("volume_units") { Value = "+8" },
+                        new XElement("analog_output_voltage") { Value = "+4" },
+                        new XElement("peak") { Value = "-18" },
+                        new XElement("stylus_size") {Value =  "2.0 ET"},
+                        new XElement("turnover") {Value="turnover value"},
+                        new XElement("rolloff") {Value="rolloff value"});
+
+                    Result = new DigitalAudioFile();
+                    Result.ImportFromXml(Element, LookupsProvider);
+                }
+
+                [Test]
+                public void FilenameShouldBeCorrect()
+                {
+                    Assert.That(Result.Filename, Is.EqualTo("MDPI_40000001210717_01_pres.wav"));
+                }
+
+                [Test]
+                public void DateDigitizedShouldBeCorrect()
+                {
+                    Assert.That(Result.DateDigitized.HasValue, Is.True);
+                    Assert.That(Result.DateDigitized.Value, Is.EqualTo(DateTime.Parse("2015-10-14T20:00:00-04:00")));
+                }
+
+                [Test]
+                public void CommentShouldBeCorrect()
+                {
+                    Assert.That(Result.Comment, Is.EqualTo("comment"));
+                }
+
+                [Test]
+                public void CreatedByShouldBeCorrect()
+                {
+                    Assert.That(Result.CreatedBy, Is.EqualTo("username"));
+                }
+
+                [Test]
+                public void SpeedUsedShouldBeCorrect()
+                {
+                    Assert.That(Result.SpeedUsed, Is.EqualTo("3.75 ips"));
+                }
+
+                [Test]
+                public void ReferenceFluxivityShouldBeCorrect()
+                {
+                    Assert.That(Result.ReferenceFluxivity, Is.EqualTo("250 nWb/m"));
+                }
+
+                [Test]
+                public void AnalogOutputVoltageShouldBeCorrect()
+                {
+                    Assert.That(Result.AnalogOutputVoltage, Is.EqualTo("+4 dBu"));
+                }
+
+                [Test]
+                public void PeakShouldBeCorrect()
+                {
+                    Assert.That(Result.Peak, Is.EqualTo("-18 dBfs"));
+                }
+
+                [Test]
+                public void StylusSizeShouldBeCorrect()
+                {
+                    Assert.That(Result.StylusSize, Is.EqualTo("2.0 ET"));
+                }
+
+                [Test]
+                public void TurnoverShouldBeCorrect()
+                {
+                    Assert.That(Result.Turnover, Is.EqualTo("turnover value"));
+                }
+
+                [Test]
+                public void GainShouldBeCorrect()
+                {
+                    Assert.That(Result.Gain, Is.EqualTo("+8 dB"));
+                }
+
+                [Test]
+                public void RolloffShouldBeCorrect()
+                {
+                    Assert.That(Result.Rolloff, Is.EqualTo("rolloff value"));
+                }
+
+
             }
         }
 

@@ -31,6 +31,9 @@ namespace Packager.Processors
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<VideoPodMetadata>(filesToProcess);
 
+            // verify that expected originals are present
+            VerifyOriginalsPresent(filesToProcess, metadata);
+
             await NormalizeOriginals(filesToProcess, metadata);
 
             // verify normalized versions of originals

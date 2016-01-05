@@ -11,7 +11,6 @@ using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
 using Packager.Providers;
-using Packager.Utilities;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Xml;
@@ -273,6 +272,61 @@ namespace Packager.Processors
             }
         }
 
-       
+        protected void VerifyOriginalsPresent<T>(IEnumerable<ObjectFileModel> filesToProcess, T metadata)
+            where T : AbstractPodMetadata
+        {
+            var sectionKey = Observers.BeginSection("Verifying original masters: {0}", Barcode);
+            try
+            {
+
+                var expectedMasters = metadata.FileProvenances
+                    .Select(p => new ObjectFileModel(p.Filename))
+                    .Select(m => m.ToFileName()).ToList();
+
+                var presentMasters = filesToProcess
+                    .Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
+                    .Select(m => m.ToFileName()).ToList();
+
+                var completeList = expectedMasters.Concat(presentMasters).Distinct();
+
+                var missingFiles = expectedMasters.Except(presentMasters).ToList();
+                var unexpectedFiles = presentMasters.Except(expectedMasters).ToList();
+
+                foreach (var file in completeList)
+                {
+                    if (missingFiles.Contains(file))
+                    {
+                        Observers.Log("{0}: not found", file);
+                    }
+                    else if (unexpectedFiles.Contains(file))
+                    {
+                        Observers.Log("{0}: not found", file);
+                    }
+                    else
+                    {
+                        Observers.Log("{0}: present", file);
+                    }
+                }
+
+                if (missingFiles.Any())
+                {
+                    throw new PodMetadataException("One or more masters specified in POD metadata is not present");
+                }
+              
+                if (unexpectedFiles.Any())
+                {
+                    throw new PodMetadataException("One or more originals is not specified in POD metadata");
+                }
+
+                Observers.EndSection(sectionKey, "Original masters verified successfully!");
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+        }
+
     }
 }

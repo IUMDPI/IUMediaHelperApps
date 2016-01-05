@@ -145,6 +145,7 @@ namespace Packager.Utilities.Process
         {
             var parts = log.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                 .Where(p=>p.StartsWith("frame=")==false) // remove frame entries
+                .Where(p=>p.StartsWith("size=")==false) // remove size entries
                 .Where(p=>p.StartsWith("Press [q] to stop")==false) // remove press q message
                 .ToList();
 

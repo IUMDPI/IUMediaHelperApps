@@ -10,7 +10,6 @@ using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
-using Packager.Utilities;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Process;
 
@@ -38,6 +37,9 @@ namespace Packager.Processors
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<AudioPodMetadata>(filesToProcess);
+
+            // verify that expected originals are present
+            VerifyOriginalsPresent(filesToProcess, metadata);
 
             // normalize originals
             await NormalizeOriginals(filesToProcess, metadata);

@@ -176,6 +176,7 @@ namespace Packager.Engine
             Observers.Log("FFMPeg audio access args: {0}", _dependencyProvider.AudioFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPeg video mezzanine args: {0}", _dependencyProvider.VideoFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPeg video access args: {0}", _dependencyProvider.VideoFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMpeg log level: {0}", ProgramSettings.FFMPEGLogLevel.ToDefaultIfEmpty("[default]"));
             Observers.Log("");
             Observers.Log("FFProbe path: {0}", _dependencyProvider.FFProbeRunner.FFProbePath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFProbe version: {0}", (await _dependencyProvider.FFProbeRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));

@@ -26,7 +26,10 @@ namespace Packager.Utilities.Process
             FileProvider = fileProvider;
             Hasher = hasher;
             ProcessRunner = processRunner;
+            LogLevel = programSettings.FFMPEGLogLevel;
         }
+
+        protected string LogLevel { get; }
 
         protected abstract string NormalizingArguments { get; }
         private IProcessRunner ProcessRunner { get; }
@@ -72,6 +75,7 @@ namespace Packager.Utilities.Process
                 }
 
                 var arguments = new ArgumentBuilder($"-i {originalPath.ToQuoted()}")
+                    .AddArguments(GetLogLevelArguments())
                     .AddArguments(NormalizingArguments)
                     .AddArguments(metadata.AsArguments())
                     .AddArguments(targetPath.ToQuoted());
@@ -85,6 +89,13 @@ namespace Packager.Utilities.Process
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
+        }
+
+        private string GetLogLevelArguments()
+        {
+            return string.IsNullOrWhiteSpace(LogLevel) 
+                ? "" 
+                : $"-loglevel {LogLevel}";
         }
 
         public async Task Verify(List<ObjectFileModel> originals)
@@ -172,12 +183,12 @@ namespace Packager.Utilities.Process
                 }
 
                 var completeArguments = new ArgumentBuilder($"-i {inputPath.ToQuoted()}")
+                    .AddArguments(GetLogLevelArguments())
                     .AddArguments(arguments)
                     .AddArguments(outputPath.ToQuoted());
 
                 await RunProgram(completeArguments);
-
-
+                
                 Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.ToFileName()}");
                 return target;
             }
@@ -203,8 +214,6 @@ namespace Packager.Utilities.Process
             var sectionKey = Observers.BeginSection("Hashing {0}", sectionName);
             try
             {
-                const string commandLineFormat = "-y -i {0} -f framemd5 {1}";
-
                 var folderPath = Path.Combine(BaseProcessingDirectory,
                     isOriginal ? model.GetOriginalFolderName() : model.GetFolderName());
 
@@ -217,7 +226,10 @@ namespace Packager.Utilities.Process
 
                 var md5Path = Path.Combine(folderPath, model.ToFrameMd5Filename());
 
-                var arguments = new ArgumentBuilder(string.Format(commandLineFormat, targetPath, md5Path));
+                var arguments = new ArgumentBuilder($"-y -i {targetPath}")
+                    .AddArguments(GetLogLevelArguments())
+                    .AddArguments($"-f framemd5 {md5Path}");
+               
                 await RunProgram(arguments);
                 Observers.EndSection(sectionKey, $"{sectionName} hashed successfully");
             }

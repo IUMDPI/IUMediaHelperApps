@@ -16,6 +16,7 @@ namespace Packager.Models
         string FFMPEGVideoMezzanineArguments { get; }
         string FFMPEGVideoAccessArguments { get; }
         string FFProbeVideoQualityControlArguments { get; }
+        string FFMPEGLogLevel { get; }
         string ProjectCode { get; }
         string DropBoxDirectoryName { get; }
         PodAuth PodAuth { get; }

@@ -20,7 +20,9 @@ namespace Packager.Models.FileModels
             var parts = GetPathParts(path);
 
             SequenceIndicator = GetSequenceIndicator(parts.FromIndex(2, string.Empty));
-            FileUse = parts.FromIndex(3, string.Empty).ToLowerInvariant();
+            FileUse = parts.FromIndex(3, string.Empty)
+                .ToLowerInvariant() // convert to lower case
+                .Replace("presint", "presInt"); // now make sure presInt is cased correctly
         }
 
         private static int GetSequenceIndicator(string value)

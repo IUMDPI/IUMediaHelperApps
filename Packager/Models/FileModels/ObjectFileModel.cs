@@ -6,7 +6,7 @@ namespace Packager.Models.FileModels
     public class ObjectFileModel : AbstractObjectFileModel
     {
         private const string PreservationFileUse = "pres";
-        private const string PreservationItermediateFileUse = "pres-int";
+        private const string PreservationIntermediateFileUse = "presInt";
         private const string AccessFileUse = "access";
         private const string MezzanineFileUse = "mezz";
         private const string ProductionFileUse = "prod";
@@ -98,7 +98,7 @@ namespace Packager.Models.FileModels
 
         public bool IsPreservationIntermediateVersion()
         {
-            return FileUse.Equals(PreservationItermediateFileUse, StringComparison.InvariantCultureIgnoreCase);
+            return FileUse.Equals(PreservationIntermediateFileUse, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public bool IsMezzanineVersion()

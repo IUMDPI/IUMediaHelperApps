@@ -278,7 +278,6 @@ namespace Packager.Processors
             var sectionKey = Observers.BeginSection("Verifying original masters: {0}", Barcode);
             try
             {
-
                 var expectedMasters = metadata.FileProvenances
                     .Select(p => new ObjectFileModel(p.Filename))
                     .Select(m => m.ToFileName()).ToList();
@@ -290,22 +289,12 @@ namespace Packager.Processors
                 var completeList = expectedMasters.Concat(presentMasters).Distinct();
 
                 var missingFiles = expectedMasters.Except(presentMasters).ToList();
-                var unexpectedFiles = presentMasters.Except(expectedMasters).ToList();
-
+              
                 foreach (var file in completeList)
                 {
-                    if (missingFiles.Contains(file))
-                    {
-                        Observers.Log("{0}: not found", file);
-                    }
-                    else if (unexpectedFiles.Contains(file))
-                    {
-                        Observers.Log("{0}: not found", file);
-                    }
-                    else
-                    {
-                        Observers.Log("{0}: present", file);
-                    }
+                    Observers.Log(missingFiles.Contains(file) 
+                        ? "{0}: not found" 
+                        : "{0}: present", file);
                 }
 
                 if (missingFiles.Any())
@@ -313,11 +302,6 @@ namespace Packager.Processors
                     throw new PodMetadataException("One or more masters specified in POD metadata is not present");
                 }
               
-                if (unexpectedFiles.Any())
-                {
-                    throw new PodMetadataException("One or more originals is not specified in POD metadata");
-                }
-
                 Observers.EndSection(sectionKey, "Original masters verified successfully!");
             }
             catch (Exception e)

@@ -27,11 +27,9 @@ namespace Packager.Utilities.Process
             FileProvider = fileProvider;
             Hasher = hasher;
             ProcessRunner = processRunner;
-            LogLevel = programSettings.FFMPEGLogLevel;
+            
         }
-
-        protected string LogLevel { get; }
-
+        
         protected abstract string NormalizingArguments { get; }
         private IProcessRunner ProcessRunner { get; }
         private IObserverCollection Observers { get; }
@@ -76,7 +74,6 @@ namespace Packager.Utilities.Process
                 }
 
                 var arguments = new ArgumentBuilder($"-i {originalPath.ToQuoted()}")
-                    .AddArguments(GetLogLevelArguments())
                     .AddArguments(NormalizingArguments)
                     .AddArguments(metadata.AsArguments())
                     .AddArguments(targetPath.ToQuoted());
@@ -91,14 +88,7 @@ namespace Packager.Utilities.Process
                 throw new LoggedException(e);
             }
         }
-
-        private string GetLogLevelArguments()
-        {
-            return string.IsNullOrWhiteSpace(LogLevel) 
-                ? "" 
-                : $"-loglevel {LogLevel}";
-        }
-
+        
         public async Task Verify(List<ObjectFileModel> originals)
         {
             foreach (var model in originals)
@@ -209,7 +199,6 @@ namespace Packager.Utilities.Process
                 }
 
                 var completeArguments = new ArgumentBuilder($"-i {inputPath.ToQuoted()}")
-                    .AddArguments(GetLogLevelArguments())
                     .AddArguments(arguments)
                     .AddArguments(outputPath.ToQuoted());
 
@@ -253,7 +242,6 @@ namespace Packager.Utilities.Process
                 var md5Path = Path.Combine(folderPath, model.ToFrameMd5Filename());
 
                 var arguments = new ArgumentBuilder($"-y -i {targetPath}")
-                    .AddArguments(GetLogLevelArguments())
                     .AddArguments($"-f framemd5 {md5Path}");
                
                 await RunProgram(arguments);

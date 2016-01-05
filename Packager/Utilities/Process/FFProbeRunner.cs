@@ -24,15 +24,12 @@ namespace Packager.Utilities.Process
             FFProbePath = programSettings.FFProbePath;
             VideoQualityControlArguments = programSettings.FFProbeVideoQualityControlArguments;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
-            LogLevel = programSettings.FFMPEGLogLevel;
         }
 
         private IProcessRunner ProcessRunner { get; }
         private IFileProvider FileProvider { get; }
         private IObserverCollection Observers { get; }
-
-        private string LogLevel { get; }
-
+        
         private string BaseProcessingDirectory { get; }
 
         [ValidateFile]
@@ -67,8 +64,7 @@ namespace Packager.Utilities.Process
                     throw new FileDirectoryExistsException($"{archivePath} already exists in processing folder");
                 }
 
-                var args = new ArgumentBuilder(GetLogLevelArguments())
-                    .AddArguments(string.Format(VideoQualityControlArguments, target.ToFileName()));
+                var args = new ArgumentBuilder(string.Format(VideoQualityControlArguments, target.ToFileName()));
 
                 using (var fileOutputBuffer = new FileOutputBuffer(xmlPath, FileProvider))
                 {
@@ -105,14 +101,7 @@ namespace Packager.Utilities.Process
                 return "";
             }
         }
-
-        private string GetLogLevelArguments()
-        {
-            return string.IsNullOrWhiteSpace(LogLevel)
-                ? ""
-                : $"-loglevel {LogLevel}";
-        }
-
+        
         private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder)
         {
             var startInfo = new ProcessStartInfo(FFProbePath)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,6 +30,50 @@ namespace Packager.Extensions
             return value.Replace("\"","\\\"");
 
         }
+
+        public static void InsertBefore(this List<string> parts, Predicate<string> predicate, string toInsert = "")
+        {
+            // find all matching indexes
+            var indexes = parts.FindAll(predicate).Select(r => parts.IndexOf(r)).Where(i=>i>=0).ToArray();
+            if (indexes.Any() == false)
+            {
+                return;
+            }
+
+            // if only one match found, just insert and return
+            if (indexes.Length == 1)
+            {
+                parts.Insert(indexes.First(), toInsert);
+                return;
+            }
+
+            // otherwise, seperate matches into blocks
+            // a block equals an index that is not one higher
+            // than the previous index. This means that the
+            // two indexes in question to not follow each 
+            // other.
+            var blockIndexes = new List<int>();
+            for (var i = indexes.Length - 1; i >= 0; i--)
+            {
+                if (i !=0 && (indexes[i] -1 == indexes[i - 1]))
+                {
+                    continue;
+                }
+
+                blockIndexes.Add(indexes[i]);
+            }
+
+            // now insert the lines for each block index
+            // note that block index values should be in reverse
+            // order, so inserting lines will not affect the indexes
+            // of the following indexes 
+            foreach (var blockIndex in blockIndexes)
+            {
+                parts.Insert(blockIndex, toInsert);
+            }
+            
+        }
+
 
         public static string ToDefaultIfEmpty(this object value, string defaultValue = "")
         {

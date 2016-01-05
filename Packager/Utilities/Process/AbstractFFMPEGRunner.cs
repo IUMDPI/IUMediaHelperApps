@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -142,13 +143,40 @@ namespace Packager.Utilities.Process
 
             var result = await ProcessRunner.Run(startInfo);
 
-            Observers.Log(result.StandardError.GetContent());
+            Observers.Log(FilterOutputLog(result.StandardError.GetContent()));
 
             if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
         }
+
+        private static string FilterOutputLog(string log)
+        {
+            var parts = log.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
+                .Where(p=>p.StartsWith("frame=")==false) // remove frame entries
+                .Where(p=>p.StartsWith("Press [q] to stop")==false) // remove press q message
+                .ToList();
+
+            // insert empty line before "Input #0" line
+            parts.InsertBefore(p=>p.StartsWith("Input #0"), string.Empty);
+            // insert empty line before "Output #0" line
+            parts.InsertBefore(p => p.StartsWith("Output #0"), string.Empty);
+            // insert empty line before "Stream mapping:" line
+            parts.InsertBefore(p => p.StartsWith("Stream mapping:"), string.Empty);
+            // insert empty line before "video summary" line
+            parts.InsertBefore(p => p.StartsWith("video:"), string.Empty);
+            // insert empty line before "guesed" lines
+            parts.InsertBefore(p => p.StartsWith("Guessed"), string.Empty);
+            // insert empty line before "[matroska @...] lines
+            parts.InsertBefore(p=>p.StartsWith("[matroska @"));
+            // insert empty line before "[libx264 @...] lines
+            parts.InsertBefore(p => p.StartsWith("[libx264 @"));
+
+            return string.Join("\n", parts);
+        }
+
+        
 
         private void LogAlreadyExists(ObjectFileModel target)
         {

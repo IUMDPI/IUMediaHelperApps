@@ -91,7 +91,7 @@ namespace Packager.Providers
             return Validators.Validate(podMetadata);
         }
 
-        private ValidationResults ValidateMetadataProvenances(List<AbstractDigitalFile> provenances, IEnumerable<ObjectFileModel> filesToProcess)
+        private ValidationResults ValidateMetadataProvenances(List<AbstractDigitalFile> provenances, List<ObjectFileModel> filesToProcess)
         {
             var results = new ValidationResults();
             if (provenances == null)
@@ -100,7 +100,10 @@ namespace Packager.Providers
                 return results;
             }
 
-            // make sure that all preservation masters 
+            results.AddRange(ValidateMastersPresent(provenances, filesToProcess));
+            results.AddRange(ValidateProvenancesPresent(provenances, filesToProcess));
+
+            /*// make sure that all preservation masters 
             // have digital file provenance data in metadata
             foreach (var model in filesToProcess.Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion()))
             {
@@ -112,8 +115,39 @@ namespace Packager.Providers
                 }
 
                 results.AddRange(Validators.Validate(provenance));
-            }
+            }*/
 
+            return results;
+        }
+
+        private static ValidationResults ValidateMastersPresent(List<AbstractDigitalFile> provenances,
+            IEnumerable<ObjectFileModel> filesToProcess)
+        {
+            var results = new ValidationResults();
+
+            var expectedMasters = provenances
+                    .Select(p => new ObjectFileModel(p.Filename))
+                    .Select(m => m.ToFileName()).ToList();
+
+            var presentMasters = filesToProcess
+                .Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
+                .Select(m => m.ToFileName()).ToList();
+
+            results.AddRange(expectedMasters.Except(presentMasters).Select(f=>new ValidationResult("No original master present for {0}", f)));
+            return results;
+        }
+
+        private static ValidationResults ValidateProvenancesPresent(List<AbstractDigitalFile> provenances,
+            IEnumerable<ObjectFileModel> filesToProcess)
+        {
+            var results = new ValidationResults();
+
+            var unexpectedMasters = filesToProcess.Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
+                .Select(m => new {key = m.ToFileName(), value = provenances.GetFileProvenance(m)})
+                .Where(p => p.value == null)
+                .Select(p => p.key);
+
+            results.AddRange(unexpectedMasters.Select(f=>new ValidationResult("No digital file provenance found for {0}",f)));
             return results;
         }
 

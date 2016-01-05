@@ -271,46 +271,5 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
-
-        protected void VerifyOriginalsPresent<T>(IEnumerable<ObjectFileModel> filesToProcess, T metadata)
-            where T : AbstractPodMetadata
-        {
-            var sectionKey = Observers.BeginSection("Verifying original masters: {0}", Barcode);
-            try
-            {
-                var expectedMasters = metadata.FileProvenances
-                    .Select(p => new ObjectFileModel(p.Filename))
-                    .Select(m => m.ToFileName()).ToList();
-
-                var presentMasters = filesToProcess
-                    .Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
-                    .Select(m => m.ToFileName()).ToList();
-
-                var completeList = expectedMasters.Concat(presentMasters).Distinct();
-
-                var missingFiles = expectedMasters.Except(presentMasters).ToList();
-              
-                foreach (var file in completeList)
-                {
-                    Observers.Log(missingFiles.Contains(file) 
-                        ? "{0}: not found" 
-                        : "{0}: present", file);
-                }
-
-                if (missingFiles.Any())
-                {
-                    throw new PodMetadataException("One or more masters specified in POD metadata is not present");
-                }
-              
-                Observers.EndSection(sectionKey, "Original masters verified successfully!");
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                Observers.EndSection(sectionKey);
-                throw new LoggedException(e);
-            }
-        }
-
     }
 }

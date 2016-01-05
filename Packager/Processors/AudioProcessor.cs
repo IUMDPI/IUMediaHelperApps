@@ -37,10 +37,7 @@ namespace Packager.Processors
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<AudioPodMetadata>(filesToProcess);
-
-            // verify that expected originals are present
-            VerifyOriginalsPresent(filesToProcess, metadata);
-
+            
             // normalize originals
             await NormalizeOriginals(filesToProcess, metadata);
 

@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Observers;
@@ -22,11 +24,14 @@ namespace Packager.Utilities.Process
             FFProbePath = programSettings.FFProbePath;
             VideoQualityControlArguments = programSettings.FFProbeVideoQualityControlArguments;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
+            LogLevel = programSettings.FFMPEGLogLevel;
         }
 
         private IProcessRunner ProcessRunner { get; }
         private IFileProvider FileProvider { get; }
         private IObserverCollection Observers { get; }
+
+        private string LogLevel { get; }
 
         private string BaseProcessingDirectory { get; }
 
@@ -62,7 +67,8 @@ namespace Packager.Utilities.Process
                     throw new FileDirectoryExistsException($"{archivePath} already exists in processing folder");
                 }
 
-                var args = new ArgumentBuilder(string.Format(VideoQualityControlArguments, target.ToFileName()));
+                var args = new ArgumentBuilder(GetLogLevelArguments())
+                    .AddArguments(string.Format(VideoQualityControlArguments, target.ToFileName()));
 
                 using (var fileOutputBuffer = new FileOutputBuffer(xmlPath, FileProvider))
                 {
@@ -100,6 +106,13 @@ namespace Packager.Utilities.Process
             }
         }
 
+        private string GetLogLevelArguments()
+        {
+            return string.IsNullOrWhiteSpace(LogLevel)
+                ? ""
+                : $"-loglevel {LogLevel}";
+        }
+
         private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder)
         {
             var startInfo = new ProcessStartInfo(FFProbePath)
@@ -114,12 +127,25 @@ namespace Packager.Utilities.Process
 
             var result = await ProcessRunner.Run(startInfo, outputbuffer);
 
-            Observers.Log(result.StandardError.GetContent());
+            Observers.Log(FilterOutputLog(result.StandardError.GetContent()));
 
             if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
+        }
+
+        private static string FilterOutputLog(string log)
+        {
+            var parts = log.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(p => p.StartsWith("[Parsed_cropdetect_2") == false) // remove frame entries
+                .ToList();
+
+            // insert empty line before remaining "Parsed" lines
+            parts.InsertBefore(p=>p.StartsWith("[Parsed_"), string.Empty);
+            // insert empty line before "Input #0" line
+            parts.InsertBefore(p => p.StartsWith("Input #0"), string.Empty);
+            return string.Join("\n", parts);
         }
     }
 }

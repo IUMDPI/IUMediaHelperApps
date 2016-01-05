@@ -176,8 +176,6 @@ namespace Packager.Utilities.Process
             return string.Join("\n", parts);
         }
 
-        
-
         private void LogAlreadyExists(ObjectFileModel target)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());

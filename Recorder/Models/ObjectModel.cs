@@ -16,7 +16,7 @@ namespace Recorder.Models
             FileUses = new List<Tuple<string, string>>
             {
                 new Tuple<string, string>("Preservation", "pres"),
-                new Tuple<string, string>("Preservation-Intermediate", "pres-int"),
+                new Tuple<string, string>("Preservation-Intermediate", "presInt"),
                 new Tuple<string, string>("Mezzanine", "mezz")
             };
 

@@ -37,7 +37,7 @@ namespace Packager.Test.Utilities
         private const string BaseProcessingDirectory = "processing";
 
         private const string ProductionFileName = "MDPI_4890764553278906_01_prod.wav";
-        private const string PreservationIntermediateFileName = "MDPI_4890764553278906_01_pres-int.wav";
+        private const string PreservationIntermediateFileName = "MDPI_4890764553278906_01_presInt.wav";
         private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
 
         private IProcessRunner ProcessRunner { get; set; }

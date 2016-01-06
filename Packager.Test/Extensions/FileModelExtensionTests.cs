@@ -42,7 +42,7 @@ namespace Packager.Test.Extensions
         public void EnumGetPreservationOrIntermediateModelReturnIntermediateIfPresent()
         {
             var model1 = new ObjectFileModel("MDPI_1111_01_pres.wav");
-            var model2 = new ObjectFileModel("MDPI_1111_01_pres-int.wav");
+            var model2 = new ObjectFileModel("MDPI_1111_01_presInt.wav");
             var model3 = new ObjectFileModel("MDPI_1111_01_prod.wav");
 
             var list = new List<ObjectFileModel> {model1, model2, model3};
@@ -77,7 +77,7 @@ namespace Packager.Test.Extensions
         public void GroupingGetPreservationOrIntermediateModelReturnIntermediateIfPresent()
         {
             var model1 = new ObjectFileModel("MDPI_1111_01_pres.wav");
-            var model2 = new ObjectFileModel("MDPI_1111_01_pres-int.wav");
+            var model2 = new ObjectFileModel("MDPI_1111_01_presInt.wav");
             var model3 = new ObjectFileModel("MDPI_1111_01_prod.wav");
 
             var grouping = new List<ObjectFileModel> { model1, model2, model3 }

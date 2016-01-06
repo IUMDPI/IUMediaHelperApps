@@ -25,7 +25,7 @@ namespace Packager.Test.Factories
             ProductionSide2FileModel = new ObjectFileModel(ProductionSide2FileName) { Checksum = "prod 2 hash" }; 
             AccessSide2FileModel = new ObjectFileModel(AccessSide2FileName) { Checksum = "access 1 hash" }; 
 
-            PreservationIntermediateSide1FileModel = new ObjectFileModel(PreservationIntermediateSide1FileName) { Checksum = "pres-int 1 hash" }; ;
+            PreservationIntermediateSide1FileModel = new ObjectFileModel(PreservationIntermediateSide1FileName) { Checksum = "presInt 1 hash" }; ;
 
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
             IngestDataFactory.Generate(null, null).ReturnsForAnyArgs(new IngestData());
@@ -38,7 +38,7 @@ namespace Packager.Test.Factories
             Results = factory.Generate(PodMetadata, FilesToProcess);
         }
 
-        private const string PreservationIntermediateSide1FileName = "MDPI_4890764553278906_01_pres-int.wav";
+        private const string PreservationIntermediateSide1FileName = "MDPI_4890764553278906_01_presInt.wav";
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
         private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
         private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";

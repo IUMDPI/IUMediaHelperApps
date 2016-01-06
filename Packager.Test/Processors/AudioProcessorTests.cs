@@ -30,7 +30,7 @@ namespace Packager.Test.Processors
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
 
             PreservationFileName = $"{ProjectCode}_{Barcode}_01_pres.wav";
-            PreservationIntermediateFileName = $"{ProjectCode}_{Barcode}_01_pres-int.wav";
+            PreservationIntermediateFileName = $"{ProjectCode}_{Barcode}_01_presInt.wav";
             ProductionFileName = $"{ProjectCode}_{Barcode}_01_prod.wav";
             AccessFileName = $"{ProjectCode}_{Barcode}_01_access.mp4";
             XmlManifestFileName = $"{ProjectCode}_{Barcode}.xml";
@@ -103,7 +103,7 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         NonNormalPresFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_1_pres.wav";
-                        NonNormalPresIntFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_001_pres-int.wav";
+                        NonNormalPresIntFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_001_presInt.wav";
                         NonNormalProductionFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_01_prod.wav";
 
                         ModelList = new List<AbstractFileModel>
@@ -348,7 +348,7 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                        ExpectedModelCount = 4; // pres master, pres-int master, prod-master, access master
+                        ExpectedModelCount = 4; // pres master, presInt master, prod-master, access master
                     }
 
                     [Test]
@@ -495,7 +495,7 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                        ExpectedFiles = 5; // prod master, pres master, pres-int master, access, xml manifest
+                        ExpectedFiles = 5; // prod master, pres master, presInt master, access, xml manifest
                     }
 
                     [Test]

@@ -101,7 +101,10 @@ namespace Recorder.Utilities
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
 
-            Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
+            Process.StartInfo.Arguments = ObjectModel.Channels>2 
+                ? $"{Settings.FFMPEGArguments} -ac {ObjectModel.Channels} {GetTargetPartFilename(part)}"
+                : $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
+
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={GetTargetPartLogFilename(part)}:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
 

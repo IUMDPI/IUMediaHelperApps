@@ -17,9 +17,9 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public CarrierData Generate(AudioPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
+        public AudioCarrierData Generate(AudioPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
         {
-            var result = new CarrierData
+            var result = new AudioCarrierData
             {
                 Barcode = podMetadata.Barcode,
                 Brand = podMetadata.Brand,

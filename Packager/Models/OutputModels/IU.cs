@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace Packager.Models.OutputModels
 {
     [Serializable]
     public class IU
     {
-        public CarrierData Carrier { get; set; }
+        public AbstractCarrierData Carrier { get; set; }
     }
+
+    
 }

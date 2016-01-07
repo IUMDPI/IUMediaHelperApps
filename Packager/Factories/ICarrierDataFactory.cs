@@ -8,6 +8,6 @@ namespace Packager.Factories
 {
     public interface ICarrierDataFactory
     {
-        CarrierData Generate(AudioPodMetadata excelModel, List<ObjectFileModel> filesToProcess);
+        AudioCarrierData Generate(AudioPodMetadata excelModel, List<ObjectFileModel> filesToProcess);
     }
 }

@@ -95,6 +95,8 @@
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoPreservationMetadata.cs" />
     <Compile Include="Models\FileModels\AbstractObjectFileModel.cs" />
     <Compile Include="Models\FileModels\QualityControlFileModel.cs" />
+    <Compile Include="Models\OutputModels\AudioCarrierData.cs" />
+    <Compile Include="Models\OutputModels\VideoCarrierData.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
     <Compile Include="Deserializers\XPathAttribute.cs" />
     <Compile Include="Deserializers\IImportable.cs" />
@@ -219,7 +221,7 @@
     <Compile Include="UserInterface\ViewModel.cs" />
     <Compile Include="Utilities\Email\IEmailSender.cs" />
     <Compile Include="Utilities\Hashing\IHasher.cs" />
-    <Compile Include="Models\OutputModels\CarrierData.cs" />
+    <Compile Include="Models\OutputModels\AbstractCarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Factories\IIngestDataFactory.cs" />
     <Compile Include="Factories\ICarrierDataFactory.cs" />

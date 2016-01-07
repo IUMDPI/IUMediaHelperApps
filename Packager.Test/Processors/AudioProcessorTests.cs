@@ -329,15 +329,15 @@ namespace Packager.Test.Processors
 
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
-                private CarrierData CarrierData { get; set; }
+                private AudioCarrierData AudioCarrierData { get; set; }
                 private int ExpectedModelCount { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    CarrierData = new CarrierData();
-                    MetadataGenerator.Generate(null, null).ReturnsForAnyArgs(CarrierData);
+                    AudioCarrierData = new AudioCarrierData();
+                    MetadataGenerator.Generate(null, null).ReturnsForAnyArgs(AudioCarrierData);
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
@@ -363,7 +363,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallExportToFileCorrectly()
                 {
-                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(CarrierData)),
+                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(AudioCarrierData)),
                         Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName));
                 }
 

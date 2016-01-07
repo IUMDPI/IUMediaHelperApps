@@ -27,7 +27,7 @@ namespace Packager.Test.Factories
         private List<ObjectFileModel> FilesToProcess { get; set; }
         private AudioPodMetadata PodMetadata { get; set; }
         private ISideDataFactory SideDataFactory { get; set; }
-        private CarrierData Result { get; set; }
+        private AudioCarrierData Result { get; set; }
 
        
 

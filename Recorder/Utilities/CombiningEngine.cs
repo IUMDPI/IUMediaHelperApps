@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Recorder.Models;
@@ -34,7 +36,7 @@ namespace Recorder.Utilities
 
         private string CombineFilePath => Path.Combine(ObjectModel.WorkingFolderPath, "combine.txt");
 
-        public void Combine()
+        public async Task Combine()
         {
             if (OkToProcess().IsValid == false)
             {
@@ -45,10 +47,47 @@ namespace Recorder.Utilities
 
             OutputWindowViewModel.HideVolumeMeter();
             OutputWindowViewModel.StartOutput("Combining");
-            GenerateCombineList();
             Combining = true;
 
             Directory.CreateDirectory(ObjectModel.OutputFolder);
+
+            var parts= GenerateCombineList();
+            
+            if (parts.Count == 1)
+            {
+                await MoveSinglePart(parts.First());
+            }
+            else
+            {
+                CombineWithFFMpeg();
+            }
+        }
+
+        private async Task MoveSinglePart(string part)
+        {
+            OutputWindowViewModel.WriteLine("Only 1 part exists");
+            OutputWindowViewModel.WriteLine($"Renaming to {ObjectModel.Filename} and moving to output folder");
+            if (File.Exists(ObjectModel.OutputFile))
+            {
+                OutputWindowViewModel.WriteLine($"{ObjectModel.Filename} already exists");
+                OutputWindowViewModel.WriteLine($"Removing {ObjectModel.Filename} (existing version)");
+                await Task.Run(() => { File.Delete(ObjectModel.OutputFile); });
+            }
+
+            OutputWindowViewModel.WriteLine("");
+            OutputWindowViewModel.WriteLine($"Moving {Path.GetFileName(part)} to {ObjectModel.Filename}");
+
+            await Task.Run(() => { File.Move(part, ObjectModel.OutputFile); });
+
+            OutputWindowViewModel.WriteLine("");
+            OutputWindowViewModel.WriteLine("File moved successfully!");
+            OpenFolder();
+            Combining = false;
+        }
+
+
+        private void CombineWithFFMpeg()
+        {
             Process.StartInfo.Arguments = string.Format(ArgumentFormat, CombineFilePath, ObjectModel.OutputFile);
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={ObjectModel.ProjectCode}_{ ObjectModel.Barcode}.log:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.OutputFolder;
@@ -57,8 +96,8 @@ namespace Recorder.Utilities
 
             Process.BeginErrorReadLine();
             Process.BeginOutputReadLine();
-        }
 
+        }
 
         private void ProcessExitHandler(object sender, EventArgs e)
         {
@@ -91,15 +130,17 @@ namespace Recorder.Utilities
         }
 
 
-        private void GenerateCombineList()
+        private List<string> GenerateCombineList()
         {
             var builder = new StringBuilder();
-            foreach (var file in Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.mkv").OrderBy(f => f))
+            var parts = Directory.EnumerateFiles(ObjectModel.WorkingFolderPath, "*.mkv").OrderBy(f => f).ToList();
+            foreach (var file in parts)
             {
                 builder.AppendLine($"file '{file}'");
             }
 
             File.WriteAllText(CombineFilePath, builder.ToString());
+            return parts;
         }
 
         protected override void CheckExitCode()

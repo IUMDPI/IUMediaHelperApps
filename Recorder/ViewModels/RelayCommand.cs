@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Recorder.ViewModels
@@ -8,19 +10,19 @@ namespace Recorder.ViewModels
     {
         #region Fields
 
-        readonly Action<object> _execute;
+        protected readonly Action<object> ToExecute;
         readonly Predicate<object> _canExecute;
 
         #endregion // Fields
 
         #region Constructors
 
-        public RelayCommand(Action<object> execute, Predicate<object> canExecute = null)
+        public RelayCommand(Action<object> toExecute, Predicate<object> canExecute = null)
         {
-            if (execute == null)
-                throw new ArgumentNullException(nameof(execute));
+            if (toExecute == null)
+                throw new ArgumentNullException(nameof(toExecute));
 
-            _execute = execute;
+            ToExecute = toExecute;
             _canExecute = canExecute;
         }
         #endregion // Constructors
@@ -28,7 +30,7 @@ namespace Recorder.ViewModels
         #region ICommand Members
 
         [DebuggerStepThrough]
-        public bool CanExecute(object parameter)
+        public virtual bool CanExecute(object parameter)
         {
             return _canExecute?.Invoke(parameter) ?? true;
         }
@@ -39,11 +41,60 @@ namespace Recorder.ViewModels
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public void Execute(object parameter)
+        public virtual void Execute(object parameter)
         {
-            _execute(parameter);
+            ToExecute(parameter);
         }
 
         #endregion // ICommand Members
+    }
+
+    public class AsyncRelayCommand : RelayCommand
+    {
+        private bool _isExecuting;
+
+        public event EventHandler Started;
+
+        public event EventHandler Ended;
+
+        public bool IsExecuting => _isExecuting;
+
+        public AsyncRelayCommand(Action<object> toExecute, Predicate<object> canExecute = null)
+            : base(toExecute, canExecute)
+        {
+        }
+
+        public override bool CanExecute(object parameter)
+        {
+            return base.CanExecute(parameter) && !_isExecuting;
+        }
+
+        public override void Execute(object parameter)
+        {
+            try
+            {
+                _isExecuting = true;
+                Started?.Invoke(this, EventArgs.Empty);
+
+                var task = Task.Factory.StartNew(() =>
+                {
+                    ToExecute(parameter);
+                });
+                task.ContinueWith(t =>
+                {
+                    OnRunWorkerCompleted(EventArgs.Empty);
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            catch (Exception ex)
+            {
+                OnRunWorkerCompleted(new RunWorkerCompletedEventArgs(null, ex, true));
+            }
+        }
+
+        private void OnRunWorkerCompleted(EventArgs e)
+        {
+            _isExecuting = false;
+            Ended?.Invoke(this, e);
+        }
     }
 }

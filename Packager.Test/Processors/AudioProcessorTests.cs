@@ -9,6 +9,7 @@ using Packager.Exceptions;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
 using Packager.Utilities;
@@ -329,15 +330,15 @@ namespace Packager.Test.Processors
 
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
-                private AudioCarrierData AudioCarrierData { get; set; }
+                private AudioCarrier AudioCarrier { get; set; }
                 private int ExpectedModelCount { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    AudioCarrierData = new AudioCarrierData();
-                    MetadataGenerator.Generate(null, null).ReturnsForAnyArgs(AudioCarrierData);
+                    AudioCarrier = new AudioCarrier();
+                    MetadataGenerator.Generate((AudioPodMetadata)null, null).ReturnsForAnyArgs(AudioCarrier);
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
@@ -363,7 +364,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallExportToFileCorrectly()
                 {
-                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(AudioCarrierData)),
+                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(AudioCarrier)),
                         Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName));
                 }
 

@@ -1,6 +1,6 @@
-﻿namespace Packager.Models.OutputModels
+﻿namespace Packager.Models.OutputModels.Ingest
 {
-    public class IngestDevice
+    public class Device
     {
         public string Model { get; set; }
         public string SerialNumber { get; set; }

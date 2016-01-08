@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Ingest;
 using Packager.Models.PodMetadataModels;
 
 namespace Packager.Test.Factories
@@ -28,7 +29,7 @@ namespace Packager.Test.Factories
             PreservationIntermediateSide1FileModel = new ObjectFileModel(PreservationIntermediateSide1FileName) { Checksum = "presInt 1 hash" }; ;
 
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
-            IngestDataFactory.Generate(null, null).ReturnsForAnyArgs(new IngestData());
+            IngestDataFactory.Generate((AudioPodMetadata)null, null).ReturnsForAnyArgs(new AudioIngest());
 
             PodMetadata = new AudioPodMetadata();
 

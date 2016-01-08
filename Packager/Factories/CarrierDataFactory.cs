@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories
@@ -17,44 +16,77 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public AudioCarrierData Generate(AudioPodMetadata podMetadata, List<ObjectFileModel> filesToProcess)
+        public AudioCarrier Generate(AudioPodMetadata metadata, List<ObjectFileModel> filesToProcess)
         {
-            var result = new AudioCarrierData
+            var result = new AudioCarrier
             {
-                Barcode = podMetadata.Barcode,
-                Brand = podMetadata.Brand,
-                CarrierType = podMetadata.Format,
-                XsiType = $"{podMetadata.Format}Carrier".RemoveSpaces(),
-                DirectionsRecorded = podMetadata.DirectionsRecorded,
-                Identifier = podMetadata.CallNumber,
-                Thickness = podMetadata.TapeThickness,
-                Baking = new BakingData {Date = podMetadata.BakingDate},
-                Cleaning = new CleaningData {Date = podMetadata.CleaningDate, Comment = podMetadata.CleaningComment},
-                Repaired = podMetadata.Repaired,
-                Parts = GeneratePartsData(podMetadata, filesToProcess),
+                Barcode = metadata.Barcode,
+                Brand = metadata.Brand,
+                CarrierType = metadata.Format,
+                //XsiType = $"{metadata.Format}Carrier".RemoveSpaces(),
+                DirectionsRecorded = metadata.DirectionsRecorded,
+                Identifier = metadata.CallNumber,
+                Thickness = metadata.TapeThickness,
+                Baking = new BakingData {Date = metadata.BakingDate},
+                Cleaning = new CleaningData {Date = metadata.CleaningDate, Comment = metadata.CleaningComment},
+                Repaired = metadata.Repaired,
+                Parts = GeneratePartsData(metadata, filesToProcess),
                 Configuration = new ConfigurationData
                 {
-                    XsiType = $"Configuration{podMetadata.Format}".RemoveSpaces(),
-                    Track = podMetadata.TrackConfiguration,
-                    SoundField = podMetadata.SoundField,
-                    Speed = podMetadata.PlaybackSpeed,
+                    XsiType = $"Configuration{metadata.Format}".RemoveSpaces(),
+                    Track = metadata.TrackConfiguration,
+                    SoundField = metadata.SoundField,
+                    Speed = metadata.PlaybackSpeed,
                 },
                 PhysicalCondition = new PhysicalConditionData
                 {
-                    Damage = podMetadata.Damage,
-                    PreservationProblem = podMetadata.PreservationProblems
+                    Damage = metadata.Damage,
+                    PreservationProblem = metadata.PreservationProblems
                 }
             };
 
             return result;
         }
 
-        private PartsData GeneratePartsData(AudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        public VideoCarrier Generate(VideoPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        {
+            var result = new VideoCarrier
+            {
+                Barcode = metadata.Barcode,
+                CarrierType = "Video", // todo: is this correct
+                Identifier = metadata.CallNumber.ToDefaultIfEmpty("Unknown"),
+                Baking = new BakingData { Date = metadata.BakingDate },
+                Cleaning = new CleaningData { Date = metadata.CleaningDate, Comment = metadata.CleaningComment },
+                Parts = GeneratePartsData(metadata, filesToProcess),
+                PhysicalCondition = new PhysicalConditionData
+                {
+                    Damage = metadata.Damage,
+                    PreservationProblem = metadata.PreservationProblems
+                },
+                ImageFormat = metadata.ImageFormat,
+                RecordingStandard = metadata.RecordingStandard,
+                Preview = new PreviewData(),
+                Definition = "SD" // todo: figure out where to get this from
+            };
+
+            return result;
+        }
+
+        private PartsData GeneratePartsData(AudioPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
         {
             return new PartsData
             {
-                DigitizingEntity = podMetadata.DigitizingEntity,
-                Sides = SideDataFactory.Generate(podMetadata, filesToProcess)
+                DigitizingEntity = metadata.DigitizingEntity,
+                Sides = SideDataFactory.Generate(metadata, filesToProcess)
+            };
+        }
+
+        private PartsData GeneratePartsData(VideoPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
+        {
+            return new PartsData
+            {
+                DigitizingEntity = metadata.DigitizingEntity,
+                Sides = SideDataFactory.Generate(metadata, filesToProcess)
             };
         }
     }

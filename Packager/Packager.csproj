@@ -93,10 +93,11 @@
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedVideoMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMezzanineMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoPreservationMetadata.cs" />
-    <Compile Include="Models\FileModels\AbstractObjectFileModel.cs" />
     <Compile Include="Models\FileModels\QualityControlFileModel.cs" />
-    <Compile Include="Models\OutputModels\AudioCarrierData.cs" />
-    <Compile Include="Models\OutputModels\VideoCarrierData.cs" />
+    <Compile Include="Models\OutputModels\Carrier\AudioCarrier.cs" />
+    <Compile Include="Models\OutputModels\Ingest\AudioIngest.cs" />
+    <Compile Include="Models\OutputModels\Carrier\VideoCarrier.cs" />
+    <Compile Include="Models\OutputModels\Ingest\VideoIngest.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
     <Compile Include="Deserializers\XPathAttribute.cs" />
     <Compile Include="Deserializers\IImportable.cs" />
@@ -106,7 +107,7 @@
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Factories\IPodMetadataFactory.cs" />
-    <Compile Include="Models\OutputModels\IngestDevice.cs" />
+    <Compile Include="Models\OutputModels\Ingest\Device.cs" />
     <Compile Include="Models\PodMetadataModels\AbstractDigitalFile.cs" />
     <Compile Include="Models\PodMetadataModels\AbstractPodMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
@@ -179,7 +180,7 @@
     <Compile Include="Models\OutputModels\ConfigurationData.cs" />
     <Compile Include="Models\OutputModels\CleaningData.cs" />
     <Compile Include="Models\OutputModels\File.cs" />
-    <Compile Include="Models\OutputModels\IngestData.cs" />
+    <Compile Include="Models\OutputModels\Ingest\AbstractIngest.cs" />
     <Compile Include="Models\PodAuth.cs" />
     <Compile Include="Models\PodMetadataModels\AudioPodMetadata.cs" />
     <Compile Include="Models\ResultModels\ProcessResult.cs" />
@@ -221,7 +222,7 @@
     <Compile Include="UserInterface\ViewModel.cs" />
     <Compile Include="Utilities\Email\IEmailSender.cs" />
     <Compile Include="Utilities\Hashing\IHasher.cs" />
-    <Compile Include="Models\OutputModels\AbstractCarrierData.cs" />
+    <Compile Include="Models\OutputModels\Carrier\AbstractCarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Factories\IIngestDataFactory.cs" />
     <Compile Include="Factories\ICarrierDataFactory.cs" />

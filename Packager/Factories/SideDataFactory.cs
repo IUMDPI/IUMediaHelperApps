@@ -35,6 +35,24 @@ namespace Packager.Factories
             }).ToArray();
         }
 
+        public SideData[] Generate(VideoPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        {
+            var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
+            if (!sideGroupings.Any())
+            {
+                throw new OutputXmlException("Could not determine side groupings");
+            }
+
+            return sideGroupings.Select(grouping => new SideData
+            {
+                Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
+                Files = grouping.Select(GetFileData).ToList(),
+                Ingest = IngestDataFactory.Generate(podMetadata, grouping.GetPreservationOrIntermediateModel()),
+                ManualCheck = "No", // todo: ok?
+                QCStatus = "OK" // todo: ok?
+            }).ToArray();
+        }
+
         private static File GetFileData(ObjectFileModel model)
         {
             return new File

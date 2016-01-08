@@ -1,10 +1,9 @@
-﻿using System.IO;
-
-namespace Packager.Models.FileModels
+﻿namespace Packager.Models.FileModels
 {
-    public class QualityControlFileModel : AbstractObjectFileModel
+    public class QualityControlFileModel : ObjectFileModel
     {
-        public QualityControlFileModel(AbstractObjectFileModel fileModel)
+       
+        public QualityControlFileModel(ObjectFileModel fileModel)
         {
             SequenceIndicator = fileModel.SequenceIndicator;
             Extension = ".qctools.xml.gz";

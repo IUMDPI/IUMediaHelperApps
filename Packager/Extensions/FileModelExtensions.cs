@@ -21,15 +21,18 @@ namespace Packager.Extensions
             return fileModel is UnknownFileModel;
         }
         
-        public static ObjectFileModel GetPreservationOrIntermediateModel<T>(this IGrouping<T, ObjectFileModel> grouping)
+   /*     public static ObjectFileModel GetPreservationOrIntermediateModel<T>(this IEnumerable<ObjectFileModel> grouping)
         {
-            var preservationIntermediate = grouping.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
-            return preservationIntermediate ?? grouping.SingleOrDefault(m => m.IsPreservationVersion());
-        }
+            var groupingWithoutQcFiles = grouping.Where(g => !(g is QualityControlFileModel)).ToList();
+
+            var preservationIntermediate = groupingWithoutQcFiles
+                .SingleOrDefault(m => m.IsPreservationIntermediateVersion());
+            return preservationIntermediate ?? groupingWithoutQcFiles.SingleOrDefault(m => m.IsPreservationVersion());
+        }*/
         
         public static ObjectFileModel GetPreservationOrIntermediateModel(this IEnumerable<ObjectFileModel> models)
         {
-            var list = models.ToList();
+            var list = models.Where(m => !(m is QualityControlFileModel)).ToList();
 
             var preservationIntermediate = list.FirstOrDefault(m => m.IsPreservationIntermediateVersion());
             return preservationIntermediate ?? list.FirstOrDefault(m => m.IsPreservationVersion());

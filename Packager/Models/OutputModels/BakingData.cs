@@ -6,5 +6,10 @@ namespace Packager.Models.OutputModels
     public class BakingData
     {
         public DateTime? Date { get; set; }
+
+        public bool ShouldSerializeDate()
+        {
+            return Date.HasValue;
+        }
     }
 }

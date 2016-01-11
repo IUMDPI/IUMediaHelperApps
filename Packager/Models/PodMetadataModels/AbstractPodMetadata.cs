@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Packager.Extensions;
-using Packager.Providers;
+using Packager.Factories;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -40,9 +40,9 @@ namespace Packager.Models.PodMetadataModels
 
         public List<AbstractDigitalFile> FileProvenances { get; set; }
 
-        public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
+        public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            base.ImportFromXml(element, lookupsProvider);
+            base.ImportFromXml(element, factory);
 
             Identifier = element.ToStringValue("data/object/details/id");
             Format = element.ToStringValue("data/object/details/format");
@@ -55,15 +55,18 @@ namespace Packager.Models.PodMetadataModels
             CleaningComment = element.ToStringValue("data/object/digital_provenance/cleaning_comment");
             BakingDate = element.ToDateTimeValue("data/object/digital_provenance/baking_date");
             Repaired = element.ToBooleanValue("data/object/digital_provenance/repaired").ToYesNo();
-            Damage = element.ToResolvedDelimitedString("data/object/technical_metadata/damage", lookupsProvider.Damage)
-                .ToDefaultIfEmpty("None");
-            PreservationProblems = element.ToResolvedDelimitedString("data/object/technical_metadata/preservation_problems", lookupsProvider.PreservationProblem);
+            Damage = factory.ResolveDamage(element, "data/object/technical_metadata/damage").ToDefaultIfEmpty("None");
+            PreservationProblems = factory.ResolvePreservationProblems(element, "data/object/technical_metadata/preservation_problems");
             DigitizingEntity = element.ToStringValue("data/object/digital_provenance/digitizing_entity");
-            FileProvenances = ImportFileProvenances(element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"), lookupsProvider);
+            FileProvenances = ImportFileProvenances(
+                element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"),
+                factory);
             NormalizeFileProvenances();
         }
-        
-        protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements, ILookupsProvider lookupsProvider);
+
+        protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,
+            IImportableFactory factory);
+
         protected abstract void NormalizeFileProvenances();
     }
 }

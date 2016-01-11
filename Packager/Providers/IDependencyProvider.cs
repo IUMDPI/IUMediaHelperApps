@@ -22,6 +22,8 @@ namespace Packager.Providers
         IProcessRunner ProcessRunner { get; }
         ICarrierDataFactory MetadataGenerator { get; }
         IProgramSettings ProgramSettings { get; }
+
+        IImportableFactory ImportableFactory { get; }
         IObserverCollection Observers { get; }
         IPodMetadataProvider MetadataProvider { get; }
         ISystemInfoProvider SystemInfoProvider { get; }

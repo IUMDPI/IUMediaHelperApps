@@ -53,7 +53,8 @@ namespace Packager.Extensions
             return result;
         }
 
-        public static string ToResolvedDelimitedString(this XElement parent, string path, Dictionary<string, string> lookupDictionary)
+        public static string ToResolvedDelimitedString(this XElement parent, string path,
+            Dictionary<string, string> lookupDictionary)
         {
             var result = new List<string>();
             var element = parent.XPathSelectElement(path);
@@ -61,7 +62,7 @@ namespace Packager.Extensions
             {
                 return string.Empty;
             }
-            
+
             // if there are no children, try to match
             // value assigned in dictionary to known lookup value
             // this ensures that the value is normalized correctly
@@ -75,13 +76,14 @@ namespace Packager.Extensions
                 .Select(e => e.Name.LocalName))
             {
                 string value;
-                if (lookupDictionary.TryGetValue(key, out value)==false)
+                if (lookupDictionary.TryGetValue(key, out value) == false)
                 {
                     return string.Empty;
                 }
 
                 result.Add(value);
-            };
+            }
+            ;
 
             return string.Join(",", result);
         }
@@ -96,14 +98,7 @@ namespace Packager.Extensions
             var dictionaryValue =
                 dictionary.Values.FirstOrDefault(v => v.ToLowerInvariant().Equals(value.ToLowerInvariant()));
 
-            return string.IsNullOrWhiteSpace(dictionaryValue) == false ?  dictionaryValue: string.Empty;
-        }
-
-        public static T ToImportable<T>(this XElement element, ILookupsProvider lookupsProvider)
-        {
-            var result = (IImportable) Activator.CreateInstance<T>();
-            result.ImportFromXml(element, lookupsProvider);
-            return (T)result;
+            return string.IsNullOrWhiteSpace(dictionaryValue) == false ? dictionaryValue : string.Empty;
         }
     }
 }

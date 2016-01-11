@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 using Packager.Extensions;
-using Packager.Providers;
+using Packager.Factories;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -9,6 +9,7 @@ namespace Packager.Models.PodMetadataModels
     {
         [Required]
         public string SpeedUsed { get; set; }
+
         public string ReferenceFluxivity { get; set; }
         public string AnalogOutputVoltage { get; set; }
         public string Peak { get; set; }
@@ -17,9 +18,9 @@ namespace Packager.Models.PodMetadataModels
         public string Gain { get; set; }
         public string Rolloff { get; set; }
 
-        public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
+        public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            base.ImportFromXml(element, lookupsProvider);
+            base.ImportFromXml(element, factory);
             SpeedUsed = element.ToStringValue("speed_used");
             ReferenceFluxivity = element.ToStringValue("tape_fluxivity").AppendIfValuePresent(" nWb/m");
             AnalogOutputVoltage = element.ToStringValue("analog_output_voltage").AppendIfValuePresent(" dBu");

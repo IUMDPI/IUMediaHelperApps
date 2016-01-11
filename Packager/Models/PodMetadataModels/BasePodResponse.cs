@@ -1,6 +1,7 @@
 ﻿using System.Xml.Linq;
 using Packager.Deserializers;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Providers;
 
 namespace Packager.Models.PodMetadataModels
@@ -11,7 +12,7 @@ namespace Packager.Models.PodMetadataModels
 
         public string Message { get; set; }
 
-        public virtual void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
+        public virtual void ImportFromXml(XElement element, IImportableFactory factory)
         {
             Success = element.ToBooleanValue("success");
             Message = element.ToStringValue("message");

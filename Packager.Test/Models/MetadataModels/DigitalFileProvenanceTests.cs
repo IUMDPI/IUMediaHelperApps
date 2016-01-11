@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Factories;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
 
@@ -34,12 +35,16 @@ namespace Packager.Test.Models.MetadataModels
             {
                 private XElement Element { get; set; }
                 private ILookupsProvider LookupsProvider { get; set; }
+
+                private IImportableFactory Factory { get; set; }
                 private DigitalAudioFile Result { get; set; }
+                
 
                 [SetUp]
                 public void BeforeEach()
                 {
                     LookupsProvider = Substitute.For<ILookupsProvider>();
+                    Factory = Substitute.For<IImportableFactory>();
 
                     Element = new XElement("digital_file_provenance", 
                         new XElement("filename") {Value= "MDPI_40000001210717_01_pres.wav" },
@@ -56,7 +61,7 @@ namespace Packager.Test.Models.MetadataModels
                         new XElement("rolloff") {Value="rolloff value"});
 
                     Result = new DigitalAudioFile();
-                    Result.ImportFromXml(Element, LookupsProvider);
+                    Result.ImportFromXml(Element, Factory);
                 }
 
                 [Test]

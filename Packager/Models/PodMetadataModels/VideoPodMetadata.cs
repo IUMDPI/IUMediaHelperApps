@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Linq;
 using Packager.Extensions;
-using Packager.Providers;
+using Packager.Factories;
 
 namespace Packager.Models.PodMetadataModels
 {
@@ -13,21 +13,22 @@ namespace Packager.Models.PodMetadataModels
 
         public string Definition { get; set; }
 
-        public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
+        public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            base.ImportFromXml(element, lookupsProvider);
+            base.ImportFromXml(element, factory);
             ImageFormat = element.ToStringValue("data/object/technical_metadata/image_format");
             RecordingStandard = element.ToStringValue("data/object/technical_metadata/recording_standard");
             Definition = element.ToStringValue("data/object/technical_metadata/format_version");
         }
 
-        protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements, ILookupsProvider lookupsProvider)
+        protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,
+            IImportableFactory factory)
         {
             var result = new List<AbstractDigitalFile>();
             foreach (var element in elements)
             {
                 var file = new DigitalVideoFile();
-                file.ImportFromXml(element, lookupsProvider);
+                file.ImportFromXml(element, factory);
                 result.Add(file);
             }
 

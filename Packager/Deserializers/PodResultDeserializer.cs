@@ -1,7 +1,5 @@
-﻿using System;
-using System.Xml.Linq;
-using Packager.Extensions;
-using Packager.Providers;
+﻿using System.Xml.Linq;
+using Packager.Factories;
 using RestSharp;
 using RestSharp.Deserializers;
 
@@ -9,23 +7,23 @@ namespace Packager.Deserializers
 {
     public class PodResultDeserializer : IDeserializer
     {
-        private ILookupsProvider LookupsProvider { get; }
-
-        public PodResultDeserializer(ILookupsProvider lookupsProvider)
+        public PodResultDeserializer(IImportableFactory factory)
         {
-            LookupsProvider = lookupsProvider;
+            Factory = factory;
         }
+
+        private IImportableFactory Factory { get; }
 
         public T Deserialize<T>(IRestResponse response)
         {
-            if (string.IsNullOrEmpty(response.Content))
+            if (string.IsNullOrWhiteSpace(response.Content))
             {
                 return default(T);
             }
 
             var document = XDocument.Parse(response.Content);
 
-            return document.Root.ToImportable<T>(LookupsProvider);
+            return Factory.ToImportable<T>(document.Root);
         }
 
         public string RootElement { get; set; }

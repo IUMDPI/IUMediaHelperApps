@@ -4,7 +4,6 @@ using Packager.Factories;
 using Packager.Models;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
-using Packager.Utilities;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
@@ -36,12 +35,14 @@ namespace Packager.Providers
             Observers = new ObserverCollection();
             AudioMetadataFactory = new EmbeddedAudioMetadataFactory();
             VideoMetadataFactory = new EmbeddedVideoMetadataFactory();
-            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath, programSettings.ProcessingDirectory);
+            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath,
+                programSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
             AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             LookupsProvider = new AppConfigLookupsProvider();
+            ImportableFactory = new ImportableFactory(LookupsProvider);
             ValidatorCollection = new StandardValidatorCollection
             {
                 new ValueRequiredValidator(),
@@ -50,23 +51,11 @@ namespace Packager.Providers
                 new UriValidator(),
                 new MembersValidator()
             };
-            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, LookupsProvider), Observers, ValidatorCollection);
+            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, ImportableFactory), Observers,
+                ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName,
                 new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
             FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
-        }
-        
-        private static IRestClient GetRestClient(IProgramSettings programSettings, ILookupsProvider lookupsProvider)
-        {
-            var result = new RestClient(programSettings.WebServiceUrl)
-            {
-                Authenticator =
-                    new HttpBasicAuthenticator(programSettings.PodAuth.UserName, programSettings.PodAuth.Password)
-            };
-
-            result.AddHandler("application/xml", new PodResultDeserializer(lookupsProvider));
-            return result;
-
         }
 
         [ValidateObject]
@@ -92,6 +81,8 @@ namespace Packager.Providers
 
         [ValidateObject]
         public IProgramSettings ProgramSettings { get; }
+
+        public IImportableFactory ImportableFactory { get; }
 
         [ValidateObject]
         public IObserverCollection Observers { get; }
@@ -127,5 +118,17 @@ namespace Packager.Providers
         public IFFProbeRunner FFProbeRunner { get; }
 
         public IBwfMetaEditRunner MetaEditRunner { get; }
+
+        private static IRestClient GetRestClient(IProgramSettings programSettings, IImportableFactory factory)
+        {
+            var result = new RestClient(programSettings.WebServiceUrl)
+            {
+                Authenticator =
+                    new HttpBasicAuthenticator(programSettings.PodAuth.UserName, programSettings.PodAuth.Password)
+            };
+
+            result.AddHandler("application/xml", new PodResultDeserializer(factory));
+            return result;
+        }
     }
 }

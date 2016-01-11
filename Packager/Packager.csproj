@@ -87,6 +87,7 @@
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
+    <Compile Include="Factories\ImportableFactory.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedVideoMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMezzanineMetadata.cs" />
@@ -97,7 +98,7 @@
     <Compile Include="Models\OutputModels\Carrier\VideoCarrier.cs" />
     <Compile Include="Models\OutputModels\Ingest\VideoIngest.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
-    <Compile Include="Deserializers\IImportable.cs" />
+    <Compile Include="Factories\IImportable.cs" />
     <Compile Include="Deserializers\PodResultDeserializer.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
     <Compile Include="Exceptions\NormalizeOriginalException.cs" />

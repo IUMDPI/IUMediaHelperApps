@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Providers;
+using Packager.Factories;
 using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
@@ -27,56 +27,58 @@ namespace Packager.Models.PodMetadataModels
 
         public string TapeThickness { get; set; }
 
-        public override void ImportFromXml(XElement element, ILookupsProvider lookupsProvider)
+        public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            base.ImportFromXml(element, lookupsProvider);
+            base.ImportFromXml(element, factory);
             Brand = element.ToStringValue("data/object/technical_metadata/tape_stock_brand");
             DirectionsRecorded = element.ToStringValue("data/object/technical_metadata/directions_recorded");
-            PlaybackSpeed = GetPlaybackSpeedForFormat(element, lookupsProvider);
-            TrackConfiguration = element.ToResolvedDelimitedString("data/object/technical_metadata/track_configuration", lookupsProvider.TrackConfiguration);
-            SoundField = GetSoundFieldForFormat(element, lookupsProvider); 
-            TapeThickness = element.ToResolvedDelimitedString("data/object/technical_metadata/tape_thickness", lookupsProvider.TapeThickness);
+            PlaybackSpeed = GetPlaybackSpeedForFormat(element, factory);
+            TrackConfiguration = factory.ResolveTrackConfiguration(element, "data/object/technical_metadata/track_configuration");
+            SoundField = GetSoundFieldForFormat(element, factory);
+            TapeThickness = factory.ResolveTapeThickness(element,"data/object/technical_metadata/tape_thickness");
         }
 
-        private string GetPlaybackSpeedForFormat(XElement element, ILookupsProvider lookupsProvider)
+        private string GetPlaybackSpeedForFormat(XElement element, IImportableFactory factory)
         {
             switch (Format.ToLowerInvariant())
             {
                 case LacquerDiscFormatIdentifier:
                     return element.ToStringValue("data/object/technical_metadata/speed").AppendIfValuePresent(" rpm");
                 case OpenReelFormatIdentifier:
-                    return element.ToResolvedDelimitedString("data/object/technical_metadata/playback_speed", lookupsProvider.PlaybackSpeed);
+                    return factory.ResolvePlaybackSpeed(element, "data/object/technical_metadata/playback_speed");
                 default:
                     throw new PodMetadataException("unknown format value: {0}", Format);
             }
         }
-        private string GetSoundFieldForFormat(XElement element, ILookupsProvider lookupsProvider)
+
+        private string GetSoundFieldForFormat(XElement element, IImportableFactory factory)
         {
             switch (Format.ToLowerInvariant())
             {
                 case LacquerDiscFormatIdentifier:
                     return element.ToStringValue("data/object/technical_metadata/sound_field");
                 case OpenReelFormatIdentifier:
-                    return element.ToResolvedDelimitedString("data/object/technical_metadata/sound_field", lookupsProvider.PlaybackSpeed);
+                    return factory.ResolveSoundField(element, "data/object/technical_metadata/sound_field");
                 default:
                     throw new PodMetadataException("unknown format value: {0}", Format);
             }
         }
 
-        protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements, ILookupsProvider lookupsProvider)
+        protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,
+            IImportableFactory factory)
         {
-            return elements.Select(element => element.ToImportable<DigitalAudioFile>(lookupsProvider))
+            return elements.Select(factory.ToImportable<DigitalVideoFile>)
                 .Cast<AbstractDigitalFile>().ToList();
         }
 
         protected override void NormalizeFileProvenances()
         {
-            if (Format.Equals(LacquerDiscFormatIdentifier, StringComparison.InvariantCultureIgnoreCase)==false)
+            if (Format.Equals(LacquerDiscFormatIdentifier, StringComparison.InvariantCultureIgnoreCase) == false)
             {
                 return;
             }
 
-            foreach (var provenance in FileProvenances.Select(p=>p as DigitalAudioFile))
+            foreach (var provenance in FileProvenances.Select(p => p as DigitalAudioFile))
             {
                 provenance.SpeedUsed = provenance.SpeedUsed.AppendIfValuePresent(" rpm");
             }

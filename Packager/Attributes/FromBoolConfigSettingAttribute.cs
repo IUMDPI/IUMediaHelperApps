@@ -2,8 +2,8 @@
 {
     public class FromBoolConfigSettingAttribute : AbstractFromConfigSettingAttribute
     {
-        public FromBoolConfigSettingAttribute(string name, bool required = true)
-            : base(name, required)
+        public FromBoolConfigSettingAttribute(string name)
+            : base(name)
         {
         }
 

@@ -81,9 +81,7 @@
     <Compile Include="Attributes\BextFieldAttribute.cs" />
     <Compile Include="Attributes\FFMPEGArgumentAttribute.cs" />
     <Compile Include="Attributes\FromBoolConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromBextFieldListConfigAttribute.cs" />
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\AbstractPodMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
@@ -99,7 +97,6 @@
     <Compile Include="Models\OutputModels\Carrier\VideoCarrier.cs" />
     <Compile Include="Models\OutputModels\Ingest\VideoIngest.cs" />
     <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
-    <Compile Include="Deserializers\XPathAttribute.cs" />
     <Compile Include="Deserializers\IImportable.cs" />
     <Compile Include="Deserializers\PodResultDeserializer.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
@@ -142,7 +139,7 @@
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Attributes\FromStringConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromListConfigSettingAttributeAttribute.cs" />
+    <Compile Include="Attributes\FromListConfigSettingAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFileAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFolderAttribute.cs" />

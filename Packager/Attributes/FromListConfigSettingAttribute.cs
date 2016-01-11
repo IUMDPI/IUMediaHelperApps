@@ -3,10 +3,9 @@ using System.Linq;
 
 namespace Packager.Attributes
 {
-    public class FromListConfigSettingAttributeAttribute : AbstractFromConfigSettingAttribute
+    public class FromListConfigSettingAttribute : AbstractFromConfigSettingAttribute
     {
-        public FromListConfigSettingAttributeAttribute(string name, bool required = true)
-            : base(name, required)
+        public FromListConfigSettingAttribute(string name): base(name)
         {
         }
 

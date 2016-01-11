@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 using Packager.Attributes;
 using Packager.Extensions;
 using Packager.Validators.Attributes;
@@ -14,6 +17,7 @@ namespace Packager.Models
         {
             Issues = new List<string>();
             ImportMappedConfigSettings(settings);
+            PodAuth = ImportAuthorizationFile(settings);
         }
 
         [FromStringConfigSetting("PathToMetaEdit")]
@@ -65,8 +69,7 @@ namespace Packager.Models
         public string DropBoxDirectoryName { get; private set; }
 
         [ValidateObject]
-        [FromPodAuthPathSetting("PodAuthorizationFile")]
-        public PodAuth PodAuth { get; private set; }
+        public PodAuth PodAuth { get;}
 
         [FromStringConfigSetting("ErrorDirectoryName")]
         [ValidateFolder]
@@ -81,7 +84,7 @@ namespace Packager.Models
         [Required]
         public string LogDirectoryName { get; private set; }
 
-        [FromListConfigSettingAttribute("IssueNotifyEmailAddresses")]
+        [FromListConfigSetting("IssueNotifyEmailAddresses")]
         public string[] IssueNotifyEmailAddresses { get; private set; }
 
         public List<string> Issues { get; }
@@ -116,6 +119,31 @@ namespace Packager.Models
                 }
 
                 property.SetValue(this, value);
+            }
+        }
+
+        private PodAuth ImportAuthorizationFile(NameValueCollection settings)
+        {
+            var value = settings["PodAuthorizationFile"];
+
+            if (!File.Exists(value))
+            {
+                Issues.Add($"the file {value} does not exist or could not be accessed");
+                return null;
+            }
+
+            try
+            {
+                var serializer = new XmlSerializer(typeof(PodAuth));
+                using (var stream = new FileStream(value, FileMode.Open))
+                {
+                    return (PodAuth)serializer.Deserialize(stream);
+                }
+            }
+            catch (Exception e)
+            {
+                Issues.Add(e.Message);
+                return null;
             }
         }
 

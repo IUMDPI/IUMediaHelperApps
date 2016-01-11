@@ -6,16 +6,14 @@ namespace Packager.Attributes
 {
     public abstract class AbstractFromConfigSettingAttribute : Attribute
     {
-        public AbstractFromConfigSettingAttribute(string name, bool required = true)
+        protected AbstractFromConfigSettingAttribute(string name)
         {
             Name = name;
-            Required = required;
             Issues = new List<string>();
         }
 
         public string Name { get; private set; }
-        public bool Required { get; private set; }
-
+       
         public abstract object Convert(string value);
 
         public List<string> Issues { get; }

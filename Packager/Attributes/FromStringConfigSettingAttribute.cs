@@ -2,8 +2,7 @@
 {
     public class FromStringConfigSettingAttribute : AbstractFromConfigSettingAttribute
     {
-        public FromStringConfigSettingAttribute(string name, bool required = true)
-            : base(name, required)
+        public FromStringConfigSettingAttribute(string name): base(name)
         {
         }
 

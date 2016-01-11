@@ -2,8 +2,7 @@
 {
     public class FromIntegerConfigSettingAttribute : AbstractFromConfigSettingAttribute
     {
-        public FromIntegerConfigSettingAttribute(string name, bool required = true) 
-            : base(name, required)
+        public FromIntegerConfigSettingAttribute(string name): base(name)
         {
         }
 

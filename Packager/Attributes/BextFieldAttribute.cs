@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Packager.Utilities;
 using Packager.Utilities.Bext;
 
 namespace Packager.Attributes
@@ -13,8 +12,8 @@ namespace Packager.Attributes
             MaxLength = maxLength;
         }
 
-        public BextFields Field { get; set; }
-        public int MaxLength { get; set; }
+        public BextFields Field { get; }
+        public int MaxLength { get; }
 
         public bool ValueWithinLengthLimit(string value)
         {

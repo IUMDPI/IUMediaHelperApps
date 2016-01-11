@@ -58,7 +58,7 @@ namespace Packager.Factories
         {
             if (!date.HasValue)
             {
-                throw new XmlException("Date digitized is not set");
+                throw new OutputXmlException("Date digitized is not set");
             }
 
             return date.Value.ToUniversalTime().ToString(format);

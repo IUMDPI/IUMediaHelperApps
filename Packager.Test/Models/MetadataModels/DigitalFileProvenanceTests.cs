@@ -147,9 +147,31 @@ namespace Packager.Test.Models.MetadataModels
                     {
                         new Device {DeviceType = "extraction workstation", Model = "ew model", Manufacturer = "ew manufacturer", SerialNumber = "ew serial number"},
                         new Device {DeviceType = "player", Model = "Player model", Manufacturer = "Player manufacturer", SerialNumber = "Player serial number"},
-                        new Device {DeviceType = "ad", Model = "Ad model", Manufacturer = "Ad manufacturer", SerialNumber = "Ad serial number"}
+                        new Device {DeviceType = "ad", Model = "Ad model", Manufacturer = "Ad manufacturer", SerialNumber = "Ad serial number"},
+                        new Device {DeviceType = "tbc", Model = "tbc model", Manufacturer = "tbc manufacturer", SerialNumber = "tbc serial number"},
+                        new Device {DeviceType = "video capture", Model = "vc model", Manufacturer = "vc manufacturer", SerialNumber = "vc serial number"}
                     }
                 };
+            }
+
+            private DigitalVideoFile DigitalFile => Source as DigitalVideoFile;
+
+            [Test]
+            public void EncoderShouldBeCorrect()
+            {
+                Assert.That(DigitalFile.Encoder.Model, Is.EqualTo("vc model"));
+                Assert.That(DigitalFile.Encoder.Manufacturer, Is.EqualTo("vc manufacturer"));
+                Assert.That(DigitalFile.Encoder.SerialNumber, Is.EqualTo("vc serial number"));
+            }
+
+            [Test]
+            public void TbcDevicesShouldReturnCorrectResults()
+            {
+                var device = DigitalFile.TBCDevices.FirstOrDefault();
+                Assert.That(device, Is.Not.Null);
+                Assert.That(device.SerialNumber, Is.EqualTo("tbc serial number"));
+                Assert.That(device.Model, Is.EqualTo("tbc model"));
+                Assert.That(device.Manufacturer, Is.EqualTo("tbc manufacturer"));
             }
         }
 
@@ -171,6 +193,8 @@ namespace Packager.Test.Models.MetadataModels
             Assert.That(Source.ExtractionWorkstation.Manufacturer, Is.EqualTo("ew manufacturer"));
             Assert.That(Source.ExtractionWorkstation.SerialNumber, Is.EqualTo("ew serial number"));
         }
+
+       
 
         [Test]
         public void PlayerDevicesShouldReturnCorrectResults()

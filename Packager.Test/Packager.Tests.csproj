@@ -99,6 +99,7 @@
     <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />
     <Compile Include="Models\MetadataModels\TapeThicknessTests.cs" />
     <Compile Include="Models\MetadataModels\TrackConfigurationTests.cs" />
+    <Compile Include="Models\OutputModels\Carrier\CarrierModelTests.cs" />
     <Compile Include="PodMetadataProviderTests.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />

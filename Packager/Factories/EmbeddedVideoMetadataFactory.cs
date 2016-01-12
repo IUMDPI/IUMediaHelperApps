@@ -14,7 +14,7 @@ namespace Packager.Factories
         }
 
 
-        private AbstractEmbeddedMetadata GetForUse<T>(ObjectFileModel model, AbstractDigitalFile provenance, VideoPodMetadata metadata) where T : AbstractEmbeddedVideoMetadata, new()
+        private static AbstractEmbeddedMetadata GetForUse<T>(ObjectFileModel model, AbstractDigitalFile provenance, VideoPodMetadata metadata) where T : AbstractEmbeddedVideoMetadata, new()
         {
             return new T
             {

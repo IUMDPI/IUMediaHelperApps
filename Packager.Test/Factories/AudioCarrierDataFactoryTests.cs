@@ -1,37 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.FileModels;
-using Packager.Models.OutputModels;
 using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 
 namespace Packager.Test.Factories
 {
     [TestFixture]
-    public class CarrierDataFactoryTests
+    public class AudioCarrierDataFactoryTests
     {
-        private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
-        private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
-        private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
-
-        private ObjectFileModel PreservationSide1FileModel { get; set; }
-        private ObjectFileModel ProductionSide1FileModel { get; set; }
-        private ObjectFileModel AccessSide1FileModel { get; set; }
-
-       
-        private string ProcessingDirectory { get; set; }
-        private List<ObjectFileModel> FilesToProcess { get; set; }
-        private AudioPodMetadata PodMetadata { get; set; }
-        private ISideDataFactory SideDataFactory { get; set; }
-        private AudioCarrier Result { get; set; }
-
-       
-
         [SetUp]
         public void BeforeEach()
         {
@@ -40,7 +20,7 @@ namespace Packager.Test.Factories
             PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName);
             ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
             AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
-            
+
             PodMetadata = new AudioPodMetadata
             {
                 Barcode = "4890764553278906",
@@ -56,18 +36,38 @@ namespace Packager.Test.Factories
                 //PlaybackSpeed = "7.5 ips",
                 Identifier = "1",
                 TapeThickness = "1 mm",
-                Repaired = "Yes",
+                Repaired = "Yes"
             };
-            
+
             SideDataFactory = Substitute.For<ISideDataFactory>();
 
-            FilesToProcess = new List<ObjectFileModel> { PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel };
-            
+            FilesToProcess = new List<ObjectFileModel>
+            {
+                PreservationSide1FileModel,
+                ProductionSide1FileModel,
+                AccessSide1FileModel
+            };
+
             var generator = new CarrierDataFactory(SideDataFactory);
             Result = generator.Generate(PodMetadata, FilesToProcess);
         }
 
-        public class WhenSettingBasicProperties : CarrierDataFactoryTests
+        private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
+        private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
+        private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
+
+        private ObjectFileModel PreservationSide1FileModel { get; set; }
+        private ObjectFileModel ProductionSide1FileModel { get; set; }
+        private ObjectFileModel AccessSide1FileModel { get; set; }
+
+
+        private string ProcessingDirectory { get; set; }
+        private List<ObjectFileModel> FilesToProcess { get; set; }
+        private AudioPodMetadata PodMetadata { get; set; }
+        private ISideDataFactory SideDataFactory { get; set; }
+        private AudioCarrier Result { get; set; }
+
+        public class WhenSettingBasicProperties : AudioCarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetBarCodeCorrectly()
@@ -85,12 +85,6 @@ namespace Packager.Test.Factories
             public void ItShouldSetCarrierTypeCorrectly()
             {
                 Assert.That(Result.CarrierType, Is.EqualTo(PodMetadata.Format));
-            }
-
-            [Test]
-            public void ItShouldSetXsiTypeCorrectly()
-            {
-                //Assert.That(Result.XsiType, Is.EqualTo(string.Format("{0}Carrier", PodMetadata.Format)));
             }
 
             [Test]
@@ -118,12 +112,12 @@ namespace Packager.Test.Factories
             }
         }
 
-        public class WhenSettingCleaningData : CarrierDataFactoryTests
+        public class WhenSettingCleaningData : AudioCarrierDataFactoryTests
         {
             [Test]
-            public void ItShouldSetCleaningObject()
+            public void ItShouldSetCleaningCommentCorrectly()
             {
-                Assert.That(Result.Cleaning, Is.Not.Null);
+                Assert.That(Result.Cleaning.Comment, Is.EqualTo(PodMetadata.CleaningComment));
             }
 
             [Test]
@@ -133,45 +127,33 @@ namespace Packager.Test.Factories
             }
 
             [Test]
-            public void ItShouldSetCleaningCommentCorrectly()
+            public void ItShouldSetCleaningObject()
             {
-                Assert.That(Result.Cleaning.Comment, Is.EqualTo(PodMetadata.CleaningComment));
+                Assert.That(Result.Cleaning, Is.Not.Null);
             }
         }
 
-        public class WhenSettingBakingData : CarrierDataFactoryTests
+        public class WhenSettingBakingData : AudioCarrierDataFactoryTests
         {
-            [Test]
-            public void ItShouldSetBakingObject()
-            {
-                Assert.That(Result.Baking, Is.Not.Null);
-            }
-
             [Test]
             public void ItShouldSetBakingDateCorrectly()
             {
                 Assert.That(Result.Baking.Date, Is.EqualTo(PodMetadata.BakingDate));
             }
+
+            [Test]
+            public void ItShouldSetBakingObject()
+            {
+                Assert.That(Result.Baking, Is.Not.Null);
+            }
         }
 
-        public class WhenSettingConfigurationData : CarrierDataFactoryTests
+        public class WhenSettingConfigurationData : AudioCarrierDataFactoryTests
         {
             [Test]
             public void ItShouldSetConfigurationObject()
             {
                 Assert.That(Result.Configuration, Is.Not.Null);
-            }
-
-            [Test]
-            public void ItShouldSetXsiTypeCorrectly()
-            {
-                Assert.That(Result.Configuration.XsiType, Is.EqualTo(string.Format("Configuration{0}", PodMetadata.Format)));
-            }
-
-            [Test]
-            public void ItShouldSetTrackCorrectly()
-            {
-                Assert.That(Result.Configuration.Track, Is.EqualTo(PodMetadata.TrackConfiguration));
             }
 
             [Test]
@@ -185,20 +167,33 @@ namespace Packager.Test.Factories
             {
                 Assert.That(Result.Configuration.Speed, Is.EqualTo(PodMetadata.PlaybackSpeed));
             }
-        }
 
-        public class WhenSettingPhysicalConditionData : CarrierDataFactoryTests
-        {
             [Test]
-            public void ItShouldSetPhysicalConditionObject()
+            public void ItShouldSetTrackCorrectly()
             {
-                Assert.That(Result.PhysicalCondition, Is.Not.Null);
+                Assert.That(Result.Configuration.Track, Is.EqualTo(PodMetadata.TrackConfiguration));
             }
 
+            [Test]
+            public void ItShouldSetXsiTypeCorrectly()
+            {
+                Assert.That(Result.Configuration.XsiType,
+                    Is.EqualTo(string.Format("Configuration{0}", PodMetadata.Format)));
+            }
+        }
+
+        public class WhenSettingPhysicalConditionData : AudioCarrierDataFactoryTests
+        {
             [Test]
             public void ItShouldSetDamageCorrectly()
             {
                 Assert.That(Result.PhysicalCondition.Damage, Is.EqualTo(PodMetadata.Damage));
+            }
+
+            [Test]
+            public void ItShouldSetPhysicalConditionObject()
+            {
+                Assert.That(Result.PhysicalCondition, Is.Not.Null);
             }
 
             [Test]
@@ -208,12 +203,12 @@ namespace Packager.Test.Factories
             }
         }
 
-        public class WhenSettingPartsData : CarrierDataFactoryTests
+        public class WhenSettingPartsData : AudioCarrierDataFactoryTests
         {
             [Test]
-            public void ItShouldSetPartsDataObjectCorrectly()
+            public void ItShouldCallSideDataFactoryCorrectly()
             {
-                Assert.That(Result.Parts, Is.Not.Null);
+                SideDataFactory.Received().Generate(PodMetadata, FilesToProcess);
             }
 
             [Test]
@@ -223,9 +218,9 @@ namespace Packager.Test.Factories
             }
 
             [Test]
-            public void ItShouldCallSideDataFactoryCorrectly()
+            public void ItShouldSetPartsDataObjectCorrectly()
             {
-                SideDataFactory.Received().Generate(PodMetadata, FilesToProcess);
+                Assert.That(Result.Parts, Is.Not.Null);
             }
         }
     }

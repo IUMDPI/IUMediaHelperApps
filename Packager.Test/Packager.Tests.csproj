@@ -84,6 +84,9 @@
     <Compile Include="Extensions\StringBuilderExtensionsTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Extensions\XElementExtensionTests.cs" />
+    <Compile Include="Factories\VideoSideDataFactoryTests.cs" />
+    <Compile Include="Factories\EmbeddedVideoMetadataFactoryTests.cs" />
+    <Compile Include="Factories\VideoCarrierDataFactoryTests.cs" />
     <Compile Include="Factories\ImportableFactoryTests.cs" />
     <Compile Include="Factories\VideoIngestFactoryTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
@@ -111,10 +114,10 @@
     <Compile Include="Processors\AbstractProcessorTests.cs" />
     <Compile Include="Processors\AudioProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Factories\ConformancePointDocumentFactoryTests.cs" />
+    <Compile Include="Factories\EmbeddedAudioMetadataFactoryTests.cs" />
     <Compile Include="Factories\AudioIngestFactoryTests.cs" />
-    <Compile Include="Factories\CarrierDataFactoryTests.cs" />
-    <Compile Include="Factories\SideDataFactoryTests.cs" />
+    <Compile Include="Factories\AudioCarrierDataFactoryTests.cs" />
+    <Compile Include="Factories\AudioSideDataFactoryTests.cs" />
     <Compile Include="Utilities\FFMPEGRunnerTests.cs" />
     <Compile Include="Utilities\SuccessFolderCleanerTests.cs" />
     <Compile Include="Validators\DirectoryValidatorTests.cs" />

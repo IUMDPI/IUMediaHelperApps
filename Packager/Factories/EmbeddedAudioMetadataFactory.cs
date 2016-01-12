@@ -37,7 +37,7 @@ namespace Packager.Factories
             };
         }
 
-        private string GetFormatText(AudioPodMetadata metadata)
+        private string GetFormatText(AbstractPodMetadata metadata)
         {
             return _knownDigitalFormats.Contains(metadata.Format.ToLowerInvariant())
                 ? "DIGITAL"

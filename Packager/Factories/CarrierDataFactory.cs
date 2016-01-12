@@ -23,7 +23,6 @@ namespace Packager.Factories
                 Barcode = metadata.Barcode,
                 Brand = metadata.Brand,
                 CarrierType = metadata.Format,
-                //XsiType = $"{metadata.Format}Carrier".RemoveSpaces(),
                 DirectionsRecorded = metadata.DirectionsRecorded,
                 Identifier = metadata.CallNumber,
                 Thickness = metadata.TapeThickness,

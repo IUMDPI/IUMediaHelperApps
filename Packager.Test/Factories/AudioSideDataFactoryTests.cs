@@ -12,7 +12,7 @@ using Packager.Models.PodMetadataModels;
 namespace Packager.Test.Factories
 {
     [TestFixture]
-    public class SideDataFactoryTests
+    public class AudioSideDataFactoryTests
     {
         [SetUp]
         public void BeforeEach()
@@ -71,7 +71,7 @@ namespace Packager.Test.Factories
             ExpectedSides = 1;
         }
 
-        public class WhenPreservationIntermediateMasterPresent : SideDataFactoryTests
+        public class WhenPreservationIntermediateMasterPresent : AudioSideDataFactoryTests
         {
             protected override void DoCustomSetup()
             {
@@ -81,7 +81,7 @@ namespace Packager.Test.Factories
             }
         }
 
-        public class WhenMoreThanOneSidePresent : SideDataFactoryTests
+        public class WhenMoreThanOneAudioSidePresent : AudioSideDataFactoryTests
         {
             protected override void DoCustomSetup()
             {

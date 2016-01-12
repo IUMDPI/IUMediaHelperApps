@@ -90,6 +90,8 @@
     <Compile Include="Factories\ImportableFactoryTests.cs" />
     <Compile Include="Factories\VideoIngestFactoryTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
+    <Compile Include="Models\EmailMessageTests\EngineIssueMessageTests.cs" />
+    <Compile Include="Models\EmailMessageTests\ProcessingIssueMessageTests.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\MetadataModels\SampleRateTests.cs" />
     <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />

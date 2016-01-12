@@ -94,6 +94,7 @@
     <Compile Include="Models\EmailMessageTests\ProcessingIssueMessageTests.cs" />
     <Compile Include="Models\EmbeddedMetadataTests\EmbeddedVideoPreservationMetadataTests.cs" />
     <Compile Include="Models\FileModels\QualityControlFileModelTests.cs" />
+    <Compile Include="Models\MetadataModels\BasePodMetadataTests.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\MetadataModels\SampleRateTests.cs" />
     <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />

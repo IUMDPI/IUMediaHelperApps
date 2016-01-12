@@ -19,10 +19,5 @@ namespace Packager.Models.PodMetadataModels
             Manufacturer = element.ToStringValue("manufacturer");
             Model = element.ToStringValue("model");
         }
-
-        public void ImportFromXml(XDocument document)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Utilities.Process;
 
@@ -14,26 +9,6 @@ namespace Packager.Test.Models.EmbeddedMetadataTests.EmbeddedVideoMetadataTests
     {
         private AbstractEmbeddedVideoMetadata Metadata { get; set; }
         private ArgumentBuilder Arguments { get; set; }
-        
-        [Test]
-        public void ArgumentsShouldContainTitle()
-        {
-            Assert.That(Arguments.Contains("-metadata title=\"title\""));
-        }
-
-        [Test]
-        public void ArgumentsShouldContainComment()
-        {
-            Assert.That(Arguments.Contains("-metadata comment=\"comment\""));
-
-        }
-
-        [Test]
-        public void ArgumentsShouldContainDescription()
-        {
-            Assert.That(Arguments.Contains("-metadata description=\"description\""));
-
-        }
 
         public class EmbeddedVideoPreservationMetadataTests : AbstractEmbeddedVideoMetadataTests
         {
@@ -79,6 +54,24 @@ namespace Packager.Test.Models.EmbeddedMetadataTests.EmbeddedVideoMetadataTests
             {
                 Assert.That(Arguments.Contains("-metadata date=\"1/1/2016\""));
             }
+        }
+
+        [Test]
+        public void ArgumentsShouldContainComment()
+        {
+            Assert.That(Arguments.Contains("-metadata comment=\"comment\""));
+        }
+
+        [Test]
+        public void ArgumentsShouldContainDescription()
+        {
+            Assert.That(Arguments.Contains("-metadata description=\"description\""));
+        }
+
+        [Test]
+        public void ArgumentsShouldContainTitle()
+        {
+            Assert.That(Arguments.Contains("-metadata title=\"title\""));
         }
     }
 }

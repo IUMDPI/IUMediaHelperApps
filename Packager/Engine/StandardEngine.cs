@@ -182,9 +182,7 @@ namespace Packager.Engine
             Observers.Log("FFProbe video QC args: {0}", _dependencyProvider.FFProbeRunner.VideoQualityControlArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("Success folder cleaning: {0}", _dependencyProvider.SuccessFolderCleaner.Enabled ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}" : "disabled");
-
-          
-
+            
             Observers.EndSection(sectionKey);
         }
 

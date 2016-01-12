@@ -110,13 +110,7 @@ namespace Packager.Test.Engine
             {
                 Observer.Received().Log(Arg.Is("Starting {0} (version {1})"), Arg.Any<DateTime>(), Arg.Any<Version>());
             }
-
-         /*   [Test]
-            public void ItShouldReportResultsCorrectly()
-            {
-                Observer.Received().Log("Successfully processed {0} objects.", 2);
-            }*/
-
+            
             [Test]
             public void ItShouldLogObjectCountCorrectly()
             {

@@ -28,22 +28,22 @@ namespace Packager.Providers
         }
 
         [HasMembers]
-        public Dictionary<string, string> PlaybackSpeed { get; }
+        public IDictionary<string, string> PlaybackSpeed { get; }
 
         [HasMembers]
-        public Dictionary<string, string> TrackConfiguration { get; }
+        public IDictionary<string, string> TrackConfiguration { get; }
 
         [HasMembers]
-        public Dictionary<string, string> SoundField { get; }
+        public IDictionary<string, string> SoundField { get; }
 
         [HasMembers]
-        public Dictionary<string, string> TapeThickness { get; }
+        public IDictionary<string, string> TapeThickness { get; }
 
         [HasMembers]
-        public Dictionary<string, string> PreservationProblem { get; set; }
+        public IDictionary<string, string> PreservationProblem { get; set; }
 
         [HasMembers]
-        public Dictionary<string, string> Damage { get; set; }
+        public IDictionary<string, string> Damage { get; set; }
 
         private static Dictionary<string, string> InitializeDictionary(string section)
         {

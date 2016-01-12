@@ -18,6 +18,8 @@ namespace Packager.Models.PodMetadataModels
         public string Gain { get; set; }
         public string Rolloff { get; set; }
 
+        // xpath queries here are against each digital_file_provenance node in
+        // digital_files
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
             base.ImportFromXml(element, factory);

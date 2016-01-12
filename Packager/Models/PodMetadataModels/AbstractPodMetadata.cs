@@ -58,12 +58,15 @@ namespace Packager.Models.PodMetadataModels
             Damage = factory.ResolveDamage(element, "data/object/technical_metadata/damage").ToDefaultIfEmpty("None");
             PreservationProblems = factory.ResolvePreservationProblems(element, "data/object/technical_metadata/preservation_problems");
             DigitizingEntity = element.ToStringValue("data/object/digital_provenance/digitizing_entity");
+
+            // process each digital_file_provenance node
             FileProvenances = ImportFileProvenances(
                 element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"),
                 factory);
             NormalizeFileProvenances();
         }
 
+        // method is abstract; implemented in derived classes
         protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,
             IImportableFactory factory);
 

@@ -50,13 +50,14 @@ namespace Packager.Test.Factories
             private static XElement GetElement()
             {
                 return new XElement("base", 
+                    new XElement("value") { Value = "value"},
                     new XElement("values", 
                         new XElement("value1") {Value = "value 1"},
                         new XElement("value2") { Value = "value 2" }));
             }
 
             [SetUp]
-            public void BeforeEach()
+            public virtual void BeforeEach()
             {
                 LookupsProvider = Substitute.For<ILookupsProvider>();
                 Factory = new ImportableFactory(LookupsProvider);
@@ -64,6 +65,13 @@ namespace Packager.Test.Factories
 
             public class WhenResolvingTrackConfiguration : WhenResolving
             {
+                [Test]
+                public void IfNoValueInXmlShouldReturnEmptyString()
+                {
+                    var result = Factory.ResolveTrackConfiguration(GetElement(), "invalid");
+                    Assert.That(result, Is.EqualTo(string.Empty));
+                }
+
                 [Test]
                 public void ItShouldCallLookupsProviderCorrectly()
                 {
@@ -76,6 +84,13 @@ namespace Packager.Test.Factories
             public class WhenResolvingTapeThickness : WhenResolving
             {
                 [Test]
+                public void IfNoValueInXmlShouldReturnEmptyString()
+                {
+                    var result = Factory.ResolveTapeThickness(GetElement(), "invalid");
+                    Assert.That(result, Is.EqualTo(string.Empty));
+                }
+
+                [Test]
                 public void ItShouldCallLookupsProviderCorrectly()
                 {
                     Factory.ResolveTapeThickness(GetElement(), "values");
@@ -87,6 +102,13 @@ namespace Packager.Test.Factories
             public class WhenResolvingPlaybackSpeed : WhenResolving
             {
                 [Test]
+                public void IfNoValueInXmlShouldReturnEmptyString()
+                {
+                    var result = Factory.ResolvePlaybackSpeed(GetElement(), "invalid");
+                    Assert.That(result, Is.EqualTo(string.Empty));
+                }
+
+                [Test]
                 public void ItShouldCallLookupsProviderCorrectly()
                 {
                     Factory.ResolvePlaybackSpeed(GetElement(), "values");
@@ -94,10 +116,16 @@ namespace Packager.Test.Factories
                     var test = LookupsProvider.Received().PlaybackSpeed;
                 }
             }
-
-
+            
             public class WhenResolvingSoundField : WhenResolving
             {
+                [Test]
+                public void IfNoValueInXmlShouldReturnEmptyString()
+                {
+                    var result = Factory.ResolveSoundField(GetElement(), "invalid");
+                    Assert.That(result, Is.EqualTo(string.Empty));
+                }
+
                 [Test]
                 public void ItShouldCallLookupsProviderCorrectly()
                 {
@@ -110,6 +138,13 @@ namespace Packager.Test.Factories
             public class WhenResolvingDamage : WhenResolving
             {
                 [Test]
+                public void IfNoValueInXmlShouldReturnEmptyString()
+                {
+                    var result = Factory.ResolveDamage(GetElement(), "invalid");
+                    Assert.That(result, Is.EqualTo(string.Empty));
+                }
+
+                [Test]
                 public void ItShouldCallLookupsProviderCorrectly()
                 {
                     Factory.ResolveDamage(GetElement(), "values");
@@ -120,6 +155,13 @@ namespace Packager.Test.Factories
 
             public class WhenResolvingPreservationProblems : WhenResolving
             {
+                [Test]
+                public void IfNoValueInXmlShouldReturnEmptyString()
+                {
+                    var result = Factory.ResolvePreservationProblems(GetElement(), "invalid");
+                    Assert.That(result, Is.EqualTo(string.Empty));
+                }
+
                 [Test]
                 public void ItShouldCallLookupsProviderCorrectly()
                 {

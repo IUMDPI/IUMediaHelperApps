@@ -66,7 +66,7 @@ namespace Packager.Factories
         }
 
         private static string ToResolvedDelimitedString(XNode parent, string path,
-            Dictionary<string, string> lookupDictionary)
+            IDictionary<string, string> lookupDictionary)
         {
             var result = new List<string>();
             var element = parent.XPathSelectElement(path);
@@ -99,7 +99,7 @@ namespace Packager.Factories
             return string.Join(",", result);
         }
 
-        private static string FindValueInDictionary(string value, Dictionary<string, string> dictionary)
+        private static string FindValueInDictionary(string value, IDictionary<string, string> dictionary)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

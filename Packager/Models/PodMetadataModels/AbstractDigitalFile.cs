@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Packager.Deserializers;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Validators.Attributes;
@@ -63,6 +62,8 @@ namespace Packager.Models.PodMetadataModels
             }
         }
 
+        // xpath queries here are against each digital_file_provenance node in
+        // digital_files
         public virtual void ImportFromXml(XElement element, IImportableFactory factory)
         {
             DateDigitized = element.ToDateTimeValue("date_digitized");

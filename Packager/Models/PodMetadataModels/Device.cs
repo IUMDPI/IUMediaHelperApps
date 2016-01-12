@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Xml.Linq;
-using Packager.Deserializers;
 using Packager.Extensions;
 using Packager.Factories;
-using Packager.Providers;
 
 namespace Packager.Models.PodMetadataModels
 {

@@ -9,7 +9,7 @@ namespace Packager.Models.OutputModels.Ingest
         [XmlElement(Order = 1)]
         public string Date { get; set; }
 
-        [XmlElement("DigitStatus", Order = 2)]
+        [XmlElement(Order = 2)]
         public string DigitStatus { get; set; }
 
         [XmlElement(Order = 3)]

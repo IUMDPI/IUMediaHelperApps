@@ -4,13 +4,12 @@ using System.Reflection;
 using Packager.Attributes;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Utilities;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Process;
 
 namespace Packager.Models.EmbeddedMetadataModels
 {
-    public class EmbeddedAudioMetadata:AbstractEmbeddedMetadata
+    public class EmbeddedAudioMetadata : AbstractEmbeddedMetadata
     {
         [BextField(BextFields.Description, 256)]
         public string Description { get; set; }
@@ -92,15 +91,21 @@ namespace Packager.Models.EmbeddedMetadataModels
             var arguments = new ArgumentBuilder();
 
             foreach (var info in GetType().GetProperties()
-                .Select(p => new Tuple<string, BextFieldAttribute>(GetValueFromField(this, p), p.GetCustomAttribute<BextFieldAttribute>()))
+                .Select(
+                    p =>
+                        new Tuple<string, BextFieldAttribute>(GetValueFromField(this, p),
+                            p.GetCustomAttribute<BextFieldAttribute>()))
                 .Where(t => t.Item2 != null && !string.IsNullOrWhiteSpace(t.Item1)))
             {
                 if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
                 {
-                    throw new EmbeddedMetadataException("Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1, info.Item2.MaxLength);
+                    throw new EmbeddedMetadataException(
+                        "Value for bext field {0} ('{1}') exceeds maximum length ({2})", info.Item2.Field, info.Item1,
+                        info.Item2.MaxLength);
                 }
 
-                arguments.Add($"-metadata {info.Item2.GetFFMPEGArgument()}={info.Item1.NormalizeForCommandLine().ToQuoted()}");
+                arguments.Add(
+                    $"-metadata {info.Item2.GetFFMPEGArgument()}={info.Item1.NormalizeForCommandLine().ToQuoted()}");
             }
 
             return arguments;

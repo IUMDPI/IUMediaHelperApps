@@ -92,6 +92,7 @@
     <Compile Include="Mocks\MockBextMetadata.cs" />
     <Compile Include="Models\EmailMessageTests\EngineIssueMessageTests.cs" />
     <Compile Include="Models\EmailMessageTests\ProcessingIssueMessageTests.cs" />
+    <Compile Include="Models\EmbeddedMetadataTests\EmbeddedVideoPreservationMetadataTests.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\MetadataModels\SampleRateTests.cs" />
     <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />
@@ -106,7 +107,7 @@
     <Compile Include="Mocks\MockProcessRunner.cs" />
     <Compile Include="Mocks\MockGrouping.cs" />
     <Compile Include="Mocks\MockProgramSettings.cs" />
-    <Compile Include="Models\BextModels\BextMetadataTests.cs" />
+    <Compile Include="Models\EmbeddedMetadataTests\EmbeddedAudioMetadataTests.cs" />
     <Compile Include="Models\FileModels\ObjectFileModelTests.cs" />
     <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
     <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />

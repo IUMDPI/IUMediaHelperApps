@@ -1,5 +1,4 @@
 ﻿using Packager.Extensions;
-using Packager.Utilities;
 using Packager.Utilities.Process;
 
 namespace Packager.Models.EmbeddedMetadataModels
@@ -13,10 +12,12 @@ namespace Packager.Models.EmbeddedMetadataModels
 
         public override ArgumentBuilder AsArguments()
         {
-            var arguments = new ArgumentBuilder();
-            arguments.Add($"-metadata title={Title.NormalizeForCommandLine().ToQuoted()}");
-            arguments.Add($"-metadata comment={Comment.NormalizeForCommandLine().ToQuoted()}");
-            arguments.Add($"-metadata description={Description.NormalizeForCommandLine().ToQuoted()}");
+            var arguments = new ArgumentBuilder
+            {
+                $"-metadata title={Title.NormalizeForCommandLine().ToQuoted()}",
+                $"-metadata comment={Comment.NormalizeForCommandLine().ToQuoted()}",
+                $"-metadata description={Description.NormalizeForCommandLine().ToQuoted()}"
+            };
             return arguments;
         }
     }

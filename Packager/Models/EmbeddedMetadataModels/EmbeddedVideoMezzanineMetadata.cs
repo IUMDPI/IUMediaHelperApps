@@ -1,5 +1,4 @@
 using Packager.Extensions;
-using Packager.Utilities;
 using Packager.Utilities.Process;
 
 namespace Packager.Models.EmbeddedMetadataModels

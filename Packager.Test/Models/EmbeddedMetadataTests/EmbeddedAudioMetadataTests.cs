@@ -1,17 +1,15 @@
 ﻿using System.Linq;
 using System.Reflection;
-using ICSharpCode.AvalonEdit.Rendering;
 using NUnit.Framework;
 using Packager.Attributes;
 using Packager.Extensions;
 using Packager.Models.EmbeddedMetadataModels;
-using Packager.Utilities;
 using Packager.Utilities.Process;
 
-namespace Packager.Test.Models.BextModels
+namespace Packager.Test.Models.EmbeddedMetadataTests
 {
     [TestFixture]
-    public class BextMetadataTests
+    public class EmbeddedAudioMetadataTests
     {
         private EmbeddedAudioMetadata GetMetadata()
         {
@@ -46,7 +44,6 @@ namespace Packager.Test.Models.BextModels
         }
 
 
-
         private static void ConfirmArgumentsPresentAndCorrect(EmbeddedAudioMetadata metadata, ArgumentBuilder arguments)
         {
             foreach (var property in metadata.GetType().GetProperties())
@@ -55,32 +52,29 @@ namespace Packager.Test.Models.BextModels
                 Assert.That(attribute, Is.Not.Null, $"{property.Name} should have bext field attribute");
 
                 var value = property.GetValue(metadata).ToString();
-                var expectedEntry = $"-metadata {attribute.GetFFMPEGArgument()}={value.NormalizeForCommandLine().ToQuoted()}";
+                var expectedEntry =
+                    $"-metadata {attribute.GetFFMPEGArgument()}={value.NormalizeForCommandLine().ToQuoted()}";
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    Assert.That(arguments.SingleOrDefault(a => a.Equals(expectedEntry)), Is.Null, 
+                    Assert.That(arguments.SingleOrDefault(a => a.Equals(expectedEntry)), Is.Null,
                         $"arguments should not contain entry for empty property {property.Name}");
                 }
                 else
                 {
-                    Assert.That(arguments.SingleOrDefault(a => a.Equals(expectedEntry)), Is.Not.Null, 
+                    Assert.That(arguments.SingleOrDefault(a => a.Equals(expectedEntry)), Is.Not.Null,
                         $"arguments should contain correct entry for property {property.Name}");
                 }
             }
         }
 
         [Test]
-        public void AsArgumentsShouldNotNotIncludePropertiesWithoutValues()
+        public void AllPropertiesShouldHaveBextFieldAttribute()
         {
-            var metadata = GetMetadata();
-            
-            // clear some fields
-            metadata.IARL = "";
-            metadata.ICMS = "";
-            metadata.IART = "";
-
-            var result = metadata.AsArguments();
-            ConfirmArgumentsPresentAndCorrect(metadata, result);
+            foreach (var property in typeof (EmbeddedAudioMetadata).GetProperties())
+            {
+                var attribute = property.GetCustomAttribute<BextFieldAttribute>();
+                Assert.That(attribute, Is.Not.Null, $"{property.Name} should have bext field attribute");
+            }
         }
 
         [Test]
@@ -92,13 +86,17 @@ namespace Packager.Test.Models.BextModels
         }
 
         [Test]
-        public void AllPropertiesShouldHaveBextFieldAttribute()
+        public void AsArgumentsShouldNotNotIncludePropertiesWithoutValues()
         {
-            foreach (var property in typeof(EmbeddedAudioMetadata).GetProperties())
-            {
-                var attribute = property.GetCustomAttribute<BextFieldAttribute>();
-                Assert.That(attribute, Is.Not.Null, $"{property.Name} should have bext field attribute");
-            }
+            var metadata = GetMetadata();
+
+            // clear some fields
+            metadata.IARL = "";
+            metadata.ICMS = "";
+            metadata.IART = "";
+
+            var result = metadata.AsArguments();
+            ConfirmArgumentsPresentAndCorrect(metadata, result);
         }
     }
 }

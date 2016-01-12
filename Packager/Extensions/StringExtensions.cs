@@ -73,8 +73,7 @@ namespace Packager.Extensions
             }
             
         }
-
-
+        
         public static string ToDefaultIfEmpty(this object value, string defaultValue = "")
         {
             if (value == null)

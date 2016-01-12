@@ -6,14 +6,7 @@ namespace Packager.Extensions
     {
         public static string GetBaseMessage(this Exception exception)
         {
-            if (exception == null)
-            {
-                return "";
-            }
-
-            return exception.GetBaseException().Message;
-
-          
+            return exception?.GetBaseException().Message ?? "";
         }
     }
 }

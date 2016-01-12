@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Packager.Extensions;
 
@@ -104,5 +105,49 @@ namespace Packager.Test.Extensions
             Assert.That(parts[1], Is.EqualTo($"{field2ExpectedHeader}{field2ExpectedValue}"));
         }
 
+        [TestCase(true, "Yes")]
+        [TestCase(false, "No")]
+        public void ToYesNoShouldReturnCorrectValue(bool value, string expected)
+        {
+            Assert.That(value.ToYesNo(), Is.EqualTo(expected));
+        }
+
+        [TestCase("value", "value append")]
+        [TestCase("", "")]
+        public void AppendIfValuePresentShouldReturnCorrectValue(string value, string expected)
+        {
+            Assert.That(value.AppendIfValuePresent(" append"), Is.EqualTo(expected));
+        }
+
+        private static List<string> GetInsertBeforeArray()
+        {
+            return new List<string> {"test", "test 1", "test 1 again", "test 2", "test 2 again", "test 1 third time"};
+        }
+
+        [Test]
+        public void InsertBeforeShouldNotChangeListIfPredicateNotFound()
+        {
+            var array = GetInsertBeforeArray();
+            array.InsertBefore(s=>s.StartsWith("test 3"));
+            Assert.That(array, Is.EquivalentTo(GetInsertBeforeArray()));
+        }
+
+        [Test]
+        public void InsertBeforeShouldChangeListCorrectlyWhenOneMatchFound()
+        {
+            var array = GetInsertBeforeArray();
+            var expected = new List<string> { "test", "test 1", "insert", "test 1 again", "test 2", "test 2 again", "test 1 third time" };
+            array.InsertBefore(s=>s.Equals("test 1 again"), "insert");
+            Assert.That(array, Is.EquivalentTo(expected));
+        }
+
+        [Test]
+        public void InsertBeforeShouldChangeListCorrectlyWhenMultipleMatchesFound()
+        {
+            var array = GetInsertBeforeArray();
+            var expected = new List<string> { "test", "insert", "test 1", "test 1 again", "test 2", "test 2 again", "insert", "test 1 third time" };
+            array.InsertBefore(s => s.StartsWith("test 1"), "insert");
+            Assert.That(array, Is.EquivalentTo(expected));
+        }
     }
 }

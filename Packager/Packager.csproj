@@ -161,7 +161,7 @@
     <Compile Include="Exceptions\PodMetadataException.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\FileModelExtensions.cs" />
-    <Compile Include="Extensions\DigitalFileExtensionss.cs" />
+    <Compile Include="Extensions\DigitalFileExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XElementExtensions.cs" />
     <Compile Include="Factories\IngestDataFactory.cs" />

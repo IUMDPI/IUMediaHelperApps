@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Packager.Extensions
 {
-    public static class DigitalFileExtensionss
+    public static class DigitalFileExtensions
     {
         public static AbstractDigitalFile GetFileProvenance(this IEnumerable<AbstractDigitalFile> provenances, AbstractFileModel model, AbstractDigitalFile defaultValue = null)
         {

@@ -18,31 +18,33 @@ namespace Packager.Models.OutputModels.Carrier
         [XmlElement(Order = 3)]
         public PhysicalConditionData PhysicalCondition { get; set; }
 
-        [XmlElement(Order = 200)]
-        public PartsData Parts { get; set; }
-
-        [XmlElement(Order = 400)]
-        public PreviewData Preview { get; set; }
-
-        [XmlElement(Order = 401)]
-        public CleaningData Cleaning { get; set; }
-
-        [XmlElement(Order = 402)]
-        public BakingData Baking { get; set; }
-
-        [XmlElement(Order=100)]
+        [XmlElement(Order = 4)]
         public ConfigurationData Configuration { get; set; }
 
-        [XmlElement(Order = 101)]
+        [XmlElement(Order = 5)]
         public string Brand { get; set; }
 
-        [XmlElement(Order = 102)]
+        [XmlElement(Order = 6)]
         public string Thickness { get; set; }
 
-        [XmlElement(Order = 103)]
+        [XmlElement(Order = 7)]
         public string DirectionsRecorded { get; set; }
 
-        [XmlElement(Order = 104)]
+        [XmlElement(Order = 8)]
         public string Repaired { get; set; }
+
+        [XmlElement(Order = 9)]
+        public PartsData Parts { get; set; }
+
+        [XmlElement(Order = 10)]
+        public PreviewData Preview { get; set; }
+
+        [XmlElement(Order = 11)]
+        public CleaningData Cleaning { get; set; }
+
+        [XmlElement(Order = 12)]
+        public BakingData Baking { get; set; }
+
+     
     }
 }

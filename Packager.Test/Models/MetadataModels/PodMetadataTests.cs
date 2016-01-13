@@ -16,8 +16,8 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Element = new XElement("pod");
         }
 
-        public IImportableFactory Factory { get; set; }
-        public XElement Element { get; set; }
+        private IImportableFactory Factory { get; set; }
+        private XElement Element { get; set; }
 
 
         public class WhenImportingOpenReelAudioPodMetadata : AbstractPodMetadataTests
@@ -33,8 +33,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 var instance = new AudioPodMetadata();
                 instance.ImportFromXml(Element, Factory);
             }
-
-
+            
             [Test]
             public void ItShouldCallFactoryToResolvePlaybackSpeed()
             {

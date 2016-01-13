@@ -30,8 +30,8 @@ namespace Packager.Models.PodMetadataModels
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
             base.ImportFromXml(element, factory);
-            Brand = element.ToStringValue("data/object/technical_metadata/tape_stock_brand");
-            DirectionsRecorded = element.ToStringValue("data/object/technical_metadata/directions_recorded");
+            Brand = factory.ToStringValue(element,"data/object/technical_metadata/tape_stock_brand");
+            DirectionsRecorded = factory.ToStringValue(element,"data/object/technical_metadata/directions_recorded");
             PlaybackSpeed = GetPlaybackSpeedForFormat(element, factory);
             TrackConfiguration = factory.ResolveTrackConfiguration(element, "data/object/technical_metadata/track_configuration");
             SoundField = GetSoundFieldForFormat(element, factory);
@@ -43,7 +43,7 @@ namespace Packager.Models.PodMetadataModels
             switch (Format.ToLowerInvariant())
             {
                 case LacquerDiscFormatIdentifier:
-                    return element.ToStringValue("data/object/technical_metadata/speed").AppendIfValuePresent(" rpm");
+                    return factory.ToStringValue(element,"data/object/technical_metadata/speed", " rpm");
                 case OpenReelFormatIdentifier:
                     return factory.ResolvePlaybackSpeed(element, "data/object/technical_metadata/playback_speed");
                 default:
@@ -56,7 +56,7 @@ namespace Packager.Models.PodMetadataModels
             switch (Format.ToLowerInvariant())
             {
                 case LacquerDiscFormatIdentifier:
-                    return element.ToStringValue("data/object/technical_metadata/sound_field");
+                    return factory.ToStringValue(element,"data/object/technical_metadata/sound_field");
                 case OpenReelFormatIdentifier:
                     return factory.ResolveSoundField(element, "data/object/technical_metadata/sound_field");
                 default:

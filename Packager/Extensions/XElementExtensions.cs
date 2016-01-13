@@ -11,7 +11,7 @@ namespace Packager.Extensions
 {
     public static class XElementExtensions
     {
-        public static string ToStringValue(this XElement parent, string path)
+        /*public static string ToStringValue(this XElement parent, string path)
         {
             var element = parent.XPathSelectElement(path);
             if (element == null)
@@ -22,9 +22,9 @@ namespace Packager.Extensions
             return string.IsNullOrWhiteSpace(element.Value)
                 ? string.Empty
                 : element.Value;
-        }
+        }*/
 
-        public static bool ToBooleanValue(this XElement parent, string path)
+       /* public static bool ToBooleanValue(this XElement parent, string path)
         {
             var value = parent.ToStringValue(path);
             if (string.IsNullOrWhiteSpace(value))
@@ -51,8 +51,8 @@ namespace Packager.Extensions
             }
 
             return result;
-        }
-
+        }*/
+/*
         public static string ToResolvedDelimitedString(this XElement parent, string path,
             Dictionary<string, string> lookupDictionary)
         {
@@ -99,6 +99,6 @@ namespace Packager.Extensions
                 dictionary.Values.FirstOrDefault(v => v.ToLowerInvariant().Equals(value.ToLowerInvariant()));
 
             return string.IsNullOrWhiteSpace(dictionaryValue) == false ? dictionaryValue : string.Empty;
-        }
+        }*/
     }
 }

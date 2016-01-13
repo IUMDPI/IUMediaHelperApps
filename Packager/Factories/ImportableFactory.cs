@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Packager.Extensions;
 using Packager.Providers;
 
 namespace Packager.Factories
@@ -10,7 +11,9 @@ namespace Packager.Factories
     public interface IImportableFactory
     {
         T ToImportable<T>(XElement element);
-
+        string ToStringValue(XElement parent, string path, string appendIfPresent = "");
+        DateTime? ToDateTimeValue(XElement parent, string path);
+        bool ToBooleanValue(XElement parent, string path);
         string ResolveTrackConfiguration(XElement element, string path);
         string ResolveTapeThickness(XElement element, string path);
         string ResolvePlaybackSpeed(XElement element, string path);
@@ -27,6 +30,18 @@ namespace Packager.Factories
         }
 
         private ILookupsProvider LookupsProvider { get; }
+
+        public bool ToBooleanValue(XElement parent, string path)
+        {
+            var value = ToStringValue(parent, path);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            bool result;
+            return bool.TryParse(value, out result) && result;
+        }
 
         public string ResolveTrackConfiguration(XElement element, string path)
         {
@@ -63,6 +78,36 @@ namespace Packager.Factories
             var result = (IImportable) Activator.CreateInstance<T>();
             result.ImportFromXml(element, this);
             return (T) result;
+        }
+
+        public string ToStringValue(XElement parent, string path, string appendIfPresent = "")
+        {
+            var element = parent.XPathSelectElement(path);
+            if (element == null)
+            {
+                return string.Empty;
+            }
+
+            return string.IsNullOrWhiteSpace(element.Value)
+                ? string.Empty
+                : element.Value.AppendIfValuePresent(appendIfPresent);
+        }
+
+        public DateTime? ToDateTimeValue(XElement parent, string path)
+        {
+            var value = ToStringValue(parent, path);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            DateTime result;
+            if (DateTime.TryParse(value, out result) == false)
+            {
+                return null;
+            }
+
+            return result;
         }
 
         private static string ToResolvedDelimitedString(XNode parent, string path,

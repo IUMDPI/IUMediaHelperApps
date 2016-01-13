@@ -14,10 +14,10 @@ namespace Packager.Models.PodMetadataModels
 
         public void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            DeviceType = element.ToStringValue("device_type");
-            SerialNumber = element.ToStringValue("serial_number");
-            Manufacturer = element.ToStringValue("manufacturer");
-            Model = element.ToStringValue("model");
+            DeviceType = factory.ToStringValue(element,"device_type");
+            SerialNumber = factory.ToStringValue(element,"serial_number");
+            Manufacturer = factory.ToStringValue(element,"manufacturer");
+            Model = factory.ToStringValue(element,"model");
         }
     }
 }

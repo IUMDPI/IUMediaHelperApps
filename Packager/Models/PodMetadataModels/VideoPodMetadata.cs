@@ -16,9 +16,9 @@ namespace Packager.Models.PodMetadataModels
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
             base.ImportFromXml(element, factory);
-            ImageFormat = element.ToStringValue("data/object/technical_metadata/image_format");
-            RecordingStandard = element.ToStringValue("data/object/technical_metadata/recording_standard");
-            Definition = element.ToStringValue("data/object/technical_metadata/format_version");
+            ImageFormat = factory.ToStringValue(element,"data/object/technical_metadata/image_format");
+            RecordingStandard = factory.ToStringValue(element,"data/object/technical_metadata/recording_standard");
+            Definition = factory.ToStringValue(element,"data/object/technical_metadata/format_version");
         }
 
         protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,

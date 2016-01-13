@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Packager.Extensions;
 using Packager.Factories;
 using Packager.Validators.Attributes;
 
@@ -66,10 +65,10 @@ namespace Packager.Models.PodMetadataModels
         // digital_files
         public virtual void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            DateDigitized = element.ToDateTimeValue("date_digitized");
-            Filename = element.ToStringValue("filename");
-            Comment = element.ToStringValue("comment");
-            CreatedBy = element.ToStringValue("created_by");
+            DateDigitized = factory.ToDateTimeValue(element, "date_digitized");
+            Filename = factory.ToStringValue(element, "filename");
+            Comment = factory.ToStringValue(element, "comment");
+            CreatedBy = factory.ToStringValue(element, "created_by");
             SignalChain = ImportDevices(element.Element("signal_chain"), factory);
         }
 

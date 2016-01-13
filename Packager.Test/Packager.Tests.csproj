@@ -90,10 +90,12 @@
     <Compile Include="Factories\ImportableFactoryTests.cs" />
     <Compile Include="Factories\VideoIngestFactoryTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
+    <Compile Include="Mocks\MockPodMetadata.cs" />
     <Compile Include="Models\EmailMessageTests\EngineIssueMessageTests.cs" />
     <Compile Include="Models\EmailMessageTests\ProcessingIssueMessageTests.cs" />
     <Compile Include="Models\EmbeddedMetadataTests\EmbeddedVideoPreservationMetadataTests.cs" />
     <Compile Include="Models\FileModels\QualityControlFileModelTests.cs" />
+    <Compile Include="Models\MetadataModels\AudioPodMetadataTests.cs" />
     <Compile Include="Models\MetadataModels\BasePodResponseTests.cs" />
     <Compile Include="Models\MetadataModels\DeviceTests.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />

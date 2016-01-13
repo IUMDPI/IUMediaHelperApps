@@ -44,20 +44,20 @@ namespace Packager.Models.PodMetadataModels
         {
             base.ImportFromXml(element, factory);
 
-            Identifier = element.ToStringValue("data/object/details/id");
-            Format = element.ToStringValue("data/object/details/format");
-            CallNumber = element.ToStringValue("data/object/details/call_number");
-            Title = element.ToStringValue("data/object/details/title");
-            Unit = element.ToStringValue("data/object/assignment/unit");
-            Barcode = element.ToStringValue("data/object/details/mdpi_barcode");
+            Identifier = factory.ToStringValue(element,"data/object/details/id");
+            Format = factory.ToStringValue(element,"data/object/details/format");
+            CallNumber = factory.ToStringValue(element,"data/object/details/call_number");
+            Title = factory.ToStringValue(element,"data/object/details/title");
+            Unit = factory.ToStringValue(element,"data/object/assignment/unit");
+            Barcode = factory.ToStringValue(element,"data/object/details/mdpi_barcode");
 
-            CleaningDate = element.ToDateTimeValue("data/object/digital_provenance/cleaning_date");
-            CleaningComment = element.ToStringValue("data/object/digital_provenance/cleaning_comment");
-            BakingDate = element.ToDateTimeValue("data/object/digital_provenance/baking_date");
-            Repaired = element.ToBooleanValue("data/object/digital_provenance/repaired").ToYesNo();
+            CleaningDate = factory.ToDateTimeValue(element,"data/object/digital_provenance/cleaning_date");
+            CleaningComment = factory.ToStringValue(element,"data/object/digital_provenance/cleaning_comment");
+            BakingDate = factory.ToDateTimeValue(element,"data/object/digital_provenance/baking_date");
+            Repaired = factory.ToBooleanValue(element,"data/object/digital_provenance/repaired").ToYesNo();
             Damage = factory.ResolveDamage(element, "data/object/technical_metadata/damage").ToDefaultIfEmpty("None");
             PreservationProblems = factory.ResolvePreservationProblems(element, "data/object/technical_metadata/preservation_problems");
-            DigitizingEntity = element.ToStringValue("data/object/digital_provenance/digitizing_entity");
+            DigitizingEntity = factory.ToStringValue(element,"data/object/digital_provenance/digitizing_entity");
 
             // process each digital_file_provenance node
             FileProvenances = ImportFileProvenances(

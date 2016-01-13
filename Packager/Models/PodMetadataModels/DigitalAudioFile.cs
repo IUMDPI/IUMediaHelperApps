@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using Packager.Extensions;
 using Packager.Factories;
 using Packager.Validators.Attributes;
 
@@ -23,14 +22,14 @@ namespace Packager.Models.PodMetadataModels
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
             base.ImportFromXml(element, factory);
-            SpeedUsed = element.ToStringValue("speed_used");
-            ReferenceFluxivity = element.ToStringValue("tape_fluxivity").AppendIfValuePresent(" nWb/m");
-            AnalogOutputVoltage = element.ToStringValue("analog_output_voltage").AppendIfValuePresent(" dBu");
-            Peak = element.ToStringValue("peak").AppendIfValuePresent(" dBfs");
-            StylusSize = element.ToStringValue("stylus_size");
-            Turnover = element.ToStringValue("turnover");
-            Gain = element.ToStringValue("volume_units").AppendIfValuePresent(" dB");
-            Rolloff = element.ToStringValue("rolloff");
+            SpeedUsed = factory.ToStringValue(element, "speed_used");
+            ReferenceFluxivity = factory.ToStringValue(element, "tape_fluxivity", " nWb/m");
+            AnalogOutputVoltage = factory.ToStringValue(element, "analog_output_voltage", " dBu");
+            Peak = factory.ToStringValue(element, "peak", " dBfs");
+            StylusSize = factory.ToStringValue(element, "stylus_size");
+            Turnover = factory.ToStringValue(element, "turnover");
+            Gain = factory.ToStringValue(element, "volume_units", " dB");
+            Rolloff = factory.ToStringValue(element, "rolloff");
         }
     }
 }

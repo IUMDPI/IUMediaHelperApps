@@ -12,8 +12,8 @@ namespace Packager.Models.PodMetadataModels
 
         public virtual void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            Success = element.ToBooleanValue("success");
-            Message = element.ToStringValue("message");
+            Success = factory.ToBooleanValue(element,"success");
+            Message = factory.ToStringValue(element,"message");
         }
     }
 }

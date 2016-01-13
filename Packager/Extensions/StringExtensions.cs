@@ -140,11 +140,11 @@ namespace Packager.Extensions
 
         public static string AppendIfValuePresent(this string value, string toAppend)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(toAppend))
             {
                 return value;
             }
-
+            
             return value.Trim() + toAppend;
         }
     }

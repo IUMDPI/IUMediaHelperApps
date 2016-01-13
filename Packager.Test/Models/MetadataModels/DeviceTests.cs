@@ -9,43 +9,46 @@ namespace Packager.Test.Models.MetadataModels
     [TestFixture]
     public class DeviceTests
     {
-        private Device Instance { get; set; }
-
-        private XElement Element => new XElement("base", 
-            new XElement("device_type") {Value = "device type value"},
-            new XElement("serial_number") { Value = "serial number value" },
-            new XElement("manufacturer") { Value = "manufacturer value" },
-            new XElement("model") { Value = "model value" });
+        private IImportableFactory Factory { get; set; }
+        private XElement Element { get; set; }
 
         [SetUp]
         public void BeforeEach()
         {
-            Instance = new Device();
-            Instance.ImportFromXml(Element, Substitute.For<IImportableFactory>());
+            // Fake the factory, as we're just interested in how it's being called
+            Factory = Substitute.For<IImportableFactory>();
+
+            // here we don't need to set values, as we're just testing that the factory
+            // gets called correctly
+           Element = new XElement("pod");
+
+            var instance = new Device();
+            instance.ImportFromXml(Element, Factory);
         }
 
         [Test]
-        public void AfterImportDeviceTypeShouldBeCorrect()
+        public void ItShouldUseCorrectPathToResolveDeviceType()
         {
-            Assert.That(Instance.DeviceType, Is.EqualTo("device type value"));
+            Factory.Received().ToStringValue(Element, "device_type");
         }
 
         [Test]
-        public void AfterImportSerialNumberShouldBeCorrect()
+        public void ItShouldUseCorrectPathToResolveSerialNumber()
         {
-            Assert.That(Instance.SerialNumber, Is.EqualTo("serial number value"));
+            Factory.Received().ToStringValue(Element, "serial_number");
         }
 
         [Test]
-        public void AfterImportManufacturerShouldBeCorrect()
+        public void ItShouldUseCorrectPathToResolveModel()
         {
-            Assert.That(Instance.Manufacturer, Is.EqualTo("manufacturer value"));
+            Factory.Received().ToStringValue(Element, "model");
         }
 
         [Test]
-        public void AfterImportModelShouldBeCorrect()
+        public void ItShouldUseCorrectPathToResolveManufacturer()
         {
-            Assert.That(Instance.Model, Is.EqualTo("model value"));
+            Factory.Received().ToStringValue(Element, "manufacturer");
         }
+
     }
 }

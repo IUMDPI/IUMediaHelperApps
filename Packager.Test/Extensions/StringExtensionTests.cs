@@ -119,6 +119,15 @@ namespace Packager.Test.Extensions
             Assert.That(value.AppendIfValuePresent(" append"), Is.EqualTo(expected));
         }
 
+        [Test]
+        public void AppendIfValuePresentShouldNotAppendIfToAppendIsEmpty()
+        {
+            Assert.That("value".AppendIfValuePresent(""), Is.EqualTo("value"));
+            Assert.That("value".AppendIfValuePresent(null), Is.EqualTo("value"));
+            Assert.That("value".AppendIfValuePresent(" "), Is.EqualTo("value"));
+            Assert.That("value".AppendIfValuePresent("   "), Is.EqualTo("value"));
+        }
+
         private static List<string> GetInsertBeforeArray()
         {
             return new List<string> {"test", "test 1", "test 1 again", "test 2", "test 2 again", "test 1 third time"};

@@ -83,7 +83,6 @@
     <Compile Include="Attributes\FromBoolConfigSettingAttribute.cs" />
     <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
-    <Compile Include="Factories\AbstractPodMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />

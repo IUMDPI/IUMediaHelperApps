@@ -69,25 +69,7 @@ namespace Packager.Models.PodMetadataModels
             Filename = factory.ToStringValue(element, "filename");
             Comment = factory.ToStringValue(element, "comment");
             CreatedBy = factory.ToStringValue(element, "created_by");
-            SignalChain = ImportDevices(element.Element("signal_chain"), factory);
-        }
-
-        private static List<Device> ImportDevices(XContainer element, IImportableFactory factory)
-        {
-            if (element == null)
-            {
-                return new List<Device>();
-            }
-
-            var result = new List<Device>();
-            foreach (var deviceElement in element.Elements("device"))
-            {
-                var device = new Device();
-                device.ImportFromXml(deviceElement, factory);
-                result.Add(device);
-            }
-
-            return result;
+            SignalChain = factory.ToObjectList<Device>(element.Element("signal_chain"), "device");
         }
     }
 }

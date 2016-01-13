@@ -20,6 +20,8 @@ namespace Packager.Factories
         string ResolveSoundField(XElement element, string path);
         string ResolveDamage(XElement element, string path);
         string ResolvePreservationProblems(XElement element, string path);
+
+        List<T> ToObjectList<T>(XElement element, string path) where T : IImportable, new();
     }
 
     public class ImportableFactory : IImportableFactory
@@ -71,6 +73,24 @@ namespace Packager.Factories
         public string ResolvePreservationProblems(XElement element, string path)
         {
             return ToResolvedDelimitedString(element, path, LookupsProvider.PreservationProblem);
+        }
+
+        public List<T> ToObjectList<T>(XElement element, string path) where T : IImportable, new()
+        {
+            if (element == null)
+            {
+                return new List<T>();
+            }
+
+            var results = new List<T>();
+            foreach (var childElement in element.Elements(path))
+            {
+                var instance = new T();
+                instance.ImportFromXml(childElement,this);
+                results.Add(instance);
+            }
+
+            return results;
         }
 
         public T ToImportable<T>(XElement element)

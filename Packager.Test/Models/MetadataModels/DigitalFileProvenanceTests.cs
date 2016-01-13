@@ -15,12 +15,14 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
         {
             private IImportableFactory Factory { get; set; }
             private XElement Element { get; set; }
+            private XElement SignalChainElement { get; set; }
 
             [SetUp]
             public virtual void BeforeEach()
             {
                 Factory = Substitute.For<IImportableFactory>();
-                Element = new XElement("pod");
+                SignalChainElement = new XElement("signal_chain");
+                Element = new XElement("digital_file_provenance", SignalChainElement);
             }
 
             [Test]
@@ -45,6 +47,12 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             public void ItShouldUseCorrectPathToResolveCreatedBy()
             {
                 Factory.Received().ToStringValue(Element, "created_by");
+            }
+
+            [Test]
+            public void ItShouldCallFactoryCorrectlyToImportDevices()
+            {
+                Factory.Received().ToObjectList<Device>(SignalChainElement, "device");
             }
 
             public class WhenImportingDigitalAudioFiles : WhenImporting

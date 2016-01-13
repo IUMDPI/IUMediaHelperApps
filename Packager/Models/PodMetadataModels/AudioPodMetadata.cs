@@ -67,7 +67,7 @@ namespace Packager.Models.PodMetadataModels
         protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,
             IImportableFactory factory)
         {
-            return elements.Select(factory.ToImportable<DigitalVideoFile>)
+            return elements.Select(factory.ToImportable<DigitalAudioFile>)
                 .Cast<AbstractDigitalFile>().ToList();
         }
 

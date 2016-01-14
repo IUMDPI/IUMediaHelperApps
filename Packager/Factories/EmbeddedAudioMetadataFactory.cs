@@ -15,8 +15,18 @@ namespace Packager.Factories
         private const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1};A/D,\r\n";
         private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
 
+        /// <summary>
+        /// Known digital formats
+        /// </summary>
         private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
         
+        /// <summary>
+        /// Generate metadata to embed for a give model, provenance, and set of pod metadata
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="provenance"></param>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
         protected override AbstractEmbeddedMetadata Generate(ObjectFileModel model, AbstractDigitalFile provenance, AudioPodMetadata metadata)
         {
             var description = GenerateDescription(metadata, model);
@@ -37,6 +47,11 @@ namespace Packager.Factories
             };
         }
 
+        /// <summary>
+        /// Return "DIGITAL" if metadata.format is in list of known digital formats; Otherwise return analogue.
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
         private string GetFormatText(AbstractPodMetadata metadata)
         {
             return _knownDigitalFormats.Contains(metadata.Format.ToLowerInvariant())
@@ -49,7 +64,7 @@ namespace Packager.Factories
             var builder = new StringBuilder();
 
             builder.AppendFormat(CodingHistoryLine1Format,
-                GetFormatText(metadata),
+                GetFormatText(metadata), // use metadata.format to determin if "ANALOGUE" or "DIGITAL"
                 metadata.SoundField,
                 GeneratePlayerTextField(metadata, provenance));
 
@@ -90,7 +105,7 @@ namespace Packager.Factories
             return parts;
         }
 
-        private static string GenerateAdTextField(DigitalAudioFile provenance)
+        private static string GenerateAdTextField(AbstractDigitalFile provenance)
         {
             if (!provenance.AdDevices.Any())
             {

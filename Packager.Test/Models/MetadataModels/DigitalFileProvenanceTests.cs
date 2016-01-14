@@ -28,7 +28,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             [Test]
             public void ItShouldUseCorrectPathToResolveDateDigitized()
             {
-                Factory.Received().ToDateTimeValue(Element, "date_digitized");
+                Factory.Received().ToUtcDateTimeValue(Element, "date_digitized");
             }
 
             [Test]

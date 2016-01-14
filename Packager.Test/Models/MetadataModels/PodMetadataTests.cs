@@ -147,7 +147,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         [Test]
         public void ItShouldUseCorrectPathToResolveBakingDate()
         {
-            Factory.Received().ToDateTimeValue(Element, "data/object/digital_provenance/baking_date");
+            Factory.Received().ToUtcDateTimeValue(Element, "data/object/digital_provenance/baking_date");
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         [Test]
         public void ItShouldUseCorrectPathToResolveCleaningDate()
         {
-            Factory.Received().ToDateTimeValue(Element, "data/object/digital_provenance/cleaning_date");
+            Factory.Received().ToUtcDateTimeValue(Element, "data/object/digital_provenance/cleaning_date");
         }
 
         [Test]

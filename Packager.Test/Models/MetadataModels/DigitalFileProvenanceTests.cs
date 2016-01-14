@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using NSubstitute;
@@ -17,12 +18,21 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             private XElement Element { get; set; }
             private XElement SignalChainElement { get; set; }
 
+            private List<Device> MockDeviceList { get; set; }
+
+            private AbstractDigitalFile Instance { get; set; }
+
             [SetUp]
             public virtual void BeforeEach()
             {
                 Factory = Substitute.For<IImportableFactory>();
                 SignalChainElement = new XElement("signal_chain");
                 Element = new XElement("digital_file_provenance", SignalChainElement);
+
+                Factory.ToUtcDateTimeValue(Element, "date_digitized").Returns(new DateTime(2016, 1, 1));
+                Factory.ToStringValue(Element, "filename").Returns("filename value");
+                Factory.ToStringValue(Element, "comment").Returns("comment value");
+                Factory.ToStringValue(Element, "created_by").Returns("created by value");
             }
 
             [Test]
@@ -32,15 +42,49 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             }
 
             [Test]
+            public void ItShouldSetDateDigitizedCorrectly()
+            {
+                Assert.That(Instance.DateDigitized.HasValue);
+                Assert.That(Instance.DateDigitized.Value, Is.EqualTo(new DateTime(2016, 1, 1)));
+            }
+
+            [Test]
             public void ItShouldUseCorrectPathToResolveFilename()
             {
                 Factory.Received().ToStringValue(Element, "filename");
             }
 
             [Test]
+            public void ItShouldSetFilenameCorrectly()
+            {
+                Assert.That(Instance.Filename, Is.EqualTo("filename value"));
+            }
+
+            [Test]
             public void ItShouldUseCorrectPathToResolveComment()
             {
                 Factory.Received().ToStringValue(Element, "comment");
+            }
+
+            [Test]
+            public void ItShouldSetCommentCorrectly()
+            {
+                Assert.That(Instance.Comment, Is.EqualTo("comment value"));
+            }
+
+            [Test]
+            public void ItShouldSetCreatedByCorrectly()
+            {
+                Assert.That(Instance.CreatedBy, Is.EqualTo("created by value"));
+            }
+
+            [Test]
+            public void ItShouldSetDevicesCorrectly()
+            {
+                Assert.That(Instance.AdDevices.Count(), Is.EqualTo(1));
+                Assert.That(Instance.PlayerDevices.Count(), Is.EqualTo(1));
+                Assert.That(Instance.AdDevices.Count(), Is.EqualTo(1));
+                Assert.That(Instance.ExtractionWorkstation, Is.Not.Null);
             }
 
             [Test]
@@ -62,8 +106,17 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 {
                     base.BeforeEach();
 
-                    var instance = new DigitalAudioFile();
-                    instance.ImportFromXml(Element, Factory);
+                    MockDeviceList = new List<Device>
+                    {
+                        new Device {DeviceType = "player", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                        new Device {DeviceType = "ad", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                        new Device {DeviceType = "extraction workstation", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"}
+                    };
+
+                    Factory.ToObjectList<Device>(SignalChainElement, "device").Returns(MockDeviceList);
+                    
+                    Instance = new DigitalAudioFile();
+                    Instance.ImportFromXml(Element, Factory);
                 }
 
                 [Test]

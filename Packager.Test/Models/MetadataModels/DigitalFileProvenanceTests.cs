@@ -20,6 +20,11 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
 
             private List<Device> MockDeviceList { get; set; }
 
+            private List<Device> MockPlayerList { get; set; } 
+            private List<Device> MockAdList { get; set; } 
+
+            private Device MockExtractionWorkStation { get; set; }
+
             private AbstractDigitalFile Instance { get; set; }
 
             [SetUp]
@@ -33,8 +38,28 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 Factory.ToStringValue(Element, "filename").Returns("filename value");
                 Factory.ToStringValue(Element, "comment").Returns("comment value");
                 Factory.ToStringValue(Element, "created_by").Returns("created by value");
-            }
 
+                MockPlayerList = new List<Device>
+                    {
+                        new Device {DeviceType = "player", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                        new Device {DeviceType = "player", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                    };
+
+                MockAdList = new List<Device>
+                    {
+                        new Device {DeviceType = "ad", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                        new Device {DeviceType = "ad", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                    };
+
+                MockExtractionWorkStation = new Device
+                {
+                    DeviceType = "extraction workstation",
+                    Model = "model",
+                    Manufacturer = "manufacturer",
+                    SerialNumber = "serial number"
+                };
+            }
+            
             [Test]
             public void ItShouldUseCorrectPathToResolveDateDigitized()
             {
@@ -79,12 +104,21 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             }
 
             [Test]
-            public void ItShouldSetDevicesCorrectly()
+            public void ItShouldSetAdDevicesCorrectly()
             {
-                Assert.That(Instance.AdDevices.Count(), Is.EqualTo(1));
-                Assert.That(Instance.PlayerDevices.Count(), Is.EqualTo(1));
-                Assert.That(Instance.AdDevices.Count(), Is.EqualTo(1));
-                Assert.That(Instance.ExtractionWorkstation, Is.Not.Null);
+                Assert.That(Instance.AdDevices, Is.EquivalentTo(MockAdList));
+            }
+
+            [Test]
+            public void ItShouldSetPlayerDevicesCorrectly()
+            {
+                Assert.That(Instance.PlayerDevices, Is.EquivalentTo(MockPlayerList));
+            }
+
+            [Test]
+            public void ItShouldSetExtractionWorkstationCorrectly()
+            {
+                Assert.That(Instance.ExtractionWorkstation, Is.EqualTo(MockExtractionWorkStation));
             }
 
             [Test]
@@ -101,20 +135,27 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
 
             public class WhenImportingDigitalAudioFiles : WhenImporting
             {
+                private DigitalAudioFile DigitalAudioFile => Instance as DigitalAudioFile;
+
                 [SetUp]
                 public override void BeforeEach()
                 {
                     base.BeforeEach();
 
-                    MockDeviceList = new List<Device>
-                    {
-                        new Device {DeviceType = "player", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
-                        new Device {DeviceType = "ad", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
-                        new Device {DeviceType = "extraction workstation", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"}
-                    };
-
-                    Factory.ToObjectList<Device>(SignalChainElement, "device").Returns(MockDeviceList);
+                    MockDeviceList = new List<Device> {MockExtractionWorkStation};
+                    MockDeviceList.AddRange(MockAdList);
+                    MockDeviceList.AddRange(MockPlayerList);
                     
+                    Factory.ToObjectList<Device>(SignalChainElement, "device").Returns(MockDeviceList);
+                    Factory.ToStringValue(Element, "speed_used").Returns("speed used value");
+                    Factory.ToStringValue(Element, "tape_fluxivity", " nWb/m").Returns("reference fluxivity value");
+                    Factory.ToStringValue(Element, "analog_output_voltage", " dBu").Returns("analog output voltage value");
+                    Factory.ToStringValue(Element, "peak", " dBfs").Returns("peak value");
+                    Factory.ToStringValue(Element, "stylus_size").Returns("stylus size value");
+                    Factory.ToStringValue(Element, "turnover").Returns("turnover value");
+                    Factory.ToStringValue(Element, "volume_units", " dB").Returns("gain value");
+                    Factory.ToStringValue(Element, "rolloff").Returns("rolloff value");
+
                     Instance = new DigitalAudioFile();
                     Instance.ImportFromXml(Element, Factory);
                 }
@@ -126,9 +167,21 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 }
 
                 [Test]
-                public void ItShouldUseCorrectPathToResolveTapeFluxivity()
+                public void ItShouldSetSpeedUsedCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.SpeedUsed, Is.EqualTo("speed used value"));
+                }
+
+                [Test]
+                public void ItShouldUseCorrectPathToResolveReferenceFluxivity()
                 {
                     Factory.Received().ToStringValue(Element, "tape_fluxivity", " nWb/m");
+                }
+
+                [Test]
+                public void ItShouldSetReferenceFluxivityCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.ReferenceFluxivity, Is.EqualTo("reference fluxivity value"));
                 }
 
                 [Test]
@@ -138,9 +191,21 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 }
 
                 [Test]
+                public void ItShouldSetAnalogOutoutVoltageCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.AnalogOutputVoltage, Is.EqualTo("analog output voltage value"));
+                }
+                
+                [Test]
                 public void ItShouldUseCorrectPathToResolvePeak()
                 {
                     Factory.Received().ToStringValue(Element, "peak", " dBfs");
+                }
+
+                [Test]
+                public void ItShouldSetPeakCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.Peak, Is.EqualTo("peak value"));
                 }
 
                 [Test]
@@ -150,9 +215,22 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 }
 
                 [Test]
+                public void ItShouldSetStylusSizeCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.StylusSize, Is.EqualTo("stylus size value"));
+                }
+                
+                [Test]
                 public void ItShouldUseCorrectPathToResolveTurnover()
                 {
                     Factory.Received().ToStringValue(Element, "turnover");
+                }
+
+
+                [Test]
+                public void ItShouldSetTurnoverCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.Turnover, Is.EqualTo("turnover value"));
                 }
 
                 [Test]
@@ -162,20 +240,71 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 }
 
                 [Test]
+                public void ItShouldSetGainCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.Gain, Is.EqualTo("gain value"));
+                }
+                
+                [Test]
                 public void ItShouldUseCorrectPathToResolveRolloff()
                 {
                     Factory.Received().ToStringValue(Element, "rolloff");
+                }
+
+                [Test]
+                public void ItShouldSetRolloffCorrectly()
+                {
+                    Assert.That(DigitalAudioFile.Rolloff, Is.EqualTo("rolloff value"));
                 }
             }
 
             public class WhenImportingDigitalVideoFiles : WhenImporting
             {
+                private List<Device> MockTbcDevices { get; set; }
+                private Device MockEncoder { get; set; }
+
+                private DigitalVideoFile DigitalVideoFile => Instance as DigitalVideoFile;
+
                 [SetUp]
                 public override void BeforeEach()
                 {
                     base.BeforeEach();
-                    var instance = new DigitalVideoFile();
-                    instance.ImportFromXml(Element, Factory);
+
+                    MockTbcDevices = new List<Device>
+                    {
+                        new Device {DeviceType = "tbc", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                        new Device {DeviceType = "tbc", Model = "model", Manufacturer = "manufacturer", SerialNumber = "serial number"},
+                    };
+
+                    MockEncoder = new Device
+                    {
+                        DeviceType = "video capture",
+                        Model = "model",
+                        Manufacturer = "manufacturer",
+                        SerialNumber = "serial number"
+                    };
+
+                    MockDeviceList = new List<Device> { MockExtractionWorkStation, MockEncoder };
+                    MockDeviceList.AddRange(MockAdList);
+                    MockDeviceList.AddRange(MockPlayerList);
+                    MockDeviceList.AddRange(MockTbcDevices);
+
+                    Factory.ToObjectList<Device>(SignalChainElement, "device").Returns(MockDeviceList);
+                    
+                    Instance = new DigitalVideoFile();
+                    Instance.ImportFromXml(Element, Factory);
+                }
+
+                [Test]
+                public void ItShouldSetTbcDevicesCorrectly()
+                {
+                    Assert.That(DigitalVideoFile.TBCDevices, Is.EquivalentTo(MockTbcDevices));
+                }
+
+                [Test]
+                public void ItShouldSetEncoderCorrectly()
+                {
+                    Assert.That(DigitalVideoFile.Encoder, Is.EqualTo(MockEncoder));
                 }
 
                 // here DigitalVideoFile has no importable properties outside

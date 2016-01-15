@@ -7,8 +7,8 @@ namespace Packager.Models.PodMetadataModels
 {
     public class DigitalVideoFile : AbstractDigitalFile
     {
-        private const string VideoCaptureDeviceType = "Video Capture";
-        private const string TBCDeviceType = "TBC";
+        private const string VideoCaptureDeviceType = "video capture";
+        private const string TBCDeviceType = "tbc";
 
         [Required]
         public Device Encoder

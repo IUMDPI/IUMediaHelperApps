@@ -80,8 +80,6 @@
     <Compile Include="Attributes\AbstractFromConfigSettingAttribute.cs" />
     <Compile Include="Attributes\BextFieldAttribute.cs" />
     <Compile Include="Attributes\FFMPEGArgumentAttribute.cs" />
-    <Compile Include="Attributes\FromBoolConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
@@ -139,8 +137,6 @@
     <Compile Include="Utilities\Process\VideoFFMPEGRunner.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
-    <Compile Include="Attributes\FromStringConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromListConfigSettingAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFileAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFolderAttribute.cs" />

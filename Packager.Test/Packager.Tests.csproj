@@ -71,10 +71,6 @@
   <ItemGroup>
     <Compile Include="Attributes\BextFieldAttributeTests.cs" />
     <Compile Include="Attributes\FFMPEGArgumentAttributeTests.cs" />
-    <Compile Include="Attributes\FromBoolConfigSettingAttributeTests.cs" />
-    <Compile Include="Attributes\FromIntegerConfigSettingAttributeTests.cs" />
-    <Compile Include="Attributes\FromListConfigSettingAttributeTests.cs" />
-    <Compile Include="Attributes\FromStringConfigSettingAttributeTests.cs" />
     <Compile Include="Deserializers\PodResultDeserializerTests.cs" />
     <Compile Include="Engine\EngineTests.cs" />
     <Compile Include="Extensions\ArrayExtensionTests.cs" />

@@ -17,28 +17,28 @@ using Packager.Utilities.Bext;
 namespace Packager.Test.Processors
 {
     [TestFixture]
-    public class AudioProcessorTests : AbstractProcessorTests
+    public class VideoProcessorTests : AbstractProcessorTests
     {
         private const string ProdCommandLineArgs = "-c:a pcm_s24le -b:a 128k -strict -2 -ar 96000";
         private const string AccessCommandLineArgs = "-c:a aac -b:a 128k -strict -2 -ar 48000";
         private const string FFMPEGPath = "ffmpeg.exe";
         private string SectionKey { get; set; }
 
-        private AudioPodMetadata Metadata { get; set; }
+        private VideoPodMetadata Metadata { get; set; }
 
         protected override void DoCustomSetup()
         {
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>())
-                .Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>())
+                .Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToVideoAccessFileModel()));
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<AbstractEmbeddedVideoMetadata>())
                 .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
 
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
 
-            PreservationFileName = $"{ProjectCode}_{Barcode}_01_pres.wav";
-            PreservationIntermediateFileName = $"{ProjectCode}_{Barcode}_01_presInt.wav";
-            ProductionFileName = $"{ProjectCode}_{Barcode}_01_prod.wav";
+            PreservationFileName = $"{ProjectCode}_{Barcode}_01_pres.mkv";
+            PreservationIntermediateFileName = $"{ProjectCode}_{Barcode}_01_presInt.mkv";
+            ProductionFileName = $"{ProjectCode}_{Barcode}_01_mezz.mov";
             AccessFileName = $"{ProjectCode}_{Barcode}_01_access.mp4";
             XmlManifestFileName = $"{ProjectCode}_{Barcode}.xml";
 
@@ -51,18 +51,18 @@ namespace Packager.Test.Processors
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new AudioPodMetadata {Barcode = Barcode};
+            Metadata = new VideoPodMetadata {Barcode = Barcode};
 
-            MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
+            MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
 
-            Processor = new AudioProcessor(DependencyProvider);
+            Processor = new VideoProcessor(DependencyProvider);
 
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
             ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
         }
 
-        public class WhenNothingGoesWrong : AudioProcessorTests
+        public class WhenNothingGoesWrong : VideoProcessorTests
         {
             public class WhenInitializing : WhenNothingGoesWrong
             {
@@ -109,9 +109,9 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        NonNormalPresFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_1_pres.wav";
-                        NonNormalPresIntFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_001_presInt.wav";
-                        NonNormalProductionFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_01_prod.wav";
+                        NonNormalPresFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_1_pres.mkv";
+                        NonNormalPresIntFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_001_presInt.mkv";
+                        NonNormalProductionFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_01_mezz.mov";
 
                         ModelList = new List<AbstractFileModel>
                         {
@@ -226,7 +226,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
-                    MetadataProvider.Received().GetObjectMetadata<AudioPodMetadata>(Barcode);
+                    MetadataProvider.Received().GetObjectMetadata<VideoPodMetadata>(Barcode);
                 }
 
                 [Test]
@@ -244,14 +244,14 @@ namespace Packager.Test.Processors
 
             public class WhenNormalizingOriginals : WhenNothingGoesWrong
             {
-                private EmbeddedAudioMetadata ExpectedMetadata { get; set; }
+                private EmbeddedVideoPreservationMetadata ExpectedMetadata { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    ExpectedMetadata = new EmbeddedAudioMetadata();
-                    AudioMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
+                    ExpectedMetadata = new EmbeddedVideoPreservationMetadata();
+                    VideoMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
                 }
 
 
@@ -260,7 +260,7 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(model as ObjectFileModel, ExpectedMetadata);
+                        FFMPEGRunner.Received().Normalize(Arg.Is<ObjectFileModel>(m=>m.IsSameAs(model.ToFileName())), Arg.Any<AbstractEmbeddedVideoMetadata>());
                     }
                 }
 
@@ -647,7 +647,7 @@ namespace Packager.Test.Processors
             }
         }
 
-        public class WhenThingsGoWrong : AudioProcessorTests
+        public class WhenThingsGoWrong : VideoProcessorTests
         {
             private string IssueMessage { get; set; }
             private string SubSectionKey { get; set; }

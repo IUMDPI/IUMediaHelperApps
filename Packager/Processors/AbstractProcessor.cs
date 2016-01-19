@@ -108,7 +108,7 @@ namespace Packager.Processors
             return fileModels
                 .Where(m => m.IsObjectModel())
                 .Select(m => (ObjectFileModel) m)
-                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion())
+                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion() || m.IsMezzanineVersion())
                 .ToList();
         }
 

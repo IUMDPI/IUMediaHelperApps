@@ -47,10 +47,11 @@ namespace Packager.Test.Processors
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
         protected string ExpectedObjectFolderName { get; set; }
-        protected AudioPodMetadata Metadata { get; set; }
+      
         protected abstract void DoCustomSetup();
 
         protected IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; set; }
+        protected IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; set; }
 
         protected string PreservationFileName { get; set; }
         protected string PreservationIntermediateFileName { get; set; }
@@ -84,9 +85,14 @@ namespace Packager.Test.Processors
             ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
 
             AudioMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
-            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(), Arg.Any<ObjectFileModel>(),
-                Arg.Any<AudioPodMetadata>())
+            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(), Arg.Any<ObjectFileModel>(),Arg.Any<AudioPodMetadata>())
                 .Returns(new EmbeddedAudioMetadata());
+
+            VideoMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<VideoPodMetadata>>();
+            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(), Arg.Is<ObjectFileModel>(a=>a.IsMezzanineVersion()),Arg.Any<VideoPodMetadata>())
+                .Returns(new EmbeddedVideoMezzanineMetadata());
+            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(), Arg.Is<ObjectFileModel>(a => a.IsPreservationVersion() || a.IsPreservationIntermediateVersion()), Arg.Any<VideoPodMetadata>())
+                .Returns(new EmbeddedVideoPreservationMetadata());
 
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();
@@ -98,11 +104,7 @@ namespace Packager.Test.Processors
             MetadataGenerator = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
-                .ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>())
-                .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
-
+          
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);
             DependencyProvider.DirectoryProvider.Returns(DirectoryProvider);
@@ -116,6 +118,7 @@ namespace Packager.Test.Processors
             DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
             DependencyProvider.AudioFFMPEGRunner.Returns(FFMPEGRunner);
             DependencyProvider.AudioMetadataFactory.Returns(AudioMetadataFactory);
+            DependencyProvider.VideoMetadataFactory.Returns(VideoMetadataFactory);
 
             DoCustomSetup();
 

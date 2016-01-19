@@ -100,6 +100,7 @@
     <Compile Include="Models\OutputModels\IngestModelTests.cs" />
     <Compile Include="Models\SettingsModelsTests\ProgramSettingsTests.cs" />
     <Compile Include="PodMetadataProviderTests.cs" />
+    <Compile Include="Processors\VideoProcessorTests.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />

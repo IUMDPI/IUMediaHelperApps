@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Specialized;
-using Packager.Factories;
-
-namespace Packager.Models.SettingsModels
+﻿namespace Packager.Models.SettingsModels
 {
     public interface IProgramSettings
     {
@@ -29,7 +25,5 @@ namespace Packager.Models.SettingsModels
         int DeleteSuccessfulObjectsAfterDays { get; }
         string UnitPrefix { get; }
         string PodAuthFilePath { get; }
-
-        void Import(NameValueCollection dictionary, ISettingsFactory factory);
     }
 }

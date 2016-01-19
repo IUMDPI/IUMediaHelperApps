@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Windows;
 using NLog.Config;
 using Packager.Engine;
+using Packager.Factories;
 using Packager.Observers;
 using Packager.Observers.LayoutRenderers;
 using Packager.Processors;
@@ -21,9 +22,10 @@ namespace Packager
             base.OnStartup(e);
 
             ConfigureNLog();
-
-            // initialize dependency provider
-            var dependencyProvider = new DefaultDependencyProvider(ConfigurationManager.AppSettings);
+        
+            // initialize dependency provider with program settings
+            var dependencyProvider = new DefaultDependencyProvider(
+                SettingsFactory.Import(ConfigurationManager.AppSettings));
 
             // create the view model
             var viewModel = new ViewModel();

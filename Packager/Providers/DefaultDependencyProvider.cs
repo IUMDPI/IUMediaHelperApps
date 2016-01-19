@@ -21,11 +21,9 @@ namespace Packager.Providers
 {
     public class DefaultDependencyProvider : IDependencyProvider
     {
-        public DefaultDependencyProvider(NameValueCollection settings)
+        public DefaultDependencyProvider(IProgramSettings programSettings)
         {
-            ProgramSettings = new ProgramSettings();
-            ProgramSettings.Import(settings, new SettingsFactory());
-
+            ProgramSettings = programSettings;
             Hasher = new Hasher(ProgramSettings.ProcessingDirectory);
             XmlExporter = new XmlExporter();
             DirectoryProvider = new DirectoryProvider();
@@ -86,6 +84,7 @@ namespace Packager.Providers
         [ValidateObject]
         public IProgramSettings ProgramSettings { get; }
 
+        [ValidateObject]
         public IImportableFactory ImportableFactory { get; }
 
         [ValidateObject]
@@ -100,6 +99,7 @@ namespace Packager.Providers
         [ValidateObject]
         public IFFMPEGRunner AudioFFMPEGRunner { get; }
 
+        [ValidateObject]
         public IFFMPEGRunner VideoFFMPEGRunner { get; }
 
         [ValidateObject]
@@ -119,8 +119,10 @@ namespace Packager.Providers
         [ValidateObject]
         public ILookupsProvider LookupsProvider { get; }
 
+        [ValidateObject]
         public IFFProbeRunner FFProbeRunner { get; }
 
+        [ValidateObject]
         public IBwfMetaEditRunner MetaEditRunner { get; }
 
         private static IRestClient GetRestClient(IProgramSettings programSettings, IFileProvider fileProvider,

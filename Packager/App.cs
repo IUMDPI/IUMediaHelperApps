@@ -3,8 +3,6 @@ using System.Configuration;
 using System.Windows;
 using NLog.Config;
 using Packager.Engine;
-using Packager.Factories;
-using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Observers.LayoutRenderers;
 using Packager.Processors;
@@ -24,9 +22,8 @@ namespace Packager
 
             ConfigureNLog();
 
-            // initialize program settings
-            var programSettings = new ProgramSettings();
-            programSettings.Import(ConfigurationManager.AppSettings, new SettingsFactory());
+            // initialize dependency provider
+            var dependencyProvider = new DefaultDependencyProvider(ConfigurationManager.AppSettings);
 
             // create the view model
             var viewModel = new ViewModel();
@@ -36,10 +33,7 @@ namespace Packager
 
             // initialize the view model with the window and 
             // the program settings project code (used for the window title)
-            viewModel.Initialize(window, programSettings.ProjectCode);
-
-            // initialize dependency provider
-            var dependencyProvider = new DefaultDependencyProvider(programSettings);
+            viewModel.Initialize(window, dependencyProvider.ProgramSettings.ProjectCode);
 
             AddObservers(dependencyProvider, viewModel);
 

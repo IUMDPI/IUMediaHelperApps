@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Specialized;
 using Packager.Deserializers;
 using Packager.Factories;
-using Packager.Models;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
@@ -21,23 +21,25 @@ namespace Packager.Providers
 {
     public class DefaultDependencyProvider : IDependencyProvider
     {
-        public DefaultDependencyProvider(IProgramSettings programSettings)
+        public DefaultDependencyProvider(NameValueCollection settings)
         {
-            Hasher = new Hasher(programSettings.ProcessingDirectory);
+            ProgramSettings = new ProgramSettings();
+            ProgramSettings.Import(settings, new SettingsFactory());
+
+            Hasher = new Hasher(ProgramSettings.ProcessingDirectory);
             XmlExporter = new XmlExporter();
             DirectoryProvider = new DirectoryProvider();
             FileProvider = new FileProvider();
             ProcessRunner = new ProcessRunner();
-            ProgramSettings = programSettings;
             IngestDataFactory = new IngestDataFactory();
             SideDataFactory = new SideDataFactory(IngestDataFactory);
             MetadataGenerator = new CarrierDataFactory(SideDataFactory);
-            SystemInfoProvider = new SystemInfoProvider(programSettings.LogDirectoryName);
+            SystemInfoProvider = new SystemInfoProvider(ProgramSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             AudioMetadataFactory = new EmbeddedAudioMetadataFactory();
             VideoMetadataFactory = new EmbeddedVideoMetadataFactory();
-            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, programSettings.BwfMetaEditPath,
-                programSettings.ProcessingDirectory);
+            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,
+                ProgramSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
             AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
@@ -52,10 +54,11 @@ namespace Packager.Providers
                 new UriValidator(),
                 new MembersValidator()
             };
-            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, FileProvider, ImportableFactory), Observers,
+            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, FileProvider, ImportableFactory),
+                Observers,
                 ValidatorCollection);
-            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName,
-                new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
+            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, ProgramSettings.SuccessDirectoryName,
+                new TimeSpan(ProgramSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
             FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
         }
 
@@ -120,7 +123,8 @@ namespace Packager.Providers
 
         public IBwfMetaEditRunner MetaEditRunner { get; }
 
-        private static IRestClient GetRestClient(IProgramSettings programSettings, IFileProvider fileProvider, IImportableFactory factory)
+        private static IRestClient GetRestClient(IProgramSettings programSettings, IFileProvider fileProvider,
+            IImportableFactory factory)
         {
             var podAuth = fileProvider.Deserialize<PodAuth>(programSettings.PodAuthFilePath);
             var result = new RestClient(programSettings.WebServiceUrl)

@@ -99,10 +99,6 @@
     <Compile Include="Models\MetadataModels\BasePodResponseTests.cs" />
     <Compile Include="Models\MetadataModels\DeviceTests.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
-    <Compile Include="Models\MetadataModels\SampleRateTests.cs" />
-    <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />
-    <Compile Include="Models\MetadataModels\TapeThicknessTests.cs" />
-    <Compile Include="Models\MetadataModels\TrackConfigurationTests.cs" />
     <Compile Include="Models\OutputModels\CarrierModelTests.cs" />
     <Compile Include="Models\OutputModels\IngestModelTests.cs" />
     <Compile Include="PodMetadataProviderTests.cs" />

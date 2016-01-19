@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Xml.Linq;
 using NSubstitute;
 using NUnit.Framework;
@@ -148,10 +147,10 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             {
                 base.BeforeEach();
 
+                // need to make factory produce correct value for format
                 FormatValue = "lacquer disc";
                 Factory.ToStringValue(Element, "data/object/details/format").Returns(FormatValue);
-
-                // need to make factory produce correct value for format
+                
                 Factory.ToStringValue(Element, "data/object/technical_metadata/speed", " rpm").Returns("speed value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/sound_field").Returns("sound field value");
 
@@ -194,6 +193,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             {
                 base.BeforeEach();
 
+                // need to make factory produce correct value for format
                 FormatValue = "8mm video";
                 Factory.ToStringValue(Element, "data/object/details/format").Returns(FormatValue);
                 Factory.ToStringValue(Element, "data/object/technical_metadata/image_format").Returns("image format value");

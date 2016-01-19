@@ -60,14 +60,15 @@ namespace Packager.Models.PodMetadataModels
             DigitizingEntity = factory.ToStringValue(element,"data/object/digital_provenance/digitizing_entity");
 
             // process each digital_file_provenance node
-            FileProvenances = ImportFileProvenances(
-                element.XPathSelectElements("data/object/digital_provenance/digital_files/digital_file_provenance"),
+            FileProvenances = ImportFileProvenances(element, 
+                "data/object/digital_provenance/digital_files/digital_file_provenance", 
                 factory);
+
             NormalizeFileProvenances();
         }
 
         // method is abstract; implemented in derived classes
-        protected abstract List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,
+        protected abstract List<AbstractDigitalFile> ImportFileProvenances(XElement element, string path,
             IImportableFactory factory);
 
         protected abstract void NormalizeFileProvenances();

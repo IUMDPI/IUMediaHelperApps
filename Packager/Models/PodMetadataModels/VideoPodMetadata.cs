@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
-using Packager.Extensions;
 using Packager.Factories;
 
 namespace Packager.Models.PodMetadataModels
@@ -16,23 +16,16 @@ namespace Packager.Models.PodMetadataModels
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
             base.ImportFromXml(element, factory);
-            ImageFormat = factory.ToStringValue(element,"data/object/technical_metadata/image_format");
-            RecordingStandard = factory.ToStringValue(element,"data/object/technical_metadata/recording_standard");
-            Definition = factory.ToStringValue(element,"data/object/technical_metadata/format_version");
+            ImageFormat = factory.ToStringValue(element, "data/object/technical_metadata/image_format");
+            RecordingStandard = factory.ToStringValue(element, "data/object/technical_metadata/recording_standard");
+            Definition = factory.ToStringValue(element, "data/object/technical_metadata/format_version");
         }
 
-        protected override List<AbstractDigitalFile> ImportFileProvenances(IEnumerable<XElement> elements,
+        protected override List<AbstractDigitalFile> ImportFileProvenances(XElement element, string path,
             IImportableFactory factory)
         {
-            var result = new List<AbstractDigitalFile>();
-            foreach (var element in elements)
-            {
-                var file = new DigitalVideoFile();
-                file.ImportFromXml(element, factory);
-                result.Add(file);
-            }
-
-            return result;
+            return factory.ToObjectList<DigitalVideoFile>(element, path)
+                .Cast<AbstractDigitalFile>().ToList();
         }
 
         protected override void NormalizeFileProvenances()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using NSubstitute;
 using NUnit.Framework;
@@ -39,15 +40,24 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         private IImportableFactory Factory { get; set; }
         private XElement Element { get; set; }
         private AbstractPodMetadata Instance { get; set; }
-
+        
         public class WhenImportingOpenReelAudioPodMetadata : AbstractPodMetadataTests
         {
          
             private AudioPodMetadata AudioPodMetadata => Instance as AudioPodMetadata;
+
+            private List<DigitalAudioFile> MockProvenances { get; set; }
+
             [SetUp]
             public override void BeforeEach()
             {
                 base.BeforeEach();
+
+                MockProvenances = new List<DigitalAudioFile>
+                {
+                    new DigitalAudioFile { Filename = "test1"},
+                    new DigitalAudioFile { Filename = "test2"}
+                };
 
                 // need to make factory produce correct value for format
                 FormatValue = "open reel audio tape";
@@ -59,6 +69,10 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 Factory.ResolveTrackConfiguration(Element, "data/object/technical_metadata/track_configuration").Returns("track configuration value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/tape_stock_brand").Returns("brand value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/directions_recorded").Returns("directions recorded value");
+
+                Factory.ToObjectList<DigitalAudioFile>(Element,
+                    "data/object/digital_provenance/digital_files/digital_file_provenance")
+                    .Returns(MockProvenances);
 
                 Instance = new AudioPodMetadata();
                 Instance.ImportFromXml(Element, Factory);
@@ -136,16 +150,35 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             {
                 Assert.That(AudioPodMetadata.DirectionsRecorded, Is.EqualTo("directions recorded value"));
             }
+
+            [Test]
+            public void ItShouldCallFactoryCorrectlyToImportFileProvenances()
+            {
+                Factory.Received().ToObjectList<DigitalAudioFile>(Element, "data/object/digital_provenance/digital_files/digital_file_provenance");
+            }
+
+            [Test]
+            public void ItShouldSetProvenancesCorrectly()
+            {
+                Assert.That(Instance.FileProvenances, Is.EquivalentTo(MockProvenances));
+            }
         }
 
         public class WhenImportingLacquerDiscAudioPodMetadata : AbstractPodMetadataTests
         {
             private AudioPodMetadata AudioPodMetadata => Instance as AudioPodMetadata;
+            private List<DigitalAudioFile> MockProvenances { get; set; }
 
             [SetUp]
             public override void BeforeEach()
             {
                 base.BeforeEach();
+
+                MockProvenances = new List<DigitalAudioFile>
+                {
+                    new DigitalAudioFile { Filename = "test1"},
+                    new DigitalAudioFile { Filename = "test2"}
+                };
 
                 // need to make factory produce correct value for format
                 FormatValue = "lacquer disc";
@@ -153,6 +186,10 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 
                 Factory.ToStringValue(Element, "data/object/technical_metadata/speed", " rpm").Returns("speed value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/sound_field").Returns("sound field value");
+
+                Factory.ToObjectList<DigitalAudioFile>(Element,
+                  "data/object/digital_provenance/digital_files/digital_file_provenance")
+                  .Returns(MockProvenances);
 
                 Instance = new AudioPodMetadata();
                 Instance.ImportFromXml(Element, Factory);
@@ -181,17 +218,36 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             {
                 Assert.That(AudioPodMetadata.SoundField, Is.EqualTo("sound field value"));
             }
+
+            [Test]
+            public void ItShouldCallFactoryCorrectlyToImportFileProvenances()
+            {
+                Factory.Received().ToObjectList<DigitalAudioFile>(Element, "data/object/digital_provenance/digital_files/digital_file_provenance");
+            }
+
+            [Test]
+            public void ItShouldSetProvenancesCorrectly()
+            {
+                Assert.That(Instance.FileProvenances, Is.EquivalentTo(MockProvenances));
+            }
         }
-
-
+        
         public class WhenImportingVideoPodMetadata : AbstractPodMetadataTests
         {
-            public VideoPodMetadata VideoPodMetadata => Instance as VideoPodMetadata;
+            private VideoPodMetadata VideoPodMetadata => Instance as VideoPodMetadata;
+
+            private List<DigitalVideoFile> MockProvenances { get; set; }
 
             [SetUp]
             public override void BeforeEach()
             {
                 base.BeforeEach();
+
+                MockProvenances = new List<DigitalVideoFile>
+                {
+                    new DigitalVideoFile { Filename = "test1"},
+                    new DigitalVideoFile { Filename = "test2"}
+                };
 
                 // need to make factory produce correct value for format
                 FormatValue = "8mm video";
@@ -199,6 +255,10 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 Factory.ToStringValue(Element, "data/object/technical_metadata/image_format").Returns("image format value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/format_version").Returns("definition value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/recording_standard").Returns("recording standard value");
+
+                Factory.ToObjectList<DigitalVideoFile>(Element,
+                  "data/object/digital_provenance/digital_files/digital_file_provenance")
+                  .Returns(MockProvenances);
 
                 Instance = new VideoPodMetadata();
                 Instance.ImportFromXml(Element, Factory);
@@ -238,6 +298,18 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             public void ItShouldSetFormatRecordingStandardCorrectly()
             {
                 Assert.That(VideoPodMetadata.RecordingStandard, Is.EqualTo("recording standard value"));
+            }
+
+            [Test]
+            public void ItShouldCallFactoryCorrectlyToImportFileProvenances()
+            {
+                Factory.Received().ToObjectList<DigitalVideoFile>(Element, "data/object/digital_provenance/digital_files/digital_file_provenance");
+            }
+
+            [Test]
+            public void ItShouldSetProvenancesCorrectly()
+            {
+                Assert.That(Instance.FileProvenances, Is.EquivalentTo(MockProvenances));
             }
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Specialized;
 using Packager.Deserializers;
 using Packager.Factories;
 using Packager.Models.PodMetadataModels;

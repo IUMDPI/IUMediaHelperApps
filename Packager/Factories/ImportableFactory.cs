@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Packager.Extensions;
@@ -82,15 +83,8 @@ namespace Packager.Factories
                 return new List<T>();
             }
 
-            var results = new List<T>();
-            foreach (var childElement in element.Elements(path))
-            {
-                var instance = new T();
-                instance.ImportFromXml(childElement,this);
-                results.Add(instance);
-            }
-
-            return results;
+            return element.XPathSelectElements(path)
+                .Select(ToImportable<T>).ToList();
         }
 
         public T ToImportable<T>(XElement element)

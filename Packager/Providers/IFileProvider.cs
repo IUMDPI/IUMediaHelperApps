@@ -23,5 +23,7 @@ namespace Packager.Providers
         string ReadAllText(string path);
 
         Task ArchiveFile(string filePath, string archivePath);
+
+        T Deserialize<T>(string filePath);
     }
 }

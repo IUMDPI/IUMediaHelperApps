@@ -14,6 +14,7 @@ using ICSharpCode.AvalonEdit.Folding;
 using Packager.Annotations;
 using Packager.Exceptions;
 using Packager.Models;
+using Packager.Models.SettingsModels;
 using Packager.Models.UserInterfaceModels;
 
 namespace Packager.UserInterface
@@ -52,7 +53,7 @@ namespace Packager.UserInterface
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Initialize(OutputWindow outputWindow, IProgramSettings programSettings)
+        public void Initialize(OutputWindow outputWindow, string projectCode)
         {
             AutoScroll = true;
             TextEditor = outputWindow.OutputText;
@@ -72,7 +73,7 @@ namespace Packager.UserInterface
             ((IScrollInfo) outputWindow.OutputText.TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
 
             Document.PropertyChanged += DocumentPropertyChangedHandler;
-            Title = $"{programSettings.ProjectCode.ToUpperInvariant()} Media Packager";
+            Title = $"{projectCode.ToUpperInvariant()} Media Packager";
 
             FoldingManager = FoldingManager.Install(TextArea);
         }

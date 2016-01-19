@@ -84,6 +84,7 @@
     <Compile Include="Extensions\StringBuilderExtensionsTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Extensions\XElementExtensionTests.cs" />
+    <Compile Include="Factories\SettingsFactoryTests.cs" />
     <Compile Include="Factories\VideoSideDataFactoryTests.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactoryTests.cs" />
     <Compile Include="Factories\VideoCarrierDataFactoryTests.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\OutputModels\CarrierModelTests.cs" />
     <Compile Include="Models\OutputModels\IngestModelTests.cs" />
+    <Compile Include="Models\SettingsModelsTests\ProgramSettingsTests.cs" />
     <Compile Include="PodMetadataProviderTests.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />

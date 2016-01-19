@@ -1,7 +1,10 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using Packager.Models.SettingsModels;
 
 namespace Packager.Providers
 {
@@ -92,6 +95,22 @@ namespace Packager.Providers
         public async Task ArchiveFile(string filePath, string archivePath)
         {
             await Task.Run(() => ArchiveFileInternal(filePath, archivePath));
+        }
+
+        public T Deserialize<T>(string filePath)
+        {
+            try
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                using (var stream = new FileStream(filePath, FileMode.Open))
+                {
+                    return (T)serializer.Deserialize(stream);
+                }
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Validators.Attributes;

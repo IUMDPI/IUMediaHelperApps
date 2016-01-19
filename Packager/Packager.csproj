@@ -87,6 +87,7 @@
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\ImportableFactory.cs" />
+    <Compile Include="Factories\SettingsFactory.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedVideoMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMezzanineMetadata.cs" />
@@ -169,7 +170,7 @@
     <Compile Include="Models\EmailMessageModels\EngineIssueMessage.cs" />
     <Compile Include="Models\FileModels\FileModelFactory.cs" />
     <Compile Include="Models\FileModels\AbstractFileModel.cs" />
-    <Compile Include="Models\IProgramSettings.cs" />
+    <Compile Include="Models\SettingsModels\IProgramSettings.cs" />
     <Compile Include="Models\OutputModels\BakingData.cs" />
     <Compile Include="Models\FileModels\ObjectFileModel.cs" />
     <Compile Include="Models\FileModels\XmlFileModel.cs" />
@@ -178,7 +179,7 @@
     <Compile Include="Models\OutputModels\CleaningData.cs" />
     <Compile Include="Models\OutputModels\File.cs" />
     <Compile Include="Models\OutputModels\Ingest\AbstractIngest.cs" />
-    <Compile Include="Models\PodAuth.cs" />
+    <Compile Include="Models\SettingsModels\PodAuth.cs" />
     <Compile Include="Models\PodMetadataModels\AudioPodMetadata.cs" />
     <Compile Include="Models\ResultModels\ProcessResult.cs" />
     <Compile Include="Models\ResultModels\IProcessResult.cs" />
@@ -187,7 +188,6 @@
     <Compile Include="Models\OutputModels\PhysicalConditionData.cs" />
     <Compile Include="Models\OutputModels\PreviewData.cs" />
     <Compile Include="Models\FileModels\UnknownFileModel.cs" />
-    <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\UserInterfaceModels\SectionModel.cs" />
     <Compile Include="Observers\GeneralNLogObserver.cs" />
     <Compile Include="Observers\IObserverCollection.cs" />
@@ -196,7 +196,7 @@
     <Compile Include="Observers\LayoutRenderers\ProjectCodeLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\ProcessingDirectoryNameLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\LoggingDirectoryLayoutRenderer.cs" />
-    <Compile Include="Models\ProgramSettings.cs" />
+    <Compile Include="Models\SettingsModels\ProgramSettings.cs" />
     <Compile Include="Observers\IObserver.cs" />
     <Compile Include="Observers\ObserverCollection.cs" />
     <Compile Include="Observers\ViewModelObserver.cs" />
@@ -294,6 +294,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

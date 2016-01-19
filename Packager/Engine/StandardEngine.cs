@@ -7,6 +7,7 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
@@ -146,17 +147,7 @@ namespace Packager.Engine
         private async Task LogConfiguration()
         {
             var sectionKey = Observers.BeginSection("Configuration:");
-
-            foreach (var issue in _dependencyProvider.ProgramSettings.Issues)
-            {
-                Observers.Log(issue);
-            }
-
-            if (_dependencyProvider.ProgramSettings.Issues.Any())
-            {
-                Observers.Log("");
-            }
-
+            
             Observers.Log("Project code: {0}", ProgramSettings.ProjectCode.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Web-service host: {0}", ProgramSettings.WebServiceUrl.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");

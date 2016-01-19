@@ -1,4 +1,5 @@
 ﻿using Packager.Models;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Hashing;

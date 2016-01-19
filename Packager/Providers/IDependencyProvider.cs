@@ -1,6 +1,7 @@
 ﻿using Packager.Factories;
 using Packager.Models;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Utilities;
 using Packager.Utilities.Bext;

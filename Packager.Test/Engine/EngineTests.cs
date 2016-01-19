@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Packager.Engine;
 using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
@@ -53,8 +54,7 @@ namespace Packager.Test.Engine
         {
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.ProjectCode.Returns(ProjectCode);
-            ProgramSettings.Issues.Returns(new List<string>());
-
+            
             Validators = Substitute.For<IValidatorCollection>();
             
             MockWavProcessor = Substitute.For<IProcessor>();

@@ -2,7 +2,7 @@
 using System.Xml.Serialization;
 using Packager.Validators.Attributes;
 
-namespace Packager.Models
+namespace Packager.Models.SettingsModels
 {
     [Serializable]
     [XmlRoot(ElementName = "Auth")]

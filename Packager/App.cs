@@ -3,7 +3,8 @@ using System.Configuration;
 using System.Windows;
 using NLog.Config;
 using Packager.Engine;
-using Packager.Models;
+using Packager.Factories;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Observers.LayoutRenderers;
 using Packager.Processors;
@@ -24,7 +25,8 @@ namespace Packager
             ConfigureNLog();
 
             // initialize program settings
-            var programSettings = new ProgramSettings(ConfigurationManager.AppSettings);
+            var programSettings = new ProgramSettings();
+            programSettings.Import(ConfigurationManager.AppSettings, new SettingsFactory());
 
             // create the view model
             var viewModel = new ViewModel();
@@ -32,9 +34,9 @@ namespace Packager
             // create the window
             var window = new OutputWindow();
 
-
-            // initialize the view model with the window
-            viewModel.Initialize(window, programSettings);
+            // initialize the view model with the window and 
+            // the program settings project code (used for the window title)
+            viewModel.Initialize(window, programSettings.ProjectCode);
 
             // initialize dependency provider
             var dependencyProvider = new DefaultDependencyProvider(programSettings);
@@ -69,10 +71,14 @@ namespace Packager
 
         private static void ConfigureNLog()
         {
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName", typeof (LoggingDirectoryLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProcessingDirectoryName", typeof (ProcessingDirectoryNameLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode", typeof (BarcodeLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode", typeof (ProjectCodeLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName",
+                typeof (LoggingDirectoryLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProcessingDirectoryName",
+                typeof (ProcessingDirectoryNameLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode",
+                typeof (BarcodeLayoutRenderer));
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode",
+                typeof (ProjectCodeLayoutRenderer));
         }
     }
 }

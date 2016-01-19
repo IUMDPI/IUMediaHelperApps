@@ -3,6 +3,7 @@ using Packager.Deserializers;
 using Packager.Factories;
 using Packager.Models;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Email;
@@ -51,7 +52,7 @@ namespace Packager.Providers
                 new UriValidator(),
                 new MembersValidator()
             };
-            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, ImportableFactory), Observers,
+            MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, FileProvider, ImportableFactory), Observers,
                 ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, programSettings.SuccessDirectoryName,
                 new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
@@ -119,12 +120,12 @@ namespace Packager.Providers
 
         public IBwfMetaEditRunner MetaEditRunner { get; }
 
-        private static IRestClient GetRestClient(IProgramSettings programSettings, IImportableFactory factory)
+        private static IRestClient GetRestClient(IProgramSettings programSettings, IFileProvider fileProvider, IImportableFactory factory)
         {
+            var podAuth = fileProvider.Deserialize<PodAuth>(programSettings.PodAuthFilePath);
             var result = new RestClient(programSettings.WebServiceUrl)
             {
-                Authenticator =
-                    new HttpBasicAuthenticator(programSettings.PodAuth.UserName, programSettings.PodAuth.Password)
+                Authenticator = new HttpBasicAuthenticator(podAuth.UserName, podAuth.Password)
             };
 
             result.AddHandler("application/xml", new PodResultDeserializer(factory));

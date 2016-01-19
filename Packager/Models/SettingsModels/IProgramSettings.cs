@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using Packager.Factories;
 
-namespace Packager.Models
+namespace Packager.Models.SettingsModels
 {
     public interface IProgramSettings
     {
-        // ReSharper disable once InconsistentNaming
         string BwfMetaEditPath { get; }
-        // ReSharper disable once InconsistentNaming
         string FFMPEGPath { get; }
         string FFProbePath { get; }
         string InputDirectory { get; }
@@ -18,7 +18,7 @@ namespace Packager.Models
         string FFProbeVideoQualityControlArguments { get; }
         string ProjectCode { get; }
         string DropBoxDirectoryName { get; }
-        PodAuth PodAuth { get; }
+        //PodAuth PodAuth { get; }
         string WebServiceUrl { get; }
         string ErrorDirectoryName { get; }
         string SuccessDirectoryName { get; }
@@ -27,7 +27,9 @@ namespace Packager.Models
         string SmtpServer { get; }
         string FromEmailAddress { get; }
         int DeleteSuccessfulObjectsAfterDays { get; }
-        List<string> Issues { get; }
         string UnitPrefix { get; }
+        string PodAuthFilePath { get; }
+
+        void Import(NameValueCollection dictionary, ISettingsFactory factory);
     }
 }

@@ -117,6 +117,7 @@ namespace Packager.Test.Processors
             DependencyProvider.BextProcessor.Returns(BextProcessor);
             DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
             DependencyProvider.AudioFFMPEGRunner.Returns(FFMPEGRunner);
+            DependencyProvider.VideoFFMPEGRunner.Returns(FFMPEGRunner);
             DependencyProvider.AudioMetadataFactory.Returns(AudioMetadataFactory);
             DependencyProvider.VideoMetadataFactory.Returns(VideoMetadataFactory);
 

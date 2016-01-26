@@ -30,8 +30,11 @@ namespace Packager.Test.Processors
         {
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>())
                 .Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToVideoAccessFileModel()));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<AbstractEmbeddedVideoMetadata>())
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<AbstractEmbeddedMetadata>())
                 .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+            FFMPEGRunner.AccessArguments.Returns("Test");
+            //FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedVideoMezzanineMetadata>())
+            //    .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
 
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);

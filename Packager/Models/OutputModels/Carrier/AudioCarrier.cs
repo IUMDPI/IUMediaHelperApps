@@ -40,11 +40,12 @@ namespace Packager.Models.OutputModels.Carrier
         public PreviewData Preview { get; set; }
 
         [XmlElement(Order = 11)]
-        public CleaningData Cleaning { get; set; }
+        public string Comments { get; set; }
 
         [XmlElement(Order = 12)]
-        public BakingData Baking { get; set; }
+        public CleaningData Cleaning { get; set; }
 
-     
+        [XmlElement(Order = 13)]
+        public BakingData Baking { get; set; }
     }
 }

@@ -41,7 +41,8 @@ namespace Packager.Factories
                 {
                     Damage = metadata.Damage,
                     PreservationProblem = metadata.PreservationProblems
-                }
+                }, 
+                Comments = metadata.Comments
             };
 
             return result;

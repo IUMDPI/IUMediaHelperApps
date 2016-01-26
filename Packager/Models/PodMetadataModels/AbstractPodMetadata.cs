@@ -39,6 +39,7 @@ namespace Packager.Models.PodMetadataModels
         public string PreservationProblems { get; set; }
 
         public List<AbstractDigitalFile> FileProvenances { get; set; }
+        public string Comments { get; set; }
 
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
@@ -58,7 +59,7 @@ namespace Packager.Models.PodMetadataModels
             Damage = factory.ResolveDamage(element, "data/object/technical_metadata/damage").ToDefaultIfEmpty("None");
             PreservationProblems = factory.ResolvePreservationProblems(element, "data/object/technical_metadata/preservation_problems");
             DigitizingEntity = factory.ToStringValue(element,"data/object/digital_provenance/digitizing_entity");
-
+            Comments = factory.ToStringValue(element, "data/object/digital_provenance/comments");
             // process each digital_file_provenance node
             FileProvenances = ImportFileProvenances(element, 
                 "data/object/digital_provenance/digital_files/digital_file_provenance", 

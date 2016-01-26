@@ -34,6 +34,8 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
 
             Factory.ToStringValue(Element, "data/object/details/title").Returns("title value");
             Factory.ToStringValue(Element, "data/object/assignment/unit").Returns("unit value");
+            Factory.ToStringValue(Element, "data/object/digital_provenance/comments").Returns("comments value");
+
         }
 
         private string FormatValue { get; set; }
@@ -255,8 +257,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 Factory.ToStringValue(Element, "data/object/technical_metadata/image_format").Returns("image format value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/format_version").Returns("definition value");
                 Factory.ToStringValue(Element, "data/object/technical_metadata/recording_standard").Returns("recording standard value");
-                Factory.ToStringValue(Element, "data/object/digital_provenance/comments").Returns("comments value");
-
+               
                 Factory.ToObjectList<DigitalVideoFile>(Element,
                   "data/object/digital_provenance/digital_files/digital_file_provenance")
                   .Returns(MockProvenances);
@@ -313,17 +314,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 Assert.That(Instance.FileProvenances, Is.EquivalentTo(MockProvenances));
             }
 
-            [Test]
-            public void ItShouldCallFactoryCorrectlyToResolveComments()
-            {
-                Factory.Received().ToStringValue(Element, "data/object/digital_provenance/comments");
-            }
-
-            [Test]
-            public void ItShouldSetCommentsCorrectly()
-            {
-                Assert.That(VideoPodMetadata.Comments, Is.EqualTo("comments value"));
-            }
+         
         }
 
         [Test]
@@ -481,6 +472,18 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         public void ItShouldSetUnitCorrectly()
         {
             Assert.That(Instance.Unit, Is.EqualTo("unit value"));
+        }
+
+        [Test]
+        public void ItShouldCallFactoryCorrectlyToResolveComments()
+        {
+            Factory.Received().ToStringValue(Element, "data/object/digital_provenance/comments");
+        }
+
+        [Test]
+        public void ItShouldSetCommentsCorrectly()
+        {
+            Assert.That(Instance.Comments, Is.EqualTo("comments value"));
         }
     }
 }

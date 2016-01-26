@@ -36,7 +36,8 @@ namespace Packager.Test.Factories
                 //PlaybackSpeed = "7.5 ips",
                 Identifier = "1",
                 TapeThickness = "1 mm",
-                Repaired = "Yes"
+                Repaired = "Yes",
+                Comments = "comments value"
             };
 
             SideDataFactory = Substitute.For<ISideDataFactory>();
@@ -59,8 +60,6 @@ namespace Packager.Test.Factories
         private ObjectFileModel PreservationSide1FileModel { get; set; }
         private ObjectFileModel ProductionSide1FileModel { get; set; }
         private ObjectFileModel AccessSide1FileModel { get; set; }
-
-
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
         private AudioPodMetadata PodMetadata { get; set; }
@@ -109,6 +108,12 @@ namespace Packager.Test.Factories
             public void ItShouldSetRepairedCorrectly()
             {
                 Assert.That(Result.Repaired, Is.EqualTo(PodMetadata.Repaired));
+            }
+
+            [Test]
+            public void ItShouldSetCommentsCorrectly()
+            {
+                Assert.That(Result.Comments, Is.EqualTo("comments value"));
             }
         }
 

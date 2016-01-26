@@ -65,7 +65,8 @@ namespace Packager.Factories
                 ImageFormat = metadata.ImageFormat,
                 RecordingStandard = metadata.RecordingStandard,
                 Preview = new PreviewData(),
-                Definition = "SD" // todo: figure out where to get this from
+                Definition = "SD", // todo: figure out where to get this from
+                Comments = metadata.Comments
             };
 
             return result;

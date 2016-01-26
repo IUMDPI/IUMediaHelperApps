@@ -33,10 +33,13 @@ namespace Packager.Models.OutputModels.Carrier
         [XmlElement(Order = 8)]
         public PreviewData Preview { get; set; }
 
-        [XmlElement(Order = 9)]
-        public CleaningData Cleaning { get; set; }
+        [XmlElement(Order=9)]
+        public string Comments { get; set; }
 
         [XmlElement(Order = 10)]
+        public CleaningData Cleaning { get; set; }
+
+        [XmlElement(Order = 11)]
         public BakingData Baking { get; set; }
 
        

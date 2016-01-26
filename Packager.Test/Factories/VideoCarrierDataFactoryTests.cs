@@ -33,7 +33,8 @@ namespace Packager.Test.Factories
                 Identifier = "1",
                 Repaired = "Yes",
                 RecordingStandard = "recording standard",
-                ImageFormat = "image format"
+                ImageFormat = "image format",
+                Comments = "comments value"
             };
 
             SideDataFactory = Substitute.For<ISideDataFactory>();
@@ -56,8 +57,7 @@ namespace Packager.Test.Factories
         private ObjectFileModel PreservationSide1FileModel { get; set; }
         private ObjectFileModel MezzSide1FileModel { get; set; }
         private ObjectFileModel AccessSide1FileModel { get; set; }
-
-
+        
         private string ProcessingDirectory { get; set; }
         private List<ObjectFileModel> FilesToProcess { get; set; }
         private VideoPodMetadata PodMetadata { get; set; }
@@ -85,21 +85,27 @@ namespace Packager.Test.Factories
             }
 
             [Test]
-            public void IsShouldSetDefinitionCorrectly()
+            public void ItShouldSetDefinitionCorrectly()
             {
                 Assert.That(Result.Definition, Is.EqualTo("SD"));
             }
 
             [Test]
-            public void IsShouldSetImageFormatCorrectly()
+            public void ItShouldSetImageFormatCorrectly()
             {
                 Assert.That(Result.ImageFormat, Is.EqualTo(PodMetadata.ImageFormat));
             }
 
             [Test]
-            public void IsShouldSetRecordingStandardCorrectly()
+            public void ItShouldSetRecordingStandardCorrectly()
             {
                 Assert.That(Result.RecordingStandard, Is.EqualTo(PodMetadata.RecordingStandard));
+            }
+
+            [Test]
+            public void ItShouldSetCommentsCorrectly()
+            {
+                Assert.That(Result.Comments, Is.EqualTo("comments value"));
             }
         }
 

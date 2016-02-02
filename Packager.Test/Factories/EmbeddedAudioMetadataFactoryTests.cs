@@ -26,7 +26,7 @@ namespace Packager.Test.Factories
                 Format = "Record",
                 Title = Title,
                 SoundField = "Mono",
-                PlaybackSpeed = "7.5 ips",
+                //PlaybackSpeed = "7.5 ips",
                 FileProvenances = new List<AbstractDigitalFile> {Provenance}
             };
 
@@ -162,7 +162,7 @@ namespace Packager.Test.Factories
             }
         }
 
-        [TestFixture]
+       /* [TestFixture]
         public class WhenSpeedNotSetInProvenance : EmbeddedAudioMetadataFactoryTests
         {
             protected override void DoCustomSetup()
@@ -181,7 +181,7 @@ namespace Packager.Test.Factories
 
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
-        }
+        }*/
 
         [TestFixture]
         public class WhenSpeedMissing : EmbeddedAudioMetadataFactoryTests
@@ -190,7 +190,7 @@ namespace Packager.Test.Factories
             {
                 base.DoCustomSetup();
                 Provenance.SpeedUsed = "";
-                Metadata.PlaybackSpeed = "";
+                //Metadata.PlaybackSpeed = "";
             }
 
             [Test]

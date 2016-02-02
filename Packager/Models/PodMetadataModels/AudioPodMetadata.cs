@@ -15,27 +15,24 @@ namespace Packager.Models.PodMetadataModels
         private const string OpenReelFormatIdentifier = "open reel audio tape";
 
         public string Brand { get; set; }
-
         public string DirectionsRecorded { get; set; }
-
-        public string PlaybackSpeed { get; set; }
-
+        //public string PlaybackSpeed { get; set; }
         public string TrackConfiguration { get; set; }
-
         [Required]
         public string SoundField { get; set; }
-
         public string TapeThickness { get; set; }
+        public string TapeBase { get; set; }
 
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
             base.ImportFromXml(element, factory);
-            Brand = factory.ToStringValue(element,"data/object/technical_metadata/tape_stock_brand");
-            DirectionsRecorded = factory.ToStringValue(element,"data/object/technical_metadata/directions_recorded");
-            PlaybackSpeed = GetPlaybackSpeedForFormat(element, factory);
-            TrackConfiguration = factory.ResolveTrackConfiguration(element, "data/object/technical_metadata/track_configuration");
-            SoundField = GetSoundFieldForFormat(element, factory);
-            TapeThickness = factory.ResolveTapeThickness(element,"data/object/technical_metadata/tape_thickness");
+            Brand = factory.ToStringValue(element,"data/tape_stock_brand");
+            DirectionsRecorded = factory.ToStringValue(element,"data/directions_recorded");
+            //PlaybackSpeed = factory.ToStringValue(element, "data/playback_speed");
+            TrackConfiguration = factory.ToStringValue(element, "data/track_configuration");
+            SoundField = factory.ToStringValue(element, "data/sound_field");
+            TapeThickness = factory.ToStringValue(element,"data/tape_thickness");
+            TapeBase = factory.ToStringValue(element, "data/tape_base");
         }
 
         private string GetPlaybackSpeedForFormat(XElement element, IImportableFactory factory)

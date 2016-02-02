@@ -34,7 +34,7 @@ namespace Packager.Test.Factories
                 DigitizingEntity = "Test entity",
                 SoundField = "Mono",
                 //PlaybackSpeed = "7.5 ips",
-                Identifier = "1",
+                //Identifier = "1",
                 TapeThickness = "1 mm",
                 Repaired = "Yes",
                 Comments = "comments value"
@@ -170,7 +170,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetSpeedCorrectly()
             {
-                Assert.That(Result.Configuration.Speed, Is.EqualTo(PodMetadata.PlaybackSpeed));
+                //Assert.That(Result.Configuration.Speed, Is.EqualTo(PodMetadata.PlaybackSpeed));
             }
 
             [Test]

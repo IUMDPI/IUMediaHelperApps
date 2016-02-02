@@ -253,7 +253,7 @@ namespace Packager.Processors
                 var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
 
                 // resolve unit
-                metadata.Unit = $"{ProgramSettings.UnitPrefix}{await MetadataProvider.ResolveUnit(metadata.Unit)}";
+                //metadata.Unit = $"{ProgramSettings.UnitPrefix}{await MetadataProvider.ResolveUnit(metadata.Unit)}";
 
                 // log metadata
                 MetadataProvider.Log(metadata);

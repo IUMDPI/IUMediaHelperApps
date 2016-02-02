@@ -30,7 +30,7 @@ namespace Packager.Test.Factories
                 Format = "CD-R",
                 CallNumber = "Call number",
                 DigitizingEntity = "Test entity",
-                Identifier = "1",
+                //Identifier = "1",
                 Repaired = "Yes",
                 RecordingStandard = "recording standard",
                 ImageFormat = "image format",

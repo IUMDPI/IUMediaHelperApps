@@ -35,7 +35,7 @@ namespace Packager.Factories
                     XsiType = $"Configuration{metadata.Format}".RemoveSpaces(),
                     Track = metadata.TrackConfiguration,
                     SoundField = metadata.SoundField,
-                    Speed = metadata.PlaybackSpeed,
+                    //Speed = metadata.PlaybackSpeed,
                 },
                 PhysicalCondition = new PhysicalConditionData
                 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Validators.Attributes;
@@ -10,9 +9,6 @@ namespace Packager.Models.PodMetadataModels
 {
     public abstract class AbstractPodMetadata : BasePodResponse
     {
-        [Required]
-        public string Identifier { get; set; }
-
         [Required]
         public string Format { get; set; }
 
@@ -45,28 +41,28 @@ namespace Packager.Models.PodMetadataModels
         {
             base.ImportFromXml(element, factory);
 
-            Identifier = factory.ToStringValue(element,"data/object/details/id");
-            Format = factory.ToStringValue(element,"data/object/details/format");
-            CallNumber = factory.ToStringValue(element,"data/object/details/call_number");
-            Title = factory.ToStringValue(element,"data/object/details/title");
-            Unit = factory.ToStringValue(element,"data/object/assignment/unit");
-            Barcode = factory.ToStringValue(element,"data/object/details/mdpi_barcode");
-
-            CleaningDate = factory.ToUtcDateTimeValue(element,"data/object/digital_provenance/cleaning_date");
-            CleaningComment = factory.ToStringValue(element,"data/object/digital_provenance/cleaning_comment");
-            BakingDate = factory.ToUtcDateTimeValue(element,"data/object/digital_provenance/baking_date");
-            Repaired = factory.ToBooleanValue(element,"data/object/digital_provenance/repaired").ToYesNo();
-            Damage = factory.ResolveDamage(element, "data/object/technical_metadata/damage").ToDefaultIfEmpty("None");
-            PreservationProblems = factory.ResolvePreservationProblems(element, "data/object/technical_metadata/preservation_problems");
-            DigitizingEntity = factory.ToStringValue(element,"data/object/digital_provenance/digitizing_entity");
-            Comments = factory.ToStringValue(element, "data/object/digital_provenance/comments");
+            Comments = factory.ToStringValue(element, "data/comments"); // todo: needs to be in new endpoint
+            Format = factory.ToStringValue(element, "data/format");
+            CallNumber = factory.ToStringValue(element, "data/call_number");
+            Title = factory.ToStringValue(element, "data/title");
+            Unit = factory.ToStringValue(element, "data/unit");
+            Barcode = factory.ToStringValue(element, "data/mdpi_barcode");
+            DigitizingEntity = factory.ToStringValue(element, "data/digitizing_entity");
+            BakingDate = factory.ToUtcDateTimeValue(element, "data/baking_date");
+            CleaningDate = factory.ToUtcDateTimeValue(element, "data/cleaning_date");
+            CleaningComment = factory.ToStringValue(element, "data/cleaning_comment");
+            Repaired = factory.ToBooleanValue(element, "data/repaired").ToYesNo();
+            Damage = factory.ToStringValue(element, "data/damage").ToDefaultIfEmpty("None");
+            PreservationProblems = factory.ToStringValue(element, "data/preservation_problems");
+            
             // process each digital_file_provenance node
-            FileProvenances = ImportFileProvenances(element, 
-                "data/object/digital_provenance/digital_files/digital_file_provenance", 
+            FileProvenances = ImportFileProvenances(element,
+                "data/digital_files/digital_file_provenance",
                 factory);
 
             NormalizeFileProvenances();
         }
+
 
         // method is abstract; implemented in derived classes
         protected abstract List<AbstractDigitalFile> ImportFileProvenances(XElement element, string path,

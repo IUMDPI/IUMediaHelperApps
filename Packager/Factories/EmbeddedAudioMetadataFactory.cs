@@ -121,9 +121,11 @@ namespace Packager.Factories
         // finally, replace comma delimiters with semi-colons and remove spaces
         private static string DetermineSpeedUsed(AudioPodMetadata metadata, DigitalAudioFile provenance)
         {
-            var result = string.IsNullOrWhiteSpace(provenance.SpeedUsed)
-                ? metadata.PlaybackSpeed
-                : provenance.SpeedUsed;
+            var result = provenance.SpeedUsed;
+
+            //string.IsNullOrWhiteSpace(provenance.SpeedUsed)
+            //    ? metadata.PlaybackSpeed
+            //    : provenance.SpeedUsed;
 
             if (string.IsNullOrWhiteSpace(result))
             {

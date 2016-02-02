@@ -23,12 +23,12 @@ namespace Packager.Models.PodMetadataModels
         {
             base.ImportFromXml(element, factory);
             SpeedUsed = factory.ToStringValue(element, "speed_used");
-            ReferenceFluxivity = factory.ToStringValue(element, "tape_fluxivity", " nWb/m");
-            AnalogOutputVoltage = factory.ToStringValue(element, "analog_output_voltage", " dBu");
-            Peak = factory.ToStringValue(element, "peak", " dBfs");
+            ReferenceFluxivity = factory.ToStringValue(element, "tape_fluxivity");
+            AnalogOutputVoltage = factory.ToStringValue(element, "analog_output_voltage");
+            Peak = factory.ToStringValue(element, "peak");
             StylusSize = factory.ToStringValue(element, "stylus_size");
             Turnover = factory.ToStringValue(element, "turnover");
-            Gain = factory.ToStringValue(element, "volume_units", " dB");
+            Gain = factory.ToStringValue(element, "volume_units");
             Rolloff = factory.ToStringValue(element, "rolloff");
         }
     }

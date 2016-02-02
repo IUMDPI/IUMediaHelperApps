@@ -28,7 +28,7 @@ namespace Packager.Providers
         
         public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractPodMetadata, new()
         {
-            var request = new RestRequest($"responses/objects/{barcode}/metadata/full/");
+            var request = new RestRequest($"responses/objects/{barcode}/metadata/digital_provenance");
             
             var response = await Client.ExecuteGetTaskAsync<T>(request);
 

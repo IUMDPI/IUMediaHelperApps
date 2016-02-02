@@ -148,12 +148,12 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                     
                     Factory.ToObjectList<Device>(SignalChainElement, "device").Returns(MockDeviceList);
                     Factory.ToStringValue(Element, "speed_used").Returns("speed used value");
-                    Factory.ToStringValue(Element, "tape_fluxivity", " nWb/m").Returns("reference fluxivity value");
-                    Factory.ToStringValue(Element, "analog_output_voltage", " dBu").Returns("analog output voltage value");
-                    Factory.ToStringValue(Element, "peak", " dBfs").Returns("peak value");
+                    Factory.ToStringValue(Element, "tape_fluxivity").Returns("reference fluxivity value");
+                    Factory.ToStringValue(Element, "analog_output_voltage").Returns("analog output voltage value");
+                    Factory.ToStringValue(Element, "peak").Returns("peak value");
                     Factory.ToStringValue(Element, "stylus_size").Returns("stylus size value");
                     Factory.ToStringValue(Element, "turnover").Returns("turnover value");
-                    Factory.ToStringValue(Element, "volume_units", " dB").Returns("gain value");
+                    Factory.ToStringValue(Element, "volume_units").Returns("gain value");
                     Factory.ToStringValue(Element, "rolloff").Returns("rolloff value");
 
                     Instance = new DigitalAudioFile();
@@ -175,7 +175,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 [Test]
                 public void ItShouldUseCorrectPathToResolveReferenceFluxivity()
                 {
-                    Factory.Received().ToStringValue(Element, "tape_fluxivity", " nWb/m");
+                    Factory.Received().ToStringValue(Element, "tape_fluxivity");
                 }
 
                 [Test]
@@ -187,7 +187,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 [Test]
                 public void ItShouldUseCorrectPathToResolveAnalogOutputVoltage()
                 {
-                    Factory.Received().ToStringValue(Element, "analog_output_voltage", " dBu");
+                    Factory.Received().ToStringValue(Element, "analog_output_voltage");
                 }
 
                 [Test]
@@ -199,7 +199,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 [Test]
                 public void ItShouldUseCorrectPathToResolvePeak()
                 {
-                    Factory.Received().ToStringValue(Element, "peak", " dBfs");
+                    Factory.Received().ToStringValue(Element, "peak");
                 }
 
                 [Test]
@@ -236,7 +236,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 [Test]
                 public void ItShouldUseCorrectPathToResolveGain()
                 {
-                    Factory.Received().ToStringValue(Element, "volume_units", " dB");
+                    Factory.Received().ToStringValue(Element, "volume_units");
                 }
 
                 [Test]

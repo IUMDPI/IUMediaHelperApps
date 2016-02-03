@@ -95,7 +95,6 @@
     <Compile Include="Models\OutputModels\Ingest\AudioIngest.cs" />
     <Compile Include="Models\OutputModels\Carrier\VideoCarrier.cs" />
     <Compile Include="Models\OutputModels\Ingest\VideoIngest.cs" />
-    <Compile Include="Models\PodMetadataModels\BasePodResponse.cs" />
     <Compile Include="Factories\IImportable.cs" />
     <Compile Include="Deserializers\PodResultDeserializer.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />

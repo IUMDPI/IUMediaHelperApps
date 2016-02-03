@@ -19,7 +19,6 @@ namespace Packager.Providers
             Client = client;
             Observers = observers;
             Validators = validators;
-          
         }
 
         private IRestClient Client { get; }
@@ -36,17 +35,6 @@ namespace Packager.Providers
             VerifyResponseMetadata(response.Data);
 
             return Normalize(response.Data);
-        }
-
-        public async Task<string> ResolveUnit(string unit)
-        {
-            var request = new RestRequest($"/responses/packager/units/{unit}");
-            var response = await Client.ExecuteGetTaskAsync<BasePodResponse>(request);
-
-            VerifyResponse(response, "resolve unit name using Pod");
-            VerifyResponseMetadata(response.Data);
-
-            return response.Data.Message;
         }
 
         public void Validate<T>(T podMetadata, List<ObjectFileModel> models) where T : AbstractPodMetadata
@@ -102,20 +90,6 @@ namespace Packager.Providers
 
             results.AddRange(ValidateMastersPresent(provenances, filesToProcess));
             results.AddRange(ValidateProvenancesPresent(provenances, filesToProcess));
-
-            /*// make sure that all preservation masters 
-            // have digital file provenance data in metadata
-            foreach (var model in filesToProcess.Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion()))
-            {
-                var provenance = provenances.GetFileProvenance(model);
-                if (provenance == null)
-                {
-                    results.Add("No digital file provenance found for {0}", model.ToFileName());
-                    continue;
-                }
-
-                results.AddRange(Validators.Validate(provenance));
-            }*/
 
             return results;
         }
@@ -205,7 +179,7 @@ namespace Packager.Providers
             return value;
         }
 
-        private static void VerifyResponse<T>(IRestResponse<T> response, string operation) where T : BasePodResponse
+        private static void VerifyResponse<T>(IRestResponse<T> response, string operation) where T : AbstractPodMetadata
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
@@ -229,7 +203,7 @@ namespace Packager.Providers
         }
 
 
-        private static void VerifyResponseMetadata(BasePodResponse metadata)
+        private static void VerifyResponseMetadata(AbstractPodMetadata metadata)
         {
             if (metadata == null)
             {

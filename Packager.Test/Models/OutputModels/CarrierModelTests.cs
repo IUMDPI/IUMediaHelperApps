@@ -30,8 +30,9 @@ namespace Packager.Test.Models.OutputModels.CarrierModelTests
             [TestCase("ImageFormat", 6)]
             [TestCase("Definition", 7)]
             [TestCase("Preview", 8)]
-            [TestCase("Cleaning", 9)]
-            [TestCase("Baking", 10)]
+            [TestCase("Comments", 9)]
+            [TestCase("Cleaning", 10)]
+            [TestCase("Baking", 11)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (VideoCarrier).GetProperty(field);
@@ -60,8 +61,9 @@ namespace Packager.Test.Models.OutputModels.CarrierModelTests
             [TestCase("Repaired", 8)]
             [TestCase("Parts", 9)]
             [TestCase("Preview", 10)]
-            [TestCase("Cleaning", 11)]
-            [TestCase("Baking", 12)]
+            [TestCase("Comments", 11)]
+            [TestCase("Cleaning", 12)]
+            [TestCase("Baking", 13)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (AudioCarrier).GetProperty(field);

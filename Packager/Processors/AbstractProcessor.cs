@@ -113,8 +113,7 @@ namespace Packager.Processors
         }
 
         protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
-
-
+        
         private async Task MoveToSuccessFolder()
         {
             var sectionKey = Observers.BeginSection("Cleaning up");
@@ -251,10 +250,7 @@ namespace Packager.Processors
             {
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
-
-                // resolve unit
-                //metadata.Unit = $"{ProgramSettings.UnitPrefix}{await MetadataProvider.ResolveUnit(metadata.Unit)}";
-
+                
                 // log metadata
                 MetadataProvider.Log(metadata);
 

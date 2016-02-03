@@ -17,6 +17,9 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Factory = Substitute.For<IImportableFactory>();
             Element = new XElement("pod");
 
+            Factory.ToBooleanValue(Element, "success").Returns(true);
+            Factory.ToStringValue(Element, "message").Returns("test message");
+
             Factory.ToStringValue(Element, "data/damage").Returns("damage value");
             Factory.ToStringValue(Element, "data/preservation_problems")
                 .Returns("preservation problems value");
@@ -443,6 +446,30 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         public void ItShouldSetCommentsCorrectly()
         {
             Assert.That(Instance.Comments, Is.EqualTo("comments value"));
+        }
+
+        [Test]
+        public void ItShouldUseCorrectPathToResolveMessage()
+        {
+            Factory.Received().ToStringValue(Element, "message");
+        }
+
+        [Test]
+        public void SuccessShouldHaveCorrectValue()
+        {
+            Assert.That(Instance.Success, Is.True);
+        }
+
+        [Test]
+        public void MessageShouldHaveCorrectValue()
+        {
+            Assert.That(Instance.Message, Is.EqualTo("test message"));
+        }
+
+        [Test]
+        public void ItShouldUseCorrectPathToResolveSuccess()
+        {
+            Factory.Received().ToBooleanValue(Element, "success");
         }
     }
 }

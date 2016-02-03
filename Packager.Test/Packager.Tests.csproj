@@ -93,7 +93,6 @@
     <Compile Include="Models\EmbeddedMetadataTests\EmbeddedVideoPreservationMetadataTests.cs" />
     <Compile Include="Models\FileModels\QualityControlFileModelTests.cs" />
     <Compile Include="Models\MetadataModels\PodMetadataTests.cs" />
-    <Compile Include="Models\MetadataModels\BasePodResponseTests.cs" />
     <Compile Include="Models\MetadataModels\DeviceTests.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\OutputModels\CarrierModelTests.cs" />

@@ -7,7 +7,7 @@ using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
 {
-    public abstract class AbstractPodMetadata : BasePodResponse
+    public abstract class AbstractPodMetadata : IImportable
     {
         [Required]
         public string Format { get; set; }
@@ -37,11 +37,13 @@ namespace Packager.Models.PodMetadataModels
 
         public List<AbstractDigitalFile> FileProvenances { get; set; }
         public string Comments { get; set; }
-
-
-        public override void ImportFromXml(XElement element, IImportableFactory factory)
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        
+        public virtual void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            base.ImportFromXml(element, factory);
+            Success = factory.ToBooleanValue(element, "success");
+            Message = factory.ToStringValue(element, "message");
 
             Comments = factory.ToStringValue(element, "data/comments"); // todo: needs to be in new endpoint
             Format = factory.ToStringValue(element, "data/format");
@@ -71,5 +73,6 @@ namespace Packager.Models.PodMetadataModels
             IImportableFactory factory);
 
         protected abstract void NormalizeFileProvenances();
+
     }
 }

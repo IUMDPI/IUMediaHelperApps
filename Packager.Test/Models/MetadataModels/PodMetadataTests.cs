@@ -398,18 +398,6 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         }
 
         [Test]
-        public void ItShouldUseCorrectPathToResolveIdentifier()
-        {
-            //Factory.Received().ToStringValue(Element, "data/object/details/id");
-        }
-
-        [Test]
-        public void ItShouldSetIdentifierCorrectly()
-        {
-            //Assert.That(Instance.Identifier, Is.EqualTo("identifier value"));
-        }
-
-        [Test]
         public void ItShouldUseCorrectPathToResolveRepaired()
         {
             Factory.Received().ToBooleanValue(Element, "data/repaired");

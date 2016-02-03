@@ -102,7 +102,6 @@
     <Compile Include="Exceptions\NormalizeOriginalException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
-    <Compile Include="Factories\IPodMetadataFactory.cs" />
     <Compile Include="Models\OutputModels\Ingest\Device.cs" />
     <Compile Include="Models\PodMetadataModels\AbstractDigitalFile.cs" />
     <Compile Include="Models\PodMetadataModels\AbstractPodMetadata.cs" />

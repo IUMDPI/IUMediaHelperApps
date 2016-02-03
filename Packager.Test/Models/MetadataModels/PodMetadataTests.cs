@@ -34,6 +34,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Factory.ToStringValue(Element, "data/title").Returns("title value");
             Factory.ToStringValue(Element, "data/unit").Returns("unit value");
             Factory.ToStringValue(Element, "data/comments").Returns("comments value");
+            Factory.ToStringValue(Element, "data/playback_speed").Returns("speed value");
 
         }
 
@@ -63,8 +64,6 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 // need to make factory produce correct value for format
                 FormatValue = "open reel audio tape";
                 Factory.ToStringValue(Element, "data/format").Returns(FormatValue);
-                
-                Factory.ToStringValue(Element, "data/playback_speed").Returns("speed value");
                 Factory.ToStringValue(Element, "data/sound_field").Returns("sound field value");
                 Factory.ToStringValue(Element, "data/tape_thickness").Returns("tape thickness value");
                 Factory.ToStringValue(Element, "data/track_configuration").Returns("track configuration value");
@@ -79,18 +78,6 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 Instance.ImportFromXml(Element, Factory);
             }
             
-            [Test]
-            public void ItShouldCallFactoryToResolvePlaybackSpeed()
-            {
-                Factory.Received().ToStringValue(Element, "data/playback_speed");
-            }
-
-            [Test]
-            public void ItShouldSetPlaybackSpeedCorrectly()
-            {
-                //Assert.That(AudioPodMetadata.PlaybackSpeed, Is.EqualTo("speed value"));
-            }
-
             [Test]
             public void ItShouldCallFactoryToResolveSoundField()
             {
@@ -193,18 +180,6 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
 
                 Instance = new AudioPodMetadata();
                 Instance.ImportFromXml(Element, Factory);
-            }
-
-            [Test]
-            public void ItShouldCallFactoryToResolvePlaybackSpeed()
-            {
-                //Factory.Received().ToStringValue(Element, "data/speed");
-            }
-
-            [Test]
-            public void PlaybackSpeedShouldHaveCorrectValue()
-            {
-                //Assert.That(AudioPodMetadata.PlaybackSpeed, Is.EqualTo("speed value"));
             }
 
             [Test]
@@ -408,6 +383,18 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         public void ItShouldSetFormatCorrectly()
         {
             Assert.That(Instance.Format, Is.EqualTo(FormatValue));
+        }
+
+        [Test]
+        public void ItShouldCallFactoryToResolvePlaybackSpeed()
+        {
+            Factory.Received().ToStringValue(Element, "data/playback_speed");
+        }
+
+        [Test]
+        public void ItShouldSetPlaybackSpeedCorrectly()
+        {
+            Assert.That(Instance.PlaybackSpeed, Is.EqualTo("speed value"));
         }
 
         [Test]

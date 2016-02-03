@@ -27,6 +27,7 @@ namespace Packager.Models.PodMetadataModels
         public string CleaningComment { get; set; }
         public DateTime? BakingDate { get; set; }
         public string Repaired { get; set; }
+        public string PlaybackSpeed { get; set; }
 
         [Required]
         public string DigitizingEntity { get; set; }
@@ -36,6 +37,7 @@ namespace Packager.Models.PodMetadataModels
 
         public List<AbstractDigitalFile> FileProvenances { get; set; }
         public string Comments { get; set; }
+
 
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
@@ -54,7 +56,7 @@ namespace Packager.Models.PodMetadataModels
             Repaired = factory.ToBooleanValue(element, "data/repaired").ToYesNo();
             Damage = factory.ToStringValue(element, "data/damage").ToDefaultIfEmpty("None");
             PreservationProblems = factory.ToStringValue(element, "data/preservation_problems");
-            
+            PlaybackSpeed = factory.ToStringValue(element, "data/playback_speed");
             // process each digital_file_provenance node
             FileProvenances = ImportFileProvenances(element,
                 "data/digital_files/digital_file_provenance",

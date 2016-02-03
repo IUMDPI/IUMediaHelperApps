@@ -38,7 +38,6 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Factory.ToStringValue(Element, "data/unit").Returns("unit value");
             Factory.ToStringValue(Element, "data/comments").Returns("comments value");
             Factory.ToStringValue(Element, "data/playback_speed").Returns("speed value");
-
         }
 
         private string FormatValue { get; set; }

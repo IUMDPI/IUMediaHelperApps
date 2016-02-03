@@ -237,42 +237,19 @@ namespace Packager.Test.Processors
                     FFMPEGRunner.Received().Verify(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
                 }
             }
-
-            public class WhenClearingMetadata : WhenNothingGoesWrong
-            {
-                [Test]
-                public void ItShouldCallBextProcessorWithCorrectListOfFields()
-                {
-                    BextProcessor.Received().ClearMetadataFields(Arg.Any<List<ObjectFileModel>>(),
-                        Arg.Is<List<BextFields>>(
-                            a => a.SequenceEqual(new List<BextFields> {BextFields.ISFT, BextFields.ITCH})));
-                }
-
-                [Test]
-                public void ItShouldCloseSection()
-                {
-                    Observers.Received().EndSection(Arg.Any<string>(), "Metadata fields cleared successfully");
-                }
-
-                [Test]
-                public void ItShouldOpenSection()
-                {
-                    Observers.Received().BeginSection("Clearing metadata fields");
-                }
-            }
-
+            
             public class WhenCreatingDerivatives : WhenNothingGoesWrong
             {
                 private ObjectFileModel ExpectedMasterModel { get; set; }
-                private EmbeddedAudioMetadata ExpectedMetadata { get; set; }
+                private AbstractEmbeddedVideoMetadata ExpectedMetadata { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
                     ExpectedMasterModel = PresObjectFileModel;
-                    ExpectedMetadata = new EmbeddedAudioMetadata();
-                    AudioMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
+                    ExpectedMetadata = new EmbeddedVideoMezzanineMetadata();
+                    VideoMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
                 }
 
                 public class WhenPreservationIntermediateMasterPresent : WhenCreatingDerivatives
@@ -287,18 +264,18 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldCallMetadataFactoryWithProductionMasterAsTarget()
+                public void ItShouldCallMetadataFactoryWithMezzanineMasterAsTarget()
                 {
-                    AudioMetadataFactory.Received()
+                    VideoMetadataFactory.Received()
                         .Generate(Arg.Any<List<ObjectFileModel>>(),
-                            Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), Arg.Any<AudioPodMetadata>());
+                            Arg.Is<ObjectFileModel>(m => m.IsMezzanineVersion()), Arg.Any<VideoPodMetadata>());
                 }
 
                 [Test]
-                public void ItShouldCreateAccessFileFromProductionMaster()
+                public void ItShouldCreateAccessFileFromMezzanineMaster()
                 {
                     FFMPEGRunner.Received()
-                        .CreateAccessDerivative(Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()));
+                        .CreateAccessDerivative(Arg.Is<ObjectFileModel>(m => m.IsMezzanineVersion()));
                 }
 
                 [Test]
@@ -306,22 +283,22 @@ namespace Packager.Test.Processors
                 {
                     FFMPEGRunner.Received()
                         .CreateProdOrMezzDerivative(ExpectedMasterModel,
-                            Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), ExpectedMetadata);
+                            Arg.Is<ObjectFileModel>(m => m.IsMezzanineVersion()), ExpectedMetadata);
                 }
             }
 
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
-                private AudioCarrier AudioCarrier { get; set; }
+                private VideoCarrier VideoCarrier { get; set; }
                 private int ExpectedModelCount { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    AudioCarrier = new AudioCarrier();
-                    MetadataGenerator.Generate((AudioPodMetadata) null, null).ReturnsForAnyArgs(AudioCarrier);
-                    ExpectedModelCount = 3; // pres master + prod master + access master
+                    VideoCarrier = new VideoCarrier();
+                    MetadataGenerator.Generate((VideoPodMetadata) null, null).ReturnsForAnyArgs(VideoCarrier);
+                    ExpectedModelCount = 4; // pres master + prod master + access master, qc file
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenGeneratingXmlManifest
@@ -331,14 +308,14 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                        ExpectedModelCount = 4; // pres master, presInt master, prod-master, access master
+                        ExpectedModelCount = 5; // pres master, presInt master, prod-master, access master, qc file
                     }
 
                     [Test]
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
                         MetadataGenerator.Received().Generate(
-                            Arg.Any<AudioPodMetadata>(),
+                            Arg.Any<VideoPodMetadata>(),
                             Arg.Is<List<ObjectFileModel>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
@@ -347,7 +324,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallExportToFileCorrectly()
                 {
-                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(AudioCarrier)),
+                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(VideoCarrier)),
                         Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName));
                 }
 
@@ -368,7 +345,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassExpectedNumberOfObjectsToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<AudioPodMetadata>(),
+                        Arg.Any<VideoPodMetadata>(),
                         Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount));
                 }
 
@@ -376,7 +353,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassSingleAccessModelToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<AudioPodMetadata>(),
+                        Arg.Any<VideoPodMetadata>(),
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
                 }
 
@@ -384,16 +361,24 @@ namespace Packager.Test.Processors
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<AudioPodMetadata>(),
+                        Arg.Any<VideoPodMetadata>(),
                         Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
 
                 [Test]
-                public void ItShouldPassSingleProductionModelToGenerator()
+                public void ItShouldPassSingleMezzanineModelToGenerator()
                 {
                     MetadataGenerator.Received().Generate(
-                        Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null));
+                        Arg.Any<VideoPodMetadata>(),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsMezzanineVersion()) != null));
+                }
+
+                [Test]
+                public void ItShouldPassSingleQualityControlModelToGenerator()
+                {
+                    MetadataGenerator.Received().Generate(
+                        Arg.Any<VideoPodMetadata>(),
+                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m is QualityControlFileModel) != null));
                 }
             }
 

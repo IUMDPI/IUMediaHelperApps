@@ -65,7 +65,7 @@ namespace Packager.Models.PodMetadataModels
         // digital_files
         public virtual void ImportFromXml(XElement element, IImportableFactory factory)
         {
-            DateDigitized = factory.ToUtcDateTimeValue(element, "date_digitized");
+            DateDigitized = factory.ToLocalDateTimeValue(element, "date_digitized");
             Filename = factory.ToStringValue(element, "filename");
             Comment = factory.ToStringValue(element, "comment");
             CreatedBy = factory.ToStringValue(element, "created_by");

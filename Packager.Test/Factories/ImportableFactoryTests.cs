@@ -158,9 +158,9 @@ namespace Packager.Test.Factories
                 [TestCase("fourth", FourthDate)]
                 public void IfPathIsValidShouldReturnCorrectValue(string path, string expectedDateString)
                 {
-                    var value = Factory.ToUtcDateTimeValue(Parent, path);
+                    var value = Factory.ToLocalDateTimeValue(Parent, path);
                     Assert.That(value.HasValue, Is.True);
-                    Assert.That(value.Value, Is.EqualTo(DateTime.Parse(expectedDateString).ToUniversalTime()));
+                    Assert.That(value.Value, Is.EqualTo(DateTime.Parse(expectedDateString).ToLocalTime()));
                 }
 
                 [TestCase("empty")]
@@ -168,7 +168,7 @@ namespace Packager.Test.Factories
                 [TestCase("invalid2")]
                 public void IfValueIsEmptyOrInvalidShouldNotHaveValue(string path)
                 {
-                    var value = Factory.ToUtcDateTimeValue(Parent, path);
+                    var value = Factory.ToLocalDateTimeValue(Parent, path);
                     Assert.That(value.HasValue, Is.False);
                 }
 
@@ -176,7 +176,7 @@ namespace Packager.Test.Factories
                 [Test]
                 public void IfPathIsNotValidShouldShouldNotHaveValue()
                 {
-                    var value = Factory.ToUtcDateTimeValue(Parent, "first/invalid");
+                    var value = Factory.ToLocalDateTimeValue(Parent, "first/invalid");
                     Assert.That(value.HasValue, Is.False);
                 }
             }

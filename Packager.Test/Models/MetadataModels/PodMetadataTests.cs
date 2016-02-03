@@ -20,13 +20,13 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Factory.ToStringValue(Element, "data/damage").Returns("damage value");
             Factory.ToStringValue(Element, "data/preservation_problems")
                 .Returns("preservation problems value");
-            Factory.ToUtcDateTimeValue(Element, "data/baking_date")
+            Factory.ToLocalDateTimeValue(Element, "data/baking_date")
                 .Returns(new DateTime(2016, 1, 1));
             Factory.ToStringValue(Element, "data/mdpi_barcode").Returns("barcode value");
             Factory.ToStringValue(Element, "data/call_number").Returns("call number value");
 
             Factory.ToStringValue(Element, "data/cleaning_comment").Returns("cleaning comment value");
-            Factory.ToUtcDateTimeValue(Element, "data/cleaning_date")
+            Factory.ToLocalDateTimeValue(Element, "data/cleaning_date")
                 .Returns(new DateTime(2016, 2, 1));
             Factory.ToStringValue(Element, "data/digitizing_entity").Returns("digitizing entity value");
             Factory.ToStringValue(Element, "data/repaired").Returns("No"); //todo: fix this so it's a factory method and is more easily mockable
@@ -329,7 +329,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         [Test]
         public void ItShouldUseCorrectPathToResolveBakingDate()
         {
-            Factory.Received().ToUtcDateTimeValue(Element, "data/baking_date");
+            Factory.Received().ToLocalDateTimeValue(Element, "data/baking_date");
         }
 
         [Test]
@@ -377,7 +377,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         [Test]
         public void ItShouldUseCorrectPathToResolveCleaningDate()
         {
-            Factory.Received().ToUtcDateTimeValue(Element, "data/cleaning_date");
+            Factory.Received().ToLocalDateTimeValue(Element, "data/cleaning_date");
         }
 
         [Test]

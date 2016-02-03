@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Packager.Extensions;
@@ -14,6 +13,7 @@ namespace Packager.Factories
         T ToImportable<T>(XElement element);
         string ToStringValue(XElement parent, string path, string appendIfPresent = "");
         DateTime? ToUtcDateTimeValue(XElement parent, string path);
+        DateTime? ToLocalDateTimeValue(XElement parent, string path);
         bool ToBooleanValue(XElement parent, string path);
         string ResolveTrackConfiguration(XElement element, string path);
         string ResolveTapeThickness(XElement element, string path);
@@ -33,6 +33,23 @@ namespace Packager.Factories
         }
 
         private ILookupsProvider LookupsProvider { get; }
+
+        public DateTime? ToLocalDateTimeValue(XElement parent, string path)
+        {
+            var value = ToStringValue(parent, path);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            DateTime result;
+            if (DateTime.TryParse(value, out result) == false)
+            {
+                return null;
+            }
+
+            return result.ToLocalTime();
+        }
 
         public bool ToBooleanValue(XElement parent, string path)
         {
@@ -125,7 +142,7 @@ namespace Packager.Factories
         }
 
         /// <summary>
-        /// Converts a POD boolean-child not to comma-delimited list of resolved values
+        ///     Converts a POD boolean-child not to comma-delimited list of resolved values
         /// </summary>
         /// <param name="parent">parent XElement node</param>
         /// <param name="path">XPath to get list of child nodes to process</param>
@@ -138,7 +155,7 @@ namespace Packager.Factories
 
             // first get the element from the parent using XPath 
             var element = parent.XPathSelectElement(path);
-            
+
             // if no element exists, return empty string
             if (element == null)
             {
@@ -178,8 +195,8 @@ namespace Packager.Factories
         }
 
         /// <summary>
-        /// Finds the first value in a dictionary that matches regardless of case. Using
-        /// this method will ensure that the result is equal to the value in the dictionay
+        ///     Finds the first value in a dictionary that matches regardless of case. Using
+        ///     this method will ensure that the result is equal to the value in the dictionay
         /// </summary>
         /// <param name="value">The value in question</param>
         /// <param name="dictionary">The dictionary in question</param>

@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Observers;
@@ -24,11 +25,11 @@ namespace Packager.Providers
         private IRestClient Client { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
-        
+
         public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractPodMetadata, new()
         {
             var request = new RestRequest($"responses/objects/{barcode}/metadata/digital_provenance");
-            
+
             var response = await Client.ExecuteGetTaskAsync<T>(request);
 
             VerifyResponse(response, "retrieve metadata from Pod");
@@ -37,7 +38,7 @@ namespace Packager.Providers
             return Normalize(response.Data);
         }
 
-        public void Validate<T>(T podMetadata, List<ObjectFileModel> models) where T : AbstractPodMetadata
+        public void Validate<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata
         {
             var results = ValidateMetadata(podMetadata);
             results.AddRange(ValidateMetadataProvenances(podMetadata.FileProvenances, models));
@@ -56,7 +57,8 @@ namespace Packager.Providers
             Observers.Log(podMetadata.GetDatePropertiesAndValues());
             foreach (var provenance in podMetadata.FileProvenances)
             {
-                var sectionKey = Observers.BeginSection("File Provenance: {0}", provenance.Filename.ToDefaultIfEmpty("[not set]"));
+                var sectionKey = Observers.BeginSection("File Provenance: {0}",
+                    provenance.Filename.ToDefaultIfEmpty("[not set]"));
                 Observers.Log(provenance.GetStringPropertiesAndValues("\t"));
                 Observers.Log(provenance.GetDatePropertiesAndValues("\t"));
 
@@ -79,7 +81,8 @@ namespace Packager.Providers
             return Validators.Validate(podMetadata);
         }
 
-        private ValidationResults ValidateMetadataProvenances(List<AbstractDigitalFile> provenances, List<ObjectFileModel> filesToProcess)
+        private ValidationResults ValidateMetadataProvenances(List<AbstractDigitalFile> provenances,
+            List<AbstractFile> filesToProcess)
         {
             var results = new ValidationResults();
             if (provenances == null)
@@ -94,34 +97,38 @@ namespace Packager.Providers
             return results;
         }
 
-        private static ValidationResults ValidateMastersPresent(List<AbstractDigitalFile> provenances,
-            IEnumerable<ObjectFileModel> filesToProcess)
+        private static ValidationResults ValidateMastersPresent(IEnumerable<AbstractDigitalFile> provenances,
+            IEnumerable<AbstractFile> filesToProcess)
         {
             var results = new ValidationResults();
 
             var expectedMasters = provenances
-                    .Select(p => new ObjectFileModel(p.Filename))
-                    .Select(m => m.ToFileName()).ToList();
+                .Select(p => FileModelFactory.GetModel(p.Filename))
+                .Select(m => m.ToFileName()).ToList();
 
             var presentMasters = filesToProcess
                 .Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
                 .Select(m => m.ToFileName()).ToList();
 
-            results.AddRange(expectedMasters.Except(presentMasters).Select(f=>new ValidationResult("No original master present for {0}", f)));
+            results.AddRange(
+                expectedMasters.Except(presentMasters)
+                    .Select(f => new ValidationResult("No original master present for {0}", f)));
             return results;
         }
 
         private static ValidationResults ValidateProvenancesPresent(List<AbstractDigitalFile> provenances,
-            IEnumerable<ObjectFileModel> filesToProcess)
+            IEnumerable<AbstractFile> filesToProcess)
         {
             var results = new ValidationResults();
 
-            var unexpectedMasters = filesToProcess.Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
+            var unexpectedMasters = filesToProcess.Where(
+                m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
                 .Select(m => new {key = m.ToFileName(), value = provenances.GetFileProvenance(m)})
                 .Where(p => p.value == null)
                 .Select(p => p.key);
 
-            results.AddRange(unexpectedMasters.Select(f=>new ValidationResult("No digital file provenance found for {0}",f)));
+            results.AddRange(
+                unexpectedMasters.Select(f => new ValidationResult("No digital file provenance found for {0}", f)));
             return results;
         }
 
@@ -137,41 +144,19 @@ namespace Packager.Providers
 
                 for (var j = 0; j < metadata.FileProvenances[i].SignalChain.Count; j++)
                 {
-                    metadata.FileProvenances[i].SignalChain[j] = NormalizeFields(metadata.FileProvenances[i].SignalChain[j]);
+                    metadata.FileProvenances[i].SignalChain[j] =
+                        NormalizeFields(metadata.FileProvenances[i].SignalChain[j]);
                 }
             }
 
             return metadata;
         }
-
-        private static T NormalizeDateFields<T>(T metadata) where T : AbstractPodMetadata
-        {
-            if (metadata.BakingDate.HasValue)
-            {
-                metadata.BakingDate = metadata.BakingDate.Value.ToUniversalTime();
-            }
-
-            if (metadata.CleaningDate.HasValue)
-            {
-                metadata.CleaningDate = metadata.CleaningDate.Value.ToUniversalTime();
-            }
-
-            foreach (var provenance in metadata.FileProvenances)
-            {
-                if (provenance.DateDigitized.HasValue == false)
-                {
-                    continue;
-                }
-
-                provenance.DateDigitized = provenance.DateDigitized.Value.ToUniversalTime();
-            }
-
-            return metadata;
-        }
-
+        
         private static T NormalizeFields<T>(T value)
         {
-            foreach (var property in value.GetType().GetProperties().Where(p => p.PropertyType == typeof (string) && p.CanWrite))
+            foreach (
+                var property in
+                    value.GetType().GetProperties().Where(p => p.PropertyType == typeof (string) && p.CanWrite))
             {
                 property.SetValue(value, ((string) property.GetValue(value)).TrimWhiteSpace());
             }
@@ -188,7 +173,8 @@ namespace Packager.Providers
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new PodMetadataException(response.ErrorException, "Could not {0}: {1} ({2})", operation, response.StatusCode, (int) response.StatusCode);
+                throw new PodMetadataException(response.ErrorException, "Could not {0}: {1} ({2})", operation,
+                    response.StatusCode, (int) response.StatusCode);
             }
 
             if (response.Data == null)
@@ -198,7 +184,8 @@ namespace Packager.Providers
 
             if (response.Data.Success == false)
             {
-                throw new PodMetadataException("Could not {0}: {1}", operation, response.Data.Message.ToDefaultIfEmpty("unknown issue returned from server"));
+                throw new PodMetadataException("Could not {0}: {1}", operation,
+                    response.Data.Message.ToDefaultIfEmpty("unknown issue returned from server"));
             }
         }
 

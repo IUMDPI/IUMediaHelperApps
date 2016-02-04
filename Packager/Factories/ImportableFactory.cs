@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -43,12 +44,12 @@ namespace Packager.Factories
             }
 
             DateTime result;
-            if (DateTime.TryParse(value, out result) == false)
+            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out result) == false)
             {
                 return null;
             }
 
-            return result.ToLocalTime();
+            return result;
         }
 
         public bool ToBooleanValue(XElement parent, string path)

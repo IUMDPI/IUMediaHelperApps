@@ -12,7 +12,7 @@ namespace Packager.Factories
 {
     public class IngestDataFactory : IIngestDataFactory
     {
-        public VideoIngest Generate(VideoPodMetadata podMetadata, AbstractFileModel masterFileModel)
+        public VideoIngest Generate(VideoPodMetadata podMetadata, AbstractFile masterFileModel)
         {
             var digitalFileProvenance =
                 podMetadata.FileProvenances.GetFileProvenance(masterFileModel) as DigitalVideoFile;
@@ -64,7 +64,7 @@ namespace Packager.Factories
             return date.Value.ToUniversalTime().ToString(format);
         }
 
-        public AudioIngest Generate(AudioPodMetadata podMetadata, AbstractFileModel masterFileModel)
+        public AudioIngest Generate(AudioPodMetadata podMetadata, AbstractFile masterFileModel)
         {
             var digitalFileProvenance =
                 podMetadata.FileProvenances.GetFileProvenance(masterFileModel) as DigitalAudioFile;

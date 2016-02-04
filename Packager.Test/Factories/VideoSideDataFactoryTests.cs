@@ -19,14 +19,26 @@ namespace Packager.Test.Factories
         {
             ProcessingDirectory = "test folder";
 
-            PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName) {Checksum = "pres 1 hash"};
-            ProductionSide1FileModel = new ObjectFileModel(MezzanineSide1FileName) { Checksum = "prod 1 hash" }; 
-            AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName) { Checksum = "access 1 hash" }; 
-            PreservationSide2FileModel = new ObjectFileModel(PreservationSide2FileName) { Checksum = "pres 2 hash" }; 
-            ProductionSide2FileModel = new ObjectFileModel(MezzanineSide2FileName) { Checksum = "prod 2 hash" }; 
-            AccessSide2FileModel = new ObjectFileModel(AccessSide2FileName) { Checksum = "access 1 hash" }; 
+            PreservationSide1FileModel = FileModelFactory.GetModel(PreservationSide1FileName);
+            PreservationSide1FileModel.Checksum = "pres 1 hash";
 
-            PreservationIntermediateSide1FileModel = new ObjectFileModel(PreservationIntermediateSide1FileName) { Checksum = "presInt 1 hash" }; ;
+            ProductionSide1FileModel = FileModelFactory.GetModel(MezzanineSide1FileName);
+            ProductionSide1FileModel.Checksum = "prod 1 hash";
+
+            AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
+            AccessSide1FileModel.Checksum = "access 1 hash";
+
+            PreservationSide2FileModel = FileModelFactory.GetModel(PreservationSide2FileName);
+            PreservationSide2FileModel.Checksum = "pres 2 hash";
+
+            ProductionSide2FileModel = FileModelFactory.GetModel(MezzanineSide2FileName);
+            ProductionSide1FileModel.Checksum = "prod 2 hash";
+
+            AccessSide2FileModel = FileModelFactory.GetModel(AccessSide2FileName);
+            AccessSide1FileModel.Checksum = "access 2 hash";
+
+            PreservationIntermediateSide1FileModel = FileModelFactory.GetModel(PreservationIntermediateSide1FileName);
+            PreservationSide1FileModel.Checksum = "presInt 1 hash";
 
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
             IngestDataFactory.Generate((VideoPodMetadata)null, null).ReturnsForAnyArgs(new VideoIngest());
@@ -47,17 +59,17 @@ namespace Packager.Test.Factories
         private const string MezzanineSide2FileName = "MDPI_4890764553278906_02_mezz.mov";
         private const string AccessSide2FileName = "MDPI_4890764553278906_02_access.mp4";
         private int ExpectedSides { get; set; }
-        private ObjectFileModel ExpectedSide1MasterFileModel { get; set; }
-        private ObjectFileModel ExpectedSide2MasterFileModel { get; set; }
-        private ObjectFileModel PreservationIntermediateSide1FileModel { get; set; }
+        private AbstractFile ExpectedSide1MasterFileModel { get; set; }
+        private AbstractFile ExpectedSide2MasterFileModel { get; set; }
+        private AbstractFile PreservationIntermediateSide1FileModel { get; set; }
 
-        private ObjectFileModel PreservationSide1FileModel { get; set; }
-        private ObjectFileModel ProductionSide1FileModel { get; set; }
-        private ObjectFileModel AccessSide1FileModel { get; set; }
-        private ObjectFileModel PreservationSide2FileModel { get; set; }
-        private ObjectFileModel ProductionSide2FileModel { get; set; }
-        private ObjectFileModel AccessSide2FileModel { get; set; }
-        private List<ObjectFileModel> FilesToProcess { get; set; }
+        private AbstractFile PreservationSide1FileModel { get; set; }
+        private AbstractFile ProductionSide1FileModel { get; set; }
+        private AbstractFile AccessSide1FileModel { get; set; }
+        private AbstractFile PreservationSide2FileModel { get; set; }
+        private AbstractFile ProductionSide2FileModel { get; set; }
+        private AbstractFile AccessSide2FileModel { get; set; }
+        private List<AbstractFile> FilesToProcess { get; set; }
 
         private IIngestDataFactory IngestDataFactory { get; set; }
         private VideoPodMetadata PodMetadata { get; set; }
@@ -66,7 +78,7 @@ namespace Packager.Test.Factories
 
         protected virtual void DoCustomSetup()
         {
-            FilesToProcess = new List<ObjectFileModel> {PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel};
+            FilesToProcess = new List<AbstractFile> {PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel};
             ExpectedSide1MasterFileModel = PreservationSide1FileModel;
             ExpectedSides = 1;
         }
@@ -86,7 +98,7 @@ namespace Packager.Test.Factories
             protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
-                FilesToProcess = new List<ObjectFileModel>
+                FilesToProcess = new List<AbstractFile>
                 {
                     ProductionSide1FileModel,
                     ProductionSide2FileModel,

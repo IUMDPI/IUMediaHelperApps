@@ -18,7 +18,7 @@ namespace Packager.Test.Factories
         private const string MissingFileName = "MDPI_111111111111_01_pres.mkv";
 
         private VideoPodMetadata PodMetadata { get; set; }
-        private AbstractFileModel FileModel { get; set; }
+        private AbstractFile FileModel { get; set; }
         private DigitalVideoFile Provenance { get; set; }
         private VideoIngest Result { get; set; }
 
@@ -83,7 +83,7 @@ namespace Packager.Test.Factories
             [SetUp]
             public void BeforeEach()
             {
-                FileModel = new ObjectFileModel(GoodFileName);
+                FileModel = FileModelFactory.GetModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 Provenance.DateDigitized = null;
@@ -108,7 +108,7 @@ namespace Packager.Test.Factories
             [SetUp]
             public void BeforeEach()
             {
-                FileModel = new ObjectFileModel(MissingFileName);
+                FileModel = FileModelFactory.GetModel(MissingFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 PodMetadata = new VideoPodMetadata
@@ -131,7 +131,7 @@ namespace Packager.Test.Factories
             [SetUp]
             public void BeforeEach()
             {
-                FileModel = new ObjectFileModel(GoodFileName);
+                FileModel = FileModelFactory.GetModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 PodMetadata = new VideoPodMetadata

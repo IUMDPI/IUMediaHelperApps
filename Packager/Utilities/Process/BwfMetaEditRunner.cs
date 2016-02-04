@@ -33,7 +33,7 @@ namespace Packager.Utilities.Process
         [ValidateFile]
         public string BwfMetaEditPath { get; }
 
-        public async Task<IProcessResult> ClearMetadata(ObjectFileModel model, IEnumerable<BextFields> fields)
+        public async Task<IProcessResult> ClearMetadata(AbstractFile model, IEnumerable<BextFields> fields)
         {
             var arguments = new ArgumentBuilder(VerboseArgument);
         

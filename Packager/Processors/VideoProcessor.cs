@@ -28,8 +28,7 @@ namespace Packager.Processors
 
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
-        protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(
-            List<ObjectFileModel> filesToProcess)
+        protected override async Task<IEnumerable<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<VideoPodMetadata>(filesToProcess);
@@ -41,7 +40,7 @@ namespace Packager.Processors
 
             // create list of files to process and add the original files that
             // we know about
-            var processedList = new List<ObjectFileModel>().Concat(filesToProcess)
+            var processedList = new List<AbstractFile>().Concat(filesToProcess)
                 .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
 
             processedList = processedList.Concat(await CreateMezzanineDerivatives(processedList, metadata)).ToList();
@@ -62,15 +61,15 @@ namespace Packager.Processors
             // make the xml file
             var xmlModel = await GenerateXml(metadata, processedList);
 
-            var outputList = new List<AbstractFileModel>().Concat(processedList).ToList();
+            var outputList = new List<AbstractFile>().Concat(processedList).ToList();
             outputList.Add(xmlModel);
 
             return outputList;
         }
 
-        private async Task<XmlFileModel> GenerateXml(VideoPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        private async Task<XmlFile> GenerateXml(VideoPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
-            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode};
+            var result = new XmlFile( Barcode, ProjectCode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
             try
             {
@@ -90,7 +89,7 @@ namespace Packager.Processors
             }
         }
 
-        protected async Task AssignChecksumValues(IEnumerable<ObjectFileModel> models)
+        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
         {
             foreach (var model in models)
             {
@@ -99,7 +98,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task NormalizeOriginals(List<ObjectFileModel> originals, VideoPodMetadata podMetadata)
+        private async Task NormalizeOriginals(List<AbstractFile> originals, VideoPodMetadata podMetadata)
         {
             foreach (var original in originals)
             {
@@ -108,15 +107,15 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<List<ObjectFileModel>> CreateMezzanineDerivatives(List<ObjectFileModel> models,
+        private async Task<List<AbstractFile>> CreateMezzanineDerivatives(List<AbstractFile> models,
             VideoPodMetadata metadata)
         {
-            var results = new List<ObjectFileModel>();
+            var results = new List<AbstractFile>();
             foreach (var master in models
                 .GroupBy(m => m.SequenceIndicator)
                 .Select(g => g.GetPreservationOrIntermediateModel()))
             {
-                var derivative = master.ToMezzanineFileModel();
+                var derivative = new MezzanineFile(master);
                 var embeddedMetadata = MetadataFactory.Generate(models, derivative, metadata);
                 results.Add(await FFPMPEGRunner.CreateProdOrMezzDerivative(master, derivative, embeddedMetadata));
             }
@@ -124,9 +123,9 @@ namespace Packager.Processors
             return results;
         }
 
-        private async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
+        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models)
         {
-            var results = new List<ObjectFileModel>();
+            var results = new List<AbstractFile>();
 
             // for each production master, create an access version
             foreach (var model in models.Where(m => m.IsMezzanineVersion()))
@@ -136,9 +135,9 @@ namespace Packager.Processors
             return results;
         }
 
-        private async Task<List<ObjectFileModel>> CreateQualityControlFiles(IEnumerable<ObjectFileModel> processedList)
+        private async Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList)
         {
-            var results = new List<ObjectFileModel>();
+            var results = new List<AbstractFile>();
             foreach (
                 var model in
                     processedList.Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion()))

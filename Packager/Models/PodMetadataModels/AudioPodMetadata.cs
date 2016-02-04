@@ -28,57 +28,18 @@ namespace Packager.Models.PodMetadataModels
             base.ImportFromXml(element, factory);
             Brand = factory.ToStringValue(element,"data/tape_stock_brand");
             DirectionsRecorded = factory.ToStringValue(element,"data/directions_recorded");
-            //PlaybackSpeed = factory.ToStringValue(element, "data/playback_speed");
+            PlaybackSpeed = factory.ToStringValue(element, "data/playback_speed");
             TrackConfiguration = factory.ToStringValue(element, "data/track_configuration");
             SoundField = factory.ToStringValue(element, "data/sound_field");
             TapeThickness = factory.ToStringValue(element,"data/tape_thickness");
             TapeBase = factory.ToStringValue(element, "data/tape_base");
         }
-
-        private string GetPlaybackSpeedForFormat(XElement element, IImportableFactory factory)
-        {
-            switch (Format.ToLowerInvariant())
-            {
-                case LacquerDiscFormatIdentifier:
-                    return factory.ToStringValue(element,"data/object/technical_metadata/speed", " rpm");
-                case OpenReelFormatIdentifier:
-                    return factory.ResolvePlaybackSpeed(element, "data/object/technical_metadata/playback_speed");
-                default:
-                    throw new PodMetadataException("unknown format value: {0}", Format);
-            }
-        }
-
-        private string GetSoundFieldForFormat(XElement element, IImportableFactory factory)
-        {
-            switch (Format.ToLowerInvariant())
-            {
-                case LacquerDiscFormatIdentifier:
-                    return factory.ToStringValue(element,"data/object/technical_metadata/sound_field");
-                case OpenReelFormatIdentifier:
-                    return factory.ResolveSoundField(element, "data/object/technical_metadata/sound_field");
-                default:
-                    throw new PodMetadataException("unknown format value: {0}", Format);
-            }
-        }
-
+        
         protected override List<AbstractDigitalFile> ImportFileProvenances(XElement element, string path, 
             IImportableFactory factory)
         {
             return factory.ToObjectList<DigitalAudioFile>(element, path)
                 .Cast<AbstractDigitalFile>().ToList();
-        }
-
-        protected override void NormalizeFileProvenances()
-        {
-            if (Format.Equals(LacquerDiscFormatIdentifier, StringComparison.InvariantCultureIgnoreCase) == false)
-            {
-                return;
-            }
-
-            foreach (var provenance in FileProvenances.Select(p => p as DigitalAudioFile))
-            {
-                provenance.SpeedUsed = provenance.SpeedUsed.AppendIfValuePresent(" rpm");
-            }
         }
     }
 }

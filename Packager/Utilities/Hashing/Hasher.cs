@@ -15,7 +15,7 @@ namespace Packager.Utilities.Hashing
 
         private string BaseProcessingFolder { get; }
 
-        public async Task<string> Hash(AbstractFileModel model)
+        public async Task<string> Hash(AbstractFile model)
         {
             return await Task.Run(() => HashInternal(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.ToFileName())));
         }

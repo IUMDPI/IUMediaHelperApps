@@ -1,16 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
-using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using Packager.Models.ResultModels;
 using Packager.Observers;
-using Packager.Utilities;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Process;
 using Packager.Utilities.Xml;
@@ -25,11 +19,11 @@ namespace Packager.Test.Utilities
         public async void BeforeEach()
         {
             Observers = Substitute.For<IObserverCollection>();
-            ProdFileModel = new ObjectFileModel(ProductionFileName);
-            PresFileModel = new ObjectFileModel(PreservationFileName);
-            PresIntFileModel = new ObjectFileModel(PreservationIntermediateFileName);
+            ProdFileModel = FileModelFactory.GetModel(ProductionFileName);
+            PresFileModel = FileModelFactory.GetModel(PreservationFileName);
+            PresIntFileModel = FileModelFactory.GetModel(PreservationIntermediateFileName);
 
-            Instances = new List<ObjectFileModel> {ProdFileModel, PresFileModel, PresIntFileModel};
+            Instances = new List<AbstractFile> {ProdFileModel, PresFileModel, PresIntFileModel};
 
             Verifier = Substitute.For<IBwfMetaEditResultsVerifier>();
             Verifier.Verify(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
@@ -44,23 +38,23 @@ namespace Packager.Test.Utilities
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, Verifier);
 //            await BextProcessor.ClearAllBextMetadataFields(Instances);
         }
-        
+
         private const string ProductionFileName = "MDPI_4890764553278906_01_prod.wav";
         private const string PreservationIntermediateFileName = "MDPI_4890764553278906_01_presInt.wav";
         private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
-   
+
         private const string Output = "Output";
         private BextProcessor BextProcessor { get; set; }
-       
+
         private IBwfMetaEditRunner MetaEditRunner { get; set; }
         private IXmlExporter XmlExporter { get; set; }
         private IBwfMetaEditResultsVerifier Verifier { get; set; }
         private IEmbeddedMetadataFactory<AudioPodMetadata> ConformancePointDocumentFactory { get; set; }
         private IObserverCollection Observers { get; set; }
-        private ObjectFileModel ProdFileModel { get; set; }
-        private ObjectFileModel PresFileModel { get; set; }
-        private ObjectFileModel PresIntFileModel { get; set; }
-        private List<ObjectFileModel> Instances { get; set; }
+        private AbstractFile ProdFileModel { get; set; }
+        private AbstractFile PresFileModel { get; set; }
+        private AbstractFile PresIntFileModel { get; set; }
+        private List<AbstractFile> Instances { get; set; }
         private AudioPodMetadata Metadata { get; set; }
 
         [Test]

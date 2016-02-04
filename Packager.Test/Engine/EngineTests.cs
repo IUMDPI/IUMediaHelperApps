@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Engine;
-using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
@@ -20,6 +19,48 @@ namespace Packager.Test.Engine
     [TestFixture]
     public class EngineTests
     {
+        [SetUp]
+        public virtual void BeforeEach()
+        {
+            ProgramSettings = Substitute.For<IProgramSettings>();
+            ProgramSettings.ProjectCode.Returns(ProjectCode);
+
+            Validators = Substitute.For<IValidatorCollection>();
+
+            MockWavProcessor = Substitute.For<IProcessor>();
+            MockMpegProcessor = Substitute.For<IProcessor>();
+
+            MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
+            MockMpegProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
+
+            Observer = Substitute.For<IObserverCollection>();
+
+            Grouping1PresFileName = GetPresFileNameForBarCode(BarCode1, MockWavProcessorExtension);
+            Grouping1ProdFileName = GetProdFileNameForBarCode(BarCode1, MockWavProcessorExtension);
+            Grouping2PresFileName = GetPresFileNameForBarCode(BarCode2, MockMpegProcessorExtension);
+
+            DirectoryProvider = Substitute.For<IDirectoryProvider>();
+            DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(
+                new List<string>
+                {
+                    Grouping1PresFileName,
+                    Grouping1ProdFileName,
+                    Grouping2PresFileName
+                });
+
+            DependencyProvider = MockDependencyProvider.Get(observers: Observer, programSettings: ProgramSettings,
+                directoryProvider: DirectoryProvider, validators: Validators);
+
+            Validators.Validate(DependencyProvider).Returns(new ValidationResults());
+
+            Engine = new StandardEngine(
+                new Dictionary<string, IProcessor>
+                {
+                    {MockWavProcessorExtension, MockWavProcessor},
+                    {MockMpegProcessorExtension, MockMpegProcessor}
+                }, DependencyProvider);
+        }
+
         private const string MockWavProcessorExtension = ".wav";
         private const string MockMpegProcessorExtension = ".mpeg";
         private const string ProjectCode = "mdpi";
@@ -49,47 +90,6 @@ namespace Packager.Test.Engine
             return string.Format("{0}_{1}_01_prod{2}", ProjectCode, barcode, extension);
         }
 
-        [SetUp]
-        public virtual void BeforeEach()
-        {
-            ProgramSettings = Substitute.For<IProgramSettings>();
-            ProgramSettings.ProjectCode.Returns(ProjectCode);
-            
-            Validators = Substitute.For<IValidatorCollection>();
-            
-            MockWavProcessor = Substitute.For<IProcessor>();
-            MockMpegProcessor = Substitute.For<IProcessor>();
-
-            MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
-            MockMpegProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
-
-            Observer = Substitute.For<IObserverCollection>();
-
-            Grouping1PresFileName = GetPresFileNameForBarCode(BarCode1, MockWavProcessorExtension);
-            Grouping1ProdFileName = GetProdFileNameForBarCode(BarCode1, MockWavProcessorExtension);
-            Grouping2PresFileName = GetPresFileNameForBarCode(BarCode2, MockMpegProcessorExtension);
-
-            DirectoryProvider = Substitute.For<IDirectoryProvider>();
-            DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(
-                new List<string>
-                {
-                    Grouping1PresFileName,
-                    Grouping1ProdFileName,
-                    Grouping2PresFileName
-                });
-
-            DependencyProvider = MockDependencyProvider.Get(observers: Observer, programSettings: ProgramSettings, directoryProvider: DirectoryProvider, validators:Validators);
-
-            Validators.Validate(DependencyProvider).Returns(new ValidationResults());
-
-            Engine = new StandardEngine(
-                new Dictionary<string, IProcessor>
-                {
-                    {MockWavProcessorExtension, MockWavProcessor},
-                    {MockMpegProcessorExtension, MockMpegProcessor}
-                }, DependencyProvider);
-        }
-
         public class WhenEngineRunsWithoutIssues : EngineTests
         {
             public override async void BeforeEach()
@@ -100,21 +100,50 @@ namespace Packager.Test.Engine
             }
 
             [Test]
-            public void ItShouldValidateDependencyProvider()
+            public void ItShouldCallProcessorForEachKnownExtension()
             {
-                Validators.Received().Validate(DependencyProvider);
+                MockWavProcessor.Received()
+                    .ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Key.Equals(BarCode1)));
+                MockMpegProcessor.Received()
+                    .ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Key.Equals(BarCode2)));
             }
 
-            [Test]
-            public void ItShouldWriteHelloMessage()
-            {
-                Observer.Received().Log(Arg.Is("Starting {0} (version {1})"), Arg.Any<DateTime>(), Arg.Any<Version>());
-            }
-            
             [Test]
             public void ItShouldLogObjectCountCorrectly()
             {
                 Observer.Received().Log("Found {0} to process", Arg.Any<string>());
+            }
+
+            [Test]
+            public void ItShouldSendCorrectGroupingsToProcessors()
+            {
+                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 2));
+                MockWavProcessor.Received()
+                    .ProcessFile(
+                        Arg.Is<IGrouping<string, AbstractFile>>(
+                            g =>
+                                g.AsEnumerable().SingleOrDefault(m => m.ToFileName().Equals(Grouping1PresFileName)) !=
+                                null));
+                MockWavProcessor.Received()
+                    .ProcessFile(
+                        Arg.Is<IGrouping<string, AbstractFile>>(
+                            g =>
+                                g.AsEnumerable().SingleOrDefault(m => m.ToFileName().Equals(Grouping1ProdFileName)) !=
+                                null));
+
+                MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 1));
+                MockMpegProcessor.Received()
+                    .ProcessFile(
+                        Arg.Is<IGrouping<string, AbstractFile>>(
+                            g =>
+                                g.AsEnumerable().SingleOrDefault(m => m.ToFileName().Equals(Grouping2PresFileName)) !=
+                                null));
+            }
+
+            [Test]
+            public void ItShouldValidateDependencyProvider()
+            {
+                Validators.Received().Validate(DependencyProvider);
             }
 
             [Test]
@@ -124,24 +153,9 @@ namespace Packager.Test.Engine
             }
 
             [Test]
-            public void ItShouldCallProcessorForEachKnownExtension()
+            public void ItShouldWriteHelloMessage()
             {
-                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode1)));
-                MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Key.Equals(BarCode2)));
-            }
-
-            [Test]
-            public void ItShouldSendCorrectGroupingsToProcessors()
-            {
-                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Count() == 2));
-                MockWavProcessor.Received()
-                    .ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.AsEnumerable().SingleOrDefault(m => m.OriginalFileName.Equals(Grouping1PresFileName)) != null));
-                MockWavProcessor.Received()
-                    .ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.AsEnumerable().SingleOrDefault(m => m.OriginalFileName.Equals(Grouping1ProdFileName)) != null));
-
-                MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.Count() == 1));
-                MockMpegProcessor.Received()
-                    .ProcessFile(Arg.Is<IGrouping<string, AbstractFileModel>>(g => g.AsEnumerable().SingleOrDefault(m => m.OriginalFileName.Equals(Grouping2PresFileName)) != null));
+                Observer.Received().Log(Arg.Is("Starting {0} (version {1})"), Arg.Any<DateTime>(), Arg.Any<Version>());
             }
         }
 
@@ -155,13 +169,10 @@ namespace Packager.Test.Engine
 
                 await Engine.Start();
             }
-
         }
 
         public class WhenEngineEncountersAnIssue : EngineTests
         {
-            private Exception Exception { get; set; }
-
             public override async void BeforeEach()
             {
                 base.BeforeEach();
@@ -172,6 +183,8 @@ namespace Packager.Test.Engine
 
                 await Engine.Start();
             }
+
+            private Exception Exception { get; set; }
 
             [Test]
             public void ItShouldWriteErrorMessage()

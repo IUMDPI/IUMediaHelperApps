@@ -16,8 +16,8 @@ namespace Packager.Test.Factories
         public void BeforeEach()
         {
             Provenance = GetFileProvenance();
-            Model = new ObjectFileModel(PreservationFileName);
-            Instances = new List<ObjectFileModel> {Model};
+            Model = FileModelFactory.GetModel(PreservationFileName);
+            Instances = new List<AbstractFile> {Model};
             Metadata = new AudioPodMetadata
             {
                 DigitizingEntity = DigitizingEntity,
@@ -42,11 +42,11 @@ namespace Packager.Test.Factories
         private const string Title = "Test title";
 
         private EmbeddedAudioMetadata Result { get; set; }
-        private ObjectFileModel Model { get; set; }
+        private AbstractFile Model { get; set; }
         private DigitalAudioFile Provenance { get; set; }
         private AudioPodMetadata Metadata { get; set; }
 
-        private List<ObjectFileModel> Instances { get; set; }
+        private List<AbstractFile> Instances { get; set; }
 
         private string ExpectedDigitalOrAnalog { get; set; }
 

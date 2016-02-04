@@ -17,9 +17,9 @@ namespace Packager.Test.Factories
         {
             ProcessingDirectory = "test folder";
 
-            PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName);
-            MezzSide1FileModel = new ObjectFileModel(MezzSide1FileName);
-            AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
+            PreservationSide1FileModel = FileModelFactory.GetModel(PreservationSide1FileName);
+            MezzSide1FileModel = FileModelFactory.GetModel(MezzSide1FileName);
+            AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
 
             PodMetadata = new VideoPodMetadata
             {
@@ -30,7 +30,6 @@ namespace Packager.Test.Factories
                 Format = "CD-R",
                 CallNumber = "Call number",
                 DigitizingEntity = "Test entity",
-                //Identifier = "1",
                 Repaired = "Yes",
                 RecordingStandard = "recording standard",
                 ImageFormat = "image format",
@@ -39,7 +38,7 @@ namespace Packager.Test.Factories
 
             SideDataFactory = Substitute.For<ISideDataFactory>();
 
-            FilesToProcess = new List<ObjectFileModel>
+            FilesToProcess = new List<AbstractFile>
             {
                 PreservationSide1FileModel,
                 MezzSide1FileModel,
@@ -54,12 +53,12 @@ namespace Packager.Test.Factories
         private const string MezzSide1FileName = "MDPI_4890764553278906_01_mezz.mov";
         private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
 
-        private ObjectFileModel PreservationSide1FileModel { get; set; }
-        private ObjectFileModel MezzSide1FileModel { get; set; }
-        private ObjectFileModel AccessSide1FileModel { get; set; }
+        private AbstractFile PreservationSide1FileModel { get; set; }
+        private AbstractFile MezzSide1FileModel { get; set; }
+        private AbstractFile AccessSide1FileModel { get; set; }
         
         private string ProcessingDirectory { get; set; }
-        private List<ObjectFileModel> FilesToProcess { get; set; }
+        private List<AbstractFile> FilesToProcess { get; set; }
         private VideoPodMetadata PodMetadata { get; set; }
         private ISideDataFactory SideDataFactory { get; set; }
         private VideoCarrier Result { get; set; }

@@ -27,7 +27,7 @@ namespace Packager.Factories
         /// <param name="provenance"></param>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        protected override AbstractEmbeddedMetadata Generate(ObjectFileModel model, AbstractDigitalFile provenance, AudioPodMetadata metadata)
+        protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, AudioPodMetadata metadata)
         {
             var description = GenerateDescription(metadata, model);
 

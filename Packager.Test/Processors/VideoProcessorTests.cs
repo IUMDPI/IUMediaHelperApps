@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
+using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -28,13 +30,13 @@ namespace Packager.Test.Processors
 
         protected override void DoCustomSetup()
         {
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>())
-                .Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToVideoAccessFileModel()));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<AbstractEmbeddedMetadata>())
-                .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
+                .Returns(x => Task.FromResult((AbstractFile) new AccessFile(x.Arg<AbstractFile>())));
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<AbstractEmbeddedMetadata>())
+                .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
             FFMPEGRunner.AccessArguments.Returns("Test");
-            //FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedVideoMezzanineMetadata>())
-            //    .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+            //FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedVideoMezzanineMetadata>())
+            //    .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
 
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
@@ -45,12 +47,12 @@ namespace Packager.Test.Processors
             AccessFileName = $"{ProjectCode}_{Barcode}_01_access.mp4";
             XmlManifestFileName = $"{ProjectCode}_{Barcode}.xml";
 
-            PresObjectFileModel = new ObjectFileModel(PreservationFileName);
-            PresIntObjectFileModel = new ObjectFileModel(PreservationIntermediateFileName);
-            ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
-            AccessObjectFileModel = new ObjectFileModel(AccessFileName);
+            PresAbstractFile = FileModelFactory.GetModel(PreservationFileName);
+            PresIntAbstractFile = FileModelFactory.GetModel(PreservationIntermediateFileName);
+            ProdAbstractFile = FileModelFactory.GetModel(ProductionFileName);
+            AccessAbstractFile = FileModelFactory.GetModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
+            ModelList = new List<AbstractFile> {PresAbstractFile};
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
@@ -116,11 +118,11 @@ namespace Packager.Test.Processors
                         NonNormalPresIntFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_001_presInt.mkv";
                         NonNormalProductionFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_01_mezz.mov";
 
-                        ModelList = new List<AbstractFileModel>
+                        ModelList = new List<AbstractFile>
                         {
-                            new ObjectFileModel(NonNormalPresFileName),
-                            new ObjectFileModel(NonNormalPresIntFileName),
-                            new ObjectFileModel(NonNormalProductionFileName)
+                            FileModelFactory.GetModel(NonNormalPresFileName),
+                            FileModelFactory.GetModel(NonNormalPresIntFileName),
+                            FileModelFactory.GetModel(NonNormalProductionFileName)
                         };
                     }
 
@@ -149,7 +151,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                            ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
                         }
 
                         [Test]
@@ -167,7 +169,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
+                            ModelList = new List<AbstractFile> {PresAbstractFile, ProdAbstractFile};
                         }
 
                         [Test]
@@ -227,27 +229,28 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(Arg.Is<ObjectFileModel>(m=>m.IsSameAs(model.ToFileName())), Arg.Any<AbstractEmbeddedVideoMetadata>());
+                        FFMPEGRunner.Received().Normalize(Arg.Is<AbstractFile>(m=>m.ToFileName().Equals(model.ToFileName())), 
+                            Arg.Any<AbstractEmbeddedVideoMetadata>());
                     }
                 }
 
                 [Test]
                 public void ItShouldVerifyAllNormalizedFiles()
                 {
-                    FFMPEGRunner.Received().Verify(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
+                    FFMPEGRunner.Received().Verify(Arg.Is<List<AbstractFile>>(l => l.SequenceEqual(ModelList)));
                 }
             }
             
             public class WhenCreatingDerivatives : WhenNothingGoesWrong
             {
-                private ObjectFileModel ExpectedMasterModel { get; set; }
+                private AbstractFile ExpectedMasterModel { get; set; }
                 private AbstractEmbeddedVideoMetadata ExpectedMetadata { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    ExpectedMasterModel = PresObjectFileModel;
+                    ExpectedMasterModel = PresAbstractFile;
                     ExpectedMetadata = new EmbeddedVideoMezzanineMetadata();
                     VideoMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
                 }
@@ -258,8 +261,8 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                        ExpectedMasterModel = PresIntObjectFileModel;
+                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ExpectedMasterModel = PresIntAbstractFile;
                     }
                 }
 
@@ -267,15 +270,15 @@ namespace Packager.Test.Processors
                 public void ItShouldCallMetadataFactoryWithMezzanineMasterAsTarget()
                 {
                     VideoMetadataFactory.Received()
-                        .Generate(Arg.Any<List<ObjectFileModel>>(),
-                            Arg.Is<ObjectFileModel>(m => m.IsMezzanineVersion()), Arg.Any<VideoPodMetadata>());
+                        .Generate(Arg.Any<List<AbstractFile>>(),
+                            Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<VideoPodMetadata>());
                 }
 
                 [Test]
                 public void ItShouldCreateAccessFileFromMezzanineMaster()
                 {
                     FFMPEGRunner.Received()
-                        .CreateAccessDerivative(Arg.Is<ObjectFileModel>(m => m.IsMezzanineVersion()));
+                        .CreateAccessDerivative(Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()));
                 }
 
                 [Test]
@@ -283,7 +286,7 @@ namespace Packager.Test.Processors
                 {
                     FFMPEGRunner.Received()
                         .CreateProdOrMezzDerivative(ExpectedMasterModel,
-                            Arg.Is<ObjectFileModel>(m => m.IsMezzanineVersion()), ExpectedMetadata);
+                            Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), ExpectedMetadata);
                 }
             }
 
@@ -307,7 +310,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
                         ExpectedModelCount = 5; // pres master, presInt master, prod-master, access master, qc file
                     }
 
@@ -316,7 +319,7 @@ namespace Packager.Test.Processors
                     {
                         MetadataGenerator.Received().Generate(
                             Arg.Any<VideoPodMetadata>(),
-                            Arg.Is<List<ObjectFileModel>>(
+                            Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
                 }
@@ -346,7 +349,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount));
+                        Arg.Is<List<AbstractFile>>(l => l.Count == ExpectedModelCount));
                 }
 
                 [Test]
@@ -354,7 +357,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
                 }
 
                 [Test]
@@ -362,7 +365,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
 
                 [Test]
@@ -370,7 +373,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsMezzanineVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsMezzanineVersion()) != null));
                 }
 
                 [Test]
@@ -378,7 +381,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m is QualityControlFileModel) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is QualityControlFile) != null));
                 }
             }
 
@@ -389,17 +392,17 @@ namespace Packager.Test.Processors
                     base.BeforeEach();
 
                     ProcessedModelList =
-                        MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<ObjectFileModel>;
+                        MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<AbstractFile>;
                 }
 
-                private List<ObjectFileModel> ProcessedModelList { get; set; }
+                private List<AbstractFile> ProcessedModelList { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    Hasher.Hash(Arg.Any<ObjectFileModel>())
-                        .Returns(x => Task.FromResult($"{x.Arg<ObjectFileModel>().ToFileName()} checksum"));
+                    Hasher.Hash(Arg.Any<AbstractFile>())
+                        .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().ToFileName()} checksum"));
                 }
 
                 [TestCase]
@@ -419,40 +422,40 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoAccessVersion()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(AccessFileName)).Checksum,
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(AccessFileName))).Checksum,
                         Is.EqualTo($"{AccessFileName} checksum"));
                 }
 
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoPreservationMaster()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(PreservationFileName)).Checksum,
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(PreservationFileName))).Checksum,
                         Is.EqualTo($"{PreservationFileName} checksum"));
                 }
 
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoProductionVersion()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(ProductionFileName)).Checksum,
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(ProductionFileName))).Checksum,
                         Is.EqualTo($"{ProductionFileName} checksum"));
                 }
 
                 [Test]
                 public void ItShouldCallHasherForAccessVersion()
                 {
-                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(AccessFileName)));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(AccessFileName))));
                 }
 
                 [Test]
                 public void ItShouldCallHasherForPreservationMaster()
                 {
-                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(PreservationFileName)));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(PreservationFileName))));
                 }
 
                 [Test]
                 public void ItShouldCallHasherForProductionVersion()
                 {
-                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(ProductionFileName)));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(ProductionFileName))));
                 }
             }
 
@@ -475,7 +478,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
                         ExpectedFiles = 5; // prod master, pres master, presInt master, access, xml manifest
                     }
 

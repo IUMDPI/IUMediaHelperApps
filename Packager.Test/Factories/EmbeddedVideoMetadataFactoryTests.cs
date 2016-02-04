@@ -17,9 +17,9 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         {
             PresProvenance = GetFileProvenance(PresFilename);
             MezzProvenance = GetFileProvenance(MezzFilename);
-            PresModel = new ObjectFileModel(PresFilename);
-            MezzModel = new ObjectFileModel(MezzFilename);
-            Instances = new List<ObjectFileModel> {PresModel, MezzModel};
+            PresModel = FileModelFactory.GetModel(PresFilename);
+            MezzModel = FileModelFactory.GetModel(MezzFilename);
+            Instances = new List<AbstractFile> {PresModel, MezzModel};
             Metadata = new VideoPodMetadata
             {
                 DigitizingEntity = DigitizingEntity,
@@ -44,15 +44,15 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         private const string Title = "Test title";
 
         public string FilenameToUseForTesting { get; set; }
-        public ObjectFileModel ModelToUseForTesting { get; set; }
+        public AbstractFile ModelToUseForTesting { get; set; }
         private AbstractEmbeddedVideoMetadata Result { get; set; }
-        private ObjectFileModel PresModel { get; set; }
-        private ObjectFileModel MezzModel { get; set; }
+        private AbstractFile PresModel { get; set; }
+        private AbstractFile MezzModel { get; set; }
         private DigitalVideoFile PresProvenance { get; set; }
         private DigitalVideoFile MezzProvenance { get; set; }
         private VideoPodMetadata Metadata { get; set; }
 
-        private List<ObjectFileModel> Instances { get; set; }
+        private List<AbstractFile> Instances { get; set; }
 
         protected virtual void DoCustomSetup()
         {

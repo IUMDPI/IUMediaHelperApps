@@ -57,7 +57,7 @@ namespace Packager.Utilities.Process
             }
         }
 
-        public async Task Normalize(ObjectFileModel original, AbstractEmbeddedMetadata metadata)
+        public async Task Normalize(AbstractFile original, AbstractEmbeddedMetadata metadata)
         {
             var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
             try
@@ -90,7 +90,7 @@ namespace Packager.Utilities.Process
             }
         }
         
-        public async Task Verify(List<ObjectFileModel> originals)
+        public async Task Verify(List<AbstractFile> originals)
         {
             foreach (var model in originals)
             {
@@ -102,12 +102,12 @@ namespace Packager.Utilities.Process
         public abstract string ProdOrMezzArguments { get; }
         public abstract string AccessArguments { get; }
 
-        public async Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original)
+        public async Task<AbstractFile> CreateAccessDerivative(AbstractFile original)
         {
-            return await CreateDerivative(original, original.ToAudioAccessFileModel(), new ArgumentBuilder(AccessArguments));
+            return await CreateDerivative(original, new AccessFile(original), new ArgumentBuilder(AccessArguments));
         }
 
-        public async Task<ObjectFileModel> CreateProdOrMezzDerivative(ObjectFileModel original, ObjectFileModel target, AbstractEmbeddedMetadata metadata)
+        public async Task<AbstractFile> CreateProdOrMezzDerivative(AbstractFile original, AbstractFile target, AbstractEmbeddedMetadata metadata)
         {
             if (TargetAlreadyExists(target))
             {
@@ -168,20 +168,20 @@ namespace Packager.Utilities.Process
             return string.Join("\n", parts);
         }
 
-        private void LogAlreadyExists(ObjectFileModel target)
+        private void LogAlreadyExists(AbstractFile target)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
             Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
             Observers.EndSection(sectionKey, $"Generate {target.FullFileUse} skipped - already exists: {target.ToFileName()}");
         }
 
-        private bool TargetAlreadyExists(ObjectFileModel target)
+        private bool TargetAlreadyExists(AbstractFile target)
         {
             var path = Path.Combine(BaseProcessingDirectory, target.GetFolderName(), target.ToFileName());
             return FileProvider.FileExists(path);
         }
 
-        private async Task<ObjectFileModel> CreateDerivative(ObjectFileModel original, ObjectFileModel target, ArgumentBuilder arguments)
+        private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target, ArgumentBuilder arguments)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
             try
@@ -217,13 +217,13 @@ namespace Packager.Utilities.Process
             }
         }
 
-        private async Task GenerateMd5Hashes(ObjectFileModel original)
+        private async Task GenerateMd5Hashes(AbstractFile original)
         {
             await GenerateMd5Hash(original, true);
             await GenerateMd5Hash(original, false);
         }
 
-        private async Task GenerateMd5Hash(ObjectFileModel model, bool isOriginal)
+        private async Task GenerateMd5Hash(AbstractFile model, bool isOriginal)
         {
             var sectionName = isOriginal
                 ? $"{model.ToFileName()} (original)"
@@ -257,7 +257,7 @@ namespace Packager.Utilities.Process
             }
         }
 
-        private async Task VerifyHashes(ObjectFileModel model)
+        private async Task VerifyHashes(AbstractFile model)
         {
             var sectionKey = Observers.BeginSection("Validating {0} (normalized)", model.ToFileName());
             try

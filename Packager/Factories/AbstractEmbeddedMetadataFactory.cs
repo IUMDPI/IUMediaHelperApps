@@ -12,15 +12,15 @@ namespace Packager.Factories
 {
     public abstract class AbstractEmbeddedMetadataFactory<T> : IEmbeddedMetadataFactory<T> where T : AbstractPodMetadata
     {
-        public AbstractEmbeddedMetadata Generate(IEnumerable<ObjectFileModel> models, ObjectFileModel target, T metadata)
+        public AbstractEmbeddedMetadata Generate(IEnumerable<AbstractFile> models, AbstractFile target, T metadata)
         {
             var provenance = GetProvenance(metadata, models, target);
             return Generate(target, provenance, metadata);
         }
 
-        protected abstract AbstractEmbeddedMetadata Generate(ObjectFileModel model, AbstractDigitalFile provenance, T metadata);
+        protected abstract AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, T metadata);
 
-        protected static string GenerateDescription(AbstractPodMetadata metadata, ObjectFileModel model)
+        protected static string GenerateDescription(AbstractPodMetadata metadata, AbstractFile model)
         {
             return $"{metadata.Unit}. {metadata.CallNumber}. File use: {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.ToFileName())}";
         }
@@ -30,7 +30,7 @@ namespace Packager.Factories
             return date.HasValue == false ? defaultValue : date.Value.ToString(format);
         }
 
-        private static AbstractDigitalFile GetProvenance(AbstractPodMetadata podMetadata, IEnumerable<ObjectFileModel> instances, ObjectFileModel model)
+        private static AbstractDigitalFile GetProvenance(AbstractPodMetadata podMetadata, IEnumerable<AbstractFile> instances, AbstractFile model)
         {
             var sequenceInstances = instances.Where(m => m.SequenceIndicator.Equals(model.SequenceIndicator));
             var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
@@ -48,15 +48,10 @@ namespace Packager.Factories
             return GetProvenance(podMetadata, model, defaultProvenance);
         }
 
-        private static AbstractDigitalFile GetProvenance(AbstractPodMetadata podMetadata, AbstractFileModel model, AbstractDigitalFile defaultValue = null)
+        private static AbstractDigitalFile GetProvenance(AbstractPodMetadata podMetadata, AbstractFile model, AbstractDigitalFile defaultValue = null)
         {
-            var result = podMetadata.FileProvenances.SingleOrDefault(dfp => model.IsSameAs(NormalizeFilename(dfp.Filename, model)));
+            var result = podMetadata.FileProvenances.SingleOrDefault(dfp => model.IsSameAs(FileModelFactory.GetModel(dfp.Filename)));
             return result ?? defaultValue;
-        }
-
-        private static string NormalizeFilename(string value, AbstractFileModel model)
-        {
-            return Path.ChangeExtension(value, model.Extension);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace Packager.Utilities.Bext
 {
     public interface IBextProcessor
     {
-        Task ClearMetadataFields(List<ObjectFileModel> instances, List<BextFields> fields);
+        Task ClearMetadataFields(List<AbstractFile> instances, List<BextFields> fields);
     }
 }

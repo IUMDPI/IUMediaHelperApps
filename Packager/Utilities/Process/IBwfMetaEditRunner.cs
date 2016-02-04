@@ -12,7 +12,7 @@ namespace Packager.Utilities.Process
         //Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core);
         //Task<IProcessResult> ClearMetadata(ObjectFileModel model);
 
-        Task<IProcessResult> ClearMetadata(ObjectFileModel model, IEnumerable<BextFields> fields);
+        Task<IProcessResult> ClearMetadata(AbstractFile model, IEnumerable<BextFields> fields);
         Task<string> GetVersion();
     }
 }

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
+using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -28,10 +30,10 @@ namespace Packager.Test.Processors
 
         protected override void DoCustomSetup()
         {
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>())
-                .Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>())
-                .Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)));
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
+                .Returns(x => Task.FromResult((AbstractFile)new AccessFile(x.Arg<AbstractFile>())));
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>())
+                .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
 
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
@@ -42,12 +44,12 @@ namespace Packager.Test.Processors
             AccessFileName = $"{ProjectCode}_{Barcode}_01_access.mp4";
             XmlManifestFileName = $"{ProjectCode}_{Barcode}.xml";
 
-            PresObjectFileModel = new ObjectFileModel(PreservationFileName);
-            PresIntObjectFileModel = new ObjectFileModel(PreservationIntermediateFileName);
-            ProdObjectFileModel = new ObjectFileModel(ProductionFileName);
-            AccessObjectFileModel = new ObjectFileModel(AccessFileName);
+            PresAbstractFile = FileModelFactory.GetModel(PreservationFileName);
+            PresIntAbstractFile = FileModelFactory.GetModel(PreservationIntermediateFileName);
+            ProdAbstractFile = FileModelFactory.GetModel(ProductionFileName);
+            AccessAbstractFile = FileModelFactory.GetModel(AccessFileName);
 
-            ModelList = new List<AbstractFileModel> {PresObjectFileModel};
+            ModelList = new List<AbstractFile> {PresAbstractFile};
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
@@ -113,11 +115,11 @@ namespace Packager.Test.Processors
                         NonNormalPresIntFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_001_presInt.wav";
                         NonNormalProductionFileName = $"{ProjectCode.ToLowerInvariant()}_{Barcode}_01_prod.wav";
 
-                        ModelList = new List<AbstractFileModel>
+                        ModelList = new List<AbstractFile>
                         {
-                            new ObjectFileModel(NonNormalPresFileName),
-                            new ObjectFileModel(NonNormalPresIntFileName),
-                            new ObjectFileModel(NonNormalProductionFileName)
+                            FileModelFactory.GetModel(NonNormalPresFileName),
+                            FileModelFactory.GetModel(NonNormalPresIntFileName),
+                            FileModelFactory.GetModel(NonNormalProductionFileName)
                         };
                     }
 
@@ -146,7 +148,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                            ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
                         }
 
                         [Test]
@@ -164,7 +166,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFileModel> {PresObjectFileModel, ProdObjectFileModel};
+                            ModelList = new List<AbstractFile> {PresAbstractFile, ProdAbstractFile};
                         }
 
                         [Test]
@@ -225,14 +227,14 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(model as ObjectFileModel, ExpectedMetadata);
+                        FFMPEGRunner.Received().Normalize(model as AbstractFile, ExpectedMetadata);
                     }
                 }
 
                 [Test]
                 public void ItShouldVerifyAllNormalizedFiles()
                 {
-                    FFMPEGRunner.Received().Verify(Arg.Is<List<ObjectFileModel>>(l => l.SequenceEqual(ModelList)));
+                    FFMPEGRunner.Received().Verify(Arg.Is<List<AbstractFile>>(l => l.SequenceEqual(ModelList)));
                 }
             }
 
@@ -241,7 +243,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallBextProcessorWithCorrectListOfFields()
                 {
-                    BextProcessor.Received().ClearMetadataFields(Arg.Any<List<ObjectFileModel>>(),
+                    BextProcessor.Received().ClearMetadataFields(Arg.Any<List<AbstractFile>>(),
                         Arg.Is<List<BextFields>>(
                             a => a.SequenceEqual(new List<BextFields> {BextFields.ISFT, BextFields.ITCH})));
                 }
@@ -261,14 +263,14 @@ namespace Packager.Test.Processors
 
             public class WhenCreatingDerivatives : WhenNothingGoesWrong
             {
-                private ObjectFileModel ExpectedMasterModel { get; set; }
+                private AbstractFile ExpectedMasterModel { get; set; }
                 private EmbeddedAudioMetadata ExpectedMetadata { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    ExpectedMasterModel = PresObjectFileModel;
+                    ExpectedMasterModel = PresAbstractFile;
                     ExpectedMetadata = new EmbeddedAudioMetadata();
                     AudioMetadataFactory.Generate(null, null, null).ReturnsForAnyArgs(ExpectedMetadata);
                 }
@@ -279,8 +281,8 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
-                        ExpectedMasterModel = PresIntObjectFileModel;
+                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ExpectedMasterModel = PresIntAbstractFile;
                     }
                 }
 
@@ -288,15 +290,15 @@ namespace Packager.Test.Processors
                 public void ItShouldCallMetadataFactoryWithProductionMasterAsTarget()
                 {
                     AudioMetadataFactory.Received()
-                        .Generate(Arg.Any<List<ObjectFileModel>>(),
-                            Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), Arg.Any<AudioPodMetadata>());
+                        .Generate(Arg.Any<List<AbstractFile>>(),
+                            Arg.Is<AbstractFile>(m => m.IsProductionVersion()), Arg.Any<AudioPodMetadata>());
                 }
 
                 [Test]
                 public void ItShouldCreateAccessFileFromProductionMaster()
                 {
                     FFMPEGRunner.Received()
-                        .CreateAccessDerivative(Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()));
+                        .CreateAccessDerivative(Arg.Is<AbstractFile>(m => m.IsProductionVersion()));
                 }
 
                 [Test]
@@ -304,7 +306,7 @@ namespace Packager.Test.Processors
                 {
                     FFMPEGRunner.Received()
                         .CreateProdOrMezzDerivative(ExpectedMasterModel,
-                            Arg.Is<ObjectFileModel>(m => m.IsProductionVersion()), ExpectedMetadata);
+                            Arg.Is<AbstractFile>(m => m.IsProductionVersion()), ExpectedMetadata);
                 }
             }
 
@@ -328,7 +330,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
                         ExpectedModelCount = 4; // pres master, presInt master, prod-master, access master
                     }
 
@@ -337,7 +339,7 @@ namespace Packager.Test.Processors
                     {
                         MetadataGenerator.Received().Generate(
                             Arg.Any<AudioPodMetadata>(),
-                            Arg.Is<List<ObjectFileModel>>(
+                            Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
                 }
@@ -367,7 +369,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.Count == ExpectedModelCount));
+                        Arg.Is<List<AbstractFile>>(l => l.Count == ExpectedModelCount));
                 }
 
                 [Test]
@@ -375,7 +377,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m=>m is AccessFile) !=null));
                 }
 
                 [Test]
@@ -383,7 +385,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is AudioPreservationFile) != null));
                 }
 
                 [Test]
@@ -391,7 +393,7 @@ namespace Packager.Test.Processors
                 {
                     MetadataGenerator.Received().Generate(
                         Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<ObjectFileModel>>(l => l.SingleOrDefault(m => m.IsProductionVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is ProductionFile) != null));
                 }
             }
 
@@ -402,17 +404,17 @@ namespace Packager.Test.Processors
                     base.BeforeEach();
 
                     ProcessedModelList =
-                        MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<ObjectFileModel>;
+                        MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<AbstractFile>;
                 }
 
-                private List<ObjectFileModel> ProcessedModelList { get; set; }
+                private List<AbstractFile> ProcessedModelList { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
-                    Hasher.Hash(Arg.Any<ObjectFileModel>())
-                        .Returns(x => Task.FromResult($"{x.Arg<ObjectFileModel>().ToFileName()} checksum"));
+                    Hasher.Hash(Arg.Any<AbstractFile>())
+                        .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().ToFileName()} checksum"));
                 }
 
                 [TestCase]
@@ -432,40 +434,40 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoAccessVersion()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(AccessFileName)).Checksum,
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(AccessFileName))).Checksum,
                         Is.EqualTo($"{AccessFileName} checksum"));
                 }
 
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoPreservationMaster()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(PreservationFileName)).Checksum,
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(PreservationFileName))).Checksum,
                         Is.EqualTo($"{PreservationFileName} checksum"));
                 }
 
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoProductionVersion()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(ProductionFileName)).Checksum,
+                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(ProductionFileName))).Checksum,
                         Is.EqualTo($"{ProductionFileName} checksum"));
                 }
 
                 [Test]
                 public void ItShouldCallHasherForAccessVersion()
                 {
-                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(AccessFileName)));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(AccessFileName))));
                 }
 
                 [Test]
                 public void ItShouldCallHasherForPreservationMaster()
                 {
-                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(PreservationFileName)));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(PreservationFileName))));
                 }
 
                 [Test]
                 public void ItShouldCallHasherForProductionVersion()
                 {
-                    Hasher.Received().Hash(Arg.Is<ObjectFileModel>(m => m.IsSameAs(ProductionFileName)));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(ProductionFileName))));
                 }
             }
 
@@ -488,7 +490,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFileModel> {PresObjectFileModel, PresIntObjectFileModel};
+                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
                         ExpectedFiles = 5; // prod master, pres master, presInt master, access, xml manifest
                     }
 

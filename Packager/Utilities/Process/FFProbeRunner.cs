@@ -39,12 +39,12 @@ namespace Packager.Utilities.Process
         [Required]
         public string VideoQualityControlArguments { get; }
 
-        public async Task<QualityControlFileModel> GenerateQualityControlFile(ObjectFileModel target)
+        public async Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target)
         {
             var sectionKey = Observers.BeginSection("Generating quality control file: {0}", target.ToFileName());
             try
             {
-                var qualityControlFile = new QualityControlFileModel(target);
+                var qualityControlFile = new QualityControlFile(target);
                 var targetDirectory = Path.Combine(BaseProcessingDirectory, target.GetFolderName());
 
                 var targetPath = Path.Combine(targetDirectory, target.ToFileName());

@@ -7,7 +7,7 @@ namespace Packager.Utilities.Process
     {
         string FFProbePath { get; }
         string VideoQualityControlArguments { get; }
-        Task<QualityControlFileModel> GenerateQualityControlFile(ObjectFileModel target);
+        Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target);
 
         Task<string> GetVersion();
     }

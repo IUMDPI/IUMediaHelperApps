@@ -7,7 +7,7 @@ namespace Packager.Factories
 {
     public interface IIngestDataFactory
     {
-        AudioIngest Generate(AudioPodMetadata podMetadata, AbstractFileModel masterFileModel);
-        VideoIngest Generate(VideoPodMetadata podMetadata, AbstractFileModel masterFileModel);
+        AudioIngest Generate(AudioPodMetadata podMetadata, AbstractFile masterFileModel);
+        VideoIngest Generate(VideoPodMetadata podMetadata, AbstractFile masterFileModel);
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
@@ -56,20 +57,20 @@ namespace Packager.Test.Processors
         protected string ProductionFileName { get; set; }
         protected string AccessFileName { get; set; }
 
-        protected ObjectFileModel PresObjectFileModel { get; set; }
-        protected ObjectFileModel ProdObjectFileModel { get; set; }
-        protected ObjectFileModel PresIntObjectFileModel { get; set; }
-        protected ObjectFileModel AccessObjectFileModel { get; set; }
+        protected AbstractFile PresAbstractFile { get; set; }
+        protected AbstractFile ProdAbstractFile { get; set; }
+        protected AbstractFile PresIntAbstractFile { get; set; }
+        protected AbstractFile AccessAbstractFile { get; set; }
 
         protected string XmlManifestFileName { get; set; }
 
         public ValidationResult Result { get; set; }
 
-        protected List<AbstractFileModel> ModelList { get; set; }
+        protected List<AbstractFile> ModelList { get; set; }
 
         protected abstract void DoCustomSetup();
 
-        protected IGrouping<string, AbstractFileModel> GetGrouping(IEnumerable<AbstractFileModel> models)
+        protected IGrouping<string, AbstractFile> GetGrouping(IEnumerable<AbstractFile> models)
         {
             return models.GroupBy(m => m.BarCode).First();
         }
@@ -85,16 +86,15 @@ namespace Packager.Test.Processors
             ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
 
             AudioMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
-            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(), Arg.Any<ObjectFileModel>(),
-                Arg.Any<AudioPodMetadata>())
+            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(), Arg.Any<AbstractFile>(),Arg.Any<AudioPodMetadata>())
                 .Returns(new EmbeddedAudioMetadata());
 
             VideoMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<VideoPodMetadata>>();
-            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(),
-                Arg.Is<ObjectFileModel>(a => a.IsMezzanineVersion()), Arg.Any<VideoPodMetadata>())
+            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(),
+                Arg.Is<AbstractFile>(a => a.IsMezzanineVersion()), Arg.Any<VideoPodMetadata>())
                 .Returns(new EmbeddedVideoMezzanineMetadata());
-            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<ObjectFileModel>>(),
-                Arg.Is<ObjectFileModel>(a => a.IsPreservationVersion() || a.IsPreservationIntermediateVersion()),
+            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(),
+                Arg.Is<AbstractFile>(a => a.IsPreservationVersion() || a.IsPreservationIntermediateVersion()),
                 Arg.Any<VideoPodMetadata>())
                 .Returns(new EmbeddedVideoPreservationMetadata());
 
@@ -109,8 +109,8 @@ namespace Packager.Test.Processors
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFProbeRunner = Substitute.For<IFFProbeRunner>();
-            FFProbeRunner.GenerateQualityControlFile(Arg.Any<ObjectFileModel>())
-                .Returns(a => Task.FromResult(new QualityControlFileModel(a.Arg<ObjectFileModel>())));
+            FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>())
+                .Returns(a => Task.FromResult(new QualityControlFile(a.Arg<AbstractFile>())));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);

@@ -16,7 +16,7 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public AudioCarrier Generate(AudioPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        public AudioCarrier Generate(AudioPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
             var result = new AudioCarrier
             {
@@ -48,7 +48,7 @@ namespace Packager.Factories
             return result;
         }
 
-        public VideoCarrier Generate(VideoPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        public VideoCarrier Generate(VideoPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
             var result = new VideoCarrier
             {
@@ -73,7 +73,7 @@ namespace Packager.Factories
             return result;
         }
 
-        private PartsData GeneratePartsData(AudioPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
+        private PartsData GeneratePartsData(AudioPodMetadata metadata, IEnumerable<AbstractFile> filesToProcess)
         {
             return new PartsData
             {
@@ -82,7 +82,7 @@ namespace Packager.Factories
             };
         }
 
-        private PartsData GeneratePartsData(VideoPodMetadata metadata, IEnumerable<ObjectFileModel> filesToProcess)
+        private PartsData GeneratePartsData(VideoPodMetadata metadata, IEnumerable<AbstractFile> filesToProcess)
         {
             return new PartsData
             {

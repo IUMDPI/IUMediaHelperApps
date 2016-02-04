@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Packager.Factories;
 using Packager.Models.FileModels;
 
 namespace Packager.Test.Models.FileModels
@@ -7,32 +7,23 @@ namespace Packager.Test.Models.FileModels
     [TestFixture]
     public class FileModelFactoryTests
     {
-        private const string WavExtension = ".wav";
-        private const string Mp4Extension = ".mp4";
         private const string WavFileName = "mdpi_4890764553278906_01_pres.wav";
-        private const string Mp4FileName = "mdpi_5890764553278906_01_pres.mp4";
+        private const string Mp4FileName = "mdpi_5890764553278906_01_pres.mkv";
         private const string UnknownFilename = "unknown.txt";
-        private FileModelFactory _factory;
-
-        [SetUp]
-        public void BeforeEach()
-        {
-            _factory = new FileModelFactory(new List<string> {WavExtension, Mp4Extension});
-        }
 
         [TestCase(WavFileName)]
         [TestCase(Mp4FileName)]
         public void ShouldGenerateCorrectModelForObjectFiles(string filename)
         {
-            var result = _factory.GetModel(filename);
-            Assert.That(result as ObjectFileModel, Is.Not.Null);
+            var result = FileModelFactory.GetModel(filename);
+            Assert.That(result, Is.Not.Null);
         }
-        
+
         [Test]
-        public void ShouldAssignUnknownFileModelToOtherFileExtensions()
+        public void ShouldAssignRawObectFileModelToOtherFileExtensions()
         {
-            var result = _factory.GetModel(UnknownFilename);
-            Assert.That(result as UnknownFileModel, Is.Not.Null);
+            var result = FileModelFactory.GetModel(UnknownFilename);
+            Assert.That(result as UnknownFile, Is.Not.Null);
         }
     }
 }

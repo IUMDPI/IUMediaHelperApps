@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
-using Packager.Utilities;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Process;
 
@@ -18,9 +18,9 @@ namespace Packager.Test.Utilities
         [SetUp]
         public virtual void BeforeEach()
         {
-            ProductionFileModel = new ObjectFileModel(ProductionFileName);
-            PreservationFileModel = new ObjectFileModel(PreservationFileName);
-            PreservationIntermediateFileModel = new ObjectFileModel(PreservationIntermediateFileName);
+            ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
+            PreservationFileModel = FileModelFactory.GetModel(PreservationFileName);
+            PreservationIntermediateFileModel = FileModelFactory.GetModel(PreservationIntermediateFileName);
 
             ProcessRunner = Substitute.For<IProcessRunner>();
             ProcessRunner.Run(null).ReturnsForAnyArgs(x =>
@@ -30,7 +30,12 @@ namespace Packager.Test.Utilities
                 return Task.FromResult(result);
             });
 
-            Instances = new List<ObjectFileModel> {PreservationFileModel, PreservationIntermediateFileModel, ProductionFileModel};
+            Instances = new List<AbstractFile>
+            {
+                PreservationFileModel,
+                PreservationIntermediateFileModel,
+                ProductionFileModel
+            };
         }
 
         private const string BwfMetaEditPath = "bwfmetaedit.exe";
@@ -42,11 +47,11 @@ namespace Packager.Test.Utilities
 
         private IProcessRunner ProcessRunner { get; set; }
 
-        private ObjectFileModel ProductionFileModel { get; set; }
-        private ObjectFileModel PreservationFileModel { get; set; }
-        private ObjectFileModel PreservationIntermediateFileModel { get; set; }
+        private AbstractFile ProductionFileModel { get; set; }
+        private AbstractFile PreservationFileModel { get; set; }
+        private AbstractFile PreservationIntermediateFileModel { get; set; }
 
-        private List<ObjectFileModel> Instances { get; set; }
+        private List<AbstractFile> Instances { get; set; }
 
         private ProcessStartInfo StartInfo { get; set; }
 

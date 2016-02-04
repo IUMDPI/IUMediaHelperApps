@@ -7,12 +7,12 @@ namespace Packager.Test.Models.FileModels
     {
         private const string Filename = "MDPI_4890764553278906_01_pres.mkv";
 
-        private QualityControlFileModel Model { get; set; }
+        private QualityControlFile Model { get; set; }
 
         [SetUp]
         public void BeforeEach()
         {
-            Model = new QualityControlFileModel(new ObjectFileModel(Filename));
+            Model = new QualityControlFile(new UnknownFile(Filename));
         }
 
         [Test]

@@ -69,15 +69,15 @@ namespace Packager.Processors
 
         protected  abstract string OriginalsDirectory { get; }
 
-        public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
+        public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> fileModels)
         {
             Barcode = fileModels.Key;
 
             var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
-                // figure out what files we need to touch
-                var filesToProcess = GetFilesToProcess(fileModels);
+                // convert grouping to simple list
+                var filesToProcess = fileModels.ToList();
 
                 // now move them to processing
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess);
@@ -102,17 +102,8 @@ namespace Packager.Processors
                 return new ValidationResult(e.GetBaseMessage());
             }
         }
-
-        private static List<ObjectFileModel> GetFilesToProcess(IEnumerable<AbstractFileModel> fileModels)
-        {
-            return fileModels
-                .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel) m)
-                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion() || m.IsMezzanineVersion())
-                .ToList();
-        }
-
-        protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
+        
+        protected abstract Task<IEnumerable<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess);
         
         private async Task MoveToSuccessFolder()
         {
@@ -154,7 +145,7 @@ namespace Packager.Processors
             return preferredPath;
         }
 
-        private async Task CopyToDropbox(IEnumerable<AbstractFileModel> fileList)
+        private async Task CopyToDropbox(IEnumerable<AbstractFile> fileList)
         {
             var sectionKey = Observers.BeginSection("Copying objects to dropbox");
             try
@@ -198,7 +189,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<ObjectFileModel> filesToProcess)
+        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<AbstractFile> filesToProcess)
         {
             var sectionKey = Observers.BeginSection("Initializing");
             try
@@ -215,7 +206,7 @@ namespace Packager.Processors
 
                 foreach (var fileModel in filesToProcess)
                 {
-                    Observers.Log("Moving originals to processing: {0}", fileModel.OriginalFileName);
+                    Observers.Log("Moving originals to processing: {0}", fileModel.ToFileName());
                     await MoveOriginalToProcessing(fileModel);
                 }
 
@@ -229,10 +220,10 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<string> MoveOriginalToProcessing(AbstractFileModel fileModel)
+        private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel)
         {
-            var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
-            var targetPath = Path.Combine(OriginalsDirectory, fileModel.ToFileName()); // ToFileName will normalize the filename when we move the file
+            var sourcePath = Path.Combine(InputDirectory, fileModel.ToFileName());
+            var targetPath = Path.Combine(OriginalsDirectory, fileModel.ToFileName()); 
 
             if (FileProvider.FileExists(targetPath))
             {
@@ -243,7 +234,7 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected async Task<T> GetMetadata<T>(List<ObjectFileModel> filesToProcess) where T : AbstractPodMetadata, new()
+        protected async Task<T> GetMetadata<T>(List<AbstractFile> filesToProcess) where T : AbstractPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try

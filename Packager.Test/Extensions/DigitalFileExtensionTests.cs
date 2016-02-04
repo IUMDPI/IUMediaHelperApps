@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Packager.Extensions;
-using Packager.Models.FileModels;
+using Packager.Factories;
 using Packager.Models.PodMetadataModels;
 
 namespace Packager.Test.Extensions
@@ -17,8 +17,8 @@ namespace Packager.Test.Extensions
             const string fileName1 = fileName1WithoutExtension + ".wav";
             const string fileName2 = fileName2WithoutExtension + ".wav";
 
-            var model1 = new ObjectFileModel(fileName1);
-            var model2 = new ObjectFileModel(fileName2);
+            var model1 = FileModelFactory.GetModel(fileName1);
+            var model2 = FileModelFactory.GetModel(fileName2);
 
             var provenances = new List<DigitalAudioFile>
             {
@@ -36,8 +36,8 @@ namespace Packager.Test.Extensions
             const string fileName1 = "test_1111_01_pres.wav";
             const string fileName2 = "test_1111_01_prod.wav";
 
-            var model1 = new ObjectFileModel(fileName1);
-            var model2 = new ObjectFileModel(fileName2);
+            var model1 = FileModelFactory.GetModel(fileName1);
+            var model2 = FileModelFactory.GetModel(fileName2);
 
             var provenances = new List<DigitalAudioFile>
             {
@@ -55,7 +55,7 @@ namespace Packager.Test.Extensions
             const string fileName1 = "test_1111_01_pres.wav";
             const string fileName2 = "test_1111_01_prod.wav";
 
-            var model2 = new ObjectFileModel(fileName2);
+            var model2 = FileModelFactory.GetModel(fileName2);
 
             var provenances = new List<DigitalAudioFile>
             {

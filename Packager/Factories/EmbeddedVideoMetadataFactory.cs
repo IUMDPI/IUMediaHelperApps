@@ -1,3 +1,4 @@
+using Packager.Extensions;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -6,7 +7,7 @@ namespace Packager.Factories
 {
     public class EmbeddedVideoMetadataFactory : AbstractEmbeddedMetadataFactory<VideoPodMetadata>
     {
-        protected override AbstractEmbeddedMetadata Generate(ObjectFileModel model, AbstractDigitalFile provenance, VideoPodMetadata metadata)
+        protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, VideoPodMetadata metadata)
         {
             return model.IsMezzanineVersion()
                 ? GetForUse<EmbeddedVideoMezzanineMetadata>(model, provenance, metadata)
@@ -14,7 +15,7 @@ namespace Packager.Factories
         }
 
 
-        private static AbstractEmbeddedMetadata GetForUse<T>(ObjectFileModel model, AbstractDigitalFile provenance, VideoPodMetadata metadata) where T : AbstractEmbeddedVideoMetadata, new()
+        private static AbstractEmbeddedMetadata GetForUse<T>(AbstractFile model, AbstractDigitalFile provenance, VideoPodMetadata metadata) where T : AbstractEmbeddedVideoMetadata, new()
         {
             return new T
             {

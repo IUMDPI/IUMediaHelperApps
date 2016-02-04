@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models;
 using Packager.Models.EmbeddedMetadataModels;
@@ -71,10 +72,14 @@ namespace Packager.Test.Mocks
             if (ffmpegRunner == null)
             {
                 ffmpegRunner = Substitute.For<IFFMPEGRunner>();
-                ffmpegRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
-                ffmpegRunner.CreateProdOrMezzDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<EmbeddedAudioMetadata>())
-                    .Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
+                ffmpegRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
+                    .Returns(a=> Task.FromResult((AbstractFile)new AccessFile(a.Arg<AbstractFile>())));
+                    
+                ffmpegRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>())
+                    .Returns(a => new AccessFile(a.Arg<AbstractFile>()));
             }
+
+
 
             var result = Substitute.For<IDependencyProvider>();
 
@@ -88,6 +93,21 @@ namespace Packager.Test.Mocks
             result.ValidatorCollection.Returns(validators);
             result.AudioFFMPEGRunner.Returns(ffmpegRunner);
             return result;
+        }
+
+        private static Task<AccessFile> GetFakeAccessDerivative(AbstractFile original)
+        {
+            return Task.FromResult(new AccessFile(original));
+        }
+
+        private static Task<ProductionFile> GetFakeProdDerivative(AbstractFile original)
+        {
+            return Task.FromResult(new ProductionFile(original));
+        }
+
+        private static Task<MezzanineFile> GetFakeMezzDerivative(AbstractFile original)
+        {
+            return Task.FromResult(new MezzanineFile(original));
         }
     }
 }

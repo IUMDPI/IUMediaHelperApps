@@ -8,7 +8,7 @@ namespace Packager.Factories
 {
     public interface ICarrierDataFactory
     {
-        AudioCarrier Generate(AudioPodMetadata excelModel, List<ObjectFileModel> filesToProcess);
-        VideoCarrier Generate(VideoPodMetadata excelModel, List<ObjectFileModel> filesToProcess);
+        AudioCarrier Generate(AudioPodMetadata excelModel, List<AbstractFile> filesToProcess);
+        VideoCarrier Generate(VideoPodMetadata excelModel, List<AbstractFile> filesToProcess);
     }
 }

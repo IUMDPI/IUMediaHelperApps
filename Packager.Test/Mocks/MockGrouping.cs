@@ -4,7 +4,7 @@ using Packager.Models.FileModels;
 
 namespace Packager.Test.Mocks
 {
-    public class MockFileGrouping : List<AbstractFileModel>, IGrouping<string, AbstractFileModel>
+    public class MockFileGrouping : List<AbstractFile>, IGrouping<string, AbstractFile>
     {
         public string Key { get; set; }
     }

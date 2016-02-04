@@ -29,7 +29,7 @@ namespace Packager.Models.PodMetadataModels
         public string Repaired { get; set; }
         public string PlaybackSpeed { get; set; }
 
-        [Required]
+        //[Required]
         public string DigitizingEntity { get; set; }
 
         public string Damage { get; set; }
@@ -39,7 +39,7 @@ namespace Packager.Models.PodMetadataModels
         public string Comments { get; set; }
         public bool Success { get; set; }
         public string Message { get; set; }
-        
+
         public virtual void ImportFromXml(XElement element, IImportableFactory factory)
         {
             Success = factory.ToBooleanValue(element, "success");
@@ -60,19 +60,11 @@ namespace Packager.Models.PodMetadataModels
             PreservationProblems = factory.ToStringValue(element, "data/preservation_problems");
             PlaybackSpeed = factory.ToStringValue(element, "data/playback_speed");
             // process each digital_file_provenance node
-            FileProvenances = ImportFileProvenances(element,
-                "data/digital_files/digital_file_provenance",
-                factory);
-
-            NormalizeFileProvenances();
+            FileProvenances = ImportFileProvenances(element, "data/digital_files/digital_file_provenance", factory);
         }
-
 
         // method is abstract; implemented in derived classes
         protected abstract List<AbstractDigitalFile> ImportFileProvenances(XElement element, string path,
             IImportableFactory factory);
-
-        protected abstract void NormalizeFileProvenances();
-
     }
 }

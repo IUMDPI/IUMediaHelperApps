@@ -7,6 +7,6 @@ namespace Packager.Factories
 {
     public interface IEmbeddedMetadataFactory<in T> where T : AbstractPodMetadata
     {
-        AbstractEmbeddedMetadata Generate(IEnumerable<ObjectFileModel> models, ObjectFileModel target, T metadata);
+        AbstractEmbeddedMetadata Generate(IEnumerable<AbstractFile> models, AbstractFile target, T metadata);
     }
 }

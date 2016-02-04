@@ -9,6 +9,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
@@ -43,7 +44,7 @@ namespace Packager.Test.Utilities
             ProcessRunnerResult.ExitCode.Returns(0);
             ProcessRunnerResult.StandardError.Returns(OutputBuffer);
 
-            MasterFileModel = new ObjectFileModel(MasterFileName);
+            MasterFileModel = FileModelFactory.GetModel(MasterFileName);
 
             ProcessRunner = Substitute.For<IProcessRunner>();
 
@@ -69,14 +70,14 @@ namespace Packager.Test.Utilities
         private const string MasterFileName = "MDPI_123456789_01_pres.wav";
 
         private const string StandardErrorOutput = "Standard error output";
-        private ObjectFileModel MasterFileModel { get; set; }
+        private AbstractFile MasterFileModel { get; set; }
 
         private IOutputBuffer OutputBuffer { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
         private IObserverCollection Observers { get; set; }
         private IFileProvider FileProvider { get; set; }
         private AudioFFMPEGRunner Runner { get; set; }
-        private ObjectFileModel Result { get; set; }
+        private AbstractFile Result { get; set; }
         private IProcessResult ProcessRunnerResult { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
 
@@ -180,9 +181,9 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
-                ProductionFileModel = new ObjectFileModel(ProductionFileName);
+                ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
 
-                Originals = new List<ObjectFileModel>
+                Originals = new List<AbstractFile>
                 {
                     ProductionFileModel,
                     PreservationFileModel
@@ -201,12 +202,12 @@ namespace Packager.Test.Utilities
                     PreservationFileModel.GetFolderName(), MasterFileName)).Returns(true);
             }
 
-            private List<ObjectFileModel> Originals { get; set; }
+            private List<AbstractFile> Originals { get; set; }
 
             private const string ProductionFileName = "MDPI_123456789_01_prod.wav";
 
-            private ObjectFileModel ProductionFileModel { get; set; }
-            private ObjectFileModel PreservationFileModel => MasterFileModel;
+            private AbstractFile ProductionFileModel { get; set; }
+            private AbstractFile PreservationFileModel => MasterFileModel;
 
 
             public class WhenThingsGoWell : WhenNormalizingOriginals
@@ -337,7 +338,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    Originals = new List<ObjectFileModel> {PreservationFileModel};
+                    Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make file provider report that original does not exist
                     FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
@@ -376,9 +377,9 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
-                ProductionFileModel = new ObjectFileModel(ProductionFileName);
+                ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
 
-                Originals = new List<ObjectFileModel>
+                Originals = new List<AbstractFile>
                 {
                     ProductionFileModel,
                     PreservationFileModel
@@ -411,12 +412,12 @@ namespace Packager.Test.Utilities
                     PreservationFileModel.GetFolderName(), PreservationFileModel.ToFrameMd5Filename())).Returns(false);
             }
 
-            public List<ObjectFileModel> Originals { get; set; }
+            public List<AbstractFile> Originals { get; set; }
 
             private const string ProductionFileName = "MDPI_123456789_01_prod.wav";
 
-            private ObjectFileModel ProductionFileModel { get; set; }
-            private ObjectFileModel PreservationFileModel => MasterFileModel;
+            private AbstractFile ProductionFileModel { get; set; }
+            private AbstractFile PreservationFileModel => MasterFileModel;
 
             public class WhenThingsGoWell : WhenVerifyingNormalizedVersions
             {
@@ -580,7 +581,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    Originals = new List<ObjectFileModel> {PreservationFileModel};
+                    Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make hasher return different values
                     Hasher.Hash(Arg.Any<string>()).Returns(x => Task.FromResult(x.Arg<string>()));
@@ -616,7 +617,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    Originals = new List<ObjectFileModel> {PreservationFileModel};
+                    Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make file provider report that file does not exist
                     FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
@@ -650,14 +651,14 @@ namespace Packager.Test.Utilities
         
         public class WhenGeneratingDerivatives : FFMPEGRunnerTests
         {
-            private ObjectFileModel DerivativeFileModel { get; set; }
+            private AbstractFile DerivativeFileModel { get; set; }
 
             public class WhenGeneratingAccessDerivatives : WhenGeneratingDerivatives
             {
                 public override async void BeforeEach()
                 {
                     base.BeforeEach();
-                    DerivativeFileModel = MasterFileModel.ToProductionFileModel().ToAudioAccessFileModel();
+                    DerivativeFileModel = new AccessFile(new ProductionFile( MasterFileModel));
 
                     ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
                     {
@@ -665,7 +666,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    Result = await Runner.CreateAccessDerivative(MasterFileModel.ToProductionFileModel());
+                    Result = await Runner.CreateAccessDerivative(new ProductionFile(MasterFileModel));
                 }
 
                 private const string AccessDerivativeFileName = "MDPI_123456789_01_access.mp4";
@@ -738,7 +739,7 @@ namespace Packager.Test.Utilities
                 public override void BeforeEach()
                 {
                     base.BeforeEach();
-                    DerivativeFileModel = MasterFileModel.ToProductionFileModel();
+                    DerivativeFileModel = new ProductionFile(MasterFileModel);
                 }
 
                 private const string ProdDerivativeFileName = "MDPI_123456789_01_prod.wav";
@@ -884,7 +885,7 @@ namespace Packager.Test.Utilities
                         public void ItShouldTestThatTargetDoesNotExists()
                         {
                             var path = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(),
-                                MasterFileModel.ToProductionFileModel().ToFileName());
+                                new ProductionFile(MasterFileModel).ToFileName());
 
                             FileProvider.Received().FileExists(path);
                         }
@@ -902,7 +903,7 @@ namespace Packager.Test.Utilities
                     [Test]
                     public void ItShouldReturnCorrectResult()
                     {
-                        Assert.That(DerivativeFileModel.IsSameAs(Result.ToFileName()));
+                        Assert.That(DerivativeFileModel.IsSameAs(Result));
                     }
                 }
             }
@@ -912,7 +913,7 @@ namespace Packager.Test.Utilities
                 public override void BeforeEach()
                 {
                     base.BeforeEach();
-                    DerivativeFileModel = MasterFileModel.ToProductionFileModel();
+                    DerivativeFileModel = new ProductionFile(MasterFileModel);
                 }
 
                 private LoggedException FinalException { get; set; }
@@ -950,7 +951,7 @@ namespace Packager.Test.Utilities
                     public override void BeforeEach()
                     {
                         base.BeforeEach();
-                        DerivativeFileModel = MasterFileModel.ToProductionFileModel();
+                        DerivativeFileModel = new ProductionFile(MasterFileModel);
                         Exception = new Exception("testing");
                         ProcessRunner.WhenForAnyArgs(x => x.Run(null)).Do(x => { throw Exception; });
                         FinalException =

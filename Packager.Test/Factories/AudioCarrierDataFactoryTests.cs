@@ -17,9 +17,9 @@ namespace Packager.Test.Factories
         {
             ProcessingDirectory = "test folder";
 
-            PreservationSide1FileModel = new ObjectFileModel(PreservationSide1FileName);
-            ProductionSide1FileModel = new ObjectFileModel(ProductionSide1FileName);
-            AccessSide1FileModel = new ObjectFileModel(AccessSide1FileName);
+            PreservationSide1FileModel = FileModelFactory.GetModel(PreservationSide1FileName);
+            ProductionSide1FileModel = FileModelFactory.GetModel(ProductionSide1FileName);
+            AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
 
             PodMetadata = new AudioPodMetadata
             {
@@ -42,7 +42,7 @@ namespace Packager.Test.Factories
 
             SideDataFactory = Substitute.For<ISideDataFactory>();
 
-            FilesToProcess = new List<ObjectFileModel>
+            FilesToProcess = new List<AbstractFile>
             {
                 PreservationSide1FileModel,
                 ProductionSide1FileModel,
@@ -57,11 +57,11 @@ namespace Packager.Test.Factories
         private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
         private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
 
-        private ObjectFileModel PreservationSide1FileModel { get; set; }
-        private ObjectFileModel ProductionSide1FileModel { get; set; }
-        private ObjectFileModel AccessSide1FileModel { get; set; }
+        private AbstractFile PreservationSide1FileModel { get; set; }
+        private AbstractFile ProductionSide1FileModel { get; set; }
+        private AbstractFile AccessSide1FileModel { get; set; }
         private string ProcessingDirectory { get; set; }
-        private List<ObjectFileModel> FilesToProcess { get; set; }
+        private List<AbstractFile> FilesToProcess { get; set; }
         private AudioPodMetadata PodMetadata { get; set; }
         private ISideDataFactory SideDataFactory { get; set; }
         private AudioCarrier Result { get; set; }

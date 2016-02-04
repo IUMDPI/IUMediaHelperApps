@@ -33,7 +33,7 @@ namespace Packager.Processors
 
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
-        protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
+        protected override async Task<IEnumerable<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<AudioPodMetadata>(filesToProcess);
@@ -46,7 +46,7 @@ namespace Packager.Processors
 
             // create list of files to process and add the original files that
             // we know about
-            var processedList = new List<ObjectFileModel>().Concat(filesToProcess)
+            var processedList = new List<AbstractFile>().Concat(filesToProcess)
                 .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
 
             // next group by sequence
@@ -69,13 +69,13 @@ namespace Packager.Processors
             // make the xml file
             var xmlModel = await GenerateXml(metadata, processedList);
 
-            var outputList = new List<AbstractFileModel>().Concat(processedList).ToList();
+            var outputList = new List<AbstractFile>().Concat(processedList).ToList();
             outputList.Add(xmlModel);
 
             return outputList;
         }
         
-        private async Task NormalizeOriginals(List<ObjectFileModel> originals, AudioPodMetadata podMetadata)
+        private async Task NormalizeOriginals(List<AbstractFile> originals, AudioPodMetadata podMetadata)
         {
             foreach (var original in originals)
             {
@@ -84,14 +84,14 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, AudioPodMetadata podMetadata)
+        private async Task<List<AbstractFile>> CreateProductionDerivatives(List<AbstractFile> models, AudioPodMetadata podMetadata)
         {
-            var results = new List<ObjectFileModel>();
+            var results = new List<AbstractFile>();
             foreach (var master in models
                 .GroupBy(m => m.SequenceIndicator)
                 .Select(g => g.GetPreservationOrIntermediateModel()))
             {
-                var derivative = master.ToProductionFileModel();
+                var derivative = new ProductionFile(master);
                 var metadata = AudioMetadataFactory.Generate(models, derivative, podMetadata);
                 results.Add(await FFPMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
             }
@@ -99,9 +99,9 @@ namespace Packager.Processors
             return results;
         }
 
-        private async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
+        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models)
         {
-            var results = new List<ObjectFileModel>();
+            var results = new List<AbstractFile>();
 
             // for each production master, create an access version
             foreach (var model in models.Where(m => m.IsProductionVersion()))
@@ -111,7 +111,7 @@ namespace Packager.Processors
             return results;
         }
 
-        private async Task ClearMetadataDataFields(List<ObjectFileModel> instances, List<BextFields> fieldsToClear)
+        private async Task ClearMetadataDataFields(List<AbstractFile> instances, List<BextFields> fieldsToClear)
         {
             var sectionKey = Observers.BeginSection("Clearing metadata fields");
             try
@@ -127,9 +127,9 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFileModel> GenerateXml(AudioPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        private async Task<XmlFile> GenerateXml(AudioPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
-            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode};
+            var result = new XmlFile(Barcode, ProjectCode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
             try
             {
@@ -149,7 +149,7 @@ namespace Packager.Processors
             }
         }
 
-        protected async Task AssignChecksumValues(IEnumerable<ObjectFileModel> models)
+        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
         {
             foreach (var model in models)
             {

@@ -17,7 +17,7 @@ namespace Packager.Test.Factories
         private const string GoodFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string MissingFileName = "MDPI_111111111111_01_pres.wav";
         private AudioPodMetadata PodMetadata { get; set; }
-        private AbstractFileModel FileModel { get; set; }
+        private AbstractFile FileModel { get; set; }
         private DigitalAudioFile Provenance { get; set; }
         private AudioIngest Result { get; set; }
 
@@ -69,7 +69,7 @@ namespace Packager.Test.Factories
             [SetUp]
             public void BeforeEach()
             {
-                FileModel = new ObjectFileModel(MissingFileName);
+                FileModel = FileModelFactory.GetModel(MissingFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 PodMetadata = new AudioPodMetadata
@@ -93,7 +93,7 @@ namespace Packager.Test.Factories
             [SetUp]
             public void BeforeEach()
             {
-                FileModel = new ObjectFileModel(GoodFileName);
+                FileModel = FileModelFactory.GetModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 Provenance.DateDigitized = null;
@@ -120,7 +120,7 @@ namespace Packager.Test.Factories
             [SetUp]
             public void BeforeEach()
             {
-                FileModel = new ObjectFileModel(GoodFileName);
+                FileModel = FileModelFactory.GetModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 PodMetadata = new AudioPodMetadata

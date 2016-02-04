@@ -25,7 +25,7 @@ namespace Packager.Utilities.Bext
         private IObserverCollection Observers { get; }
         private IBwfMetaEditResultsVerifier Verifier { get; }
 
-        public async Task ClearMetadataFields(List<ObjectFileModel> instances, List<BextFields> fields)
+        public async Task ClearMetadataFields(List<AbstractFile> instances, List<BextFields> fields)
         {
             foreach (var instance in instances)
             {

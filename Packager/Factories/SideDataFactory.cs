@@ -18,7 +18,7 @@ namespace Packager.Factories
 
         private IIngestDataFactory IngestDataFactory { get; }
 
-        public SideData[] Generate(AudioPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        public SideData[] Generate(AudioPodMetadata podMetadata, IEnumerable<AbstractFile> filesToProcess)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -35,7 +35,7 @@ namespace Packager.Factories
             }).ToArray();
         }
 
-        public SideData[] Generate(VideoPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        public SideData[] Generate(VideoPodMetadata podMetadata, IEnumerable<AbstractFile> filesToProcess)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -53,7 +53,7 @@ namespace Packager.Factories
             }).ToArray();
         }
 
-        private static File GetFileData(ObjectFileModel model)
+        private static File GetFileData(AbstractFile model)
         {
             return new File
             {

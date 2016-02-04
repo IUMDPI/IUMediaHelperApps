@@ -14,12 +14,12 @@ namespace Packager.Utilities.Process
 
         Task<string> GetFFMPEGVersion();
 
-        Task Normalize(ObjectFileModel original, AbstractEmbeddedMetadata metadata);
+        Task Normalize(AbstractFile original, AbstractEmbeddedMetadata metadata);
 
-        Task Verify(List<ObjectFileModel> originals);
+        Task Verify(List<AbstractFile> originals);
 
-        Task<ObjectFileModel> CreateProdOrMezzDerivative(ObjectFileModel original, ObjectFileModel target, AbstractEmbeddedMetadata metadata);
+        Task<AbstractFile> CreateProdOrMezzDerivative(AbstractFile original, AbstractFile target, AbstractEmbeddedMetadata metadata);
 
-        Task<ObjectFileModel> CreateAccessDerivative(ObjectFileModel original);
+        Task<AbstractFile> CreateAccessDerivative(AbstractFile original);
     }
 }

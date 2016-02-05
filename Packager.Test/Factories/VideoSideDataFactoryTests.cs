@@ -32,13 +32,13 @@ namespace Packager.Test.Factories
             PreservationSide2FileModel.Checksum = "pres 2 hash";
 
             ProductionSide2FileModel = FileModelFactory.GetModel(MezzanineSide2FileName);
-            ProductionSide1FileModel.Checksum = "prod 2 hash";
+            ProductionSide2FileModel.Checksum = "prod 2 hash";
 
             AccessSide2FileModel = FileModelFactory.GetModel(AccessSide2FileName);
-            AccessSide1FileModel.Checksum = "access 2 hash";
+            AccessSide2FileModel.Checksum = "access 2 hash";
 
             PreservationIntermediateSide1FileModel = FileModelFactory.GetModel(PreservationIntermediateSide1FileName);
-            PreservationSide1FileModel.Checksum = "presInt 1 hash";
+            PreservationIntermediateSide1FileModel.Checksum = "presInt 1 hash";
 
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
             IngestDataFactory.Generate((VideoPodMetadata)null, null).ReturnsForAnyArgs(new VideoIngest());
@@ -53,7 +53,7 @@ namespace Packager.Test.Factories
 
         private const string PreservationIntermediateSide1FileName = "MDPI_4890764553278906_01_presInt.mkv";
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.mkv";
-        private const string MezzanineSide1FileName = "MDPI_4890764553278906_01_mezz.mezz";
+        private const string MezzanineSide1FileName = "MDPI_4890764553278906_01_mezz.mov";
         private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
         private const string PreservationSide2FileName = "MDPI_4890764553278906_02_pres.wav";
         private const string MezzanineSide2FileName = "MDPI_4890764553278906_02_mezz.mov";

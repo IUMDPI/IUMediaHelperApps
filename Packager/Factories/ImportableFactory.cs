@@ -13,8 +13,7 @@ namespace Packager.Factories
     {
         T ToImportable<T>(XElement element);
         string ToStringValue(XElement parent, string path, string appendIfPresent = "");
-        DateTime? ToUtcDateTimeValue(XElement parent, string path);
-        DateTime? ToLocalDateTimeValue(XElement parent, string path);
+        DateTime? ToDateTimeValue(XElement parent, string path);
         bool ToBooleanValue(XElement parent, string path);
         string ResolveTrackConfiguration(XElement element, string path);
         string ResolveTapeThickness(XElement element, string path);
@@ -35,7 +34,7 @@ namespace Packager.Factories
 
         private ILookupsProvider LookupsProvider { get; }
 
-        public DateTime? ToLocalDateTimeValue(XElement parent, string path)
+        public DateTime? ToDateTimeValue(XElement parent, string path)
         {
             var value = ToStringValue(parent, path);
             if (string.IsNullOrWhiteSpace(value))
@@ -124,24 +123,7 @@ namespace Packager.Factories
                 ? string.Empty
                 : element.Value.AppendIfValuePresent(appendIfPresent);
         }
-
-        public DateTime? ToUtcDateTimeValue(XElement parent, string path)
-        {
-            var value = ToStringValue(parent, path);
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return null;
-            }
-
-            DateTime result;
-            if (DateTime.TryParse(value, out result) == false)
-            {
-                return null;
-            }
-
-            return result.ToUniversalTime();
-        }
-
+        
         /// <summary>
         ///     Converts a POD boolean-child not to comma-delimited list of resolved values
         /// </summary>

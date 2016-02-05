@@ -146,21 +146,28 @@ namespace Packager.Test.Factories
                         new XElement("empty") {Value = ""});
                 }
 
-                private const string FirstDate = "2015-06-29T10:28:21-04:00";
-                private const string SecondDate = "2015-07-29T10:28:21-04:00";
-                private const string ThirdDate = "2015-06-30T10:28:21-04:00";
-                private const string FourthDate = "2015-05-29T10:28:21-04:00";
-                private const string InvalidDate = "2015-06-33T10:28:21-04:00";
+                private const string FirstDate = "2015-11-23T00:00:00Z";
+                private const string SecondDate = "2015-07-29T10:28:21Z";
+                private const string ThirdDate = "2015-06-30T10:28:21Z";
+                private const string FourthDate = "2015-05-29T10:28:21Z";
+                private const string InvalidDate = "2015-06-33T10:28:21Z";
 
-                [TestCase("first", FirstDate)]
-                [TestCase("second", SecondDate)]
-                [TestCase("third", ThirdDate)]
-                [TestCase("fourth", FourthDate)]
-                public void IfPathIsValidShouldReturnCorrectValue(string path, string expectedDateString)
+
+                private static object[] DateCases =
                 {
-                    var value = Factory.ToLocalDateTimeValue(Parent, path);
+                    new object[] {"first", new DateTime(2015, 11, 23)},
+                    new object[] {"second", new DateTime(2015, 7, 29,10,28,21)},
+                    new object[] {"third", new DateTime(2015, 6, 30,10,28,21)},
+                    new object[] {"fourth", new DateTime(2015, 5, 29,10,28,21)}
+                };
+
+
+                [Test, TestCaseSource(nameof(DateCases))]
+                public void IfPathIsValidShouldReturnCorrectValue(string path, DateTime expected)
+                {
+                    var value = Factory.ToDateTimeValue(Parent, path);
                     Assert.That(value.HasValue, Is.True);
-                    Assert.That(value.Value, Is.EqualTo(DateTime.Parse(expectedDateString).ToLocalTime()));
+                    Assert.That(value.Value, Is.EqualTo(expected));
                 }
 
                 [TestCase("empty")]
@@ -168,7 +175,7 @@ namespace Packager.Test.Factories
                 [TestCase("invalid2")]
                 public void IfValueIsEmptyOrInvalidShouldNotHaveValue(string path)
                 {
-                    var value = Factory.ToLocalDateTimeValue(Parent, path);
+                    var value = Factory.ToDateTimeValue(Parent, path);
                     Assert.That(value.HasValue, Is.False);
                 }
 
@@ -176,7 +183,7 @@ namespace Packager.Test.Factories
                 [Test]
                 public void IfPathIsNotValidShouldShouldNotHaveValue()
                 {
-                    var value = Factory.ToLocalDateTimeValue(Parent, "first/invalid");
+                    var value = Factory.ToDateTimeValue(Parent, "first/invalid");
                     Assert.That(value.HasValue, Is.False);
                 }
             }

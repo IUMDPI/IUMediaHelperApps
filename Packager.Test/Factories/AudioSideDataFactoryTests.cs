@@ -32,10 +32,10 @@ namespace Packager.Test.Factories
             PreservationSide2FileModel.Checksum = "pres 2 hash";
 
             ProductionSide2FileModel = FileModelFactory.GetModel(ProductionSide2FileName);
-            ProductionSide1FileModel.Checksum = "prod 2 hash";
+            ProductionSide2FileModel.Checksum = "prod 2 hash";
 
             AccessSide2FileModel = FileModelFactory.GetModel(AccessSide2FileName); 
-            AccessSide1FileModel.Checksum = "access 2 hash";
+            AccessSide2FileModel.Checksum = "access 2 hash";
 
             PreservationIntermediateSide1FileModel = FileModelFactory.GetModel(PreservationIntermediateSide1FileName);
             PreservationIntermediateSide1FileModel.Checksum = "presInt 1 hash";

@@ -34,7 +34,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 SignalChainElement = new XElement("signal_chain");
                 Element = new XElement("digital_file_provenance", SignalChainElement);
 
-                Factory.ToLocalDateTimeValue(Element, "date_digitized").Returns(new DateTime(2016, 1, 1));
+                Factory.ToDateTimeValue(Element, "date_digitized").Returns(new DateTime(2016, 1, 1));
                 Factory.ToStringValue(Element, "filename").Returns("filename value");
                 Factory.ToStringValue(Element, "comment").Returns("comment value");
                 Factory.ToStringValue(Element, "created_by").Returns("created by value");
@@ -63,7 +63,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             [Test]
             public void ItShouldUseCorrectPathToResolveDateDigitized()
             {
-                Factory.Received().ToLocalDateTimeValue(Element, "date_digitized");
+                Factory.Received().ToDateTimeValue(Element, "date_digitized");
             }
 
             [Test]

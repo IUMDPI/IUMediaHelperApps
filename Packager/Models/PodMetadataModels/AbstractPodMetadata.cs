@@ -52,8 +52,8 @@ namespace Packager.Models.PodMetadataModels
             Unit = factory.ToStringValue(element, "data/unit");
             Barcode = factory.ToStringValue(element, "data/mdpi_barcode");
             DigitizingEntity = factory.ToStringValue(element, "data/digitizing_entity");
-            BakingDate = factory.ToLocalDateTimeValue(element, "data/baking_date");
-            CleaningDate = factory.ToLocalDateTimeValue(element, "data/cleaning_date");
+            BakingDate = factory.ToDateTimeValue(element, "data/baking_date");
+            CleaningDate = factory.ToDateTimeValue(element, "data/cleaning_date");
             CleaningComment = factory.ToStringValue(element, "data/cleaning_comment");
             Repaired = factory.ToBooleanValue(element, "data/repaired").ToYesNo();
             Damage = factory.ToStringValue(element, "data/damage").ToDefaultIfEmpty("None");

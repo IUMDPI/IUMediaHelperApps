@@ -1,27 +1,24 @@
 ﻿using System;
-using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Packager.Extensions;
 
 namespace Packager.Models.FileModels
 {
-    public abstract class AbstractFile 
+    public abstract class AbstractFile
     {
         private string _projectCode;
 
         protected AbstractFile()
         {
-            
         }
-        
+
         protected AbstractFile(AbstractFile original)
         {
             BarCode = original.BarCode;
             SequenceIndicator = original.SequenceIndicator;
             ProjectCode = original.ProjectCode;
-        }
+      }
 
         public string ProjectCode
         {
@@ -37,10 +34,10 @@ namespace Packager.Models.FileModels
         public int SequenceIndicator { get; protected set; }
         public abstract string FileUse { get; }
         public string Checksum { get; set; }
-        public abstract  string FullFileUse { get; }
+        public abstract string FullFileUse { get; }
         public string BarCode { get; set; }
         public abstract string Extension { get; }
-
+      
         public string GetFolderName()
         {
             return $"{ProjectCode.ToUpperInvariant()}_{BarCode}";
@@ -50,6 +47,7 @@ namespace Packager.Models.FileModels
         {
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);
         }
+
         protected string ToFileNameWithoutExtension()
         {
             var parts = new[]
@@ -130,7 +128,7 @@ namespace Packager.Models.FileModels
 
             return true;
         }
-        
+
         public string ToFrameMd5Filename()
         {
             return $"{ToFileNameWithoutExtension()}.framemd5";

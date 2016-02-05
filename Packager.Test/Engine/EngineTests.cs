@@ -37,7 +37,7 @@ namespace Packager.Test.Engine
 
             Grouping1PresFileName = GetPresFileNameForBarCode(BarCode1, MockWavProcessorExtension);
             Grouping1ProdFileName = GetProdFileNameForBarCode(BarCode1, MockWavProcessorExtension);
-            Grouping2PresFileName = GetPresFileNameForBarCode(BarCode2, MockMpegProcessorExtension);
+            Grouping2PresFileName = GetPresFileNameForBarCode(BarCode2, MockMkvProcessorExtension);
 
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(
@@ -57,13 +57,13 @@ namespace Packager.Test.Engine
                 new Dictionary<string, IProcessor>
                 {
                     {MockWavProcessorExtension, MockWavProcessor},
-                    {MockMpegProcessorExtension, MockMpegProcessor}
+                    {MockMkvProcessorExtension, MockMpegProcessor}
                 }, DependencyProvider);
         }
 
         private const string MockWavProcessorExtension = ".wav";
-        private const string MockMpegProcessorExtension = ".mpeg";
-        private const string ProjectCode = "mdpi";
+        private const string MockMkvProcessorExtension = ".mkv";
+        private const string ProjectCode = "MDPI";
         private const string BarCode1 = "4890764553278906";
         private const string BarCode2 = "7890764553278907";
         private StandardEngine Engine { get; set; }
@@ -82,12 +82,12 @@ namespace Packager.Test.Engine
 
         private static string GetPresFileNameForBarCode(string barcode, string extension)
         {
-            return string.Format("{0}_{1}_01_pres{2}", ProjectCode, barcode, extension);
+            return $"{ProjectCode}_{barcode}_01_pres{extension}";
         }
 
         private static string GetProdFileNameForBarCode(string barcode, string extension)
         {
-            return string.Format("{0}_{1}_01_prod{2}", ProjectCode, barcode, extension);
+            return $"{ProjectCode}_{barcode}_01_prod{extension}";
         }
 
         public class WhenEngineRunsWithoutIssues : EngineTests
@@ -118,11 +118,10 @@ namespace Packager.Test.Engine
             public void ItShouldSendCorrectGroupingsToProcessors()
             {
                 MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 2));
-                MockWavProcessor.Received()
-                    .ProcessFile(
+                MockWavProcessor.Received().ProcessFile(
                         Arg.Is<IGrouping<string, AbstractFile>>(
                             g =>
-                                g.AsEnumerable().SingleOrDefault(m => m.ToFileName().Equals(Grouping1PresFileName)) !=
+                                g.SingleOrDefault(m => m.ToFileName().Equals(Grouping1PresFileName)) !=
                                 null));
                 MockWavProcessor.Received()
                     .ProcessFile(

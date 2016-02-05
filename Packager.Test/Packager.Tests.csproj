@@ -120,7 +120,7 @@
     <Compile Include="Mocks\MockGrouping.cs" />
     <Compile Include="Mocks\MockProgramSettings.cs" />
     <Compile Include="Models\EmbeddedMetadataTests\EmbeddedAudioMetadataTests.cs" />
-    <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
+    <Compile Include="Factories\FileModelFactoryTests.cs" />
     <Compile Include="Models\MetadataModels\DigitalFileProvenanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\SuccessFolderCleanerTests.cs" />

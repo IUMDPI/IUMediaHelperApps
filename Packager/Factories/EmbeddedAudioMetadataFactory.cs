@@ -34,7 +34,7 @@ namespace Packager.Factories
             return new EmbeddedAudioMetadata
             {
                 Originator = metadata.DigitizingEntity,
-                OriginatorReference = Path.GetFileNameWithoutExtension(model.ToFileName()),
+                OriginatorReference = Path.GetFileNameWithoutExtension(model.Filename),
                 Description = description,
                 ICMT = description,
                 IARL = metadata.Unit,

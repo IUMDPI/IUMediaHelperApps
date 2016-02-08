@@ -48,13 +48,13 @@ namespace Packager.Test.Models.FileModels
         [Test]
         public void ToFileNameShouldBeCorrect()
         {
-            Assert.That(Model.ToFileName(), Is.EqualTo("MDPI_4890764553278906_01_pres.mkv.qctools.xml.gz"));
+            Assert.That(Model.Filename, Is.EqualTo("MDPI_4890764553278906_01_pres.mkv.qctools.xml.gz"));
         }
 
         [Test]
         public void ToIntermediateFileNameShouldBeCorrect()
         {
-            Assert.That(Model.ToIntermediateFileName(), Is.EqualTo("MDPI_4890764553278906_01_pres.mkv.qctools.xml"));
+            Assert.That(Model.IntermediateFileName, Is.EqualTo("MDPI_4890764553278906_01_pres.mkv.qctools.xml"));
         }
     }
 }

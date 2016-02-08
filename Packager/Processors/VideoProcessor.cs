@@ -41,7 +41,7 @@ namespace Packager.Processors
             // create list of files to process and add the original files that
             // we know about
             var processedList = new List<AbstractFile>().Concat(filesToProcess)
-                .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
+                .GroupBy(m => m.Filename).Select(g => g.First()).ToList();
 
             processedList = processedList.Concat(await CreateMezzanineDerivatives(processedList, metadata)).ToList();
 
@@ -70,15 +70,15 @@ namespace Packager.Processors
         private async Task<XmlFile> GenerateXml(VideoPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
             var result = new XmlFile( Barcode, ProjectCode);
-            var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
+            var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
             try
             {
                 await AssignChecksumValues(filesToProcess);
 
                 var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
-                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
+                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
 
-                Observers.EndSection(sectionKey, $"{result.ToFileName()} generated successfully");
+                Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
                 return result;
             }
             catch (Exception e)
@@ -94,7 +94,7 @@ namespace Packager.Processors
             foreach (var model in models)
             {
                 model.Checksum = await Hasher.Hash(model);
-                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.ToFileName()), model.Checksum);
+                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
             }
         }
 

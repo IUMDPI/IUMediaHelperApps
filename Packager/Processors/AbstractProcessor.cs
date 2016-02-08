@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
-using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
@@ -54,7 +53,7 @@ namespace Packager.Processors
         private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
 
         protected IHasher Hasher => DependencyProvider.Hasher;
-        
+
         protected IFileProvider FileProvider => DependencyProvider.FileProvider;
 
         protected IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
@@ -67,7 +66,7 @@ namespace Packager.Processors
 
         private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
 
-        protected  abstract string OriginalsDirectory { get; }
+        protected abstract string OriginalsDirectory { get; }
 
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> fileModels)
         {
@@ -102,16 +101,18 @@ namespace Packager.Processors
                 return new ValidationResult(e.GetBaseMessage());
             }
         }
-        
+
         protected abstract Task<IEnumerable<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess);
-        
+
         private async Task MoveToSuccessFolder()
         {
             var sectionKey = Observers.BeginSection("Cleaning up");
             try
             {
                 Observers.Log("Moving {0} to success folder", ObjectDirectoryName);
-                await DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory, GetSafeDirectoryName(BaseSuccessDirectory, ObjectDirectoryName, "success folder"));
+                await
+                    DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory,
+                        GetSafeDirectoryName(BaseSuccessDirectory, ObjectDirectoryName, "success folder"));
 
                 Observers.EndSection(sectionKey, "Cleanup successful");
             }
@@ -157,7 +158,7 @@ namespace Packager.Processors
 
                 DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
-                foreach (var fileName in fileList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
+                foreach (var fileName in fileList.Select(fileModel => fileModel.Filename).OrderBy(f => f))
                 {
                     Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
                     await FileProvider.CopyFileAsync(
@@ -181,7 +182,8 @@ namespace Packager.Processors
                 // move folder to success
                 Observers.Log("Moving {0} to error folder", ObjectDirectoryName);
 
-                DirectoryProvider.MoveDirectory(ProcessingDirectory, GetSafeDirectoryName(BaseErrorDirectory, ObjectDirectoryName, "error folder"));
+                DirectoryProvider.MoveDirectory(ProcessingDirectory,
+                    GetSafeDirectoryName(BaseErrorDirectory, ObjectDirectoryName, "error folder"));
             }
             catch (Exception e)
             {
@@ -206,7 +208,7 @@ namespace Packager.Processors
 
                 foreach (var fileModel in filesToProcess)
                 {
-                    Observers.Log("Moving originals to processing: {0}", fileModel.ToFileName());
+                    Observers.Log("Moving originals to processing: {0}", GetFilenameToLog(fileModel));
                     await MoveOriginalToProcessing(fileModel);
                 }
 
@@ -220,14 +222,22 @@ namespace Packager.Processors
             }
         }
 
+        private string GetFilenameToLog(AbstractFile model)
+        {
+            return (model.OriginalFileName.Equals(model.Filename, StringComparison.InvariantCultureIgnoreCase))
+                ? model.Filename
+                : $"{model.Filename} ({model.OriginalFileName})";
+        }
+
         private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel)
         {
-            var sourcePath = Path.Combine(InputDirectory, fileModel.ToFileName());
-            var targetPath = Path.Combine(OriginalsDirectory, fileModel.ToFileName()); 
-
+            var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
+            var targetPath = Path.Combine(OriginalsDirectory, fileModel.Filename);
+            
             if (FileProvider.FileExists(targetPath))
             {
-                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.ToFileName(), OriginalsDirectory);
+                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.Filename,
+                    OriginalsDirectory);
             }
 
             await FileProvider.MoveFileAsync(sourcePath, targetPath);
@@ -241,7 +251,7 @@ namespace Packager.Processors
             {
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
-                
+
                 // log metadata
                 MetadataProvider.Log(metadata);
 

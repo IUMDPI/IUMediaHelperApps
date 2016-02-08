@@ -22,7 +22,7 @@ namespace Packager.Factories
 
         protected static string GenerateDescription(AbstractPodMetadata metadata, AbstractFile model)
         {
-            return $"{metadata.Unit}. {metadata.CallNumber}. File use: {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.ToFileName())}";
+            return $"{metadata.Unit}. {metadata.CallNumber}. File use: {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.Filename)}";
         }
 
         protected static string GetDateString(DateTime? date, string format, string defaultValue)
@@ -36,13 +36,13 @@ namespace Packager.Factories
             var sequenceMaster = sequenceInstances.GetPreservationOrIntermediateModel();
             if (sequenceMaster == null)
             {
-                throw new EmbeddedMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.ToFileName());
+                throw new EmbeddedMetadataException("No corresponding preservation or preservation-intermediate master present for {0}", model.Filename);
             }
 
             var defaultProvenance = GetProvenance(podMetadata, sequenceMaster);
             if (defaultProvenance == null)
             {
-                throw new EmbeddedMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.ToFileName());
+                throw new EmbeddedMetadataException("No digital file provenance in metadata for {0}", sequenceMaster.Filename);
             }
 
             return GetProvenance(podMetadata, model, defaultProvenance);

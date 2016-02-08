@@ -104,11 +104,11 @@ namespace Packager.Providers
 
             var expectedMasters = provenances
                 .Select(p => FileModelFactory.GetModel(p.Filename))
-                .Select(m => m.ToFileName()).ToList();
+                .Select(m => m.Filename).ToList();
 
             var presentMasters = filesToProcess
                 .Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
-                .Select(m => m.ToFileName()).ToList();
+                .Select(m => m.Filename).ToList();
 
             results.AddRange(
                 expectedMasters.Except(presentMasters)
@@ -123,7 +123,7 @@ namespace Packager.Providers
 
             var unexpectedMasters = filesToProcess.Where(
                 m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
-                .Select(m => new {key = m.ToFileName(), value = provenances.GetFileProvenance(m)})
+                .Select(m => new {key = m.Filename, value = provenances.GetFileProvenance(m)})
                 .Where(p => p.value == null)
                 .Select(p => p.key);
 

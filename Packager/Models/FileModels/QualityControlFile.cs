@@ -2,28 +2,16 @@
 {
     public class QualityControlFile : AbstractFile
     {
-        private readonly string _originalExtension;
+        private const string ExtensionValue = ".qctools.xml.gz";
+        private const string IntermediateExtensionValue = ".qctools.xml";
 
-        public QualityControlFile(AbstractFile original) : base(original)
+        public string IntermediateFileName { get; }
+
+        public QualityControlFile(AbstractFile original) : 
+            base(original, original.FileUse, original.FullFileUse, ExtensionValue)
         {
-            FileUse = original.FileUse;
-            FullFileUse = original.FullFileUse;
-            _originalExtension = original.Extension;
-        }
-
-        public override string FileUse { get; }
-        public override string FullFileUse { get; }
-
-        public override string Extension => ".qctools.xml.gz";
-
-        public override string ToFileName()
-        {
-            return $"{ToFileNameWithoutExtension()}{_originalExtension}{Extension}";
-        }
-
-        public string ToIntermediateFileName()
-        {
-            return $"{ToFileNameWithoutExtension()}{_originalExtension}.qctools.xml";
+            Filename = $"{original.Filename}{ExtensionValue}";
+            IntermediateFileName = $"{original.Filename}{IntermediateExtensionValue}";
         }
     }
 }

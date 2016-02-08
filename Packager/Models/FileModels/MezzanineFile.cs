@@ -2,12 +2,13 @@ namespace Packager.Models.FileModels
 {
     public class MezzanineFile : AbstractFile
     {
-        public MezzanineFile(AbstractFile original) : base(original)
+        private const string FileUseValue = "mezz";
+        private const string FullFileUseValue = "Mezzanine File Version";
+        private const string ExtensionValue = ".mov";
+
+        public MezzanineFile(AbstractFile original) :
+            base(original, FileUseValue, FullFileUseValue, ExtensionValue)
         {
         }
-
-        public override string FileUse => "mezz";
-        public override string FullFileUse => "Mezzanine File Version";
-        public override string Extension => ".mov";
     }
 }

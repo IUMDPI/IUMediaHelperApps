@@ -414,7 +414,7 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     Hasher.Hash(Arg.Any<AbstractFile>())
-                        .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().ToFileName()} checksum"));
+                        .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().Filename} checksum"));
                 }
 
                 [TestCase]

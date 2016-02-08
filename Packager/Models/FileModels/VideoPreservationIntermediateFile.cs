@@ -2,10 +2,10 @@ namespace Packager.Models.FileModels
 {
     public class VideoPreservationIntermediateFile : AbstractPreservationIntermediateFile
     {
-        public VideoPreservationIntermediateFile(AbstractFile original) : base(original)
+        private const string ExtensionValue = ".mkv";
+
+        public VideoPreservationIntermediateFile(AbstractFile original) : base(original, ExtensionValue)
         {
         }
-
-        public override string Extension => ".mkv";
     }
 }

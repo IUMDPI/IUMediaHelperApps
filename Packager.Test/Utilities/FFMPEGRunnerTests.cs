@@ -243,7 +243,7 @@ namespace Packager.Test.Utilities
                 {
                     var normalizedPath =
                         Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(),
-                            PreservationFileModel.ToFileName()).ToQuoted();
+                            PreservationFileModel.Filename).ToQuoted();
                     Assert.That(StartInfo.Arguments.EndsWith(normalizedPath));
                 }
 
@@ -273,7 +273,7 @@ namespace Packager.Test.Utilities
                 {
                     var originalPath =
                         Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(),
-                            PreservationFileModel.ToFileName()).ToQuoted();
+                            PreservationFileModel.Filename).ToQuoted();
                     Assert.That(StartInfo.Arguments.StartsWith($"-i {originalPath}"));
                 }
 
@@ -287,13 +287,13 @@ namespace Packager.Test.Utilities
                 public void ItShouldEndSection()
                 {
                     Observers.Received()
-                        .EndSection(Arg.Any<string>(), $"{PreservationFileModel.ToFileName()} normalized successfully");
+                        .EndSection(Arg.Any<string>(), $"{PreservationFileModel.Filename} normalized successfully");
                 }
 
                 [Test]
                 public void ItShouldOpenSection()
                 {
-                    Observers.Received().BeginSection("Normalizing {0}", PreservationFileModel.ToFileName());
+                    Observers.Received().BeginSection("Normalizing {0}", PreservationFileModel.Filename);
                 }
 
                 [Test]
@@ -319,7 +319,7 @@ namespace Packager.Test.Utilities
                 public void ItShouldVerifyThatAllNormalizedVersionDoesNotExist()
                 {
                     var path = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(),
-                        PreservationFileModel.ToFileName());
+                        PreservationFileModel.Filename);
                     FileProvider.Received().FileExists(path);
                 }
 
@@ -327,7 +327,7 @@ namespace Packager.Test.Utilities
                 public void ItShouldVerifyThatOriginalExists()
                 {
                     var path = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(),
-                        PreservationFileModel.ToFileName());
+                        PreservationFileModel.Filename);
                     FileProvider.Received().FileDoesNotExist(path);
                 }
             }
@@ -441,10 +441,10 @@ namespace Packager.Test.Utilities
                     {
                         FileProvider.Received()
                             .FileDoesNotExist(Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
-                                model.ToFileName()));
+                                model.Filename));
                         FileProvider.Received()
                             .FileDoesNotExist(Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
-                                model.ToFileName()));
+                                model.Filename));
                     }
                 }
 
@@ -455,7 +455,7 @@ namespace Packager.Test.Utilities
                     {
                         var frameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
                             model.ToFrameMd5Filename());
-                        var targetPath = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName());
+                        var targetPath = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.Filename);
 
                         var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
                         ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)));
@@ -470,7 +470,7 @@ namespace Packager.Test.Utilities
                         var frameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
                             model.ToFrameMd5Filename());
                         var targetPath = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
-                            model.ToFileName());
+                            model.Filename);
 
                         var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
                         ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)));
@@ -483,9 +483,9 @@ namespace Packager.Test.Utilities
                     foreach (var model in Originals)
                     {
                         Observers.Received()
-                            .EndSection(Arg.Any<string>(), $"{model.ToFileName()} (original) hashed successfully");
+                            .EndSection(Arg.Any<string>(), $"{model.Filename} (original) hashed successfully");
                         Observers.Received()
-                            .EndSection(Arg.Any<string>(), $"{model.ToFileName()} (normalized) hashed successfully");
+                            .EndSection(Arg.Any<string>(), $"{model.Filename} (normalized) hashed successfully");
                     }
                 }
 
@@ -495,7 +495,7 @@ namespace Packager.Test.Utilities
                     foreach (var model in Originals)
                     {
                         Observers.Received()
-                            .EndSection(Arg.Any<string>(), $"{model.ToFileName()} (normalized) validated successfully");
+                            .EndSection(Arg.Any<string>(), $"{model.Filename} (normalized) validated successfully");
                     }
                 }
 
@@ -524,8 +524,8 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().BeginSection("Hashing {0}", $"{model.ToFileName()} (original)");
-                        Observers.Received().BeginSection("Hashing {0}", $"{model.ToFileName()} (normalized)");
+                        Observers.Received().BeginSection("Hashing {0}", $"{model.Filename} (original)");
+                        Observers.Received().BeginSection("Hashing {0}", $"{model.Filename} (normalized)");
                     }
                 }
 
@@ -534,7 +534,7 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().BeginSection("Validating {0} (normalized)", model.ToFileName());
+                        Observers.Received().BeginSection("Validating {0} (normalized)", model.Filename);
                     }
                 }
 
@@ -772,7 +772,7 @@ namespace Packager.Test.Utilities
                         {
                             Observers.Received()
                                 .EndSection(Arg.Any<string>(),
-                                    $"Generate {DerivativeFileModel.FullFileUse} skipped - already exists: {DerivativeFileModel.ToFileName()}");
+                                    $"Generate {DerivativeFileModel.FullFileUse} skipped - already exists: {DerivativeFileModel.Filename}");
                         }
 
                         [Test]
@@ -829,7 +829,7 @@ namespace Packager.Test.Utilities
                         {
                             Observers.Received()
                                 .EndSection(Arg.Any<string>(),
-                                    $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.ToFileName()}");
+                                    $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.Filename}");
                         }
 
                         [Test]
@@ -885,7 +885,7 @@ namespace Packager.Test.Utilities
                         public void ItShouldTestThatTargetDoesNotExists()
                         {
                             var path = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(),
-                                new ProductionFile(MasterFileModel).ToFileName());
+                                new ProductionFile(MasterFileModel).Filename);
 
                             FileProvider.Received().FileExists(path);
                         }
@@ -896,7 +896,7 @@ namespace Packager.Test.Utilities
                     {
                         Observers.Received()
                             .BeginSection("Generating {0}: {1}", DerivativeFileModel.FullFileUse,
-                                DerivativeFileModel.ToFileName());
+                                DerivativeFileModel.Filename);
                     }
 
 

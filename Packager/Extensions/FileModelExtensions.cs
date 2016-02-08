@@ -22,7 +22,7 @@ namespace Packager.Extensions
 
         public static List<AbstractFile> RemoveDuplicates(this IEnumerable<AbstractFile> models)
         {
-            return models.GroupBy(o => o.ToFileName())
+            return models.GroupBy(o => o.Filename)
                 .Select(g => g.First()).ToList();
         }
 

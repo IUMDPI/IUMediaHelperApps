@@ -2,10 +2,10 @@
 {
     public class AudioPreservationFile : AbstractPreservationFile
     {
-        public AudioPreservationFile(AbstractFile original) : base(original)
+        private const string ExtensionValue = ".wav";
+
+        public AudioPreservationFile(AbstractFile original) : base(original, ExtensionValue)
         {
         }
-
-        public override string Extension => ".wav";
     }
 }

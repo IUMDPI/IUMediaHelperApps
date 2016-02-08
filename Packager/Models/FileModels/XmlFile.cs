@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Packager.Models.FileModels
+﻿namespace Packager.Models.FileModels
 {
     public class XmlFile : AbstractFile
     {
@@ -9,17 +6,12 @@ namespace Packager.Models.FileModels
         {
             ProjectCode = projectCode;
             BarCode = barCode;
+            Extension = ".xml";
+            Filename = $"{ProjectCode}_{BarCode}{Extension}";
+            FullFileUse = "";
+            FileUse = "";
         }
-
-        public override string FileUse => "";
-        public override string FullFileUse => "";
-        public override string Extension => ".xml";
-
-        public override bool IsSameAs(AbstractFile model)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override bool IsValid()
         {
             if (string.IsNullOrWhiteSpace(ProjectCode))
@@ -27,20 +19,7 @@ namespace Packager.Models.FileModels
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(BarCode))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public override string ToFileName()
-        {
-            var parts = new[] {ProjectCode, BarCode};
-
-            var fileName = string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
-            return $"{fileName}{Extension}";
+            return !string.IsNullOrWhiteSpace(BarCode);
         }
     }
 }

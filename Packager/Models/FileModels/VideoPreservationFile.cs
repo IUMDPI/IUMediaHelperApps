@@ -2,10 +2,10 @@
 {
     public class VideoPreservationFile : AbstractPreservationFile
     {
-        public VideoPreservationFile(AbstractFile original) : base(original)
+        private const string ExtensionValue = ".mkv";
+
+        public VideoPreservationFile(AbstractFile original) : base(original, ExtensionValue)
         {
         }
-
-        public override string Extension => ".mkv";
     }
 }

@@ -23,7 +23,7 @@ namespace Packager.Test.Models.FileModels
         public void ToFileNameShouldWorkCorrectly(string projectCode, string barCode, string expected)
         {
             var model = new XmlFile(projectCode, barCode);
-            Assert.That(model.ToFileName(), Is.EqualTo(expected));
+            Assert.That(model.Filename, Is.EqualTo(expected));
         }
 
     }

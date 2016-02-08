@@ -2,11 +2,13 @@
 {
     public abstract class AbstractPreservationIntermediateFile : AbstractFile
     {
-        protected AbstractPreservationIntermediateFile(AbstractFile original) : base(original)
+        private const string FileUseValue = "presInt";
+        private const string FullFileUseValue = "Preservation Master - Intermediate";
+
+        protected AbstractPreservationIntermediateFile(AbstractFile original, string extension) : 
+            base(original, FileUseValue, FullFileUseValue, extension)
         {
         }
 
-        public override string FileUse => "presInt";
-        public override string FullFileUse => "Preservation Master - Intermediate";
     }
 }

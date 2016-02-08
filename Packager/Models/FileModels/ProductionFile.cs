@@ -2,12 +2,13 @@ namespace Packager.Models.FileModels
 {
     public class ProductionFile : AbstractFile
     {
-        public ProductionFile(AbstractFile original) : base(original)
+        private const string FileUseValue = "prod";
+        private const string FullFileUseValue = "Production Master";
+        private const string ExtensionValue = ".wav";
+
+        public ProductionFile(AbstractFile original) : 
+            base(original, FileUseValue, FullFileUseValue, ExtensionValue)
         {
         }
-
-        public override string FileUse => "prod";
-        public override string FullFileUse => "Production Master";
-        public override string Extension => ".wav";
     }
 }

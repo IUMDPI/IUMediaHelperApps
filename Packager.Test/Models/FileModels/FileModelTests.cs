@@ -42,7 +42,7 @@ namespace Packager.Test.Models.FileModelTests
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_pres.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_pres.wav";
-                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_pres.framemd5";
+                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_pres.wav.framemd5";
                 Instance = new AudioPreservationFile(_originalFile);
             }
         }
@@ -57,7 +57,7 @@ namespace Packager.Test.Models.FileModelTests
                 ExpectedExtension = ".mkv";
                 ExpectedToFileName = "MDPI_4890764553278906_01_pres.mkv";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_pres.mkv";
-                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_pres.framemd5";
+                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_pres.mkv.framemd5";
                 Instance = new VideoPreservationFile(_originalFile);
             }
         }
@@ -72,7 +72,7 @@ namespace Packager.Test.Models.FileModelTests
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_presInt.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_presInt.wav";
-                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_presInt.framemd5";
+                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_presInt.wav.framemd5";
                 Instance = new AudioPreservationIntermediateFile(_originalFile);
             }
         }
@@ -87,7 +87,7 @@ namespace Packager.Test.Models.FileModelTests
                 ExpectedExtension = ".mkv";
                 ExpectedToFileName = "MDPI_4890764553278906_01_presInt.mkv";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_presInt.mkv";
-                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_presInt.framemd5";
+                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_presInt.mkv.framemd5";
                 Instance = new VideoPreservationIntermediateFile(_originalFile);
             }
         }
@@ -102,7 +102,7 @@ namespace Packager.Test.Models.FileModelTests
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_prod.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_prod.wav";
-                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_prod.framemd5";
+                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_prod.wav.framemd5";
                 Instance = new ProductionFile(_originalFile);
             }
         }
@@ -117,7 +117,7 @@ namespace Packager.Test.Models.FileModelTests
                 ExpectedExtension = ".mov";
                 ExpectedToFileName = "MDPI_4890764553278906_01_mezz.mov";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_mezz.mov";
-                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_mezz.framemd5";
+                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_mezz.mov.framemd5";
                 Instance = new MezzanineFile(_originalFile);
             }
         }
@@ -132,7 +132,7 @@ namespace Packager.Test.Models.FileModelTests
                 ExpectedExtension = ".mp4";
                 ExpectedToFileName = "MDPI_4890764553278906_01_access.mp4";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_access.mp4";
-                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_access.framemd5";
+                ExpectedFrameMd5FileName = "MDPI_4890764553278906_01_access.mp4.framemd5";
                 Instance = new AccessFile(_originalFile);
             }
         }
@@ -195,7 +195,7 @@ namespace Packager.Test.Models.FileModelTests
         [Test]
         public void ToFileNameShouldBeCorrect()
         {
-            Assert.That(Instance.ToFileName(), Is.EqualTo(ExpectedToFileName));
+            Assert.That(Instance.Filename, Is.EqualTo(ExpectedToFileName));
         }
 
         [Test]

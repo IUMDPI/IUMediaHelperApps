@@ -36,10 +36,10 @@ namespace Packager.Utilities.Bext
                     Observers.Log("");
                 }
 
-                if (Verifier.Verify(result.StandardOutput.GetContent().ToLowerInvariant(), instance.ToFileName().ToLowerInvariant()) == false)
+                if (Verifier.Verify(result.StandardOutput.GetContent().ToLowerInvariant(), instance.Filename.ToLowerInvariant()) == false)
                 {
                     Observers.Log(result.StandardOutput.GetContent());
-                    throw new EmbeddedMetadataException("Could not clear metadata fields for {0}", instance.ToFileName());
+                    throw new EmbeddedMetadataException("Could not clear metadata fields for {0}", instance.Filename);
                 }
 
                 Observers.Log(FormatOutput(result.StandardOutput.GetContent(), instance.GetFolderName()));

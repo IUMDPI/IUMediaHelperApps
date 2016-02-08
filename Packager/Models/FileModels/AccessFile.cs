@@ -2,12 +2,13 @@ namespace Packager.Models.FileModels
 {
     public class AccessFile : AbstractFile
     {
-        public AccessFile(AbstractFile original) : base(original)
+        private const string FileUseValue = "access";
+        private const string FullFileUseValue = "Access File Version";
+        private const string ExtensionValue = ".mp4";
+
+        public AccessFile(AbstractFile original) : 
+            base(original, FileUseValue, FullFileUseValue, ExtensionValue)
         {
         }
-
-        public override string FileUse => "access";
-        public override string FullFileUse => "Access File Version";
-        public override string Extension => ".mp4";
     }
 }

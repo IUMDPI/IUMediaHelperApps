@@ -13,12 +13,22 @@ namespace Packager.Models.FileModels
         {
         }
 
-        protected AbstractFile(AbstractFile original)
+        protected AbstractFile(AbstractFile original, string fileUse, string fullFileUse, string extension)
         {
             BarCode = original.BarCode;
             SequenceIndicator = original.SequenceIndicator;
             ProjectCode = original.ProjectCode;
-      }
+            Extension = extension;
+            FileUse = fileUse;
+            FullFileUse = fullFileUse;
+            Filename = NormalizeFilename();
+
+            OriginalFileName = IsSameAs(original)
+                ? original.OriginalFileName 
+                : Filename;
+        }
+
+        public string OriginalFileName { get; protected set; }
 
         public string ProjectCode
         {
@@ -28,37 +38,39 @@ namespace Packager.Models.FileModels
                     ? string.Empty
                     : _projectCode.ToUpperInvariant();
             }
-            set { _projectCode = value; }
+            protected set { _projectCode = value; }
         }
 
         public int SequenceIndicator { get; protected set; }
-        public abstract string FileUse { get; }
+
+        public string FileUse { get; protected set; }
+        public string FullFileUse { get; protected set; }
         public string Checksum { get; set; }
-        public abstract string FullFileUse { get; }
-        public string BarCode { get; set; }
-        public abstract string Extension { get; }
-      
+        public string BarCode { get; protected set; }
+        public string Extension { get; protected set; }
+        public string Filename { get; protected set; }
+
         public string GetFolderName()
         {
-            return $"{ProjectCode.ToUpperInvariant()}_{BarCode}";
+            return $"{ProjectCode}_{BarCode}";
         }
 
         public bool BelongsToProject(string projectCode)
         {
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);
         }
-
-        protected string ToFileNameWithoutExtension()
+        
+        private string NormalizeFilename()
         {
             var parts = new[]
-            {ProjectCode, BarCode, SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture), FileUse};
+            {
+                ProjectCode,
+                BarCode,
+                SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture),
+                FileUse,
+            };
 
-            return string.Join("_", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
-        }
-
-        public virtual string ToFileName()
-        {
-            return $"{ToFileNameWithoutExtension()}{Extension}";
+            return string.Join("_", parts) + Extension;
         }
 
         protected static int GetSequenceIndicator(string value)
@@ -99,7 +111,7 @@ namespace Packager.Models.FileModels
             return true;
         }
 
-        public virtual bool IsSameAs(AbstractFile model)
+        public bool IsSameAs(AbstractFile model)
         {
             if (!model.ProjectCode.Equals(ProjectCode, StringComparison.InvariantCultureIgnoreCase))
             {
@@ -131,7 +143,7 @@ namespace Packager.Models.FileModels
 
         public string ToFrameMd5Filename()
         {
-            return $"{ToFileNameWithoutExtension()}.framemd5";
+            return $"{Filename}.framemd5";
         }
 
         public string GetOriginalFolderName()

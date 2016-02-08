@@ -41,31 +41,31 @@ namespace Packager.Utilities.Process
 
         public async Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target)
         {
-            var sectionKey = Observers.BeginSection("Generating quality control file: {0}", target.ToFileName());
+            var sectionKey = Observers.BeginSection("Generating quality control file: {0}", target.Filename);
             try
             {
                 var qualityControlFile = new QualityControlFile(target);
                 var targetDirectory = Path.Combine(BaseProcessingDirectory, target.GetFolderName());
 
-                var targetPath = Path.Combine(targetDirectory, target.ToFileName());
+                var targetPath = Path.Combine(targetDirectory, target.Filename);
                 if (FileProvider.FileDoesNotExist(targetPath))
                 {
-                    throw new FileNotFoundException($"{target.ToFileName()} could not be found or is not accessible");
+                    throw new FileNotFoundException($"{target.Filename} could not be found or is not accessible");
                 }
 
-                var xmlPath = Path.Combine(targetDirectory, qualityControlFile.ToIntermediateFileName());
+                var xmlPath = Path.Combine(targetDirectory, qualityControlFile.IntermediateFileName);
                 if (FileProvider.FileExists(xmlPath))
                 {
                     throw new FileDirectoryExistsException($"{xmlPath} already exists in processing folder");
                 }
 
-                var archivePath = Path.Combine(targetDirectory, qualityControlFile.ToFileName());
+                var archivePath = Path.Combine(targetDirectory, qualityControlFile.Filename);
                 if (FileProvider.FileExists(archivePath))
                 {
                     throw new FileDirectoryExistsException($"{archivePath} already exists in processing folder");
                 }
 
-                var args = new ArgumentBuilder(string.Format(VideoQualityControlArguments, target.ToFileName()));
+                var args = new ArgumentBuilder(string.Format(VideoQualityControlArguments, target.Filename));
 
                 using (var fileOutputBuffer = new FileOutputBuffer(xmlPath, FileProvider))
                 {
@@ -75,7 +75,7 @@ namespace Packager.Utilities.Process
                 //FileProvider.WriteAllText(xmlPath, xml);
                 await FileProvider.ArchiveFile(xmlPath, archivePath);
 
-                Observers.EndSection(sectionKey, $"Quality control file generated successfully: {target.ToFileName()}");
+                Observers.EndSection(sectionKey, $"Quality control file generated successfully: {target.Filename}");
                 return qualityControlFile;
 
             }

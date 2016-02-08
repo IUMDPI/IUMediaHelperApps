@@ -2,11 +2,12 @@
 {
     public abstract class AbstractPreservationFile : AbstractFile
     {
-        protected AbstractPreservationFile(AbstractFile original) : base(original)
+        private const string FileUseValue = "pres";
+        private const string FullFileUseValue = "Preservation Master";
+
+        protected AbstractPreservationFile(AbstractFile original, string extension) : 
+            base(original, FileUseValue, FullFileUseValue, extension)
         {
         }
-
-        public override string FileUse => "pres";
-        public override string FullFileUse => "Preservation Master";
     }
 }

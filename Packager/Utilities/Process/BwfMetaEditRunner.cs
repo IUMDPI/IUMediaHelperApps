@@ -42,7 +42,7 @@ namespace Packager.Utilities.Process
                 arguments.AddArguments($"--{field}=\"\"");
             }
 
-            arguments.AddArguments(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()).ToQuoted());
+            arguments.AddArguments(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.Filename).ToQuoted());
             return await ExecuteBextProcess(arguments);
         }
 

@@ -59,16 +59,16 @@ namespace Packager.Utilities.Process
 
         public async Task Normalize(AbstractFile original, AbstractEmbeddedMetadata metadata)
         {
-            var sectionKey = Observers.BeginSection("Normalizing {0}", original.ToFileName());
+            var sectionKey = Observers.BeginSection("Normalizing {0}", original.Filename);
             try
             {
-                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.ToFileName());
+                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.Filename);
                 if (FileProvider.FileDoesNotExist(originalPath))
                 {
                     throw new FileNotFoundException("Original does not exist or is not accessible", originalPath);
                 }
 
-                var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.ToFileName());
+                var targetPath = Path.Combine(BaseProcessingDirectory, original.GetFolderName(), original.Filename);
                 if (FileProvider.FileExists(targetPath))
                 {
                     throw new FileDirectoryExistsException("{0} already exists in the processing directory", targetPath);
@@ -80,7 +80,7 @@ namespace Packager.Utilities.Process
                     .AddArguments(targetPath.ToQuoted());
 
                 await RunProgram(arguments);
-                Observers.EndSection(sectionKey, $"{original.ToFileName()} normalized successfully");
+                Observers.EndSection(sectionKey, $"{original.Filename} normalized successfully");
             }
             catch (Exception e)
             {
@@ -170,31 +170,31 @@ namespace Packager.Utilities.Process
 
         private void LogAlreadyExists(AbstractFile target)
         {
-            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
             Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
-            Observers.EndSection(sectionKey, $"Generate {target.FullFileUse} skipped - already exists: {target.ToFileName()}");
+            Observers.EndSection(sectionKey, $"Generate {target.FullFileUse} skipped - already exists: {target.Filename}");
         }
 
         private bool TargetAlreadyExists(AbstractFile target)
         {
-            var path = Path.Combine(BaseProcessingDirectory, target.GetFolderName(), target.ToFileName());
+            var path = Path.Combine(BaseProcessingDirectory, target.GetFolderName(), target.Filename);
             return FileProvider.FileExists(path);
         }
 
         private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target, ArgumentBuilder arguments)
         {
-            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.ToFileName());
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
             try
             {
                 var outputFolder = Path.Combine(BaseProcessingDirectory, original.GetFolderName());
 
-                var inputPath = Path.Combine(outputFolder, original.ToFileName());
+                var inputPath = Path.Combine(outputFolder, original.Filename);
                 if (FileProvider.FileDoesNotExist(inputPath))
                 {
                     throw new FileNotFoundException(inputPath);
                 }
 
-                var outputPath = Path.Combine(outputFolder, target.ToFileName());
+                var outputPath = Path.Combine(outputFolder, target.Filename);
                 if (FileProvider.FileExists(outputPath))
                 {
                     throw new FileDirectoryExistsException("{0} already exists in the processing directory", inputPath);
@@ -206,7 +206,7 @@ namespace Packager.Utilities.Process
 
                 await RunProgram(completeArguments);
                 
-                Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.ToFileName()}");
+                Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.Filename}");
                 return target;
             }
             catch (Exception e)
@@ -226,15 +226,15 @@ namespace Packager.Utilities.Process
         private async Task GenerateMd5Hash(AbstractFile model, bool isOriginal)
         {
             var sectionName = isOriginal
-                ? $"{model.ToFileName()} (original)"
-                : $"{model.ToFileName()} (normalized)";
+                ? $"{model.Filename} (original)"
+                : $"{model.Filename} (normalized)";
             var sectionKey = Observers.BeginSection("Hashing {0}", sectionName);
             try
             {
                 var folderPath = Path.Combine(BaseProcessingDirectory,
                     isOriginal ? model.GetOriginalFolderName() : model.GetFolderName());
 
-                var targetPath = Path.Combine(folderPath, model.ToFileName());
+                var targetPath = Path.Combine(folderPath, model.Filename);
 
                 if (FileProvider.FileDoesNotExist(targetPath))
                 {
@@ -259,7 +259,7 @@ namespace Packager.Utilities.Process
 
         private async Task VerifyHashes(AbstractFile model)
         {
-            var sectionKey = Observers.BeginSection("Validating {0} (normalized)", model.ToFileName());
+            var sectionKey = Observers.BeginSection("Validating {0} (normalized)", model.Filename);
             try
             {
                 var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
@@ -285,7 +285,7 @@ namespace Packager.Utilities.Process
                     throw new NormalizeOriginalException("Original and normalized framemd5 hashes not equal: {0} {1}", originalMd5Hash, normalizedMd5Hash);
                 }
 
-                Observers.EndSection(sectionKey, $"{model.ToFileName()} (normalized) validated successfully");
+                Observers.EndSection(sectionKey, $"{model.Filename} (normalized) validated successfully");
             }
             catch (Exception e)
             {

@@ -58,7 +58,7 @@ namespace Packager.Factories
             return new File
             {
                 Checksum = model.Checksum,
-                FileName = model.ToFileName()
+                FileName = model.Filename
             };
         }
     }

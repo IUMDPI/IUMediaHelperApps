@@ -121,13 +121,13 @@ namespace Packager.Test.Engine
                 MockWavProcessor.Received().ProcessFile(
                         Arg.Is<IGrouping<string, AbstractFile>>(
                             g =>
-                                g.SingleOrDefault(m => m.ToFileName().Equals(Grouping1PresFileName)) !=
+                                g.SingleOrDefault(m => m.Filename.Equals(Grouping1PresFileName)) !=
                                 null));
                 MockWavProcessor.Received()
                     .ProcessFile(
                         Arg.Is<IGrouping<string, AbstractFile>>(
                             g =>
-                                g.AsEnumerable().SingleOrDefault(m => m.ToFileName().Equals(Grouping1ProdFileName)) !=
+                                g.AsEnumerable().SingleOrDefault(m => m.Filename.Equals(Grouping1ProdFileName)) !=
                                 null));
 
                 MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 1));
@@ -135,7 +135,7 @@ namespace Packager.Test.Engine
                     .ProcessFile(
                         Arg.Is<IGrouping<string, AbstractFile>>(
                             g =>
-                                g.AsEnumerable().SingleOrDefault(m => m.ToFileName().Equals(Grouping2PresFileName)) !=
+                                g.AsEnumerable().SingleOrDefault(m => m.Filename.Equals(Grouping2PresFileName)) !=
                                 null));
             }
 

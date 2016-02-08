@@ -131,7 +131,7 @@ namespace Packager.Test.Factories
 
                 foreach (var model in modelsForSide)
                 {
-                    var fileData = side.Files.SingleOrDefault(f => f.FileName.Equals(model.ToFileName()));
+                    var fileData = side.Files.SingleOrDefault(f => f.FileName.Equals(model.Filename));
                     Assert.That(fileData, Is.Not.Null);
                     Assert.That(string.IsNullOrWhiteSpace(fileData.Checksum), Is.False);
                 }

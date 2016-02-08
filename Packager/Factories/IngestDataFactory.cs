@@ -18,7 +18,7 @@ namespace Packager.Factories
                 podMetadata.FileProvenances.GetFileProvenance(masterFileModel) as DigitalVideoFile;
             if (digitalFileProvenance == null)
             {
-                throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.ToFileName());
+                throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.Filename);
             }
 
             return new VideoIngest
@@ -70,7 +70,7 @@ namespace Packager.Factories
                 podMetadata.FileProvenances.GetFileProvenance(masterFileModel) as DigitalAudioFile;
             if (digitalFileProvenance == null)
             {
-                throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.ToFileName());
+                throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.Filename);
             }
 
             return new AudioIngest

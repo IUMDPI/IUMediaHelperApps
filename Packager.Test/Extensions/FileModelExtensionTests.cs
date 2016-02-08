@@ -106,8 +106,8 @@ namespace Packager.Test.Extensions
 
             var result = models.RemoveDuplicates();
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.That(result.Count(m=>m.ToFileName().Equals("MDPI_1111_01_pres.wav")), Is.EqualTo(1));
-            Assert.That(result.Count(m => m.ToFileName().Equals("MDPI_2222_01_pres.wav")), Is.EqualTo(1));
+            Assert.That(result.Count(m=>m.Filename.Equals("MDPI_1111_01_pres.wav")), Is.EqualTo(1));
+            Assert.That(result.Count(m => m.Filename.Equals("MDPI_2222_01_pres.wav")), Is.EqualTo(1));
         }
     }
 }

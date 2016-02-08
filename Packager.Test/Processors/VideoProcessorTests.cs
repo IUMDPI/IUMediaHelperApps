@@ -229,7 +229,7 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(Arg.Is<AbstractFile>(m=>m.ToFileName().Equals(model.ToFileName())), 
+                        FFMPEGRunner.Received().Normalize(Arg.Is<AbstractFile>(m=>m.Filename.Equals(model.Filename)), 
                             Arg.Any<AbstractEmbeddedVideoMetadata>());
                     }
                 }
@@ -402,7 +402,7 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     Hasher.Hash(Arg.Any<AbstractFile>())
-                        .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().ToFileName()} checksum"));
+                        .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().Filename} checksum"));
                 }
 
                 [TestCase]

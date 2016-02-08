@@ -6,6 +6,7 @@ namespace Packager.Models.FileModels
 {
     public class UnknownFile : AbstractFile
     {
+        
         public UnknownFile(string file) 
         {
             var parts = GetPathParts(file);
@@ -15,6 +16,9 @@ namespace Packager.Models.FileModels
             SequenceIndicator = GetSequenceIndicator(parts.FromIndex(2, string.Empty));
             Extension = Path.GetExtension(file);
             FileUse = parts.FromIndex(3, string.Empty);
+            FullFileUse = "Raw object file";
+            OriginalFileName = Path.GetFileName(file);
+            Filename = OriginalFileName;
         }
 
         private static string[] GetPathParts(string path)
@@ -24,11 +28,7 @@ namespace Packager.Models.FileModels
                 .ToLowerInvariant()
                 .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
         }
-
-        public override string Extension { get; }
-        public override string FileUse { get; }
-        public override string FullFileUse => "Raw object file";
-
+     
         public override bool IsValid()
         {
             return false;

@@ -28,7 +28,7 @@ namespace Packager.Processors
 
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
-        protected override async Task<IEnumerable<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
+        protected override async Task<List<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<VideoPodMetadata>(filesToProcess);
@@ -77,6 +77,9 @@ namespace Packager.Processors
 
                 var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
+
+                result.Checksum = await Hasher.Hash(result);
+                Observers.Log("{0} checksum: {1}", result.Filename, result.Checksum);
 
                 Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
                 return result;

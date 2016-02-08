@@ -87,6 +87,9 @@ namespace Packager.Processors
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
 
+                // verify that all files make it to dropbox
+                await VerifyDropboxFiles(processedList);
+
                 // move everything to success folder
                 await MoveToSuccessFolder();
 
@@ -102,7 +105,7 @@ namespace Packager.Processors
             }
         }
 
-        protected abstract Task<IEnumerable<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess);
+        protected abstract Task<List<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess);
 
         private async Task MoveToSuccessFolder()
         {
@@ -115,6 +118,35 @@ namespace Packager.Processors
                         GetSafeDirectoryName(BaseSuccessDirectory, ObjectDirectoryName, "success folder"));
 
                 Observers.EndSection(sectionKey, "Cleanup successful");
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+        }
+
+        private async Task VerifyDropboxFiles(IEnumerable<AbstractFile> processedList)
+        {
+            var sectionKey = Observers.BeginSection("Validating dropbox files");
+            try
+            {
+                foreach (var model in processedList)
+                {
+                    var dropboxPath = Path.Combine(DropBoxDirectory, model.Filename);
+                    var checksum = await Hasher.Hash(dropboxPath);
+                    if (model.Checksum.Equals(checksum))
+                    {
+                        Observers.Log("{0}: {1}", model.Filename, checksum);
+                    }
+                    else
+                    {
+                        throw new Exception($"Could not validate file {model.Filename}: checksum ({checksum}) not same as expected ({model.Checksum})");
+                    }
+                }
+
+                Observers.EndSection(sectionKey, "Dropbox files validated successfully!");
             }
             catch (Exception e)
             {

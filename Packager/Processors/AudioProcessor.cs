@@ -33,7 +33,7 @@ namespace Packager.Processors
 
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
-        protected override async Task<IEnumerable<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
+        protected override async Task<List<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<AudioPodMetadata>(filesToProcess);
@@ -68,7 +68,7 @@ namespace Packager.Processors
             // using the list of files that have been processed
             // make the xml file
             var xmlModel = await GenerateXml(metadata, processedList);
-
+            
             var outputList = new List<AbstractFile>().Concat(processedList).ToList();
             outputList.Add(xmlModel);
 
@@ -127,7 +127,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFile> GenerateXml<T>(T metadata, List<AbstractFile> filesToProcess) where T:AbstractPodMetadata
+        private async Task<XmlFile> GenerateXml(AudioPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
             var result = new XmlFile(ProjectCode, Barcode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
@@ -137,6 +137,9 @@ namespace Packager.Processors
 
                 var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
+
+                result.Checksum = await Hasher.Hash(result);
+                Observers.Log("{0} checksum: {1}", result.Filename, result.Checksum);
 
                 Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
                 return result;

@@ -69,7 +69,7 @@ namespace Packager.Processors
 
         private async Task<XmlFile> GenerateXml(VideoPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
-            var result = new XmlFile( Barcode, ProjectCode);
+            var result = new XmlFile( ProjectCode, Barcode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
             try
             {

@@ -14,7 +14,6 @@ using Packager.Models.OutputModels;
 using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
-using Packager.Utilities.Bext;
 
 namespace Packager.Test.Processors
 {
@@ -32,7 +31,8 @@ namespace Packager.Test.Processors
         {
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
                 .Returns(x => Task.FromResult((AbstractFile) new AccessFile(x.Arg<AbstractFile>())));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<AbstractEmbeddedMetadata>())
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(),
+                Arg.Any<AbstractEmbeddedMetadata>())
                 .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
             FFMPEGRunner.AccessArguments.Returns("Test");
             //FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedVideoMezzanineMetadata>())
@@ -229,7 +229,7 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(Arg.Is<AbstractFile>(m=>m.Filename.Equals(model.Filename)), 
+                        FFMPEGRunner.Received().Normalize(Arg.Is<AbstractFile>(m => m.Filename.Equals(model.Filename)),
                             Arg.Any<AbstractEmbeddedVideoMetadata>());
                     }
                 }
@@ -240,7 +240,7 @@ namespace Packager.Test.Processors
                     FFMPEGRunner.Received().Verify(Arg.Is<List<AbstractFile>>(l => l.SequenceEqual(ModelList)));
                 }
             }
-            
+
             public class WhenCreatingDerivatives : WhenNothingGoesWrong
             {
                 private AbstractFile ExpectedMasterModel { get; set; }
@@ -293,15 +293,18 @@ namespace Packager.Test.Processors
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private VideoCarrier VideoCarrier { get; set; }
-                private int ExpectedModelCount { get; set; }
+
+                private List<AbstractFile> ReceivedModelList { get; set; }
 
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
                     VideoCarrier = new VideoCarrier();
-                    MetadataGenerator.Generate((VideoPodMetadata) null, null).ReturnsForAnyArgs(VideoCarrier);
-                    ExpectedModelCount = 4; // pres master + prod master + access master, qc file
+                    MetadataGenerator.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()))
+                        .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
+                    MetadataGenerator.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>())
+                        .Returns(VideoCarrier);
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenGeneratingXmlManifest
@@ -311,7 +314,6 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
-                        ExpectedModelCount = 5; // pres master, presInt master, prod-master, access master, qc file
                     }
 
                     [Test]
@@ -322,6 +324,32 @@ namespace Packager.Test.Processors
                             Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
+                }
+
+                private IEnumerable<AbstractFile> GetMasters()
+                {
+                    return ModelList.Where(m =>
+                        m is AbstractPreservationFile ||
+                        m is AbstractPreservationIntermediateFile).ToList();
+                }
+
+                private T GetDerivativeForMaster<T>(AbstractFile master) where T : AbstractFile
+                {
+                    return ReceivedModelList.SingleOrDefault(m =>
+                        m is T &&
+                        m.ProjectCode.Equals(master.ProjectCode) &&
+                        m.BarCode.Equals(master.BarCode) &&
+                        m.SequenceIndicator.Equals(master.SequenceIndicator)) as T;
+                }
+
+                private QualityControlFile GetQualityControlFileForMaster(AbstractFile master)
+                {
+                    return ReceivedModelList.SingleOrDefault(m =>
+                        m is QualityControlFile &&
+                        m.ProjectCode.Equals(master.ProjectCode) &&
+                        m.BarCode.Equals(master.BarCode) &&
+                        m.FileUse.Equals(master.FileUse) &&
+                        m.SequenceIndicator.Equals(master.SequenceIndicator)) as QualityControlFile;
                 }
 
                 [Test]
@@ -345,20 +373,30 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldPassExpectedNumberOfObjectsToGenerator()
+                public void ItShouldPassExpectedAccessModelsToGenerator()
                 {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<AbstractFile>>(l => l.Count == ExpectedModelCount));
+                    var mastersCount = GetMasters().Count();
+                    var derivativeCount = GetMasters().Select(GetDerivativeForMaster<AccessFile>).Count();
+                    Assert.That(derivativeCount, Is.EqualTo(mastersCount));
                 }
 
                 [Test]
-                public void ItShouldPassSingleAccessModelToGenerator()
+                public void ItShouldPassExpectedMastersToGenerator()
                 {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsAccessVersion()) != null));
+                    foreach (var master in GetMasters())
+                    {
+                        Assert.That(ReceivedModelList.Contains(master));
+                    }
                 }
+
+                [Test]
+                public void ItShouldPassExpectedMezzModelsToGenerator()
+                {
+                    var mastersCount = GetMasters().Count();
+                    var derivativeCount = GetMasters().Select(GetDerivativeForMaster<MezzanineFile>).Count();
+                    Assert.That(derivativeCount, Is.EqualTo(mastersCount));
+                }
+
 
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
@@ -369,19 +407,13 @@ namespace Packager.Test.Processors
                 }
 
                 [Test]
-                public void ItShouldPassSingleMezzanineModelToGenerator()
+                public void ItShouldPassSingleQualityControlModelToGeneratorForEveryPresOrPresIntMaster()
                 {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsMezzanineVersion()) != null));
-                }
+                    var mastersCount = GetMasters().Count();
+                    var qualityControlFileCount = GetMasters().Select(GetQualityControlFileForMaster).Count();
+                    Assert.That(qualityControlFileCount, Is.EqualTo(mastersCount));
 
-                [Test]
-                public void ItShouldPassSingleQualityControlModelToGenerator()
-                {
-                    MetadataGenerator.Received().Generate(
-                        Arg.Any<VideoPodMetadata>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is QualityControlFile) != null));
+                    
                 }
             }
 
@@ -429,14 +461,16 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoPreservationMaster()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(PreservationFileName))).Checksum,
+                    Assert.That(
+                        ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(PreservationFileName))).Checksum,
                         Is.EqualTo($"{PreservationFileName} checksum"));
                 }
 
                 [Test]
                 public void ItShouldAssignHashValueCorrectlytoProductionVersion()
                 {
-                    Assert.That(ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(ProductionFileName))).Checksum,
+                    Assert.That(
+                        ProcessedModelList.Single(m => m.IsSameAs(new UnknownFile(ProductionFileName))).Checksum,
                         Is.EqualTo($"{ProductionFileName} checksum"));
                 }
 
@@ -469,7 +503,7 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     ExpectedDropboxDirectory = Path.Combine(DropBoxRoot, $"{ProjectCode.ToUpperInvariant()}_{Barcode}");
-                    ExpectedFiles = 4; // prod master, pres master, access, xml manifest
+                    ExpectedFiles = 5; // prod master, pres master, access, xml manifest, qc file
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenCopyingFilesToDropBoxFolder
@@ -479,7 +513,8 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
-                        ExpectedFiles = 5; // prod master, pres master, presInt master, access, xml manifest
+                        ExpectedFiles = 7;
+                        // prod master, pres master, presInt master, access, xml manifest, pres qc file, pres int qc file
                     }
 
                     [Test]

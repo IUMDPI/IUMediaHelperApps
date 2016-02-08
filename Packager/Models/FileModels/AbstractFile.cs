@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace Packager.Models.FileModels
 {
@@ -24,7 +23,7 @@ namespace Packager.Models.FileModels
             Filename = NormalizeFilename();
 
             OriginalFileName = IsSameAs(original)
-                ? original.OriginalFileName 
+                ? original.OriginalFileName
                 : Filename;
         }
 
@@ -59,7 +58,7 @@ namespace Packager.Models.FileModels
         {
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);
         }
-        
+
         private string NormalizeFilename()
         {
             var parts = new[]
@@ -67,7 +66,7 @@ namespace Packager.Models.FileModels
                 ProjectCode,
                 BarCode,
                 SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture),
-                FileUse,
+                FileUse
             };
 
             return string.Join("_", parts) + Extension;

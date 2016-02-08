@@ -4,7 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Packager.Models.SettingsModels;
 
 namespace Packager.Providers
 {
@@ -42,7 +41,7 @@ namespace Packager.Providers
 
         public bool FileDoesNotExist(string path)
         {
-            return FileExists(path) ==false;
+            return FileExists(path) == false;
         }
 
         public FileInfo GetFileInfo(string path)
@@ -52,16 +51,16 @@ namespace Packager.Providers
 
         public FileVersionInfo GetFileVersionInfo(string path)
         {
-            return !FileExists(path) 
-                ? null 
+            return !FileExists(path)
+                ? null
                 : FileVersionInfo.GetVersionInfo(path);
         }
 
         public string GetFileVersion(string path)
         {
             var info = GetFileVersionInfo(path);
-            return info == null 
-                ? "" 
+            return info == null
+                ? ""
                 : info.FileVersion;
         }
 
@@ -78,38 +77,44 @@ namespace Packager.Providers
             return File.ReadAllText(path);
         }
 
-        private void ArchiveFileInternal(string filePath, string archivePath)
-        {
-            if (FileDoesNotExist(filePath))
-            {
-                throw new FileNotFoundException($"The file {filePath} does not exist or is not accessible");
-            }
-
-            var mode = FileExists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create;
-            using (var archive = ZipFile.Open(archivePath, mode))
-            {
-                archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath));
-            }
-        }
-
         public async Task ArchiveFile(string filePath, string archivePath)
         {
-            await Task.Run(() => ArchiveFileInternal(filePath, archivePath));
+            await ArchiveFileInternal(filePath, archivePath);
         }
 
         public T Deserialize<T>(string filePath)
         {
             try
             {
-                var serializer = new XmlSerializer(typeof(T));
+                var serializer = new XmlSerializer(typeof (T));
                 using (var stream = new FileStream(filePath, FileMode.Open))
                 {
-                    return (T)serializer.Deserialize(stream);
+                    return (T) serializer.Deserialize(stream);
                 }
             }
             catch (Exception)
             {
                 return default(T);
+            }
+        }
+
+        private async Task ArchiveFileInternal(string filePath, string archivePath)
+        {
+            if (FileDoesNotExist(filePath))
+            {
+                throw new FileNotFoundException($"The file {filePath} does not exist or is not accessible");
+            }
+
+            var info = new FileInfo(filePath);
+            using (var inputStream = info.OpenRead())
+            {
+                using (var outputStream = File.Create(archivePath))
+                {
+                    using (var archiveStream = new GZipStream(outputStream, CompressionMode.Compress))
+                    {
+                        await inputStream.CopyToAsync(archiveStream);
+                    }
+                }
             }
         }
     }

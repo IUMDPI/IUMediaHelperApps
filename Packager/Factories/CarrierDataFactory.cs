@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -16,7 +17,7 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; set; }
         
-        public AudioCarrier Generate(AudioPodMetadata metadata, List<AbstractFile> filesToProcess)
+        private AudioCarrier Generate(AudioPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
             var result = new AudioCarrier
             {
@@ -48,7 +49,7 @@ namespace Packager.Factories
             return result;
         }
 
-        public VideoCarrier Generate(VideoPodMetadata metadata, List<AbstractFile> filesToProcess)
+        private VideoCarrier Generate(VideoPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
             var result = new VideoCarrier
             {
@@ -71,6 +72,23 @@ namespace Packager.Factories
             };
 
             return result;
+        }
+
+        public T Generate<T>(AbstractPodMetadata metadata, List<AbstractFile> filesToProcess) where T : AbstractCarrierData
+        {
+            var audioPodMetadata = metadata as AudioPodMetadata;
+            if (audioPodMetadata != null)
+            {
+                return Generate(audioPodMetadata, filesToProcess) as T;
+            }
+
+            var videoPodMetadata = metadata as VideoPodMetadata;
+            if (videoPodMetadata != null)
+            {
+                return Generate(videoPodMetadata, filesToProcess) as T;
+            }
+
+            throw new NotImplementedException($"No carrier data generator defined for {metadata.GetType().Name}");
         }
 
         private PartsData GeneratePartsData(AudioPodMetadata metadata, IEnumerable<AbstractFile> filesToProcess)

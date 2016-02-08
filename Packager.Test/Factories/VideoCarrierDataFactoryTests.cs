@@ -46,7 +46,7 @@ namespace Packager.Test.Factories
             };
 
             var generator = new CarrierDataFactory(SideDataFactory);
-            Result = generator.Generate(PodMetadata, FilesToProcess);
+            Result = generator.Generate<VideoCarrier>(PodMetadata, FilesToProcess);
         }
 
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.mkv";

@@ -8,6 +8,7 @@ using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
 using Packager.Utilities.Bext;
@@ -67,7 +68,7 @@ namespace Packager.Processors
             
             // using the list of files that have been processed
             // make the xml file
-            var xmlModel = await GenerateXml(metadata, processedList);
+            var xmlModel = await GenerateXml<AudioCarrier>(metadata, processedList);
             
             var outputList = new List<AbstractFile>().Concat(processedList).ToList();
             outputList.Add(xmlModel);
@@ -118,31 +119,6 @@ namespace Packager.Processors
             {
                 await BextProcessor.ClearMetadataFields(instances, fieldsToClear);
                 Observers.EndSection(sectionKey, "Metadata fields cleared successfully");
-            }
-            catch (Exception e)
-            {
-                Observers.EndSection(sectionKey);
-                Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
-        }
-
-        private async Task<XmlFile> GenerateXml(AudioPodMetadata metadata, List<AbstractFile> filesToProcess)
-        {
-            var result = new XmlFile(ProjectCode, Barcode);
-            var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
-            try
-            {
-                await AssignChecksumValues(filesToProcess);
-
-                var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
-                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
-
-                result.Checksum = await Hasher.Hash(result);
-                Observers.Log("{0} checksum: {1}", result.Filename, result.Checksum);
-
-                Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
-                return result;
             }
             catch (Exception e)
             {

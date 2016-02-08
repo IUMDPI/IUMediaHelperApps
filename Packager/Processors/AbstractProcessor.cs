@@ -7,6 +7,8 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
+using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
@@ -83,7 +85,7 @@ namespace Packager.Processors
 
                 // call internal implementation
                 var processedList = await ProcessFileInternal(filesToProcess);
-
+                
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
 
@@ -123,6 +125,31 @@ namespace Packager.Processors
             {
                 Observers.LogProcessingIssue(e, Barcode);
                 Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+        }
+
+        protected async Task<XmlFile> GenerateXml<T>(AbstractPodMetadata metadata, List<AbstractFile> filesToProcess) where T:AbstractCarrierData
+        {
+            var result = new XmlFile(ProjectCode, Barcode);
+            var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
+            try
+            {
+                await AssignChecksumValues(filesToProcess);
+
+                var wrapper = new IU { Carrier = MetadataGenerator.Generate<T>(metadata, filesToProcess) };
+                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
+
+                result.Checksum = await Hasher.Hash(result);
+                Observers.Log("{0} checksum: {1}", result.Filename, result.Checksum);
+
+                Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
+                return result;
+            }
+            catch (Exception e)
+            {
+                Observers.EndSection(sectionKey);
+                Observers.LogProcessingIssue(e, Barcode);
                 throw new LoggedException(e);
             }
         }

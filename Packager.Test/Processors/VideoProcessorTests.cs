@@ -301,9 +301,9 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     VideoCarrier = new VideoCarrier();
-                    MetadataGenerator.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()))
+                    MetadataGenerator.When(mg => mg.Generate<VideoCarrier>(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()))
                         .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
-                    MetadataGenerator.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>())
+                    MetadataGenerator.Generate<VideoCarrier>(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>())
                         .Returns(VideoCarrier);
                 }
 
@@ -319,7 +319,7 @@ namespace Packager.Test.Processors
                     [Test]
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
-                        MetadataGenerator.Received().Generate(
+                        MetadataGenerator.Received().Generate<VideoCarrier>(
                             Arg.Any<VideoPodMetadata>(),
                             Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
@@ -401,7 +401,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
-                    MetadataGenerator.Received().Generate(
+                    MetadataGenerator.Received().Generate<VideoCarrier>(
                         Arg.Any<VideoPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
@@ -435,6 +435,9 @@ namespace Packager.Test.Processors
 
                     Hasher.Hash(Arg.Any<AbstractFile>())
                         .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().Filename} checksum"));
+
+                    Hasher.Hash(Arg.Any<string>())
+                       .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} checksum"));
                 }
 
                 [TestCase]

@@ -320,7 +320,7 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     AudioCarrier = new AudioCarrier();
-                    MetadataGenerator.Generate((AudioPodMetadata) null, null).ReturnsForAnyArgs(AudioCarrier);
+                    MetadataGenerator.Generate<AudioCarrier>(null, null).ReturnsForAnyArgs(AudioCarrier);
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
@@ -337,7 +337,7 @@ namespace Packager.Test.Processors
                     [Test]
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
-                        MetadataGenerator.Received().Generate(
+                        MetadataGenerator.Received().Generate<AudioCarrier>(
                             Arg.Any<AudioPodMetadata>(),
                             Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
@@ -367,7 +367,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassExpectedNumberOfObjectsToGenerator()
                 {
-                    MetadataGenerator.Received().Generate(
+                    MetadataGenerator.Received().Generate<AudioCarrier>(
                         Arg.Any<AudioPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.Count == ExpectedModelCount));
                 }
@@ -375,7 +375,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSingleAccessModelToGenerator()
                 {
-                    MetadataGenerator.Received().Generate(
+                    MetadataGenerator.Received().Generate<AudioCarrier>(
                         Arg.Any<AudioPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m=>m is AccessFile) !=null));
                 }
@@ -383,7 +383,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
-                    MetadataGenerator.Received().Generate(
+                    MetadataGenerator.Received().Generate<AudioCarrier>(
                         Arg.Any<AudioPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is AudioPreservationFile) != null));
                 }
@@ -391,7 +391,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSingleProductionModelToGenerator()
                 {
-                    MetadataGenerator.Received().Generate(
+                    MetadataGenerator.Received().Generate<AudioCarrier>(
                         Arg.Any<AudioPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is ProductionFile) != null));
                 }
@@ -415,6 +415,9 @@ namespace Packager.Test.Processors
 
                     Hasher.Hash(Arg.Any<AbstractFile>())
                         .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().Filename} checksum"));
+
+                    Hasher.Hash(Arg.Any<string>())
+                        .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} checksum"));
                 }
 
                 [TestCase]

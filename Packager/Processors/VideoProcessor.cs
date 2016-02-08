@@ -88,16 +88,7 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
-
-        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
-        {
-            foreach (var model in models)
-            {
-                model.Checksum = await Hasher.Hash(model);
-                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
-            }
-        }
-
+        
         private async Task NormalizeOriginals(List<AbstractFile> originals, VideoPodMetadata podMetadata)
         {
             foreach (var original in originals)

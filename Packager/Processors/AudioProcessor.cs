@@ -127,7 +127,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFile> GenerateXml(AudioPodMetadata metadata, List<AbstractFile> filesToProcess)
+        private async Task<XmlFile> GenerateXml<T>(T metadata, List<AbstractFile> filesToProcess) where T:AbstractPodMetadata
         {
             var result = new XmlFile(ProjectCode, Barcode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
@@ -146,15 +146,6 @@ namespace Packager.Processors
                 Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, Barcode);
                 throw new LoggedException(e);
-            }
-        }
-
-        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
-        {
-            foreach (var model in models)
-            {
-                model.Checksum = await Hasher.Hash(model);
-                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
             }
         }
     }

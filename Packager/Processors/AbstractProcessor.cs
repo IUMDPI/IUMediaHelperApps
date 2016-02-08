@@ -222,7 +222,7 @@ namespace Packager.Processors
             }
         }
 
-        private string GetFilenameToLog(AbstractFile model)
+        private static string GetFilenameToLog(AbstractFile model)
         {
             return (model.OriginalFileName.Equals(model.Filename, StringComparison.InvariantCultureIgnoreCase))
                 ? model.Filename
@@ -267,6 +267,15 @@ namespace Packager.Processors
                 Observers.LogProcessingIssue(e, Barcode);
                 Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
+            }
+        }
+
+        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
+        {
+            foreach (var model in models)
+            {
+                model.Checksum = await Hasher.Hash(model);
+                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
             }
         }
     }

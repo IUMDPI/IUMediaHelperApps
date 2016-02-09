@@ -103,8 +103,8 @@ namespace Packager.Processors
                 // then determine which file to use to create derivatives
                 // then use that file to create the derivatives
                 // then aggregate the results into the processed list
-                processedList =
-                    processedList.Concat(await CreateProdOrMezzDerivatives(processedList, metadata)).ToList();
+                processedList = processedList.Concat(
+                    await CreateProdOrMezzDerivatives(processedList, metadata)).ToList();
 
                 // now remove duplicate entries -- this could happen if production master
                 // already exists
@@ -114,18 +114,18 @@ namespace Packager.Processors
                 await ClearMetadataFields(processedList);
 
                 // generate the access versions from production masters
-                processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
+                processedList = processedList.Concat(
+                    await CreateAccessDerivatives(processedList)).ToList();
 
                 // create QC files
-                var qcFiles = await CreateQualityControlFiles(processedList);
                 // add qc files to processed list
-                processedList = processedList.Concat(qcFiles).ToList();
+                processedList = processedList.Concat(
+                    await CreateQualityControlFiles(processedList)).ToList();
 
                 // using the list of files that have been processed
                 // make the xml file
-                var xmlModel = await GenerateXml(metadata, processedList);
-                processedList.Add(xmlModel);
-
+                processedList.Add(await GenerateXml(metadata, processedList));
+                
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
 
@@ -159,6 +159,7 @@ namespace Packager.Processors
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(List<AbstractFile> processedList);
 
 
+        // todo: see if can fix so that || condition removed
         private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models)
         {
             var results = new List<AbstractFile>();
@@ -166,7 +167,6 @@ namespace Packager.Processors
             // for each production master, create an access version
             foreach (var model in models.Where(m => m.IsProductionVersion() || m.IsMezzanineVersion()))
             {
-                var test = await FFMpegRunner.CreateAccessDerivative(model);
                 results.Add(await FFMpegRunner.CreateAccessDerivative(model));
             }
             return results;

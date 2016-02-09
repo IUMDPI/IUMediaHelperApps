@@ -164,7 +164,7 @@ namespace Packager.Processors
             var results = new List<AbstractFile>();
 
             // for each production master, create an access version
-            foreach (var model in models.Where(m => m.IsMezzanineVersion()))
+            foreach (var model in models.Where(m => m.IsProductionVersion() || m.IsMezzanineVersion()))
             {
                 var test = await FFMpegRunner.CreateAccessDerivative(model);
                 results.Add(await FFMpegRunner.CreateAccessDerivative(model));

@@ -8,13 +8,13 @@ using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
-using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
+using Packager.Utilities.Process;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 
@@ -36,9 +36,9 @@ namespace Packager.Processors
 
         private IPodMetadataProvider MetadataProvider => DependencyProvider.MetadataProvider;
 
-        protected IXmlExporter XmlExporter => DependencyProvider.XmlExporter;
+        private IXmlExporter XmlExporter => DependencyProvider.XmlExporter;
 
-        protected string ProjectCode => ProgramSettings.ProjectCode;
+        private string ProjectCode => ProgramSettings.ProjectCode;
 
         private string ObjectDirectoryName => $"{ProjectCode.ToUpperInvariant()}_{Barcode}";
 
@@ -48,19 +48,17 @@ namespace Packager.Processors
 
         protected string Barcode { get; private set; }
 
-        protected string InputDirectory => ProgramSettings.InputDirectory;
+        private string InputDirectory => ProgramSettings.InputDirectory;
 
         private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
 
         private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
 
-        protected IHasher Hasher => DependencyProvider.Hasher;
+        private IHasher Hasher => DependencyProvider.Hasher;
 
-        protected IFileProvider FileProvider => DependencyProvider.FileProvider;
+        private IFileProvider FileProvider => DependencyProvider.FileProvider;
 
-        protected IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
-
-        protected ICarrierDataFactory MetadataGenerator => DependencyProvider.MetadataGenerator;
+        private IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
 
         protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
 
@@ -69,6 +67,10 @@ namespace Packager.Processors
         private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
 
         protected abstract string OriginalsDirectory { get; }
+
+        protected abstract ICarrierDataFactory CarrierDataFactory { get; }
+
+        protected abstract IFFMPEGRunner FFMpegRunner { get; }
 
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> fileModels)
         {
@@ -83,9 +85,47 @@ namespace Packager.Processors
                 // now move them to processing
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess);
 
-                // call internal implementation
-                var processedList = await ProcessFileInternal(filesToProcess);
-                
+                // fetch, log, and validate metadata
+                var metadata = await GetMetadata(filesToProcess);
+
+                // normalize originals
+                await NormalizeOriginals(filesToProcess, metadata);
+
+                // verify normalized versions of originals
+                await FFMpegRunner.Verify(filesToProcess);
+
+                // create list of files to process and add the original files that
+                // we know about
+                var processedList = new List<AbstractFile>().Concat(filesToProcess)
+                    .GroupBy(m => m.Filename).Select(g => g.First()).ToList();
+
+                // next group by sequence
+                // then determine which file to use to create derivatives
+                // then use that file to create the derivatives
+                // then aggregate the results into the processed list
+                processedList =
+                    processedList.Concat(await CreateProdOrMezzDerivatives(processedList, metadata)).ToList();
+
+                // now remove duplicate entries -- this could happen if production master
+                // already exists
+                processedList = processedList.RemoveDuplicates();
+
+                // now clear the ISFT field from presentation and production/mezz masters
+                await ClearMetadataFields(processedList);
+
+                // generate the access versions from production masters
+                processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
+
+                // create QC files
+                var qcFiles = await CreateQualityControlFiles(processedList);
+                // add qc files to processed list
+                processedList = processedList.Concat(qcFiles).ToList();
+
+                // using the list of files that have been processed
+                // make the xml file
+                var xmlModel = await GenerateXml(metadata, processedList);
+                processedList.Add(xmlModel);
+
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
 
@@ -107,7 +147,30 @@ namespace Packager.Processors
             }
         }
 
-        protected abstract Task<List<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess);
+        protected abstract Task<AbstractPodMetadata> GetMetadata(List<AbstractFile> filesToProcess);
+
+        protected abstract Task NormalizeOriginals(List<AbstractFile> originals, AbstractPodMetadata podMetadata);
+
+        protected abstract Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models,
+            AbstractPodMetadata metadata);
+
+        protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
+
+        protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(List<AbstractFile> processedList);
+
+
+        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models)
+        {
+            var results = new List<AbstractFile>();
+
+            // for each production master, create an access version
+            foreach (var model in models.Where(m => m.IsMezzanineVersion()))
+            {
+                var test = await FFMpegRunner.CreateAccessDerivative(model);
+                results.Add(await FFMpegRunner.CreateAccessDerivative(model));
+            }
+            return results;
+        }
 
         private async Task MoveToSuccessFolder()
         {
@@ -129,7 +192,7 @@ namespace Packager.Processors
             }
         }
 
-        protected async Task<XmlFile> GenerateXml<T>(AbstractPodMetadata metadata, List<AbstractFile> filesToProcess) where T:AbstractCarrierData
+        private async Task<XmlFile> GenerateXml(AbstractPodMetadata metadata, List<AbstractFile> filesToProcess)
         {
             var result = new XmlFile(ProjectCode, Barcode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
@@ -137,7 +200,7 @@ namespace Packager.Processors
             {
                 await AssignChecksumValues(filesToProcess);
 
-                var wrapper = new IU { Carrier = MetadataGenerator.Generate<T>(metadata, filesToProcess) };
+                var wrapper = new IU {Carrier = CarrierDataFactory.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
 
                 result.Checksum = await Hasher.Hash(result);
@@ -169,7 +232,8 @@ namespace Packager.Processors
                     }
                     else
                     {
-                        throw new Exception($"Could not validate file {model.Filename}: checksum ({checksum}) not same as expected ({model.Checksum})");
+                        throw new Exception(
+                            $"Could not validate file {model.Filename}: checksum ({checksum}) not same as expected ({model.Checksum})");
                     }
                 }
 
@@ -283,7 +347,7 @@ namespace Packager.Processors
 
         private static string GetFilenameToLog(AbstractFile model)
         {
-            return (model.OriginalFileName.Equals(model.Filename, StringComparison.InvariantCultureIgnoreCase))
+            return model.OriginalFileName.Equals(model.Filename, StringComparison.InvariantCultureIgnoreCase)
                 ? model.Filename
                 : $"{model.Filename} ({model.OriginalFileName})";
         }
@@ -292,7 +356,7 @@ namespace Packager.Processors
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
             var targetPath = Path.Combine(OriginalsDirectory, fileModel.Filename);
-            
+
             if (FileProvider.FileExists(targetPath))
             {
                 throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.Filename,

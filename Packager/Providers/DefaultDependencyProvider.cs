@@ -30,7 +30,9 @@ namespace Packager.Providers
             ProcessRunner = new ProcessRunner();
             IngestDataFactory = new IngestDataFactory();
             SideDataFactory = new SideDataFactory(IngestDataFactory);
-            MetadataGenerator = new CarrierDataFactory(SideDataFactory);
+            AudioCarrierDataFactory = new AudioCarrierDataFactory(SideDataFactory);
+            VideoCarrierDataFactory = new VideoCarrierDataFactory(SideDataFactory);
+
             SystemInfoProvider = new SystemInfoProvider(ProgramSettings.LogDirectoryName);
             Observers = new ObserverCollection();
             AudioMetadataFactory = new EmbeddedAudioMetadataFactory();
@@ -78,8 +80,11 @@ namespace Packager.Providers
         public IProcessRunner ProcessRunner { get; }
 
         [ValidateObject]
-        public ICarrierDataFactory MetadataGenerator { get; }
+        public ICarrierDataFactory AudioCarrierDataFactory { get; }
 
+        [ValidateObject]
+        public ICarrierDataFactory VideoCarrierDataFactory { get; }
+        
         [ValidateObject]
         public IProgramSettings ProgramSettings { get; }
 

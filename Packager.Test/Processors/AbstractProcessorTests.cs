@@ -40,7 +40,7 @@ namespace Packager.Test.Processors
         protected IObserverCollection Observers { get; set; }
         protected IProcessor Processor { get; set; }
         protected IPodMetadataProvider MetadataProvider { get; set; }
-        protected ICarrierDataFactory MetadataGenerator { get; set; }
+        protected ICarrierDataFactory CarrierDataFactory { get; set; }
         protected IBextProcessor BextProcessor { get; set; }
         protected IFFMPEGRunner FFMPEGRunner { get; set; }
         protected IFFProbeRunner FFProbeRunner { get; set; }
@@ -105,7 +105,7 @@ namespace Packager.Test.Processors
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
-            MetadataGenerator = Substitute.For<ICarrierDataFactory>();
+            CarrierDataFactory = Substitute.For<ICarrierDataFactory>();
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFProbeRunner = Substitute.For<IFFProbeRunner>();
@@ -122,7 +122,8 @@ namespace Packager.Test.Processors
             DependencyProvider.Observers.Returns(Observers);
             DependencyProvider.XmlExporter.Returns(XmlExporter);
             DependencyProvider.BextProcessor.Returns(BextProcessor);
-            DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
+            DependencyProvider.AudioCarrierDataFactory.Returns(CarrierDataFactory);
+            DependencyProvider.VideoCarrierDataFactory.Returns(CarrierDataFactory);
             DependencyProvider.AudioFFMPEGRunner.Returns(FFMPEGRunner);
             DependencyProvider.VideoFFMPEGRunner.Returns(FFMPEGRunner);
             DependencyProvider.AudioMetadataFactory.Returns(AudioMetadataFactory);

@@ -315,12 +315,19 @@ namespace Packager.Test.Processors
                 private AudioCarrier AudioCarrier { get; set; }
                 private int ExpectedModelCount { get; set; }
 
+                private List<AbstractFile> ReceivedModelList { get; set; }
+
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
 
                     AudioCarrier = new AudioCarrier();
-                    MetadataGenerator.Generate<AudioCarrier>(null, null).ReturnsForAnyArgs(AudioCarrier);
+                    CarrierDataFactory.When(mg => mg.Generate(Arg.Any<AbstractPodMetadata>(), Arg.Any<List<AbstractFile>>()))
+                       .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
+                    CarrierDataFactory.Generate(Arg.Any<AbstractPodMetadata>(), Arg.Any<List<AbstractFile>>())
+                        .Returns(AudioCarrier);
+
+                    CarrierDataFactory.Generate(null, null).ReturnsForAnyArgs(AudioCarrier);
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
@@ -337,7 +344,7 @@ namespace Packager.Test.Processors
                     [Test]
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
-                        MetadataGenerator.Received().Generate<AudioCarrier>(
+                        CarrierDataFactory.Received().Generate(
                             Arg.Any<AudioPodMetadata>(),
                             Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
@@ -364,35 +371,62 @@ namespace Packager.Test.Processors
                     Observers.Received().BeginSection("Generating {0}", $"{ProjectCode}_{Barcode}.xml");
                 }
 
-                [Test]
-                public void ItShouldPassExpectedNumberOfObjectsToGenerator()
+                private IEnumerable<AbstractFile> GetMasters()
                 {
-                    MetadataGenerator.Received().Generate<AudioCarrier>(
-                        Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<AbstractFile>>(l => l.Count == ExpectedModelCount));
+                    return ModelList.Where(m =>
+                        m is AbstractPreservationFile ||
+                        m is AbstractPreservationIntermediateFile).ToList();
+                }
+
+                private T GetDerivativeForMaster<T>(AbstractFile master) where T : AbstractFile
+                {
+                    return ReceivedModelList.SingleOrDefault(m =>
+                        m is T &&
+                        m.ProjectCode.Equals(master.ProjectCode) &&
+                        m.BarCode.Equals(master.BarCode) &&
+                        m.SequenceIndicator.Equals(master.SequenceIndicator)) as T;
                 }
 
                 [Test]
-                public void ItShouldPassSingleAccessModelToGenerator()
+                public void ItShouldPassExpectedAccessModelsToGenerator()
                 {
-                    MetadataGenerator.Received().Generate<AudioCarrier>(
-                        Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m=>m is AccessFile) !=null));
+                    var mastersCount = GetMasters().Count();
+                    var derivativeCount = GetMasters().Select(GetDerivativeForMaster<AccessFile>).Count();
+                    Assert.That(derivativeCount, Is.EqualTo(mastersCount));
                 }
+
+                [Test]
+                public void ItShouldPassExpectedMastersToGenerator()
+                {
+                    foreach (var master in GetMasters())
+                    {
+                        Assert.That(ReceivedModelList.Contains(master));
+                    }
+                }
+
+                [Test]
+                public void ItShouldPassExpectedMezzModelsToGenerator()
+                {
+                    var mastersCount = GetMasters().Count();
+                    var derivativeCount = GetMasters().Select(GetDerivativeForMaster<MezzanineFile>).Count();
+                    Assert.That(derivativeCount, Is.EqualTo(mastersCount));
+                }
+
 
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
-                    MetadataGenerator.Received().Generate<AudioCarrier>(
-                        Arg.Any<AudioPodMetadata>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is AudioPreservationFile) != null));
+                    CarrierDataFactory.Received().Generate(
+                        Arg.Any<AbstractPodMetadata>(),
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
+
 
                 [Test]
                 public void ItShouldPassSingleProductionModelToGenerator()
                 {
-                    MetadataGenerator.Received().Generate<AudioCarrier>(
-                        Arg.Any<AudioPodMetadata>(),
+                    CarrierDataFactory.Received().Generate(
+                        Arg.Any<AbstractPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is ProductionFile) != null));
                 }
             }
@@ -404,7 +438,7 @@ namespace Packager.Test.Processors
                     base.BeforeEach();
 
                     ProcessedModelList =
-                        MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<AbstractFile>;
+                        CarrierDataFactory.ReceivedCalls().First().GetArguments()[1] as List<AbstractFile>;
                 }
 
                 private List<AbstractFile> ProcessedModelList { get; set; }

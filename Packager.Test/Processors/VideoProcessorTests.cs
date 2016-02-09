@@ -35,9 +35,7 @@ namespace Packager.Test.Processors
                 Arg.Any<AbstractEmbeddedMetadata>())
                 .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
             FFMPEGRunner.AccessArguments.Returns("Test");
-            //FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedVideoMezzanineMetadata>())
-            //    .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
-
+           
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
 
@@ -301,9 +299,9 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     VideoCarrier = new VideoCarrier();
-                    MetadataGenerator.When(mg => mg.Generate<VideoCarrier>(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()))
+                    CarrierDataFactory.When(mg => mg.Generate(Arg.Any<AbstractPodMetadata>(), Arg.Any<List<AbstractFile>>()))
                         .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
-                    MetadataGenerator.Generate<VideoCarrier>(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>())
+                    CarrierDataFactory.Generate(Arg.Any<AbstractPodMetadata>(), Arg.Any<List<AbstractFile>>())
                         .Returns(VideoCarrier);
                 }
 
@@ -319,7 +317,7 @@ namespace Packager.Test.Processors
                     [Test]
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
-                        MetadataGenerator.Received().Generate<VideoCarrier>(
+                        CarrierDataFactory.Received().Generate(
                             Arg.Any<VideoPodMetadata>(),
                             Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
@@ -401,7 +399,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
-                    MetadataGenerator.Received().Generate<VideoCarrier>(
+                    CarrierDataFactory.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
@@ -424,7 +422,7 @@ namespace Packager.Test.Processors
                     base.BeforeEach();
 
                     ProcessedModelList =
-                        MetadataGenerator.ReceivedCalls().First().GetArguments()[1] as List<AbstractFile>;
+                        CarrierDataFactory.ReceivedCalls().First().GetArguments()[1] as List<AbstractFile>;
                 }
 
                 private List<AbstractFile> ProcessedModelList { get; set; }

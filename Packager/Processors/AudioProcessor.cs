@@ -7,8 +7,6 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
-using Packager.Models.OutputModels;
-using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
 using Packager.Utilities.Bext;
@@ -18,23 +16,74 @@ namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor
     {
-        // todo: figure out how to get this
-        //private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
-
         public AudioProcessor(IDependencyProvider dependencyProvider)
             : base(dependencyProvider)
         {
             AudioMetadataFactory = dependencyProvider.AudioMetadataFactory;
         }
 
-        // ReSharper disable once InconsistentNaming
-        private IFFMPEGRunner FFPMpegRunner => DependencyProvider.AudioFFMPEGRunner;
-        
+        protected override ICarrierDataFactory CarrierDataFactory => DependencyProvider.AudioCarrierDataFactory;
+
+        protected override IFFMPEGRunner FFMpegRunner => DependencyProvider.AudioFFMPEGRunner;
+
         private IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
 
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
-        protected override async Task<List<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
+        // ReSharper disable once InconsistentNaming
+        protected override async Task NormalizeOriginals(List<AbstractFile> originals, AbstractPodMetadata podMetadata)
+        {
+            foreach (var original in originals)
+            {
+                var metadata = AudioMetadataFactory.Generate(originals, original, (AudioPodMetadata) podMetadata);
+                await FFMpegRunner.Normalize(original, metadata);
+            }
+        }
+
+        protected override async Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models,
+            AbstractPodMetadata podMetadata)
+        {
+            var results = new List<AbstractFile>();
+            foreach (var master in models
+                .GroupBy(m => m.SequenceIndicator)
+                .Select(g => g.GetPreservationOrIntermediateModel()))
+            {
+                var derivative = new ProductionFile(master);
+                var metadata = AudioMetadataFactory.Generate(models, derivative, (AudioPodMetadata) podMetadata);
+                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
+            }
+
+            return results;
+        }
+
+        protected override async Task ClearMetadataFields(List<AbstractFile> processedList)
+        {
+            var sectionKey = Observers.BeginSection("Clearing metadata fields");
+            try
+            {
+                await BextProcessor.ClearMetadataFields(processedList, new List<BextFields> { BextFields.ISFT, BextFields.ITCH});
+                Observers.EndSection(sectionKey, "Metadata fields cleared successfully");
+            }
+            catch (Exception e)
+            {
+                Observers.EndSection(sectionKey);
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
+            }
+        }
+
+        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(List<AbstractFile> processedList)
+        {
+            // do nothing here
+            return await Task.FromResult(new List<AbstractFile>());
+        }
+
+        protected override async Task<AbstractPodMetadata> GetMetadata(List<AbstractFile> filesToProcess)
+        {
+            return await GetMetadata<AudioPodMetadata>(filesToProcess);
+        }
+
+        /* protected override async Task<List<AbstractFile>> ProcessFileInternal(List<AbstractFile> filesToProcess)
         {
             // fetch, log, and validate metadata
             var metadata = await GetMetadata<AudioPodMetadata>(filesToProcess);
@@ -43,7 +92,7 @@ namespace Packager.Processors
             await NormalizeOriginals(filesToProcess, metadata);
 
             // verify normalized versions of originals
-            await FFPMpegRunner.Verify(filesToProcess);
+            await FFMpegRunner.Verify(filesToProcess);
 
             // create list of files to process and add the original files that
             // we know about
@@ -74,18 +123,11 @@ namespace Packager.Processors
             outputList.Add(xmlModel);
 
             return outputList;
-        }
-        
-        private async Task NormalizeOriginals(List<AbstractFile> originals, AudioPodMetadata podMetadata)
-        {
-            foreach (var original in originals)
-            {
-                var metadata = AudioMetadataFactory.Generate(originals, original, podMetadata);
-                await FFPMpegRunner.Normalize(original, metadata);
-            }
-        }
+        }*/
 
-        private async Task<List<AbstractFile>> CreateProductionDerivatives(List<AbstractFile> models, AudioPodMetadata podMetadata)
+
+        private async Task<List<AbstractFile>> CreateProductionDerivatives(List<AbstractFile> models,
+            AudioPodMetadata podMetadata)
         {
             var results = new List<AbstractFile>();
             foreach (var master in models
@@ -94,7 +136,7 @@ namespace Packager.Processors
             {
                 var derivative = new ProductionFile(master);
                 var metadata = AudioMetadataFactory.Generate(models, derivative, podMetadata);
-                results.Add(await FFPMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
+                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
             }
 
             return results;
@@ -107,7 +149,7 @@ namespace Packager.Processors
             // for each production master, create an access version
             foreach (var model in models.Where(m => m.IsProductionVersion()))
             {
-                results.Add(await FFPMpegRunner.CreateAccessDerivative(model));
+                results.Add(await FFMpegRunner.CreateAccessDerivative(model));
             }
             return results;
         }

@@ -49,8 +49,8 @@ namespace Packager.Test.Factories
                 AccessSide1FileModel
             };
 
-            var generator = new CarrierDataFactory(SideDataFactory);
-            Result = generator.Generate<AudioCarrier>(PodMetadata, FilesToProcess);
+            var generator = new AudioCarrierDataFactory(SideDataFactory);
+            Result = generator.Generate(PodMetadata, FilesToProcess) as AudioCarrier;
         }
 
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";

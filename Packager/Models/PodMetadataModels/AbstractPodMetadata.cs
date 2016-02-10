@@ -11,8 +11,7 @@ namespace Packager.Models.PodMetadataModels
     {
         [Required]
         public string Format { get; set; }
-
-        [Required]
+        
         public string CallNumber { get; set; }
 
         public string Title { get; set; }

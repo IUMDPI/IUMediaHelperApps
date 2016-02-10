@@ -12,15 +12,8 @@ namespace Packager.Test.Factories
     [TestFixture]
     public class AudioCarrierDataFactoryTests
     {
-        [SetUp]
-        public void BeforeEach()
+        protected virtual void SetUpMetadata()
         {
-            ProcessingDirectory = "test folder";
-
-            PreservationSide1FileModel = FileModelFactory.GetModel(PreservationSide1FileName);
-            ProductionSide1FileModel = FileModelFactory.GetModel(ProductionSide1FileName);
-            AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
-
             PodMetadata = new AudioPodMetadata
             {
                 Barcode = "4890764553278906",
@@ -33,12 +26,22 @@ namespace Packager.Test.Factories
                 CallNumber = "Call number",
                 DigitizingEntity = "Test entity",
                 SoundField = "Mono",
-                //PlaybackSpeed = "7.5 ips",
-                //Identifier = "1",
+                PlaybackSpeed = "7.5 ips",
                 TapeThickness = "1 mm",
                 Repaired = "Yes",
                 Comments = "comments value"
             };
+        }
+        [SetUp]
+        public void BeforeEach()
+        {
+            ProcessingDirectory = "test folder";
+
+            PreservationSide1FileModel = FileModelFactory.GetModel(PreservationSide1FileName);
+            ProductionSide1FileModel = FileModelFactory.GetModel(ProductionSide1FileName);
+            AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
+
+            SetUpMetadata();
 
             SideDataFactory = Substitute.For<ISideDataFactory>();
 
@@ -68,6 +71,32 @@ namespace Packager.Test.Factories
 
         public class WhenSettingBasicProperties : AudioCarrierDataFactoryTests
         {
+            public class WhenCallNumberNotSet : WhenSettingBasicProperties
+            {
+                protected override void SetUpMetadata()
+                {
+                    base.SetUpMetadata();
+                    PodMetadata.CallNumber = "";
+                }
+
+                [Test]
+                public void ItShouldSetIdentifierCorrectly()
+                {
+                    Assert.That(Result.Identifier, Is.EqualTo("Unknown"));
+                }
+
+            }
+
+            public class WhenCallNumberSet : WhenSettingBasicProperties
+            {
+                [Test]
+                public void ItShouldSetIdentifierCorrectly()
+                {
+                    Assert.That(Result.Identifier, Is.EqualTo(PodMetadata.CallNumber));
+                }
+
+            }
+
             [Test]
             public void ItShouldSetBarCodeCorrectly()
             {
@@ -92,12 +121,7 @@ namespace Packager.Test.Factories
                 Assert.That(Result.DirectionsRecorded, Is.EqualTo(PodMetadata.DirectionsRecorded));
             }
 
-            [Test]
-            public void ItShouldSetIdentifierCorrectly()
-            {
-                Assert.That(Result.Identifier, Is.EqualTo(PodMetadata.CallNumber));
-            }
-
+          
             [Test]
             public void ItShouldSetThicknessCorrectly()
             {

@@ -26,7 +26,7 @@ namespace Packager.Test.Factories
                 Format = "Record",
                 Title = Title,
                 SoundField = "Mono",
-                //PlaybackSpeed = "7.5 ips",
+                PlaybackSpeed = "7.5 ips",
                 FileProvenances = new List<AbstractDigitalFile> {Provenance}
             };
 
@@ -96,6 +96,38 @@ namespace Packager.Test.Factories
             };
 
             return result;
+        }
+
+
+        public class WhenCallNumberIsSet : EmbeddedAudioMetadataFactoryTests
+        {
+            [Test]
+            public void DescriptionAndIcmtShouldBeSetCorrectly()
+            {
+                var expected =
+                    $"{Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
+                Assert.That(Result.Description, Is.EqualTo(expected));
+                Assert.That(Result.ICMT, Is.EqualTo(expected));
+            }
+        }
+
+        public class WhenCallNumberIsNotSet : EmbeddedAudioMetadataFactoryTests
+        {
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                Metadata.CallNumber = "";
+               
+            }
+
+            [Test]
+            public void DescriptionAndIcmtShouldBeSetCorrectly()
+            {
+                var expected =
+                    $"{Unit}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
+                Assert.That(Result.Description, Is.EqualTo(expected));
+                Assert.That(Result.ICMT, Is.EqualTo(expected));
+            }
         }
 
         [TestFixture]
@@ -231,16 +263,7 @@ namespace Packager.Test.Factories
             var parts = Result.CodingHistory.Split(new[] {"\r\n"}, StringSplitOptions.None);
             Assert.That(parts.Length, Is.EqualTo(3));
         }
-
-        [Test]
-        public void DescriptionAndIcmtShouldBeSetCorrectly()
-        {
-            var expected =
-                $"{Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
-            Assert.That(Result.Description, Is.EqualTo(expected));
-            Assert.That(Result.ICMT, Is.EqualTo(expected));
-        }
-
+        
         [Test]
         public void IarlShouldBeSetCorrectly()
         {

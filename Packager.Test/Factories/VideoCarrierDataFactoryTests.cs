@@ -12,15 +12,8 @@ namespace Packager.Test.Factories
     [TestFixture]
     public class VideoCarrierDataFactoryTests
     {
-        [SetUp]
-        public void BeforeEach()
+        protected virtual void SetUpMetadata()
         {
-            ProcessingDirectory = "test folder";
-
-            PreservationSide1FileModel = FileModelFactory.GetModel(PreservationSide1FileName);
-            MezzSide1FileModel = FileModelFactory.GetModel(MezzSide1FileName);
-            AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
-
             PodMetadata = new VideoPodMetadata
             {
                 Barcode = "4890764553278906",
@@ -36,6 +29,19 @@ namespace Packager.Test.Factories
                 Comments = "comments value"
             };
 
+        }
+
+        [SetUp]
+        public void BeforeEach()
+        {
+            ProcessingDirectory = "test folder";
+
+            PreservationSide1FileModel = FileModelFactory.GetModel(PreservationSide1FileName);
+            MezzSide1FileModel = FileModelFactory.GetModel(MezzSide1FileName);
+            AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
+
+            SetUpMetadata();
+           
             SideDataFactory = Substitute.For<ISideDataFactory>();
 
             FilesToProcess = new List<AbstractFile>
@@ -65,6 +71,30 @@ namespace Packager.Test.Factories
 
         public class WhenSettingBasicProperties : VideoCarrierDataFactoryTests
         {
+            public class WhenCallNumberNotSet : WhenSettingBasicProperties
+            {
+                protected override void SetUpMetadata()
+                {
+                    base.SetUpMetadata();
+                    PodMetadata.CallNumber = "";
+                }
+
+                [Test]
+                public void ItShouldSetIdentifierCorrectly()
+                {
+                    Assert.That(Result.Identifier, Is.EqualTo("Unknown"));
+                }
+            }
+
+            public class WhenCallNumberSet : WhenSettingBasicProperties
+            {
+                [Test]
+                public void ItShouldSetIdentifierCorrectly()
+                {
+                    Assert.That(Result.Identifier, Is.EqualTo(PodMetadata.CallNumber));
+                }
+            }
+
             [Test]
             public void ItShouldSetBarcodeCorrectly()
             {
@@ -77,11 +107,7 @@ namespace Packager.Test.Factories
                 Assert.That(Result.CarrierType, Is.EqualTo("Video"));
             }
 
-            [Test]
-            public void ItShouldSetIdentifierCorrectly()
-            {
-                Assert.That(Result.Identifier, Is.EqualTo(PodMetadata.CallNumber));
-            }
+           
 
             [Test]
             public void ItShouldSetDefinitionCorrectly()

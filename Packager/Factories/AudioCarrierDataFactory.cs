@@ -24,7 +24,7 @@ namespace Packager.Factories
                 Brand = metadata.Brand,
                 CarrierType = metadata.Format,
                 DirectionsRecorded = metadata.DirectionsRecorded,
-                Identifier = metadata.CallNumber,
+                Identifier = metadata.CallNumber.ToDefaultIfEmpty("Unknown"),
                 Thickness = metadata.TapeThickness,
                 Baking = new BakingData {Date = metadata.BakingDate?.ToString("yyyy-MM-dd") },
                 Cleaning = new CleaningData {Date = metadata.CleaningDate?.ToString("yyyy-MM-dd"), Comment = metadata.CleaningComment},

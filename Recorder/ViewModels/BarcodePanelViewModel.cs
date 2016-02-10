@@ -47,6 +47,19 @@ namespace Recorder.ViewModels
 
         public List<Tuple<string, string>> FileUses => ObjectModel.FileUses;
 
+        public List<Tuple<string, int>> PossibleChannels => ObjectModel.PossibleChannels;
+
+        public int ExpectedChannels
+        {
+            get { return ObjectModel.Channels; }
+            set
+            {
+                FlagTouched(ObjectModel.Channels, value);
+                ObjectModel.Channels = value;
+                OnPropertyChanged();
+            }
+        }
+
         public async override Task Initialize()
         {
             

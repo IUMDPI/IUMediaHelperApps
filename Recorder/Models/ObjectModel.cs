@@ -16,9 +16,17 @@ namespace Recorder.Models
             FileUses = new List<Tuple<string, string>>
             {
                 new Tuple<string, string>("Preservation", "pres"),
-                new Tuple<string, string>("Preservation-Intermediate", "pres-int"),
+                new Tuple<string, string>("Preservation-Intermediate", "presInt"),
                 new Tuple<string, string>("Mezzanine", "mezz")
             };
+
+            PossibleChannels = new List<Tuple<string, int>>
+            {
+                new Tuple<string, int>("2 channels", 2),
+                new Tuple<string, int>("4 channels", 4)
+            };
+
+            Channels = 2;
         }
         
         public List<Tuple<string, string>> FileUses { get; private set; }
@@ -29,6 +37,8 @@ namespace Recorder.Models
         public int Part { get; set; }
         public string ProjectCode => Settings.ProjectCode;
         public string FileUse { get; set; }
+
+        public int Channels { get; set; }
 
         public string Filename => FilePartsValid().IsValid
             ? string.Format($"{ProjectCode}_{Barcode}_{Part:d2}_{FileUse}.mkv")
@@ -41,6 +51,7 @@ namespace Recorder.Models
         public string OutputFile => Path.Combine(OutputFolder, Filename);
 
         public string ExistingPartsMask => $"{ProjectCode}_{Barcode}_part_*.mkv";
+        public List<Tuple<string, int>> PossibleChannels { get; set; }
 
         public ValidationResult FilePartsValid()
         {

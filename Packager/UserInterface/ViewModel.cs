@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
@@ -12,6 +14,7 @@ using ICSharpCode.AvalonEdit.Folding;
 using Packager.Annotations;
 using Packager.Exceptions;
 using Packager.Models;
+using Packager.Models.SettingsModels;
 using Packager.Models.UserInterfaceModels;
 
 namespace Packager.UserInterface
@@ -50,7 +53,7 @@ namespace Packager.UserInterface
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Initialize(OutputWindow outputWindow, IProgramSettings programSettings)
+        public void Initialize(OutputWindow outputWindow, string projectCode)
         {
             AutoScroll = true;
             TextEditor = outputWindow.OutputText;
@@ -59,18 +62,20 @@ namespace Packager.UserInterface
             TextEditor.TextArea.TextView.ElementGenerators.Clear();
             TextArea.TextView.ElementGenerators.Add(new BarcodeElementGenerator(this));
 
+            // set selection formatting
+            TextArea.SelectionCornerRadius = 0;
+            TextArea.SelectionBorder = new Pen(SystemColors.HighlightBrush, 1);
+            TextArea.SelectionBrush = SystemColors.HighlightBrush;
+
             outputWindow.DataContext = this;
             outputWindow.Show();
 
             ((IScrollInfo) outputWindow.OutputText.TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
 
             Document.PropertyChanged += DocumentPropertyChangedHandler;
-            Title = $"{programSettings.ProjectCode.ToUpperInvariant()} Media Packager";
+            Title = $"{projectCode.ToUpperInvariant()} Media Packager";
 
             FoldingManager = FoldingManager.Install(TextArea);
-
-            var test = TextEditor.TextArea.TextView.Services;
-            //TextArea.TextView.ElementGenerators.Clear();
         }
 
         private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)

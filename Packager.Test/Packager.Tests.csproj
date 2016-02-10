@@ -54,6 +54,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -68,39 +69,60 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Attributes\BextFieldAttributeTests.cs" />
+    <Compile Include="Attributes\FFMPEGArgumentAttributeTests.cs" />
+    <Compile Include="Deserializers\PodResultDeserializerTests.cs" />
     <Compile Include="Engine\EngineTests.cs" />
+    <Compile Include="Extensions\ArrayExtensionTests.cs" />
+    <Compile Include="Extensions\DigitalFileExtensionTests.cs" />
+    <Compile Include="Extensions\ExceptionExtensionTests.cs" />
     <Compile Include="Extensions\FileModelExtensionTests.cs" />
+    <Compile Include="Extensions\StringBuilderExtensionsTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
+    <Compile Include="Extensions\XElementExtensionTests.cs" />
+    <Compile Include="Factories\AudioCarrierDataFactoryTests.cs" />
+    <Compile Include="Factories\AudioIngestFactoryTests.cs" />
+    <Compile Include="Factories\AudioSideDataFactoryTests.cs" />
+    <Compile Include="Factories\EmbeddedAudioMetadataFactoryTests.cs" />
+    <Compile Include="Factories\EmbeddedVideoMetadataFactoryTests.cs" />
+    <Compile Include="Factories\SettingsFactoryTests.cs" />
+    <Compile Include="Factories\ImportableFactoryTests.cs" />
+    <Compile Include="Factories\VideoCarrierDataFactoryTests.cs" />
+    <Compile Include="Factories\VideoIngestFactoryTests.cs" />
+    <Compile Include="Factories\VideoSideDataFactoryTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
+    <Compile Include="Mocks\MockDependencyProvider.cs" />
+    <Compile Include="Mocks\MockPodMetadata.cs" />
+    <Compile Include="Models\EmailMessageTests\EngineIssueMessageTests.cs" />
+    <Compile Include="Models\EmailMessageTests\ProcessingIssueMessageTests.cs" />
+    <Compile Include="Models\EmbeddedMetadataTests\EmbeddedVideoPreservationMetadataTests.cs" />
+    <Compile Include="Models\FileModels\FileModelTests.cs" />
+    <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />
+    <Compile Include="Models\FileModels\QualityControlFileModelTests.cs" />
+    <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />
+    <Compile Include="Models\FileModels\XmlFileModelTests.cs" />
+    <Compile Include="Models\MetadataModels\PodMetadataTests.cs" />
+    <Compile Include="Models\MetadataModels\DeviceTests.cs" />
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
-    <Compile Include="Models\MetadataModels\SampleRateTests.cs" />
-    <Compile Include="Models\MetadataModels\SoundFieldTests.cs" />
-    <Compile Include="Models\MetadataModels\TapeThicknessTests.cs" />
-    <Compile Include="Models\MetadataModels\TrackConfigurationTests.cs" />
+    <Compile Include="Models\OutputModels\CarrierModelTests.cs" />
+    <Compile Include="Models\OutputModels\IngestModelTests.cs" />
+    <Compile Include="Models\SettingsModelsTests\ProgramSettingsTests.cs" />
     <Compile Include="PodMetadataProviderTests.cs" />
+    <Compile Include="Processors\AbstractProcessorTests.cs" />
+    <Compile Include="Processors\AudioProcessorTests.cs" />
+    <Compile Include="Processors\VideoProcessorTests.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />
+    <Compile Include="Utilities\FFMPEGRunnerTests.cs" />
     <Compile Include="Utilities\HasherTests.cs" />
-    <Compile Include="Mocks\MockDependencyProvider.cs" />
     <Compile Include="Mocks\MockProcessRunner.cs" />
     <Compile Include="Mocks\MockGrouping.cs" />
     <Compile Include="Mocks\MockProgramSettings.cs" />
-    <Compile Include="Models\BextModels\BextMetadataTests.cs" />
-    <Compile Include="Models\FileModels\ObjectFileModelTests.cs" />
-    <Compile Include="Models\FileModels\FileModelFactoryTests.cs" />
-    <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />
-    <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />
-    <Compile Include="Models\FileModels\XmlFileModelTests.cs" />
+    <Compile Include="Models\EmbeddedMetadataTests\EmbeddedAudioMetadataTests.cs" />
+    <Compile Include="Factories\FileModelFactoryTests.cs" />
     <Compile Include="Models\MetadataModels\DigitalFileProvenanceTests.cs" />
-    <Compile Include="Processors\AbstractProcessorTests.cs" />
-    <Compile Include="Processors\AudioProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Factories\ConformancePointDocumentFactoryTests.cs" />
-    <Compile Include="Factories\IngestFactoryTests.cs" />
-    <Compile Include="Factories\CarrierDataFactoryTests.cs" />
-    <Compile Include="Factories\SideDataFactoryTests.cs" />
-    <Compile Include="Utilities\FFMPEGRunnerTests.cs" />
     <Compile Include="Utilities\SuccessFolderCleanerTests.cs" />
     <Compile Include="Validators\DirectoryValidatorTests.cs" />
     <Compile Include="Validators\FileValidatorTests.cs" />
@@ -118,6 +140,7 @@
       <Name>Packager</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

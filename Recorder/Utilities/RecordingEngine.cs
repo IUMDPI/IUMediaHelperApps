@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,7 +102,10 @@ namespace Recorder.Utilities
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
 
-            Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} {GetTargetPartFilename(part)}";
+            Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} -ac {ObjectModel.Channels} {GetTargetPartFilename(part)}";
+            WriteArguments(Process.StartInfo.Arguments);
+
+
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={GetTargetPartLogFilename(part)}:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
 
@@ -119,6 +123,12 @@ namespace Recorder.Utilities
             }
 
             Process.StandardInput.WriteLine('q');
+        }
+
+        private void WriteArguments(string arguments)
+        {
+            OutputWindowViewModel.WriteLine($"Arguments: {arguments}");
+            OutputWindowViewModel.WriteLine("");
         }
 
         private void ProcessExitHandler(object sender, EventArgs e)

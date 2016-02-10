@@ -6,36 +6,49 @@ namespace Packager.Extensions
 {
     public static class FileModelExtensions
     {
-        public static bool IsObjectModel(this AbstractFileModel fileModel)
+        public static bool IsXmlModel(this AbstractFile fileModel)
         {
-            return fileModel is ObjectFileModel;
+            return fileModel is XmlFile;
         }
 
-        public static bool IsXmlModel(this AbstractFileModel fileModel)
+        public static AbstractFile GetPreservationOrIntermediateModel(
+            this IEnumerable<AbstractFile> models)
         {
-            return fileModel is XmlFileModel;
-        }
-
-        public static bool IsUnknownModel(this AbstractFileModel fileModel)
-        {
-            return fileModel is UnknownFileModel;
-        }
-
-
-        public static ObjectFileModel GetPreservationOrIntermediateModel<T>(this IGrouping<T, ObjectFileModel> grouping)
-        {
-            var preservationIntermediate = grouping.SingleOrDefault(m => m.IsPreservationIntermediateVersion());
-            return preservationIntermediate ?? grouping.SingleOrDefault(m => m.IsPreservationVersion());
-        }
-
-       
-
-        public static ObjectFileModel GetPreservationOrIntermediateModel(this IEnumerable<ObjectFileModel> models)
-        {
-            var list = models.ToList();
+            var list = models.Where(m => !(m is QualityControlFile)).ToList();
 
             var preservationIntermediate = list.FirstOrDefault(m => m.IsPreservationIntermediateVersion());
             return preservationIntermediate ?? list.FirstOrDefault(m => m.IsPreservationVersion());
+        }
+
+        public static List<AbstractFile> RemoveDuplicates(this IEnumerable<AbstractFile> models)
+        {
+            return models.GroupBy(o => o.Filename)
+                .Select(g => g.First()).ToList();
+        }
+
+        public static bool IsPreservationVersion(this AbstractFile model)
+        {
+            return model is AbstractPreservationFile;
+        }
+
+        public static bool IsPreservationIntermediateVersion(this AbstractFile model)
+        {
+            return model is AbstractPreservationIntermediateFile;
+        }
+
+        public static bool IsProductionVersion(this AbstractFile model)
+        {
+            return model is ProductionFile;
+        }
+
+        public static bool IsMezzanineVersion(this AbstractFile model)
+        {
+            return model is MezzanineFile;
+        }
+
+        public static bool IsAccessVersion(this AbstractFile model)
+        {
+            return model is AccessFile;
         }
     }
 }

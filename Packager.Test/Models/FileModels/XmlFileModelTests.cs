@@ -6,52 +6,25 @@ namespace Packager.Test.Models.FileModels
     [TestFixture]
     public class XmlFileModelTests
     {
-        private const string Barcode = "4890764553278906";
-        private const string ProjectCode = "MDPI";
-        private const string Extension = ".xml";
-        private const string GoodFileName = "MDPI_4890764553278906.xml";
-        private const string NoProjectCodeFileName = "4890764553278906.xml";
-        private const string NoBarcodeFileName = "MDPI.xml";
-        private const string NoExtensionFileName = "MDPI_4890764553278906";
-        private const string AnotherBadFileName = "badFormat.xml";
-        private const string EmptyFileName = "";
-        private const string NullFileName = "";
-        private const string WhitespaceFileName = "    ";
-
-        [Test]
-        public void IsValidShouldReturnOkForValidFilename()
+        [TestCase("mdpi", "4890764553278906", true)]
+        [TestCase("", "4890764553278906", false)]
+        [TestCase(" ", "4890764553278906", false)]
+        [TestCase("mdpi", "", false)]
+        [TestCase("mdpi", " ", false)]
+        [TestCase("", "", false)]
+        [TestCase(" ", " ", false)]
+        public void IsValidShouldReturnTrueIfBarCodeAndProjectCodeOk(string projectCode, string barCode, bool expected)
         {
-            var model = new XmlFileModel(GoodFileName);
-            Assert.That(model.IsValid());
+            var model = new XmlFile(projectCode, barCode);
+            Assert.That(model.IsValid(), Is.EqualTo(expected));
         }
 
-        [Test]
-        public void ShouldParseFileNameCorrectly()
+        [TestCase("mdpi", "4890764553278906", "MDPI_4890764553278906.xml")]
+        public void ToFileNameShouldWorkCorrectly(string projectCode, string barCode, string expected)
         {
-            var model = new XmlFileModel(GoodFileName);
-            Assert.That(model.ProjectCode, Is.EqualTo(ProjectCode));
-            Assert.That(model.BarCode, Is.EqualTo(Barcode));
-            Assert.That(model.Extension, Is.EqualTo(Extension));
+            var model = new XmlFile(projectCode, barCode);
+            Assert.That(model.Filename, Is.EqualTo(expected));
         }
 
-        [Test]
-        public void ToFileNameShouldWorkCorrectly()
-        {
-            var model = new XmlFileModel(GoodFileName);
-            Assert.That(model.ToFileName(), Is.EqualTo(GoodFileName));
-        }
-
-        [TestCase(NoExtensionFileName)]
-        [TestCase(NoProjectCodeFileName)]
-        [TestCase(NoBarcodeFileName)]
-        [TestCase(AnotherBadFileName)]
-        [TestCase(EmptyFileName)]
-        [TestCase(NullFileName)]
-        [TestCase(WhitespaceFileName)]
-        public void IsValidShouldReturnFalseForInvalidFileName(string filename)
-        {
-            var model = new XmlFileModel(filename);
-            Assert.That(model.IsValid(), Is.False);
-        }
     }
 }

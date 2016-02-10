@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using Packager.Models;
+using Packager.Models.SettingsModels;
 
 namespace Packager.Test.Mocks
 {

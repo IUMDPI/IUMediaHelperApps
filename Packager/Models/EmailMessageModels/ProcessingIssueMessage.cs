@@ -7,7 +7,7 @@ namespace Packager.Models.EmailMessageModels
     {
         private const string TitleFormat = "Issue occurred while processing {0} on workstation {1}";
         private const string HeaderFormat = "<html><body>";
-        private const string FooterFormat = "<body></html>";
+        private const string FooterFormat = "</body></html>";
         private const string Para1Format = "<p>An issue occurred while processing {0} on workstation {1}:</p>";
         private const string Para2Format = "<blockquote>{0}</blockquote>";
         private const string Para3Format = "<p>Stack trace</p>";

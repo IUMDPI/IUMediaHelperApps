@@ -11,7 +11,7 @@ namespace Packager.Test.Models.FileModels
         [Test]
         public void IsValidShouldAlwaysReturnFalse()
         {
-            var model = new UnknownFileModel(GoodFileName);
+            var model = new UnknownFile(GoodFileName);
             Assert.That(model.IsValid(), Is.False);
         }
     }

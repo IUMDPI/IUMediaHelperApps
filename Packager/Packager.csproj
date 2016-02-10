@@ -47,7 +47,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.2.0\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.2.3\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -60,6 +60,8 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -72,33 +74,81 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.xaml.cs">
+    <Compile Include="App.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Attributes\AbstractFromConfigSetting.cs" />
+    <Compile Include="Attributes\AbstractFromConfigSettingAttribute.cs" />
     <Compile Include="Attributes\BextFieldAttribute.cs" />
-    <Compile Include="Attributes\FromBoolConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromBextFieldListConfigAttribute.cs" />
-    <Compile Include="Attributes\FromIntegerConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromPodAuthPathSettingAttribute.cs" />
+    <Compile Include="Attributes\FFMPEGArgumentAttribute.cs" />
+    <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
+    <Compile Include="Factories\AudioCarrierDataFactory.cs" />
+    <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
+    <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
+    <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
+    <Compile Include="Factories\ImportableFactory.cs" />
+    <Compile Include="Factories\SettingsFactory.cs" />
+    <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
+    <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedVideoMetadata.cs" />
+    <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMezzanineMetadata.cs" />
+    <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoPreservationMetadata.cs" />
+    <Compile Include="Models\FileModels\AbstractFile.cs" />
+    <Compile Include="Models\FileModels\AbstractPreservationFile.cs" />
+    <Compile Include="Models\FileModels\AbstractPreservationIntermediateFile.cs" />
+    <Compile Include="Models\FileModels\AccessFile.cs" />
+    <Compile Include="Models\FileModels\AudioPreservationFile.cs" />
+    <Compile Include="Models\FileModels\AudioPreservationIntermediateFile.cs" />
+    <Compile Include="Factories\FileModelFactory.cs" />
+    <Compile Include="Models\FileModels\MezzanineFile.cs" />
+    <Compile Include="Models\FileModels\ProductionFile.cs" />
+    <Compile Include="Models\FileModels\QualityControlFile.cs" />
+    <Compile Include="Models\FileModels\UnknownFile.cs" />
+    <Compile Include="Models\FileModels\VideoPreservationFile.cs" />
+    <Compile Include="Models\FileModels\VideoPreservationIntermediateFile.cs" />
+    <Compile Include="Models\FileModels\XmlFile.cs" />
+    <Compile Include="Models\OutputModels\Carrier\AudioCarrier.cs" />
+    <Compile Include="Models\OutputModels\Ingest\AudioIngest.cs" />
+    <Compile Include="Models\OutputModels\Carrier\VideoCarrier.cs" />
+    <Compile Include="Models\OutputModels\Ingest\VideoIngest.cs" />
+    <Compile Include="Factories\IImportable.cs" />
+    <Compile Include="Deserializers\PodResultDeserializer.cs" />
     <Compile Include="Exceptions\FileDirectoryExistsException.cs" />
     <Compile Include="Exceptions\NormalizeOriginalException.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
-    <Compile Include="Models\OutputModels\IngestDevice.cs" />
+    <Compile Include="Models\OutputModels\Ingest\Device.cs" />
+    <Compile Include="Models\PodMetadataModels\AbstractDigitalFile.cs" />
+    <Compile Include="Models\PodMetadataModels\AbstractPodMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
+    <Compile Include="Models\PodMetadataModels\DigitalAudioFile.cs" />
+    <Compile Include="Models\PodMetadataModels\DigitalVideoFile.cs" />
+    <Compile Include="Models\PodMetadataModels\VideoPodMetadata.cs" />
+    <Compile Include="Observers\ObserverCollectionEqualityComparer.cs" />
+    <Compile Include="Processors\VideoProcessor.cs" />
+    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Providers\AppConfigLookupsProvider.cs" />
+    <Compile Include="Providers\DirectoryProvider.cs" />
+    <Compile Include="Providers\FileProvider.cs" />
+    <Compile Include="Providers\ILookupsProvider.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />
-    <Compile Include="Utilities\ArgumentBuilder.cs" />
-    <Compile Include="Utilities\FFMPEGRunner.cs" />
-    <Compile Include="Utilities\IBwfMetaEditRunner.cs" />
-    <Compile Include="Utilities\IFFMpegRunner.cs" />
-    <Compile Include="Utilities\ISuccessFolderCleaner.cs" />
+    <Compile Include="Utilities\Bext\BextFields.cs" />
+    <Compile Include="Utilities\FileSystem\SuccessFolderCleaner.cs" />
+    <Compile Include="Utilities\Process\AbstractFFMPEGRunner.cs" />
+    <Compile Include="Utilities\Process\ArgumentBuilder.cs" />
+    <Compile Include="Utilities\Process\AudioFFMPEGRunner.cs" />
+    <Compile Include="Utilities\Process\BwfMetaEditRunner.cs" />
+    <Compile Include="Utilities\Process\FFProbeRunner.cs" />
+    <Compile Include="Utilities\Process\FileOutputBuffer.cs" />
+    <Compile Include="Utilities\Process\IBwfMetaEditRunner.cs" />
+    <Compile Include="Utilities\Process\IFFMpegRunner.cs" />
+    <Compile Include="Utilities\Process\IFFProbeRunner.cs" />
+    <Compile Include="Utilities\Process\IOutputBuffer.cs" />
+    <Compile Include="Utilities\FileSystem\ISuccessFolderCleaner.cs" />
+    <Compile Include="Utilities\Process\StringOutputBuffer.cs" />
+    <Compile Include="Utilities\Process\VideoFFMPEGRunner.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
-    <Compile Include="Attributes\FromStringConfigSettingAttribute.cs" />
-    <Compile Include="Attributes\FromListConfigSettingAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFileAttribute.cs" />
     <Compile Include="Validators\Attributes\ValidateFolderAttribute.cs" />
@@ -107,7 +157,7 @@
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
     <Compile Include="Exceptions\AbstractEngineException.cs" />
-    <Compile Include="Exceptions\BextMetadataException.cs" />
+    <Compile Include="Exceptions\EmbeddedMetadataException.cs" />
     <Compile Include="Exceptions\DeserializeValueException.cs" />
     <Compile Include="Exceptions\DetermineProcessorException.cs" />
     <Compile Include="Exceptions\GenerateDerivativeException.cs" />
@@ -119,54 +169,28 @@
     <Compile Include="Exceptions\PodMetadataException.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\FileModelExtensions.cs" />
-    <Compile Include="Extensions\PodMetadataExtensions.cs" />
+    <Compile Include="Extensions\DigitalFileExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XElementExtensions.cs" />
     <Compile Include="Factories\IngestDataFactory.cs" />
     <Compile Include="Factories\SideDataFactory.cs" />
-    <Compile Include="Models\BextModels\BextMetadata.cs" />
+    <Compile Include="Models\EmbeddedMetadataModels\EmbeddedAudioMetadata.cs" />
     <Compile Include="Models\EmailMessageModels\EngineIssueMessage.cs" />
-    <Compile Include="Models\FileModels\FileModelFactory.cs" />
-    <Compile Include="Models\FileModels\AbstractFileModel.cs" />
-    <Compile Include="Models\IProgramSettings.cs" />
+    <Compile Include="Models\SettingsModels\IProgramSettings.cs" />
     <Compile Include="Models\OutputModels\BakingData.cs" />
-    <Compile Include="Models\FileModels\ObjectFileModel.cs" />
-    <Compile Include="Models\FileModels\XmlFileModel.cs" />
     <Compile Include="Models\OutputModels\IU.cs" />
     <Compile Include="Models\OutputModels\ConfigurationData.cs" />
     <Compile Include="Models\OutputModels\CleaningData.cs" />
     <Compile Include="Models\OutputModels\File.cs" />
-    <Compile Include="Models\OutputModels\IngestData.cs" />
-    <Compile Include="Models\PodAuth.cs" />
-    <Compile Include="Models\PodMetadataModels\Assignment.cs" />
-    <Compile Include="Models\PodMetadataModels\Basics.cs" />
-    <Compile Include="Models\PodMetadataModels\ConditionStatus.cs" />
-    <Compile Include="Models\PodMetadataModels\ConsolidatedPodMetadata.cs" />
-    <Compile Include="Models\PodMetadataModels\Damage.cs" />
-    <Compile Include="Models\PodMetadataModels\Data.cs" />
-    <Compile Include="Models\PodMetadataModels\DataObject.cs" />
-    <Compile Include="Models\PodMetadataModels\Details.cs" />
-    <Compile Include="Models\PodMetadataModels\DigitalFileProvenance.cs" />
-    <Compile Include="Models\PodMetadataModels\DigitalProvenance.cs" />
-    <Compile Include="Models\PodMetadataModels\Note.cs" />
-    <Compile Include="Models\PodMetadataModels\PlaybackSpeed.cs" />
-    <Compile Include="Models\PodMetadataModels\PodMetadata.cs" />
-    <Compile Include="Models\PodMetadataModels\PreservationProblems.cs" />
-    <Compile Include="Models\PodMetadataModels\SampleRate.cs" />
-    <Compile Include="Models\PodMetadataModels\SoundField.cs" />
-    <Compile Include="Models\PodMetadataModels\TapeBase.cs" />
-    <Compile Include="Models\PodMetadataModels\TapeThickness.cs" />
-    <Compile Include="Models\PodMetadataModels\TechnicalMetadata.cs" />
-    <Compile Include="Models\PodMetadataModels\TrackConfiguration.cs" />
-    <Compile Include="Models\PodMetadataModels\WorkflowStatus.cs" />
+    <Compile Include="Models\OutputModels\Ingest\AbstractIngest.cs" />
+    <Compile Include="Models\SettingsModels\PodAuth.cs" />
+    <Compile Include="Models\PodMetadataModels\AudioPodMetadata.cs" />
     <Compile Include="Models\ResultModels\ProcessResult.cs" />
     <Compile Include="Models\ResultModels\IProcessResult.cs" />
     <Compile Include="Models\OutputModels\SideData.cs" />
     <Compile Include="Models\OutputModels\PartsData.cs" />
     <Compile Include="Models\OutputModels\PhysicalConditionData.cs" />
     <Compile Include="Models\OutputModels\PreviewData.cs" />
-    <Compile Include="Models\FileModels\UnknownFileModel.cs" />
-    <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\UserInterfaceModels\SectionModel.cs" />
     <Compile Include="Observers\GeneralNLogObserver.cs" />
     <Compile Include="Observers\IObserverCollection.cs" />
@@ -175,45 +199,42 @@
     <Compile Include="Observers\LayoutRenderers\ProjectCodeLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\ProcessingDirectoryNameLayoutRenderer.cs" />
     <Compile Include="Observers\LayoutRenderers\LoggingDirectoryLayoutRenderer.cs" />
-    <Compile Include="Models\ProgramSettings.cs" />
+    <Compile Include="Models\SettingsModels\ProgramSettings.cs" />
     <Compile Include="Observers\IObserver.cs" />
     <Compile Include="Observers\ObserverCollection.cs" />
     <Compile Include="Observers\ViewModelObserver.cs" />
-    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\EmailMessageModels\AbstractEmailMessage.cs" />
     <Compile Include="Providers\ISystemInfoProvider.cs" />
     <Compile Include="Providers\SystemInfoProvider.cs" />
-    <Compile Include="Factories\BextMetadataFactory.cs" />
-    <Compile Include="Utilities\EmailSender.cs" />
-    <Compile Include="Utilities\Hasher.cs" />
-    <Compile Include="Utilities\IBextProcessor.cs" />
-    <Compile Include="Utilities\BextProcessor.cs" />
+    <Compile Include="Utilities\Email\EmailSender.cs" />
+    <Compile Include="Utilities\Hashing\Hasher.cs" />
+    <Compile Include="Utilities\Bext\IBextProcessor.cs" />
+    <Compile Include="Utilities\Bext\BextProcessor.cs" />
     <Compile Include="Providers\IDirectoryProvider.cs" />
     <Compile Include="Processors\AbstractProcessor.cs" />
     <Compile Include="Processors\AudioProcessor.cs" />
     <Compile Include="Providers\IFileProvider.cs" />
     <Compile Include="Providers\IPodMetadataProvider.cs" />
-    <Compile Include="UserInterface\View.xaml.cs">
+    <Compile Include="UserInterface\OutputWindow.cs">
       <DependentUpon>View.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\ViewModel.cs" />
-    <Compile Include="Factories\IBextMetadataFactory.cs" />
-    <Compile Include="Utilities\IEmailSender.cs" />
-    <Compile Include="Utilities\IHasher.cs" />
-    <Compile Include="Models\OutputModels\CarrierData.cs" />
+    <Compile Include="Utilities\Email\IEmailSender.cs" />
+    <Compile Include="Utilities\Hashing\IHasher.cs" />
+    <Compile Include="Models\OutputModels\Carrier\AbstractCarrierData.cs" />
     <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Factories\IIngestDataFactory.cs" />
     <Compile Include="Factories\ICarrierDataFactory.cs" />
-    <Compile Include="Utilities\IProcessRunner.cs" />
+    <Compile Include="Utilities\Process\IProcessRunner.cs" />
     <Compile Include="Factories\ISideDataFactory.cs" />
-    <Compile Include="Factories\CarrierDataFactory.cs" />
+    <Compile Include="Factories\VideoCarrierDataFactory.cs" />
     <Compile Include="Processors\IProcessor.cs" />
-    <Compile Include="Utilities\IXmlExporter.cs" />
+    <Compile Include="Utilities\Xml\IXmlExporter.cs" />
     <Compile Include="Providers\DefaultDependencyProvider.cs" />
     <Compile Include="Models\EmailMessageModels\ProcessingIssueMessage.cs" />
-    <Compile Include="Utilities\ProcessRunner.cs" />
-    <Compile Include="Utilities\XmlExporter.cs" />
+    <Compile Include="Utilities\Process\ProcessRunner.cs" />
+    <Compile Include="Utilities\Xml\XmlExporter.cs" />
     <Compile Include="Validators\DirectoryExistsValidator.cs" />
     <Compile Include="Validators\FileExistsValidator.cs" />
     <Compile Include="Validators\MembersValidator.cs" />
@@ -237,6 +258,9 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Content Include="Instructions.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="copy to input.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
@@ -276,6 +300,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

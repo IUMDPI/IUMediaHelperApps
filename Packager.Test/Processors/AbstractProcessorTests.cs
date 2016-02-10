@@ -4,15 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Extensions;
 using Packager.Factories;
-using Packager.Models;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
-using Packager.Utilities;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Hashing;
+using Packager.Utilities.Process;
+using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Test.Processors
@@ -25,7 +29,7 @@ namespace Packager.Test.Processors
         protected const string DropBoxRoot = "dropbox";
         protected const string ErrorDirectory = "error";
         protected const string ProcessingRoot = "processing";
-        
+
         protected IProgramSettings ProgramSettings { get; set; }
         protected IDependencyProvider DependencyProvider { get; set; }
         protected IDirectoryProvider DirectoryProvider { get; set; }
@@ -36,37 +40,41 @@ namespace Packager.Test.Processors
         protected IObserverCollection Observers { get; set; }
         protected IProcessor Processor { get; set; }
         protected IPodMetadataProvider MetadataProvider { get; set; }
-        protected ICarrierDataFactory MetadataGenerator { get; set; }
+        protected ICarrierDataFactory<AudioPodMetadata> AudioCarrierDataFactory { get; set; }
+        protected ICarrierDataFactory<VideoPodMetadata> VideoCarrierDataFactory { get; set; }
         protected IBextProcessor BextProcessor { get; set; }
         protected IFFMPEGRunner FFMPEGRunner { get; set; }
+        protected IFFProbeRunner FFProbeRunner { get; set; }
+
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
         protected string ExpectedObjectFolderName { get; set; }
-        protected ConsolidatedPodMetadata Metadata { get; set; }
-        protected abstract void DoCustomSetup();
 
-        protected IBextMetadataFactory AudioMetadataFactory { get; set; }
+        protected IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; set; }
+        protected IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; set; }
 
         protected string PreservationFileName { get; set; }
         protected string PreservationIntermediateFileName { get; set; }
         protected string ProductionFileName { get; set; }
         protected string AccessFileName { get; set; }
 
-        protected ObjectFileModel PresObjectFileModel { get; set; }
-        protected ObjectFileModel ProdObjectFileModel { get; set; }
-        protected ObjectFileModel PresIntObjectFileModel { get; set; }
-        protected ObjectFileModel AccessObjectFileModel { get; set; }
-        
+        protected AbstractFile PresAbstractFile { get; set; }
+        protected AbstractFile ProdAbstractFile { get; set; }
+        protected AbstractFile PresIntAbstractFile { get; set; }
+        protected AbstractFile AccessAbstractFile { get; set; }
+
         protected string XmlManifestFileName { get; set; }
- 
+
         public ValidationResult Result { get; set; }
 
-        protected IGrouping<string, AbstractFileModel> GetGrouping(IEnumerable<AbstractFileModel> models)
+        protected List<AbstractFile> ModelList { get; set; }
+
+        protected abstract void DoCustomSetup();
+
+        protected IGrouping<string, AbstractFile> GetGrouping(IEnumerable<AbstractFile> models)
         {
             return models.GroupBy(m => m.BarCode).First();
         }
-
-        protected List<AbstractFileModel> ModelList { get; set; }
 
         [SetUp]
         public virtual async void BeforeEach()
@@ -78,7 +86,18 @@ namespace Packager.Test.Processors
             ProgramSettings.ErrorDirectoryName.Returns(ErrorDirectory);
             ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
 
-            AudioMetadataFactory = Substitute.For<IBextMetadataFactory>();
+            AudioMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
+            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(), Arg.Any<AbstractFile>(),Arg.Any<AudioPodMetadata>())
+                .Returns(new EmbeddedAudioMetadata());
+
+            VideoMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<VideoPodMetadata>>();
+            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(),
+                Arg.Is<AbstractFile>(a => a.IsMezzanineVersion()), Arg.Any<VideoPodMetadata>())
+                .Returns(new EmbeddedVideoMezzanineMetadata());
+            VideoMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(),
+                Arg.Is<AbstractFile>(a => a.IsPreservationVersion() || a.IsPreservationIntermediateVersion()),
+                Arg.Any<VideoPodMetadata>())
+                .Returns(new EmbeddedVideoPreservationMetadata());
 
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();
@@ -87,13 +106,13 @@ namespace Packager.Test.Processors
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
-            MetadataGenerator = Substitute.For<ICarrierDataFactory>();
+            AudioCarrierDataFactory = Substitute.For<ICarrierDataFactory<AudioPodMetadata>>();
+            VideoCarrierDataFactory = Substitute.For<ICarrierDataFactory<VideoPodMetadata>>();
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>()
-                .ToAudioAccessFileModel()));
-            FFMPEGRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.ArgAt<ObjectFileModel>(1)
-                .ToProductionFileModel()));
+            FFProbeRunner = Substitute.For<IFFProbeRunner>();
+            FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>())
+                .Returns(a => Task.FromResult(new QualityControlFile(a.Arg<AbstractFile>())));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
             DependencyProvider.FileProvider.Returns(FileProvider);
@@ -105,16 +124,17 @@ namespace Packager.Test.Processors
             DependencyProvider.Observers.Returns(Observers);
             DependencyProvider.XmlExporter.Returns(XmlExporter);
             DependencyProvider.BextProcessor.Returns(BextProcessor);
-            DependencyProvider.MetadataGenerator.Returns(MetadataGenerator);
-            DependencyProvider.FFMPEGRunner.Returns(FFMPEGRunner);
+            DependencyProvider.AudioCarrierDataFactory.Returns(AudioCarrierDataFactory);
+            DependencyProvider.VideoCarrierDataFactory.Returns(VideoCarrierDataFactory);
+            DependencyProvider.AudioFFMPEGRunner.Returns(FFMPEGRunner);
+            DependencyProvider.VideoFFMPEGRunner.Returns(FFMPEGRunner);
             DependencyProvider.AudioMetadataFactory.Returns(AudioMetadataFactory);
+            DependencyProvider.VideoMetadataFactory.Returns(VideoMetadataFactory);
+            DependencyProvider.FFProbeRunner.Returns(FFProbeRunner);
 
             DoCustomSetup();
 
-            Result =  await Processor.ProcessFile(GetGrouping(ModelList));
-            
+            Result = await Processor.ProcessFile(GetGrouping(ModelList));
         }
-
-       
     }
 }

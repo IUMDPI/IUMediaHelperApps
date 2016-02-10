@@ -7,6 +7,16 @@ namespace Packager.Models.OutputModels
     {
         public DateTime? Date { get; set; }
         public string Comment { get; set; }
+
+        public bool ShouldSerializeDate()
+        {
+            return Date.HasValue;
+        }
+
+        public bool ShouldSerializeComment()
+        {
+            return string.IsNullOrWhiteSpace(Comment) ==false;
+        }
     }
 
 

@@ -5,7 +5,7 @@ using DescriptionAttribute = System.ComponentModel.DescriptionAttribute;
 
 namespace Packager.Test.Models.MetadataModels
 {
-    [TestFixture]
+    /*[TestFixture]
     public class PlaybackSpeedTests
     {
         [TestCase("ZeroPoint9375Ips", ".9375 ips")]
@@ -36,5 +36,5 @@ namespace Packager.Test.Models.MetadataModels
                 Assert.That(property.GetCustomAttribute<DescriptionAttribute>(), Is.Not.Null);
             }
         }
-    }
+    }*/
 }

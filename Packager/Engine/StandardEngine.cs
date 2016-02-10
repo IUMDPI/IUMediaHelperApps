@@ -5,8 +5,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
+using Packager.Factories;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
@@ -62,43 +63,6 @@ namespace Packager.Engine
             WriteGoodbyeMessage();
         }
 
-        private async Task CleanupOldFiles()
-        {
-            await _dependencyProvider.SuccessFolderCleaner.DoCleaning();
-        }
-
-        private void ValidateDependencyProvider()
-        {
-
-            var result = ValidatorCollection.Validate(_dependencyProvider);
-            if (result.Succeeded == false)
-            {
-                throw new ProgramSettingsException(result.Issues);
-            }
-        }
-
-        private IEnumerable<IGrouping<string, AbstractFileModel>> GetObjectGroups()
-        {
-            // this factory will assign each extension
-            // to the appropriate file model
-            var factory = new FileModelFactory(_processors.Keys);
-
-            // want to get all files in the input directory
-            // and convert them to file models (via out file model factory)
-            // and then take all of the files that are valid
-            // and start with the correct project code
-            // and then group them by barcode
-            var result = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
-                     .Select(p => factory.GetModel(p))
-                     .Where(f => f.IsValid())
-                     .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
-                     .GroupBy(f => f.BarCode).ToList();
-
-            Observers.Log("Found {0} to process", result.ToSingularOrPlural("object", "objects"));
-
-            return result;
-        }
-
         public void AddObserver(IObserver observer)
         {
             if (Observers.Any(instance => instance.GetType() == observer.GetType()))
@@ -109,13 +73,45 @@ namespace Packager.Engine
             Observers.Add(observer);
         }
 
-        private async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> group)
+        private async Task CleanupOldFiles()
+        {
+            await _dependencyProvider.SuccessFolderCleaner.DoCleaning();
+        }
+
+        private void ValidateDependencyProvider()
+        {
+            var result = ValidatorCollection.Validate(_dependencyProvider);
+            if (result.Succeeded == false)
+            {
+                throw new ProgramSettingsException(result.Issues);
+            }
+        }
+
+        private IEnumerable<IGrouping<string, AbstractFile>> GetObjectGroups()
+        {
+            // want to get all files in the input directory
+            // and convert them to file models (via out file model factory)
+            // and then take all of the files that are valid
+            // and start with the correct project code
+            // and then group them by barcode
+            var result = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
+                .Select(FileModelFactory.GetModel)
+                .Where(f => f.IsValid())
+                .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
+                .GroupBy(f => f.BarCode).ToList();
+
+            Observers.Log("Found {0} to process", result.ToSingularOrPlural("object", "objects"));
+
+            return result;
+        }
+
+        private async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> group)
         {
             var processor = GetProcessor(group);
             return await processor.ProcessFile(group);
         }
 
-        private IProcessor GetProcessor(IEnumerable<AbstractFileModel> group)
+        private IProcessor GetProcessor(IEnumerable<AbstractFile> group)
         {
             // for each model in the group
             // take those that have extensions associated with a processor
@@ -125,7 +121,7 @@ namespace Packager.Engine
                 .GroupBy(m => m.Extension).ToList();
 
             // if we have no groups or if we have more than one group, we have a problem
-            if (validExtensions.Count() != 1)
+            if (validExtensions.Count != 1)
             {
                 throw new DetermineProcessorException("Can not determine extension for file batch");
             }
@@ -147,16 +143,6 @@ namespace Packager.Engine
         {
             var sectionKey = Observers.BeginSection("Configuration:");
 
-            foreach (var issue in _dependencyProvider.ProgramSettings.Issues)
-            {
-                Observers.Log(issue);
-            }
-
-            if (_dependencyProvider.ProgramSettings.Issues.Any())
-            {
-                Observers.Log("");
-            }
-
             Observers.Log("Project code: {0}", ProgramSettings.ProjectCode.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Web-service host: {0}", ProgramSettings.WebServiceUrl.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
@@ -166,18 +152,37 @@ namespace Packager.Engine
             Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
-            Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("BWF MetaEdit version: {0}", (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("Unit prefix: {0}", _dependencyProvider.ProgramSettings.UnitPrefix.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("BWF MetaEdit path: {0}",
+                _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("BWF MetaEdit version: {0}",
+                (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("Unit prefix: {0}",
+                _dependencyProvider.ProgramSettings.UnitPrefix.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
-            Observers.Log("FFMPEG path: {0}", _dependencyProvider.FFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPEG version: {0}", (await _dependencyProvider.FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("FFMPeg audio production args: {0}", _dependencyProvider.FFMPEGRunner.ProductionArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg audio access args: {0}", _dependencyProvider.FFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPEG path: {0}",
+                _dependencyProvider.AudioFFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPEG version: {0}",
+                (await _dependencyProvider.AudioFFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFMPeg audio production args: {0}",
+                _dependencyProvider.AudioFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg audio access args: {0}",
+                _dependencyProvider.AudioFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg video mezzanine args: {0}",
+                _dependencyProvider.VideoFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFMPeg video access args: {0}",
+                _dependencyProvider.VideoFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
-            Observers.Log("Success folder cleaning: {0}", _dependencyProvider.SuccessFolderCleaner.Enabled ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}" : "disabled");
-
-          
+            Observers.Log("FFProbe path: {0}",
+                _dependencyProvider.FFProbeRunner.FFProbePath.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("FFProbe version: {0}",
+                (await _dependencyProvider.FFProbeRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFProbe video QC args: {0}",
+                _dependencyProvider.FFProbeRunner.VideoQualityControlArguments.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("");
+            Observers.Log("Success folder cleaning: {0}",
+                _dependencyProvider.SuccessFolderCleaner.Enabled
+                    ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}"
+                    : "disabled");
 
             Observers.EndSection(sectionKey);
         }

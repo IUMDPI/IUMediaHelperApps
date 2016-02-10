@@ -5,6 +5,7 @@
 
   <Color name="Success" foreground="Blue" />
   <Color name="Error" foreground="Red" />
+  <Color name="ErrorBold" foreground="Red" fontWeight="bold" underline="true"/>
   <Color name="Warning" foreground="DarkOrange" fontWeight="bold" />
   <Color name="SubHeader" foreground="Blue" />
   <Color name="ObjectHeader" foreground="DarkBlue" fontWeight="bold" />
@@ -14,12 +15,13 @@
   <Color name="ResultsSummary" foreground="DarkBlue" fontWeight="bold" />
   
   <RuleSet>
-    <Span color="Error" begin="ERROR: " />
+    <Span color="ErrorBold" begin="ERROR: " />
     <Span color="Error" begin="   at "/>
     <Span color="Error" begin="--- " />
     <Span color="Error" begin="  Value not set for " />
     <Span color="Error" begin="  Invalid path specified for " />
     <Span color="Error" begin="  Invalid uri specified for " />
+    <Span color="Error" begin="  No original master present for " />
     <Span color="Error" begin="  No digital file provenance found for " />
     <Span color="Warning" begin="  Could not remove.*:" />
     <Span color="Warning" begin="Problem importing setting" />
@@ -46,7 +48,7 @@
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     
     <Rule color="PathFileOrBarcode">
-      .{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)\..{3,4}|.{4}_\d{14}\.xml|.{4}_\d{14}_\d{1,2}_(access|pres\-int|pres|prod|mezz)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
+      .{4}_\d{14}_\d{1,2}_(access|presInt|presint|pres|prod|mezz)\..{3,4}|.{4}_\d{14}\.xml|.{4}_\d{14}_\d{1,2}_(access|presInt|presint|pres|prod|mezz)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">

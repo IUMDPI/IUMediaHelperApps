@@ -13,8 +13,8 @@
 						should terminate coding history lines with CRLF
 						should clear ISFT bext metadata field for production masters
 						should clear ITCH bext metadata field for production masters
-1.5.0.0		09/01/2015	should clear ISFT bext metadata field for all pres, pres-int, and prod masters
-						should clear ITCH bext metadata field for all pres, pres-int, and prod masters
+1.5.0.0		09/01/2015	should clear ISFT bext metadata field for all pres, presInt, and prod masters
+						should clear ITCH bext metadata field for all pres, presInt, and prod masters
 						should generate checksum values asynchronously
 						should log generated checksum values
 1.6.0.0		09/09/2015	should clear all bext metadata fields before setting new values
@@ -37,4 +37,11 @@
 						removing unused depedencies
 1.13.0.0	11/11/2015	fixing issue with track configuration descriptions
 1.14.0.0	11/16/2015	should convert timestamps from Pod to universal time
+2.0.0.0		1/7/2016	should now be able to process video files
+						should use lookup tables to resolve values from pod
+2.3.0.0		2/10/2016	use new pod web-service to fetch metadata
+						use .gzip standard instead of .zip standard to generate qc files
+						should name quality control file and archive correctly
+						should include comments in xml manifest
+
 					

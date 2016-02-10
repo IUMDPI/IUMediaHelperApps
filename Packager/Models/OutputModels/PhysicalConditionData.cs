@@ -7,5 +7,10 @@ namespace Packager.Models.OutputModels
     {
         public string Damage { get; set; }
         public string PreservationProblem { get; set; }
+
+        public bool ShouldSerializePreservationProblem()
+        {
+            return string.IsNullOrWhiteSpace(PreservationProblem) == false;
+        }
     }
 }

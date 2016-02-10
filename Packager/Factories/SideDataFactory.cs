@@ -18,7 +18,7 @@ namespace Packager.Factories
 
         private IIngestDataFactory IngestDataFactory { get; }
 
-        public SideData[] Generate(ConsolidatedPodMetadata podMetadata, IEnumerable<ObjectFileModel> filesToProcess)
+        public SideData[] Generate(AudioPodMetadata podMetadata, IEnumerable<AbstractFile> filesToProcess)
         {
             var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
             if (!sideGroupings.Any())
@@ -35,12 +35,30 @@ namespace Packager.Factories
             }).ToArray();
         }
 
-        private static File GetFileData(ObjectFileModel model)
+        public SideData[] Generate(VideoPodMetadata podMetadata, IEnumerable<AbstractFile> filesToProcess)
+        {
+            var sideGroupings = filesToProcess.GroupBy(f => f.SequenceIndicator).OrderBy(g => g.Key).ToList();
+            if (!sideGroupings.Any())
+            {
+                throw new OutputXmlException("Could not determine side groupings");
+            }
+
+            return sideGroupings.Select(grouping => new SideData
+            {
+                Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
+                Files = grouping.Select(GetFileData).ToList(),
+                Ingest = IngestDataFactory.Generate(podMetadata, grouping.GetPreservationOrIntermediateModel()),
+                ManualCheck = "No", // todo: ok?
+                QCStatus = "OK" // todo: ok?
+            }).ToArray();
+        }
+
+        private static File GetFileData(AbstractFile model)
         {
             return new File
             {
                 Checksum = model.Checksum,
-                FileName = model.ToFileName()
+                FileName = model.Filename
             };
         }
     }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Packager.Models.UserInterfaceModels
+﻿namespace Packager.Models.UserInterfaceModels
 {
     public class SectionModel
     {
@@ -10,6 +8,5 @@ namespace Packager.Models.UserInterfaceModels
         public bool Completed { get; set; }
         public int Indent { get; set; }
         public string Title { get; set; }
-        
     }
 }

@@ -13,7 +13,7 @@ Questions for Mike and Susan:
 9) what should we do when something goes wrong? Email? Skip and Continue?
 10) will sequence numbers always be numeric?
 11) is "mezz" file-use only for video and "prod" only for audio?
-12) is the "int" part of "pres-int" dynamic? ie. "pres-1, pres-2," etc...?
+12) is the "int" part of "presInt" dynamic? ie. "pres-1, pres-2," etc...?
 13) how do you want us to format dates in the xml file? Is format in example xml ("YYYY-MM-DD") ok ?
 14) should dates be in UTC or local time? Assuming UTC....
 15) what info should be in ingest->created_by? Username, full name, some combination of?
@@ -35,9 +35,9 @@ Things to do:
 
 1) rename "Batch" to "Object" in logs (don't use 'artifact') (done - 6/3 - bm)
 2) audio should produce prod, not mezz (done - 6/3 -bm)
-3) should support pres-int (done - 6/3 -bm)
-4) should add metadata to pres, pres-int, prod, and mezz, but not access (done - 6/3 -bm)
-5) should base prod off of pres-int it's present. (done = 6/3 - bm)
+3) should support presInt (done - 6/3 -bm)
+4) should add metadata to pres, presInt, prod, and mezz, but not access (done - 6/3 -bm)
+5) should base prod off of presInt it's present. (done = 6/3 - bm)
 6) figure out ffmpeg command-line, etc. to align with Brian's doc. See below.
 7) add timezone after date values (done = 6/3 - bm)
 8) project code should be upper-case when saved (done = 6/3 - bm)

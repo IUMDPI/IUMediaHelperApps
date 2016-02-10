@@ -7,120 +7,47 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
-using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
-using Packager.Utilities;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Process;
 
 namespace Packager.Processors
 {
-    public class AudioProcessor : AbstractProcessor
+    public class AudioProcessor : AbstractProcessor<AudioPodMetadata>
     {
-        // todo: figure out how to get this
-        //private const string TempInstitution = "Indiana University, Bloomington. William and Gayle Cook Music Library";
-
         public AudioProcessor(IDependencyProvider dependencyProvider)
             : base(dependencyProvider)
         {
-            AudioMetadataFactory = dependencyProvider.AudioMetadataFactory;
+            EmbeddedMetadataFactory = DependencyProvider.AudioMetadataFactory;
+            CarrierDataFactory = DependencyProvider.AudioCarrierDataFactory;
+            FFMpegRunner = DependencyProvider.AudioFFMPEGRunner;
         }
 
-        private IBextMetadataFactory AudioMetadataFactory { get; }
-
-        protected override string ProductionFileExtension => ".wav";
-        protected override string AccessFileExtension => ".mp4";
-        protected override string MezzanineFileExtension => ".aac";
-        protected override string PreservationFileExtension => ".wav";
-        protected override string PreservationIntermediateFileExtenstion => ".wav";
-
+        protected override ICarrierDataFactory<AudioPodMetadata> CarrierDataFactory { get; }
+        protected override IFFMPEGRunner FFMpegRunner { get; }
+        protected override IEmbeddedMetadataFactory<AudioPodMetadata> EmbeddedMetadataFactory { get; } 
+            
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
-        protected override async Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess)
+        protected override AbstractFile CreateProdOrMezzModel(AbstractFile master)
         {
-            // fetch, log, and validate metadata
-            var metadata = await GetMetadata(filesToProcess);
-
-            // normalize originals
-            await NormalizeOriginals(filesToProcess, metadata);
-
-            // verify normalized versions of originals
-            await FFPMpegRunner.Verify(filesToProcess);
-
-            // create list of files to process and add the original files that
-            // we know about
-            var processedList = new List<ObjectFileModel>().Concat(filesToProcess)
-                .GroupBy(m => m.ToFileName()).Select(g => g.First()).ToList();
-
-            // next group by sequence
-            // then determine which file to use to create derivatives
-            // then use that file to create the derivatives
-            // then aggregate the results into the processed list
-            processedList = processedList.Concat(await CreateProductionDerivatives(processedList, metadata)).ToList();
-
-            // now remove duplicate entries -- this could happen if production master
-            // already exists
-            processedList = processedList
-                .GroupBy(o => o.ToFileName())
-                .Select(g => g.First()).ToList();
-
-            // now clear the ISFT field from presentation and production masters
-            await ClearMetadataDataFields(processedList, new List<BextFields> {BextFields.ISFT, BextFields.ITCH});
-
-            // finally generate the access versions from production masters
-            processedList = processedList.Concat(await CreateAccessDerivatives(processedList)).ToList();
-
-            // using the list of files that have been processed
-            // make the xml file
-            var xmlModel = await GenerateXml(metadata, processedList);
-
-            var outputList = new List<AbstractFileModel>().Concat(processedList).ToList();
-            outputList.Add(xmlModel);
-
-            return outputList;
+            return new ProductionFile(master);
         }
 
-        private async Task NormalizeOriginals(List<ObjectFileModel> originals, ConsolidatedPodMetadata podMetadata)
+        protected override IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models)
         {
-            foreach (var original in originals)
-            {
-                var metadata = AudioMetadataFactory.Generate(originals, original, podMetadata);
-                await FFPMpegRunner.Normalize(original, metadata);
-            }
+            return models.Where(m => m.IsProductionVersion());
         }
 
-        private async Task<List<ObjectFileModel>> CreateProductionDerivatives(List<ObjectFileModel> models, ConsolidatedPodMetadata podMetadata)
-        {
-            var results = new List<ObjectFileModel>();
-            foreach (var master in models
-                .GroupBy(m => m.SequenceIndicator)
-                .Select(g => g.GetPreservationOrIntermediateModel()))
-            {
-                var derivative = master.ToProductionFileModel();
-                var metadata = AudioMetadataFactory.Generate(models, derivative, podMetadata);
-                results.Add(await FFPMpegRunner.CreateProductionDerivative(master, derivative, metadata));
-            }
-
-            return results;
-        }
-
-        private async Task<List<ObjectFileModel>> CreateAccessDerivatives(IEnumerable<ObjectFileModel> models)
-        {
-            var results = new List<ObjectFileModel>();
-
-            // for each production master, create an access version
-            foreach (var model in models.Where(m => m.IsProductionVersion()))
-            {
-                results.Add(await FFPMpegRunner.CreateAccessDerivative(model));
-            }
-            return results;
-        }
-
-        private async Task ClearMetadataDataFields(List<ObjectFileModel> instances, List<BextFields> fieldsToClear)
+        protected override async Task ClearMetadataFields(List<AbstractFile> processedList)
         {
             var sectionKey = Observers.BeginSection("Clearing metadata fields");
             try
             {
-                await BextProcessor.ClearMetadataFields(instances, fieldsToClear);
+                await
+                    BextProcessor.ClearMetadataFields(processedList,
+                        new List<BextFields> {BextFields.ISFT, BextFields.ITCH});
                 Observers.EndSection(sectionKey, "Metadata fields cleared successfully");
             }
             catch (Exception e)
@@ -131,26 +58,10 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFileModel> GenerateXml(ConsolidatedPodMetadata metadata, List<ObjectFileModel> filesToProcess)
+        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList)
         {
-            var result = new XmlFileModel {BarCode = Barcode, ProjectCode = ProjectCode, Extension = ".xml"};
-            var sectionKey = Observers.BeginSection("Generating {0}", result.ToFileName());
-            try
-            {
-                await AssignChecksumValues(filesToProcess);
-
-                var wrapper = new IU {Carrier = MetadataGenerator.Generate(metadata, filesToProcess)};
-                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.ToFileName()));
-
-                Observers.EndSection(sectionKey, $"{result.ToFileName()} generated successfully");
-                return result;
-            }
-            catch (Exception e)
-            {
-                Observers.EndSection(sectionKey);
-                Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
+            // do nothing here
+            return await Task.FromResult(new List<AbstractFile>());
         }
     }
 }

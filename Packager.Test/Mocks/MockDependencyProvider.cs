@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
+using Packager.Utilities.Hashing;
+using Packager.Utilities.Process;
+using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Test.Mocks
@@ -14,7 +18,6 @@ namespace Packager.Test.Mocks
     public static class MockDependencyProvider
     {
         public static IDependencyProvider Get(
-            
             IDirectoryProvider directoryProvider = null,
             IFileProvider fileProvider = null,
             IHasher hasher = null,
@@ -65,13 +68,18 @@ namespace Packager.Test.Mocks
                 validators = Substitute.For<IValidatorCollection>();
                 validators.Validate(null).ReturnsForAnyArgs(new ValidationResults());
             }
-            
+
             if (ffmpegRunner == null)
             {
                 ffmpegRunner = Substitute.For<IFFMPEGRunner>();
-                ffmpegRunner.CreateAccessDerivative(Arg.Any<ObjectFileModel>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
-                ffmpegRunner.CreateProductionDerivative(Arg.Any<ObjectFileModel>(), Arg.Any<ObjectFileModel>(), Arg.Any<BextMetadata>()).Returns(x => Task.FromResult(x.Arg<ObjectFileModel>().ToAudioAccessFileModel()));
+                ffmpegRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
+                    .Returns(a=> Task.FromResult((AbstractFile)new AccessFile(a.Arg<AbstractFile>())));
+                    
+                ffmpegRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>())
+                    .Returns(a => new AccessFile(a.Arg<AbstractFile>()));
             }
+
+
 
             var result = Substitute.For<IDependencyProvider>();
 
@@ -83,8 +91,23 @@ namespace Packager.Test.Mocks
             result.ProgramSettings.Returns(programSettings);
             result.Observers.Returns(observers);
             result.ValidatorCollection.Returns(validators);
-            result.FFMPEGRunner.Returns(ffmpegRunner);
+            result.AudioFFMPEGRunner.Returns(ffmpegRunner);
             return result;
+        }
+
+        private static Task<AccessFile> GetFakeAccessDerivative(AbstractFile original)
+        {
+            return Task.FromResult(new AccessFile(original));
+        }
+
+        private static Task<ProductionFile> GetFakeProdDerivative(AbstractFile original)
+        {
+            return Task.FromResult(new ProductionFile(original));
+        }
+
+        private static Task<MezzanineFile> GetFakeMezzDerivative(AbstractFile original)
+        {
+            return Task.FromResult(new MezzanineFile(original));
         }
     }
 }

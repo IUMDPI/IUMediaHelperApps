@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Packager.Extensions
 {
@@ -13,7 +10,6 @@ namespace Packager.Extensions
             return parts.Length >= index + 1 ? parts[index] : defaultValue;
         }
 
-
         public static string ToSingularOrPlural<T>(this IEnumerable<T> values, string singular, string plural)
         {
             var count = values?.Count() ?? 0;
@@ -22,7 +18,7 @@ namespace Packager.Extensions
 
         public static string ToSingularOrPlural<T, TU>(this Dictionary<T, TU> values, string singular, string plural)
         {
-            var count = values?.Count() ?? 0;
+            var count = values?.Count ?? 0;
             return count.ToSingularOrPlural(singular, plural);
         }
 

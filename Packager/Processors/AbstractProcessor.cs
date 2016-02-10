@@ -6,98 +6,118 @@ using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
-using Packager.Models;
 using Packager.Models.FileModels;
+using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
-using Packager.Utilities;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Hashing;
+using Packager.Utilities.Process;
+using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Processors
 {
-    public abstract class AbstractProcessor : IProcessor
+    public abstract class AbstractProcessor<T> : IProcessor where T: AbstractPodMetadata, new()
     {
-        private readonly IDependencyProvider _dependencyProvider;
         // constructor
         protected AbstractProcessor(IDependencyProvider dependencyProvider)
         {
-            _dependencyProvider = dependencyProvider;
+            DependencyProvider = dependencyProvider;
         }
 
-        private IProgramSettings ProgramSettings => _dependencyProvider.ProgramSettings;
-
-        protected IObserverCollection Observers => _dependencyProvider.Observers;
-
-        protected abstract string ProductionFileExtension { get; }
-        protected abstract string AccessFileExtension { get; }
-        protected abstract string MezzanineFileExtension { get; }
-        protected abstract string PreservationFileExtension { get; }
-        protected abstract string PreservationIntermediateFileExtenstion { get; }
-
-        private IPodMetadataProvider MetadataProvider => _dependencyProvider.MetadataProvider;
-
-        protected IXmlExporter XmlExporter => _dependencyProvider.XmlExporter;
-
-        protected string ProjectCode => ProgramSettings.ProjectCode;
-
-        private string ObjectDirectoryName => $"{ProjectCode.ToUpperInvariant()}_{Barcode}";
-
-        protected string ProcessingDirectory => Path.Combine(RootProcessingDirectory, ObjectDirectoryName);
-
-        private string DropBoxDirectory => Path.Combine(RootDropBoxDirectory, ObjectDirectoryName);
-
         protected string Barcode { get; private set; }
-
-        private string InputDirectory => ProgramSettings.InputDirectory;
-
-        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
-
-        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
-
-        private IHasher Hasher => _dependencyProvider.Hasher;
-
-        // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioProductionArguments => ProgramSettings.FFMPEGAudioProductionArguments;
-
-        // ReSharper disable once InconsistentNaming
-        protected string FFMPEGAudioAccessArguments => ProgramSettings.FFMPEGAudioAccessArguments;
-
-        private IFileProvider FileProvider => _dependencyProvider.FileProvider;
-
-        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
-
-        protected ICarrierDataFactory MetadataGenerator => _dependencyProvider.MetadataGenerator;
-
-        protected IBextProcessor BextProcessor => _dependencyProvider.BextProcessor;
-
-        // ReSharper disable once InconsistentNaming
-        protected IFFMPEGRunner FFPMpegRunner => _dependencyProvider.FFMPEGRunner;
-
-        public string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
-
-        public string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
-
         protected abstract string OriginalsDirectory { get; }
-        
-        public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFileModel> fileModels)
+
+        protected IDependencyProvider DependencyProvider { get; }
+        private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
+        protected IObserverCollection Observers => DependencyProvider.Observers;
+        private IPodMetadataProvider MetadataProvider => DependencyProvider.MetadataProvider;
+        private IXmlExporter XmlExporter => DependencyProvider.XmlExporter;
+        private string ProjectCode => ProgramSettings.ProjectCode;
+        private string ObjectDirectoryName => $"{ProjectCode.ToUpperInvariant()}_{Barcode}";
+        protected string ProcessingDirectory => Path.Combine(RootProcessingDirectory, ObjectDirectoryName);
+        private string DropBoxDirectory => Path.Combine(RootDropBoxDirectory, ObjectDirectoryName);
+        private string InputDirectory => ProgramSettings.InputDirectory;
+        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
+        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
+        private IHasher Hasher => DependencyProvider.Hasher;
+        private IFileProvider FileProvider => DependencyProvider.FileProvider;
+        private IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
+        protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
+        private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
+        private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
+
+        protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
+        protected abstract IFFMPEGRunner FFMpegRunner { get; }
+        protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
+
+        protected abstract AbstractFile CreateProdOrMezzModel(AbstractFile master);
+        protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models); 
+        protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
+        protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList);
+
+        public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> fileModels)
         {
             Barcode = fileModels.Key;
 
             var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
-                // figure out what files we need to touch
-                var filesToProcess = GetFilesToProcess(fileModels);
+                // convert grouping to simple list
+                var filesToProcess = fileModels.ToList();
 
                 // now move them to processing
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess);
 
-                // call internal implementation
-                var processedList = await ProcessFileInternal(filesToProcess);
+                // fetch, log, and validate metadata
+                var metadata = await GetMetadata<T>(filesToProcess);
 
+                // normalize originals
+                await NormalizeOriginals(filesToProcess, metadata);
+
+                // verify normalized versions of originals
+                await FFMpegRunner.Verify(filesToProcess);
+
+                // create list of files to process and add the original files that
+                // we know about
+                var processedList = new List<AbstractFile>().Concat(filesToProcess)
+                    .GroupBy(m => m.Filename).Select(g => g.First()).ToList();
+
+                // next group by sequence
+                // then determine which file to use to create derivatives
+                // then use that file to create the derivatives
+                // then aggregate the results into the processed list
+                processedList = processedList.Concat(
+                    await CreateProdOrMezzDerivatives(processedList, metadata)).ToList();
+
+                // now remove duplicate entries -- this could happen if production master
+                // already exists
+                processedList = processedList.RemoveDuplicates();
+
+                // now clear the ISFT field from presentation and production/mezz masters
+                await ClearMetadataFields(processedList);
+
+                // generate the access versions from production masters
+                processedList = processedList.Concat(
+                    await CreateAccessDerivatives(processedList)).ToList();
+
+                // create QC files
+                // add qc files to processed list
+                processedList = processedList.Concat(
+                    await CreateQualityControlFiles(processedList)).ToList();
+
+                // using the list of files that have been processed
+                // make the xml file
+                processedList.Add(await GenerateXml(metadata, processedList));
+                
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
+
+                // verify that all files make it to dropbox
+                await VerifyDropboxFiles(processedList);
 
                 // move everything to success folder
                 await MoveToSuccessFolder();
@@ -110,43 +130,57 @@ namespace Packager.Processors
                 Observers.LogProcessingIssue(e, Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return new ValidationResult(e.GetFirstMessage());
+                return new ValidationResult(e.GetBaseMessage());
             }
         }
 
-        private static List<ObjectFileModel> GetFilesToProcess(IEnumerable<AbstractFileModel> fileModels)
+        private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata)
         {
-            return fileModels
-                .Where(m => m.IsObjectModel())
-                .Select(m => (ObjectFileModel) m)
-                .Where(m => m.IsPreservationIntermediateVersion() || m.IsPreservationVersion() || m.IsProductionVersion())
-                .ToList();
+            foreach (var original in originals)
+            {
+                var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
+                await FFMpegRunner.Normalize(original, metadata);
+            }
+        }
+        
+        private async Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models, T podMetadata)
+        {
+            var results = new List<AbstractFile>();
+            foreach (var master in models
+                .GroupBy(m => m.SequenceIndicator)
+                .Select(g => g.GetPreservationOrIntermediateModel()))
+            {
+                var derivative = CreateProdOrMezzModel(master);
+                var metadata = EmbeddedMetadataFactory.Generate(models, derivative, podMetadata);
+                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
+            }
+
+            return results;
+        }
+        
+        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models)
+        {
+            var results = new List<AbstractFile>();
+
+            // for each production master, create an access version
+            foreach (var model in GetProdOrMezzModels(models))
+            {
+                results.Add(await FFMpegRunner.CreateAccessDerivative(model));
+            }
+            return results;
         }
 
-        protected abstract Task<IEnumerable<AbstractFileModel>> ProcessFileInternal(List<ObjectFileModel> filesToProcess);
-
-        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<ObjectFileModel> filesToProcess)
+        private async Task MoveToSuccessFolder()
         {
-            var sectionKey = Observers.BeginSection("Initializing");
+            var sectionKey = Observers.BeginSection("Cleaning up");
             try
             {
-                // make folder to hold processed files
-                Observers.Log("Creating folder: {0}", ProcessingDirectory);
-                DirectoryProvider.CreateDirectory(ProcessingDirectory);
+                Observers.Log("Moving {0} to success folder", ObjectDirectoryName);
+                await
+                    DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory,
+                        GetSafeDirectoryName(BaseSuccessDirectory, ObjectDirectoryName, "success folder"));
 
-                if (!ProcessingDirectory.Equals(OriginalsDirectory, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Observers.Log("Creating folder: {0}", OriginalsDirectory);
-                    DirectoryProvider.CreateDirectory(OriginalsDirectory);
-                }
-
-                foreach (var fileModel in filesToProcess)
-                {
-                    Observers.Log("Moving originals to processing: {0}", fileModel.OriginalFileName);
-                    await MoveOriginalToProcessing(fileModel);
-                }
-
-                Observers.EndSection(sectionKey, "Initialization successful");
+                Observers.EndSection(sectionKey, "Cleanup successful");
             }
             catch (Exception e)
             {
@@ -156,15 +190,52 @@ namespace Packager.Processors
             }
         }
 
-        private async Task MoveToSuccessFolder()
+        private async Task<XmlFile> GenerateXml(T metadata, List<AbstractFile> filesToProcess)
         {
-            var sectionKey = Observers.BeginSection("Cleaning up");
+            var result = new XmlFile(ProjectCode, Barcode);
+            var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
             try
             {
-                Observers.Log("Moving {0} to success folder", ObjectDirectoryName);
-                await DirectoryProvider.MoveDirectoryAsync(ProcessingDirectory, GetSafeDirectoryName(BaseSuccessDirectory, ObjectDirectoryName, "success folder"));
+                await AssignChecksumValues(filesToProcess);
 
-                Observers.EndSection(sectionKey, "Cleanup successful");
+                var wrapper = new IU {Carrier = CarrierDataFactory.Generate(metadata, filesToProcess)};
+                XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
+
+                result.Checksum = await Hasher.Hash(result);
+                Observers.Log("{0} checksum: {1}", result.Filename, result.Checksum);
+
+                Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
+                return result;
+            }
+            catch (Exception e)
+            {
+                Observers.EndSection(sectionKey);
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
+            }
+        }
+
+        private async Task VerifyDropboxFiles(IEnumerable<AbstractFile> processedList)
+        {
+            var sectionKey = Observers.BeginSection("Validating dropbox files");
+            try
+            {
+                foreach (var model in processedList)
+                {
+                    var dropboxPath = Path.Combine(DropBoxDirectory, model.Filename);
+                    var checksum = await Hasher.Hash(dropboxPath);
+                    if (model.Checksum.Equals(checksum))
+                    {
+                        Observers.Log("{0}: {1}", model.Filename, checksum);
+                    }
+                    else
+                    {
+                        throw new Exception(
+                            $"Could not validate file {model.Filename}: checksum ({checksum}) not same as expected ({model.Checksum})");
+                    }
+                }
+
+                Observers.EndSection(sectionKey, "Dropbox files validated successfully!");
             }
             catch (Exception e)
             {
@@ -196,7 +267,7 @@ namespace Packager.Processors
             return preferredPath;
         }
 
-        private async Task CopyToDropbox(IEnumerable<AbstractFileModel> fileList)
+        private async Task CopyToDropbox(IEnumerable<AbstractFile> fileList)
         {
             var sectionKey = Observers.BeginSection("Copying objects to dropbox");
             try
@@ -208,7 +279,7 @@ namespace Packager.Processors
 
                 DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
-                foreach (var fileName in fileList.Select(fileModel => fileModel.ToFileName()).OrderBy(f => f))
+                foreach (var fileName in fileList.Select(fileModel => fileModel.Filename).OrderBy(f => f))
                 {
                     Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
                     await FileProvider.CopyFileAsync(
@@ -232,7 +303,8 @@ namespace Packager.Processors
                 // move folder to success
                 Observers.Log("Moving {0} to error folder", ObjectDirectoryName);
 
-                DirectoryProvider.MoveDirectory(ProcessingDirectory, GetSafeDirectoryName(BaseErrorDirectory, ObjectDirectoryName, "error folder"));
+                DirectoryProvider.MoveDirectory(ProcessingDirectory,
+                    GetSafeDirectoryName(BaseErrorDirectory, ObjectDirectoryName, "error folder"));
             }
             catch (Exception e)
             {
@@ -240,31 +312,67 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<string> MoveOriginalToProcessing(AbstractFileModel fileModel)
+        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<AbstractFile> filesToProcess)
+        {
+            var sectionKey = Observers.BeginSection("Initializing");
+            try
+            {
+                // make folder to hold processed files
+                Observers.Log("Creating folder: {0}", ProcessingDirectory);
+                DirectoryProvider.CreateDirectory(ProcessingDirectory);
+
+                if (!ProcessingDirectory.Equals(OriginalsDirectory, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Observers.Log("Creating folder: {0}", OriginalsDirectory);
+                    DirectoryProvider.CreateDirectory(OriginalsDirectory);
+                }
+
+                foreach (var fileModel in filesToProcess)
+                {
+                    Observers.Log("Moving originals to processing: {0}", GetFilenameToLog(fileModel));
+                    await MoveOriginalToProcessing(fileModel);
+                }
+
+                Observers.EndSection(sectionKey, "Initialization successful");
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+        }
+
+        private static string GetFilenameToLog(AbstractFile model)
+        {
+            return model.OriginalFileName.Equals(model.Filename, StringComparison.InvariantCultureIgnoreCase)
+                ? model.Filename
+                : $"{model.Filename} ({model.OriginalFileName})";
+        }
+
+        private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel)
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
-            var targetPath = Path.Combine(OriginalsDirectory, fileModel.ToFileName()); // ToFileName will normalize the filename when we move the file
+            var targetPath = Path.Combine(OriginalsDirectory, fileModel.Filename);
 
             if (FileProvider.FileExists(targetPath))
             {
-                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.ToFileName(), OriginalsDirectory);
+                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.Filename,
+                    OriginalsDirectory);
             }
 
             await FileProvider.MoveFileAsync(sourcePath, targetPath);
             return targetPath;
         }
 
-        protected async Task<ConsolidatedPodMetadata> GetMetadata(List<ObjectFileModel> filesToProcess)
+        protected async Task<T> GetMetadata<T>(List<AbstractFile> filesToProcess) where T : AbstractPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
                 // get base metadata
-                var metadata = await MetadataProvider.GetObjectMetadata(Barcode);
-                
-                // resolve unit
-                metadata.Unit = $"{ProgramSettings.UnitPrefix}{await MetadataProvider.ResolveUnit(metadata.Unit)}";
-                
+                var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
+
                 // log metadata
                 MetadataProvider.Log(metadata);
 
@@ -283,14 +391,13 @@ namespace Packager.Processors
             }
         }
 
-        protected async Task AssignChecksumValues(IEnumerable<ObjectFileModel> models)
+        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
         {
             foreach (var model in models)
             {
                 model.Checksum = await Hasher.Hash(model);
-                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.ToFileName()), model.Checksum);
+                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
             }
-        } 
-
+        }
     }
 }

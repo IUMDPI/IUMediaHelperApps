@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,14 +9,18 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Extensions;
+using Packager.Factories;
 using Packager.Models;
-using Packager.Models.BextModels;
+using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Test.Mocks;
 using Packager.Utilities;
+using Packager.Utilities.Hashing;
+using Packager.Utilities.Process;
 using Packager.Validators.Attributes;
 
 namespace Packager.Test.Utilities
@@ -34,11 +37,14 @@ namespace Packager.Test.Utilities
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AudioAccessArguments);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(AudioProductionArguments);
 
+            OutputBuffer = Substitute.For<IOutputBuffer>();
+            OutputBuffer.GetContent().Returns(StandardErrorOutput);
+
             ProcessRunnerResult = Substitute.For<IProcessResult>();
             ProcessRunnerResult.ExitCode.Returns(0);
-            ProcessRunnerResult.StandardError.Returns(StandardErrorOutput);
+            ProcessRunnerResult.StandardError.Returns(OutputBuffer);
 
-            MasterFileModel = new ObjectFileModel(MasterFileName);
+            MasterFileModel = FileModelFactory.GetModel(MasterFileName);
 
             ProcessRunner = Substitute.For<IProcessRunner>();
 
@@ -46,11 +52,12 @@ namespace Packager.Test.Utilities
             FileProvider = Substitute.For<IFileProvider>();
 
             Hasher = Substitute.For<IHasher>();
-            Hasher.Hash(Arg.Any<string>()).Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} hash value"));
+            Hasher.Hash(Arg.Any<string>())
+                .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} hash value"));
 
             Metadata = MockBextMetadata.Get();
 
-            Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
 
             DoCustomSetup();
         }
@@ -63,17 +70,18 @@ namespace Packager.Test.Utilities
         private const string MasterFileName = "MDPI_123456789_01_pres.wav";
 
         private const string StandardErrorOutput = "Standard error output";
-        private ObjectFileModel MasterFileModel { get; set; }
+        private AbstractFile MasterFileModel { get; set; }
 
+        private IOutputBuffer OutputBuffer { get; set; }
         private IProcessRunner ProcessRunner { get; set; }
         private IObserverCollection Observers { get; set; }
         private IFileProvider FileProvider { get; set; }
-        private FFMPEGRunner Runner { get; set; }
-        private ObjectFileModel Result { get; set; }
+        private AudioFFMPEGRunner Runner { get; set; }
+        private AbstractFile Result { get; set; }
         private IProcessResult ProcessRunnerResult { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
 
-        private BextMetadata Metadata { get; set; }
+        private EmbeddedAudioMetadata Metadata { get; set; }
 
         private IHasher Hasher { get; set; }
 
@@ -86,11 +94,10 @@ namespace Packager.Test.Utilities
         {
             public class WhenProductionWriteBextArgsNotPresent : WhenInitializing
             {
-            
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -write_bext 1").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -write_bext 1").Count, Is.EqualTo(1));
                 }
             }
 
@@ -99,7 +106,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -rf64 auto").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -rf64 auto").Count, Is.EqualTo(1));
                 }
             }
 
@@ -109,13 +116,13 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -write_bext 1");
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -write_bext 1").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -write_bext 1").Count, Is.EqualTo(1));
                 }
             }
 
@@ -125,13 +132,13 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -rf64 auto");
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
                 public void ItShouldSetArgsCorrectly()
                 {
-                    Assert.That(Regex.Matches(Runner.ProductionArguments, " -rf64 auto").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -rf64 auto").Count, Is.EqualTo(1));
                 }
             }
 
@@ -140,14 +147,14 @@ namespace Packager.Test.Utilities
                 public override void BeforeEach()
                 {
                     base.BeforeEach();
-                    ProgramSettings.FFMPEGAudioProductionArguments.Returns((string)null);
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    ProgramSettings.FFMPEGAudioProductionArguments.Returns((string) null);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
                 public void ItShouldNotModifyArguments()
                 {
-                    Assert.That(Runner.ProductionArguments, Is.Null);
+                    Assert.That(Runner.ProdOrMezzArguments, Is.Null);
                 }
             }
 
@@ -157,13 +164,13 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns("");
-                    Runner = new FFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
                 }
 
                 [Test]
                 public void ItShouldNotModifyArguments()
                 {
-                    Assert.That(Runner.ProductionArguments, Is.EqualTo(""));
+                    Assert.That(Runner.ProdOrMezzArguments, Is.EqualTo(""));
                 }
             }
         }
@@ -174,31 +181,35 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
-                ProductionFileModel = new ObjectFileModel(ProductionFileName);
+                ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
 
-                Originals = new List<ObjectFileModel>
+                Originals = new List<AbstractFile>
                 {
                     ProductionFileModel,
                     PreservationFileModel
                 };
 
                 // configure file provider to assert original should exist
-                FileProvider.FileExists(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetOriginalFolderName(), ProductionFileName)).Returns(true);
-                FileProvider.FileExists(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
+                FileProvider.FileExists(Path.Combine(BaseProcessingDirectory,
+                    ProductionFileModel.GetOriginalFolderName(), ProductionFileName)).Returns(true);
+                FileProvider.FileExists(Path.Combine(BaseProcessingDirectory,
+                    PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
 
                 // configure file provider to assert normalized versions do not exist
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileName)).Returns(true);
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), MasterFileName)).Returns(true);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(),
+                    ProductionFileName)).Returns(true);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                    PreservationFileModel.GetFolderName(), MasterFileName)).Returns(true);
             }
 
-            private List<ObjectFileModel> Originals { get; set; }
+            private List<AbstractFile> Originals { get; set; }
 
             private const string ProductionFileName = "MDPI_123456789_01_prod.wav";
 
-            private ObjectFileModel ProductionFileModel { get; set; }
-            private ObjectFileModel PreservationFileModel => MasterFileModel;
+            private AbstractFile ProductionFileModel { get; set; }
+            private AbstractFile PreservationFileModel => MasterFileModel;
 
-            
+
             public class WhenThingsGoWell : WhenNormalizingOriginals
             {
                 public override async void BeforeEach()
@@ -230,7 +241,9 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ArgsShouldEndWithCorrectOutputFile()
                 {
-                    var normalizedPath = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), PreservationFileModel.ToFileName()).ToQuoted();
+                    var normalizedPath =
+                        Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(),
+                            PreservationFileModel.Filename).ToQuoted();
                     Assert.That(StartInfo.Arguments.EndsWith(normalizedPath));
                 }
 
@@ -258,7 +271,9 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ArgsShouldStartwithCorrectInputFile()
                 {
-                    var originalPath = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), PreservationFileModel.ToFileName()).ToQuoted();
+                    var originalPath =
+                        Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(),
+                            PreservationFileModel.Filename).ToQuoted();
                     Assert.That(StartInfo.Arguments.StartsWith($"-i {originalPath}"));
                 }
 
@@ -271,13 +286,14 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldEndSection()
                 {
-                    Observers.Received().EndSection(Arg.Any<string>(), $"{PreservationFileModel.ToFileName()} normalized successfully");
+                    Observers.Received()
+                        .EndSection(Arg.Any<string>(), $"{PreservationFileModel.Filename} normalized successfully");
                 }
 
                 [Test]
                 public void ItShouldOpenSection()
                 {
-                    Observers.Received().BeginSection("Normalizing {0}", PreservationFileModel.ToFileName());
+                    Observers.Received().BeginSection("Normalizing {0}", PreservationFileModel.Filename);
                 }
 
                 [Test]
@@ -302,14 +318,16 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldVerifyThatAllNormalizedVersionDoesNotExist()
                 {
-                    var path = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), PreservationFileModel.ToFileName());
+                    var path = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(),
+                        PreservationFileModel.Filename);
                     FileProvider.Received().FileExists(path);
                 }
 
                 [Test]
                 public void ItShouldVerifyThatOriginalExists()
                 {
-                    var path = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), PreservationFileModel.ToFileName());
+                    var path = Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(),
+                        PreservationFileModel.Filename);
                     FileProvider.Received().FileDoesNotExist(path);
                 }
             }
@@ -320,10 +338,11 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    Originals = new List<ObjectFileModel> {PreservationFileModel};
+                    Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make file provider report that original does not exist
-                    FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
+                    FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                        PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
 
                     ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
                     {
@@ -331,7 +350,8 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Normalize(PreservationFileModel, null));
+                    var issue =
+                        Assert.Throws<LoggedException>(async () => await Runner.Normalize(PreservationFileModel, null));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
@@ -345,7 +365,8 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldLogIssue()
                 {
-                    Observers.Received().LogProcessingIssue(Arg.Any<FileNotFoundException>(), PreservationFileModel.BarCode);
+                    Observers.Received()
+                        .LogProcessingIssue(Arg.Any<FileNotFoundException>(), PreservationFileModel.BarCode);
                 }
             }
         }
@@ -356,37 +377,47 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
-                ProductionFileModel = new ObjectFileModel(ProductionFileName);
+                ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
 
-                Originals = new List<ObjectFileModel>
+                Originals = new List<AbstractFile>
                 {
                     ProductionFileModel,
                     PreservationFileModel
                 };
 
                 // configure file provider to assert original should exist
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetOriginalFolderName(), ProductionFileName)).Returns(false);
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                    ProductionFileModel.GetOriginalFolderName(), ProductionFileName)).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                    PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(false);
 
                 // configure file provider to assert normalized versions exist
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileName)).Returns(false);
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), MasterFileName)).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(),
+                    ProductionFileName)).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                    PreservationFileModel.GetFolderName(), MasterFileName)).Returns(false);
 
                 // configure file provider to assert original framemd5 files exists
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetOriginalFolderName(), ProductionFileModel.ToFrameMd5Filename())).Returns(false);
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), PreservationFileModel.ToFrameMd5Filename())).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                    ProductionFileModel.GetOriginalFolderName(), ProductionFileModel.ToFrameMd5Filename()))
+                    .Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                    PreservationFileModel.GetOriginalFolderName(), PreservationFileModel.ToFrameMd5Filename()))
+                    .Returns(false);
 
                 // configure file provider to assert normalized framemd5 files exists
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(), ProductionFileModel.ToFrameMd5Filename())).Returns(false);
-                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetFolderName(), PreservationFileModel.ToFrameMd5Filename())).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, ProductionFileModel.GetFolderName(),
+                    ProductionFileModel.ToFrameMd5Filename())).Returns(false);
+                FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                    PreservationFileModel.GetFolderName(), PreservationFileModel.ToFrameMd5Filename())).Returns(false);
             }
 
-            public List<ObjectFileModel> Originals { get; set; }
+            public List<AbstractFile> Originals { get; set; }
 
             private const string ProductionFileName = "MDPI_123456789_01_prod.wav";
 
-            private ObjectFileModel ProductionFileModel { get; set; }
-            private ObjectFileModel PreservationFileModel => MasterFileModel;
+            private AbstractFile ProductionFileModel { get; set; }
+            private AbstractFile PreservationFileModel => MasterFileModel;
 
             public class WhenThingsGoWell : WhenVerifyingNormalizedVersions
             {
@@ -408,8 +439,12 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        FileProvider.Received().FileDoesNotExist(Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFileName()));
-                        FileProvider.Received().FileDoesNotExist(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName()));
+                        FileProvider.Received()
+                            .FileDoesNotExist(Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
+                                model.Filename));
+                        FileProvider.Received()
+                            .FileDoesNotExist(Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
+                                model.Filename));
                     }
                 }
 
@@ -418,8 +453,9 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        var frameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename());
-                        var targetPath = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFileName());
+                        var frameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
+                            model.ToFrameMd5Filename());
+                        var targetPath = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.Filename);
 
                         var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
                         ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)));
@@ -431,8 +467,10 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        var frameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
-                        var targetPath = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFileName());
+                        var frameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
+                            model.ToFrameMd5Filename());
+                        var targetPath = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
+                            model.Filename);
 
                         var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
                         ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)));
@@ -444,8 +482,10 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().EndSection(Arg.Any<string>(), $"{model.ToFileName()} (original) hashed successfully");
-                        Observers.Received().EndSection(Arg.Any<string>(), $"{model.ToFileName()} (normalized) hashed successfully");
+                        Observers.Received()
+                            .EndSection(Arg.Any<string>(), $"{model.Filename} (original) hashed successfully");
+                        Observers.Received()
+                            .EndSection(Arg.Any<string>(), $"{model.Filename} (normalized) hashed successfully");
                     }
                 }
 
@@ -454,7 +494,8 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().EndSection(Arg.Any<string>(), $"{model.ToFileName()} (normalized) validated successfully");
+                        Observers.Received()
+                            .EndSection(Arg.Any<string>(), $"{model.Filename} (normalized) validated successfully");
                     }
                 }
 
@@ -463,7 +504,8 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().Log("normalized framemd5 hash: {0}", $"{model.ToFrameMd5Filename()} hash value");
+                        Observers.Received()
+                            .Log("normalized framemd5 hash: {0}", $"{model.ToFrameMd5Filename()} hash value");
                     }
                 }
 
@@ -472,7 +514,8 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().Log("original framemd5 hash: {0}", $"{model.ToFrameMd5Filename()} hash value");
+                        Observers.Received()
+                            .Log("original framemd5 hash: {0}", $"{model.ToFrameMd5Filename()} hash value");
                     }
                 }
 
@@ -481,8 +524,8 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().BeginSection("Hashing {0}", $"{model.ToFileName()} (original)");
-                        Observers.Received().BeginSection("Hashing {0}", $"{model.ToFileName()} (normalized)");
+                        Observers.Received().BeginSection("Hashing {0}", $"{model.Filename} (original)");
+                        Observers.Received().BeginSection("Hashing {0}", $"{model.Filename} (normalized)");
                     }
                 }
 
@@ -491,7 +534,7 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        Observers.Received().BeginSection("Validating {0} (normalized)", model.ToFileName());
+                        Observers.Received().BeginSection("Validating {0} (normalized)", model.Filename);
                     }
                 }
 
@@ -500,8 +543,10 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
-                        var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename());
+                        var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
+                            model.ToFrameMd5Filename());
+                        var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
+                            model.ToFrameMd5Filename());
                         FileProvider.Received().FileDoesNotExist(originalFrameMd5Path);
                         FileProvider.Received().FileDoesNotExist(normalizedFrameMd5Path);
                     }
@@ -512,7 +557,8 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename());
+                        var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
+                            model.ToFrameMd5Filename());
                         Hasher.Received().Hash(normalizedFrameMd5Path);
                     }
                 }
@@ -522,7 +568,8 @@ namespace Packager.Test.Utilities
                 {
                     foreach (var model in Originals)
                     {
-                        var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
+                        var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
+                            model.ToFrameMd5Filename());
                         Hasher.Received().Hash(originalFrameMd5Path);
                     }
                 }
@@ -534,7 +581,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    Originals = new List<ObjectFileModel> {PreservationFileModel};
+                    Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make hasher return different values
                     Hasher.Hash(Arg.Any<string>()).Returns(x => Task.FromResult(x.Arg<string>()));
@@ -559,7 +606,8 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldLogExceptionCorrectly()
                 {
-                    Observers.Received().LogProcessingIssue(Arg.Any<NormalizeOriginalException>(), PreservationFileModel.BarCode);
+                    Observers.Received()
+                        .LogProcessingIssue(Arg.Any<NormalizeOriginalException>(), PreservationFileModel.BarCode);
                 }
             }
 
@@ -569,10 +617,11 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    Originals = new List<ObjectFileModel> {PreservationFileModel};
+                    Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make file provider report that file does not exist
-                    FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory, PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
+                    FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
+                        PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
 
                     ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
                     {
@@ -594,22 +643,22 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ItShouldLogIssueCorrectly()
                 {
-                    Observers.Received().LogProcessingIssue(Arg.Any<FileNotFoundException>(), PreservationFileModel.BarCode);
+                    Observers.Received()
+                        .LogProcessingIssue(Arg.Any<FileNotFoundException>(), PreservationFileModel.BarCode);
                 }
             }
         }
-
-
+        
         public class WhenGeneratingDerivatives : FFMPEGRunnerTests
         {
-            private ObjectFileModel DerivativeFileModel { get; set; }
+            private AbstractFile DerivativeFileModel { get; set; }
 
             public class WhenGeneratingAccessDerivatives : WhenGeneratingDerivatives
             {
                 public override async void BeforeEach()
                 {
                     base.BeforeEach();
-                    DerivativeFileModel = MasterFileModel.ToProductionFileModel().ToAudioAccessFileModel();
+                    DerivativeFileModel = new AccessFile(new ProductionFile( MasterFileModel));
 
                     ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
                     {
@@ -617,7 +666,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    Result = await Runner.CreateAccessDerivative(MasterFileModel.ToProductionFileModel());
+                    Result = await Runner.CreateAccessDerivative(new ProductionFile(MasterFileModel));
                 }
 
                 private const string AccessDerivativeFileName = "MDPI_123456789_01_access.mp4";
@@ -640,13 +689,17 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ArgumentsShouldEndWithOutputFile()
                 {
-                    Assert.That(StartInfo.Arguments.EndsWith(Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), AccessDerivativeFileName)));
+                    var expected = Path.Combine(BaseProcessingDirectory,
+                        MasterFileModel.GetFolderName(), AccessDerivativeFileName).ToQuoted();
+                    Assert.That(StartInfo.Arguments.EndsWith(expected));
                 }
 
                 [Test]
                 public void ArgumentsShouldStartWithInputFile()
                 {
-                    Assert.That(StartInfo.Arguments.StartsWith($"-i {Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), ProductionFileName)}"));
+                    var expected = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), ProductionFileName)
+                            .ToQuoted();
+                    Assert.That(StartInfo.Arguments.StartsWith($"-i {expected}"));
                 }
 
                 [Test]
@@ -686,7 +739,7 @@ namespace Packager.Test.Utilities
                 public override void BeforeEach()
                 {
                     base.BeforeEach();
-                    DerivativeFileModel = MasterFileModel.ToProductionFileModel();
+                    DerivativeFileModel = new ProductionFile(MasterFileModel);
                 }
 
                 private const string ProdDerivativeFileName = "MDPI_123456789_01_prod.wav";
@@ -703,7 +756,7 @@ namespace Packager.Test.Utilities
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        Result = await Runner.CreateProductionDerivative(MasterFileModel, DerivativeFileModel, Metadata);
+                        Result = await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata);
                     }
 
                     public class WhenDerivativeAlreadyExists : WhenThingsGoWell
@@ -715,17 +768,20 @@ namespace Packager.Test.Utilities
                         }
 
                         [Test]
-                        public void ItShouldLogThatFileAlreadyExists()
+                        public void ItShouldCloseSectionCorrectly()
                         {
-                            Observers.Received().Log("{0} already exists. Will not generate derivative", DerivativeFileModel.FullFileUse);
+                            Observers.Received()
+                                .EndSection(Arg.Any<string>(),
+                                    $"Generate {DerivativeFileModel.FullFileUse} skipped - already exists: {DerivativeFileModel.Filename}");
                         }
 
                         [Test]
-                        public void ItShouldCloseSectionCorrectly()
+                        public void ItShouldLogThatFileAlreadyExists()
                         {
-                            Observers.Received().EndSection(Arg.Any<string>(), $"Generate {DerivativeFileModel.FullFileUse} skipped - already exists: {DerivativeFileModel.ToFileName()}");
+                            Observers.Received()
+                                .Log("{0} already exists. Will not generate derivative", DerivativeFileModel.FullFileUse);
                         }
-                        
+
                         [Test]
                         public void ItShouldNotCallProcessRunner()
                         {
@@ -745,12 +801,6 @@ namespace Packager.Test.Utilities
                         }
 
                         [Test]
-                        public void ItShouldCallEndSectionCorrectly()
-                        {
-                            Observers.Received().EndSection(Arg.Any<string>(), $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.ToFileName()}");
-                        }
-
-                        [Test]
                         public void ArgumentsShouldContainGlobalArguments()
                         {
                             Assert.That(StartInfo.Arguments.Contains(AudioProductionArguments));
@@ -759,13 +809,27 @@ namespace Packager.Test.Utilities
                         [Test]
                         public void ArgumentsShouldEndWithOutputFile()
                         {
-                            Assert.That(StartInfo.Arguments.EndsWith(Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), ProdDerivativeFileName)));
+                            var expected =
+                                Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(),
+                                    ProdDerivativeFileName)
+                                    .ToQuoted();
+                            Assert.That(StartInfo.Arguments.EndsWith(expected));
                         }
 
                         [Test]
                         public void ArgumentsShouldStartWithInputFile()
                         {
-                            Assert.That(StartInfo.Arguments.StartsWith($"-i {Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), MasterFileName)}"));
+                            var expected = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), MasterFileName)
+                                    .ToQuoted();
+                            Assert.That(StartInfo.Arguments.StartsWith($"-i {expected}"));
+                        }
+
+                        [Test]
+                        public void ItShouldCallEndSectionCorrectly()
+                        {
+                            Observers.Received()
+                                .EndSection(Arg.Any<string>(),
+                                    $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.Filename}");
                         }
 
                         [Test]
@@ -779,7 +843,8 @@ namespace Packager.Test.Utilities
                         {
                             foreach (var argument in Metadata.AsArguments())
                             {
-                                Assert.That(StartInfo.Arguments.Contains(argument), $"argument {argument} should be present");
+                                Assert.That(StartInfo.Arguments.Contains(argument),
+                                    $"argument {argument} should be present");
                             }
                         }
 
@@ -811,7 +876,8 @@ namespace Packager.Test.Utilities
                         [Test]
                         public void ItShouldTestThatOriginalExists()
                         {
-                            var path = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(), MasterFileName);
+                            var path = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(),
+                                MasterFileName);
                             FileProvider.Received().FileDoesNotExist(path);
                         }
 
@@ -819,7 +885,7 @@ namespace Packager.Test.Utilities
                         public void ItShouldTestThatTargetDoesNotExists()
                         {
                             var path = Path.Combine(BaseProcessingDirectory, MasterFileModel.GetFolderName(),
-                                MasterFileModel.ToProductionFileModel().ToFileName());
+                                new ProductionFile(MasterFileModel).Filename);
 
                             FileProvider.Received().FileExists(path);
                         }
@@ -828,14 +894,16 @@ namespace Packager.Test.Utilities
                     [Test]
                     public void ItShouldCallBeginSectionCorrectly()
                     {
-                        Observers.Received().BeginSection("Generating {0}: {1}", DerivativeFileModel.FullFileUse, DerivativeFileModel.ToFileName());
+                        Observers.Received()
+                            .BeginSection("Generating {0}: {1}", DerivativeFileModel.FullFileUse,
+                                DerivativeFileModel.Filename);
                     }
 
-                
+
                     [Test]
                     public void ItShouldReturnCorrectResult()
                     {
-                        Assert.That(DerivativeFileModel.IsSameAs(Result.ToFileName()));
+                        Assert.That(DerivativeFileModel.IsSameAs(Result));
                     }
                 }
             }
@@ -845,7 +913,7 @@ namespace Packager.Test.Utilities
                 public override void BeforeEach()
                 {
                     base.BeforeEach();
-                    DerivativeFileModel = MasterFileModel.ToProductionFileModel();
+                    DerivativeFileModel = new ProductionFile(MasterFileModel);
                 }
 
                 private LoggedException FinalException { get; set; }
@@ -862,7 +930,11 @@ namespace Packager.Test.Utilities
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProductionDerivative(MasterFileModel, DerivativeFileModel, Metadata));
+                        FinalException =
+                            Assert.Throws<LoggedException>(
+                                async () =>
+                                    await
+                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata));
                     }
 
                     [Test]
@@ -879,10 +951,14 @@ namespace Packager.Test.Utilities
                     public override void BeforeEach()
                     {
                         base.BeforeEach();
-                        DerivativeFileModel = MasterFileModel.ToProductionFileModel();
+                        DerivativeFileModel = new ProductionFile(MasterFileModel);
                         Exception = new Exception("testing");
-                        ProcessRunner.WhenForAnyArgs(x=>x.Run(null)).Do(x => { throw Exception; });
-                        FinalException = Assert.Throws<LoggedException>(async () => await Runner.CreateProductionDerivative(MasterFileModel, DerivativeFileModel, Metadata));
+                        ProcessRunner.WhenForAnyArgs(x => x.Run(null)).Do(x => { throw Exception; });
+                        FinalException =
+                            Assert.Throws<LoggedException>(
+                                async () =>
+                                    await
+                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata));
                     }
 
                     private Exception Exception { get; set; }
@@ -913,7 +989,7 @@ namespace Packager.Test.Utilities
         [Test]
         public void FFMPEGPathPropertyShouldHaveValidateAttribute()
         {
-            var info = typeof (FFMPEGRunner).GetProperty("FFMPEGPath");
+            var info = typeof (AudioFFMPEGRunner).GetProperty("FFMPEGPath");
             Assert.That(info.GetCustomAttribute<ValidateFileAttribute>(), Is.Not.Null);
         }
     }

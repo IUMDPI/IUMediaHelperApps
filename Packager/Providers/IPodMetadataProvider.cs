@@ -1,5 +1,4 @@
-﻿using System.CodeDom;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -8,11 +7,8 @@ namespace Packager.Providers
 {
     public interface IPodMetadataProvider
     {
-        Task<ConsolidatedPodMetadata> GetObjectMetadata(string barcode);
-        Task<string> ResolveUnit(string unit);
-
-        void Validate(ConsolidatedPodMetadata podMetadata, List<ObjectFileModel> models);
-        void Log(ConsolidatedPodMetadata podMetadata);
-
+        Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractPodMetadata, new();
+        void Validate<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata;
+        void Log<T>(T podMetadata) where T : AbstractPodMetadata;
     }
 }

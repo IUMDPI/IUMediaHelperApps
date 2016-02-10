@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using Packager.Models.FileModels;
-using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories
 {
-    public interface ICarrierDataFactory
+    public interface ICarrierDataFactory<in T> where T:AbstractPodMetadata
     {
-        CarrierData Generate(ConsolidatedPodMetadata excelModel, List<ObjectFileModel> filesToProcess);
+        AbstractCarrierData Generate(T metadata, List<AbstractFile> filesToProcess);
     }
 }

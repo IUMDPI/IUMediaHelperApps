@@ -11,47 +11,30 @@ using Packager.Utilities.Process;
 
 namespace Packager.Processors
 {
-    public class VideoProcessor : AbstractProcessor
+    public class VideoProcessor : AbstractProcessor<VideoPodMetadata>
     {
         public VideoProcessor(IDependencyProvider dependencyProvider) : base(dependencyProvider)
         {
+            EmbeddedMetadataFactory = DependencyProvider.VideoMetadataFactory;
+            FFMpegRunner = DependencyProvider.VideoFFMPEGRunner;
+            FFProbeRunner = DependencyProvider.FFProbeRunner;
+            CarrierDataFactory = DependencyProvider.VideoCarrierDataFactory;
         }
-
-        private IFFMPEGRunner FFPMPEGRunner => DependencyProvider.VideoFFMPEGRunner;
-        private IFFProbeRunner FFProbeRunner => DependencyProvider.FFProbeRunner;
-        private IEmbeddedMetadataFactory<VideoPodMetadata> MetadataFactory => DependencyProvider.VideoMetadataFactory;
+        
+        private IFFProbeRunner FFProbeRunner { get; }
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
-        protected override ICarrierDataFactory CarrierDataFactory => DependencyProvider.VideoCarrierDataFactory;
-        protected override IFFMPEGRunner FFMpegRunner => DependencyProvider.VideoFFMPEGRunner;
+        protected override ICarrierDataFactory<VideoPodMetadata> CarrierDataFactory { get; }
+        protected override IFFMPEGRunner FFMpegRunner { get; }
+        protected override IEmbeddedMetadataFactory<VideoPodMetadata> EmbeddedMetadataFactory { get; }
 
-        protected override async Task<AbstractPodMetadata> GetMetadata(List<AbstractFile> filesToProcess)
+        protected override AbstractFile CreateProdOrMezzModel(AbstractFile master)
         {
-            return await GetMetadata<VideoPodMetadata>(filesToProcess);
+            return new MezzanineFile(master);
         }
 
-        protected override async Task NormalizeOriginals(List<AbstractFile> originals, AbstractPodMetadata podMetadata)
+        protected override IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models)
         {
-            foreach (var original in originals)
-            {
-                var metadata = MetadataFactory.Generate(originals, original, (VideoPodMetadata) podMetadata);
-                await FFPMPEGRunner.Normalize(original, metadata);
-            }
-        }
-
-        protected override async Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models,
-            AbstractPodMetadata metadata)
-        {
-            var results = new List<AbstractFile>();
-            foreach (var master in models
-                .GroupBy(m => m.SequenceIndicator)
-                .Select(g => g.GetPreservationOrIntermediateModel()))
-            {
-                var derivative = new MezzanineFile(master);
-                var embeddedMetadata = MetadataFactory.Generate(models, derivative, (VideoPodMetadata) metadata);
-                results.Add(await FFPMPEGRunner.CreateProdOrMezzDerivative(master, derivative, embeddedMetadata));
-            }
-
-            return results;
+            return models.Where(m => m.IsMezzanineVersion());
         }
 
         protected override async Task ClearMetadataFields(List<AbstractFile> processedList)
@@ -60,7 +43,7 @@ namespace Packager.Processors
             await Task.FromResult(0);
         }
 
-        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(List<AbstractFile> processedList)
+        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList)
         {
             var results = new List<AbstractFile>();
             foreach (

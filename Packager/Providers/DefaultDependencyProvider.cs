@@ -80,10 +80,10 @@ namespace Packager.Providers
         public IProcessRunner ProcessRunner { get; }
 
         [ValidateObject]
-        public ICarrierDataFactory AudioCarrierDataFactory { get; }
+        public ICarrierDataFactory<AudioPodMetadata> AudioCarrierDataFactory { get; }
 
         [ValidateObject]
-        public ICarrierDataFactory VideoCarrierDataFactory { get; }
+        public ICarrierDataFactory<VideoPodMetadata> VideoCarrierDataFactory { get; }
         
         [ValidateObject]
         public IProgramSettings ProgramSettings { get; }

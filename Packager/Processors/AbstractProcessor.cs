@@ -20,7 +20,7 @@ using Packager.Validators;
 
 namespace Packager.Processors
 {
-    public abstract class AbstractProcessor : IProcessor
+    public abstract class AbstractProcessor<T> : IProcessor where T: AbstractPodMetadata, new()
     {
         // constructor
         protected AbstractProcessor(IDependencyProvider dependencyProvider)
@@ -28,49 +28,36 @@ namespace Packager.Processors
             DependencyProvider = dependencyProvider;
         }
 
-        protected IDependencyProvider DependencyProvider { get; }
-
-        private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
-
-        protected IObserverCollection Observers => DependencyProvider.Observers;
-
-        private IPodMetadataProvider MetadataProvider => DependencyProvider.MetadataProvider;
-
-        private IXmlExporter XmlExporter => DependencyProvider.XmlExporter;
-
-        private string ProjectCode => ProgramSettings.ProjectCode;
-
-        private string ObjectDirectoryName => $"{ProjectCode.ToUpperInvariant()}_{Barcode}";
-
-        protected string ProcessingDirectory => Path.Combine(RootProcessingDirectory, ObjectDirectoryName);
-
-        private string DropBoxDirectory => Path.Combine(RootDropBoxDirectory, ObjectDirectoryName);
-
         protected string Barcode { get; private set; }
-
-        private string InputDirectory => ProgramSettings.InputDirectory;
-
-        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
-
-        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
-
-        private IHasher Hasher => DependencyProvider.Hasher;
-
-        private IFileProvider FileProvider => DependencyProvider.FileProvider;
-
-        private IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
-
-        protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
-
-        private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
-
-        private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
-
         protected abstract string OriginalsDirectory { get; }
 
-        protected abstract ICarrierDataFactory CarrierDataFactory { get; }
+        protected IDependencyProvider DependencyProvider { get; }
+        private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
+        protected IObserverCollection Observers => DependencyProvider.Observers;
+        private IPodMetadataProvider MetadataProvider => DependencyProvider.MetadataProvider;
+        private IXmlExporter XmlExporter => DependencyProvider.XmlExporter;
+        private string ProjectCode => ProgramSettings.ProjectCode;
+        private string ObjectDirectoryName => $"{ProjectCode.ToUpperInvariant()}_{Barcode}";
+        protected string ProcessingDirectory => Path.Combine(RootProcessingDirectory, ObjectDirectoryName);
+        private string DropBoxDirectory => Path.Combine(RootDropBoxDirectory, ObjectDirectoryName);
+        private string InputDirectory => ProgramSettings.InputDirectory;
+        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
+        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
+        private IHasher Hasher => DependencyProvider.Hasher;
+        private IFileProvider FileProvider => DependencyProvider.FileProvider;
+        private IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
+        protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
+        private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
+        private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
 
+        protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
         protected abstract IFFMPEGRunner FFMpegRunner { get; }
+        protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
+
+        protected abstract AbstractFile CreateProdOrMezzModel(AbstractFile master);
+        protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models); 
+        protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
+        protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList);
 
         public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> fileModels)
         {
@@ -86,7 +73,7 @@ namespace Packager.Processors
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess);
 
                 // fetch, log, and validate metadata
-                var metadata = await GetMetadata(filesToProcess);
+                var metadata = await GetMetadata<T>(filesToProcess);
 
                 // normalize originals
                 await NormalizeOriginals(filesToProcess, metadata);
@@ -147,25 +134,36 @@ namespace Packager.Processors
             }
         }
 
-        protected abstract Task<AbstractPodMetadata> GetMetadata(List<AbstractFile> filesToProcess);
+        private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata)
+        {
+            foreach (var original in originals)
+            {
+                var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
+                await FFMpegRunner.Normalize(original, metadata);
+            }
+        }
+        
+        private async Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models, T podMetadata)
+        {
+            var results = new List<AbstractFile>();
+            foreach (var master in models
+                .GroupBy(m => m.SequenceIndicator)
+                .Select(g => g.GetPreservationOrIntermediateModel()))
+            {
+                var derivative = CreateProdOrMezzModel(master);
+                var metadata = EmbeddedMetadataFactory.Generate(models, derivative, podMetadata);
+                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
+            }
 
-        protected abstract Task NormalizeOriginals(List<AbstractFile> originals, AbstractPodMetadata podMetadata);
-
-        protected abstract Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models,
-            AbstractPodMetadata metadata);
-
-        protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
-
-        protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(List<AbstractFile> processedList);
-
-
-        // todo: see if can fix so that || condition removed
+            return results;
+        }
+        
         private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models)
         {
             var results = new List<AbstractFile>();
 
             // for each production master, create an access version
-            foreach (var model in models.Where(m => m.IsProductionVersion() || m.IsMezzanineVersion()))
+            foreach (var model in GetProdOrMezzModels(models))
             {
                 results.Add(await FFMpegRunner.CreateAccessDerivative(model));
             }
@@ -192,7 +190,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFile> GenerateXml(AbstractPodMetadata metadata, List<AbstractFile> filesToProcess)
+        private async Task<XmlFile> GenerateXml(T metadata, List<AbstractFile> filesToProcess)
         {
             var result = new XmlFile(ProjectCode, Barcode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);

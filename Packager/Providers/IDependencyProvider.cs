@@ -21,8 +21,8 @@ namespace Packager.Providers
         IDirectoryProvider DirectoryProvider { get; }
         IFileProvider FileProvider { get; }
         IProcessRunner ProcessRunner { get; }
-        ICarrierDataFactory AudioCarrierDataFactory { get; }
-        ICarrierDataFactory VideoCarrierDataFactory { get; }
+        ICarrierDataFactory<AudioPodMetadata> AudioCarrierDataFactory { get; }
+        ICarrierDataFactory<VideoPodMetadata> VideoCarrierDataFactory { get; }
 
         IProgramSettings ProgramSettings { get; }
 

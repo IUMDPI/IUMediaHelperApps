@@ -322,12 +322,12 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     AudioCarrier = new AudioCarrier();
-                    CarrierDataFactory.When(mg => mg.Generate(Arg.Any<AbstractPodMetadata>(), Arg.Any<List<AbstractFile>>()))
+                    AudioCarrierDataFactory.When(mg => mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<List<AbstractFile>>()))
                        .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
-                    CarrierDataFactory.Generate(Arg.Any<AbstractPodMetadata>(), Arg.Any<List<AbstractFile>>())
+                    AudioCarrierDataFactory.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<List<AbstractFile>>())
                         .Returns(AudioCarrier);
 
-                    CarrierDataFactory.Generate(null, null).ReturnsForAnyArgs(AudioCarrier);
+                    AudioCarrierDataFactory.Generate(null, null).ReturnsForAnyArgs(AudioCarrier);
                     ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
@@ -344,7 +344,7 @@ namespace Packager.Test.Processors
                     [Test]
                     public void ItShouldPassSinglePresentationIntermediateModelToGenerator()
                     {
-                        CarrierDataFactory.Received().Generate(
+                        AudioCarrierDataFactory.Received().Generate(
                             Arg.Any<AudioPodMetadata>(),
                             Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
@@ -416,8 +416,8 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
-                    CarrierDataFactory.Received().Generate(
-                        Arg.Any<AbstractPodMetadata>(),
+                    AudioCarrierDataFactory.Received().Generate(
+                        Arg.Any<AudioPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
 
@@ -425,8 +425,8 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldPassSingleProductionModelToGenerator()
                 {
-                    CarrierDataFactory.Received().Generate(
-                        Arg.Any<AbstractPodMetadata>(),
+                    AudioCarrierDataFactory.Received().Generate(
+                        Arg.Any<AudioPodMetadata>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is ProductionFile) != null));
                 }
             }
@@ -437,8 +437,8 @@ namespace Packager.Test.Processors
                 {
                     base.BeforeEach();
 
-                    ProcessedModelList =
-                        CarrierDataFactory.ReceivedCalls().First().GetArguments()[1] as List<AbstractFile>;
+                    ProcessedModelList = AudioCarrierDataFactory.ReceivedCalls()
+                        .First().GetArguments()[1] as List<AbstractFile>;
                 }
 
                 private List<AbstractFile> ProcessedModelList { get; set; }

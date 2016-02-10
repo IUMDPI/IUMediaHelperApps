@@ -5,8 +5,8 @@ using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories
 {
-    public interface ICarrierDataFactory
+    public interface ICarrierDataFactory<in T> where T:AbstractPodMetadata
     {
-        AbstractCarrierData Generate(AbstractPodMetadata metadata, List<AbstractFile> filesToProcess);
+        AbstractCarrierData Generate(T metadata, List<AbstractFile> filesToProcess);
     }
 }

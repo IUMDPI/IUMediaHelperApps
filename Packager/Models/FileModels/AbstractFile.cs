@@ -49,6 +49,8 @@ namespace Packager.Models.FileModels
         public string Extension { get; protected set; }
         public string Filename { get; protected set; }
 
+        public long Size { get; set; }
+
         public string GetFolderName()
         {
             return $"{ProjectCode}_{BarCode}";

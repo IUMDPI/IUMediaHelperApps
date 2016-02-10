@@ -117,7 +117,7 @@ namespace Packager.Processors
                 await CopyToDropbox(processedList);
 
                 // verify that all files make it to dropbox
-                await VerifyDropboxFiles(processedList);
+                VerifyDropboxFiles(processedList);
 
                 // move everything to success folder
                 await MoveToSuccessFolder();
@@ -215,27 +215,28 @@ namespace Packager.Processors
             }
         }
 
-        private async Task VerifyDropboxFiles(IEnumerable<AbstractFile> processedList)
+        private void VerifyDropboxFiles(IEnumerable<AbstractFile> processedList)
         {
-            var sectionKey = Observers.BeginSection("Validating dropbox files");
+            var sectionKey = Observers.BeginSection("Validating dropbox file sizes");
             try
             {
                 foreach (var model in processedList)
                 {
-                    var dropboxPath = Path.Combine(DropBoxDirectory, model.Filename);
-                    var checksum = await Hasher.Hash(dropboxPath);
-                    if (model.Checksum.Equals(checksum))
+                    var originalSize = FileProvider.GetFileSize(Path.Combine(ProcessingDirectory, model.Filename));
+                    var dropBoxSize = FileProvider.GetFileSize(Path.Combine(DropBoxDirectory, model.Filename));
+                    
+                    if (originalSize.Equals(dropBoxSize))
                     {
-                        Observers.Log("{0}: {1}", model.Filename, checksum);
+                        Observers.Log("{0}: {1}", model.Filename, originalSize.ToReadableFileSize());
                     }
                     else
                     {
                         throw new Exception(
-                            $"Could not validate file {model.Filename}: checksum ({checksum}) not same as expected ({model.Checksum})");
+                            $"Could not validate file {model.Filename}: size ({dropBoxSize.ToReadableFileSize()}) not same as expected ({originalSize.ToReadableFileSize()})");
                     }
                 }
 
-                Observers.EndSection(sectionKey, "Dropbox files validated successfully!");
+                Observers.EndSection(sectionKey, "Dropbox file sizes validated successfully!");
             }
             catch (Exception e)
             {
@@ -365,13 +366,13 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected async Task<T> GetMetadata<T>(List<AbstractFile> filesToProcess) where T : AbstractPodMetadata, new()
+        private async Task<TMetadataType> GetMetadata<TMetadataType>(List<AbstractFile> filesToProcess) where TMetadataType : AbstractPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
                 // get base metadata
-                var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
+                var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode);
 
                 // log metadata
                 MetadataProvider.Log(metadata);
@@ -391,12 +392,20 @@ namespace Packager.Processors
             }
         }
 
-        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
+        private async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
         {
             foreach (var model in models)
             {
                 model.Checksum = await Hasher.Hash(model);
                 Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
+            }
+        }
+
+        private void AssignFileSizes(IEnumerable<AbstractFile> models)
+        {
+            foreach (var model in models)
+            {
+                model.Size = FileProvider.GetFileSize(Path.Combine(ProcessingDirectory, model.Filename));
             }
         }
     }

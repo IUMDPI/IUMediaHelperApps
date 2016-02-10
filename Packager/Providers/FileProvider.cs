@@ -18,6 +18,12 @@ namespace Packager.Providers
             await Task.Run(() => { File.Move(sourceFileName, destFileName); });
         }
 
+        public long GetFileSize(string path)
+        {
+            var info = new FileInfo(path);
+            return info.Length;
+        }
+
         public bool FileExists(string path)
         {
             return File.Exists(path);

@@ -119,7 +119,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetCleaningDateCorrectly()
             {
-                Assert.That(Result.Cleaning.Date, Is.EqualTo(PodMetadata.CleaningDate));
+                Assert.That(Result.Cleaning.Date, Is.EqualTo(PodMetadata.CleaningDate?.ToString("yyyy-MM-dd")));
             }
 
             [Test]
@@ -134,7 +134,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetBakingDateCorrectly()
             {
-                Assert.That(Result.Baking.Date, Is.EqualTo(PodMetadata.BakingDate));
+                Assert.That(Result.Baking.Date, Is.EqualTo(PodMetadata.BakingDate?.ToString("yyyy-MM-dd")));
             }
 
             [Test]

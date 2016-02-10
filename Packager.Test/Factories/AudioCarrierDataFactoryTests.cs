@@ -128,7 +128,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetCleaningDateCorrectly()
             {
-                Assert.That(Result.Cleaning.Date, Is.EqualTo(PodMetadata.CleaningDate));
+                Assert.That(Result.Cleaning.Date, Is.EqualTo(PodMetadata.CleaningDate?.ToString("yyyy-MM-dd")));
             }
 
             [Test]
@@ -143,7 +143,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetBakingDateCorrectly()
             {
-                Assert.That(Result.Baking.Date, Is.EqualTo(PodMetadata.BakingDate));
+                Assert.That(Result.Baking.Date, Is.EqualTo(PodMetadata.BakingDate?.ToString("yyyy-MM-dd")));
             }
 
             [Test]
@@ -177,13 +177,6 @@ namespace Packager.Test.Factories
             public void ItShouldSetTrackCorrectly()
             {
                 Assert.That(Result.Configuration.Track, Is.EqualTo(PodMetadata.TrackConfiguration));
-            }
-
-            [Test]
-            public void ItShouldSetXsiTypeCorrectly()
-            {
-                Assert.That(Result.Configuration.XsiType,
-                    Is.EqualTo(string.Format("Configuration{0}", PodMetadata.Format)));
             }
         }
 

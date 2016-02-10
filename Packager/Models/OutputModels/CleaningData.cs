@@ -5,12 +5,12 @@ namespace Packager.Models.OutputModels
     [Serializable]
     public class CleaningData
     {
-        public DateTime? Date { get; set; }
+        public string Date { get; set; }
         public string Comment { get; set; }
 
         public bool ShouldSerializeDate()
         {
-            return Date.HasValue;
+            return string.IsNullOrWhiteSpace(Date) == false;
         }
 
         public bool ShouldSerializeComment()

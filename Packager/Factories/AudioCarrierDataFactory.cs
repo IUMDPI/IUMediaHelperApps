@@ -26,16 +26,15 @@ namespace Packager.Factories
                 DirectionsRecorded = metadata.DirectionsRecorded,
                 Identifier = metadata.CallNumber,
                 Thickness = metadata.TapeThickness,
-                Baking = new BakingData {Date = metadata.BakingDate},
-                Cleaning = new CleaningData {Date = metadata.CleaningDate, Comment = metadata.CleaningComment},
+                Baking = new BakingData {Date = metadata.BakingDate?.ToString("yyyy-MM-dd") },
+                Cleaning = new CleaningData {Date = metadata.CleaningDate?.ToString("yyyy-MM-dd"), Comment = metadata.CleaningComment},
                 Repaired = metadata.Repaired,
                 Parts = GeneratePartsData(metadata, filesToProcess),
                 Configuration = new ConfigurationData
                 {
-                    XsiType = $"Configuration{metadata.Format}".RemoveSpaces(),
                     Track = metadata.TrackConfiguration,
-                    SoundField = metadata.SoundField
-                    //Speed = metadata.PlaybackSpeed,
+                    SoundField = metadata.SoundField,
+                    Speed = metadata.PlaybackSpeed,
                 },
                 PhysicalCondition = new PhysicalConditionData
                 {

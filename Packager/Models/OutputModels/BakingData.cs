@@ -5,11 +5,11 @@ namespace Packager.Models.OutputModels
     [Serializable]
     public class BakingData
     {
-        public DateTime? Date { get; set; }
+        public string  Date { get; set; }
 
         public bool ShouldSerializeDate()
         {
-            return Date.HasValue;
+            return string.IsNullOrWhiteSpace(Date) == false;
         }
     }
 }

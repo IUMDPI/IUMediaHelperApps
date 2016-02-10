@@ -23,8 +23,8 @@ namespace Packager.Factories
                 Barcode = metadata.Barcode,
                 CarrierType = "Video", // todo: is this correct
                 Identifier = metadata.CallNumber.ToDefaultIfEmpty("Unknown"),
-                Baking = new BakingData {Date = metadata.BakingDate},
-                Cleaning = new CleaningData {Date = metadata.CleaningDate, Comment = metadata.CleaningComment},
+                Baking = new BakingData {Date = metadata.BakingDate?.ToString("yyyy-MM-dd") },
+                Cleaning = new CleaningData {Date = metadata.CleaningDate?.ToString("yyyy-MM-dd"), Comment = metadata.CleaningComment},
                 Parts = GeneratePartsData(metadata, filesToProcess),
                 PhysicalCondition = new PhysicalConditionData
                 {

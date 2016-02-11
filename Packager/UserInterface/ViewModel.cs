@@ -13,6 +13,7 @@ using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Folding;
 using Packager.Annotations;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.SettingsModels;
 using Packager.Models.UserInterfaceModels;
@@ -171,12 +172,12 @@ namespace Packager.UserInterface
 
         public void BeginSection(string sectionKey, string text)
         {
-            if (string.IsNullOrEmpty(sectionKey))
+            if (sectionKey.IsNotSet())
             {
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(text))
+            if (text.IsNotSet())
             {
                 return;
             }
@@ -212,7 +213,7 @@ namespace Packager.UserInterface
 
         public void EndSection(string sectionKey, string newTitle = "", bool collapse = false)
         {
-            if (string.IsNullOrEmpty(sectionKey))
+            if (sectionKey.IsNotSet())
             {
                 return;
             }
@@ -228,7 +229,7 @@ namespace Packager.UserInterface
             sectionModel.EndOffset = TextLength - 1;
             sectionModel.Completed = true;
 
-            if (string.IsNullOrWhiteSpace(newTitle) == false)
+            if (newTitle.IsSet())
             {
                 sectionModel.Title = newTitle;
             }

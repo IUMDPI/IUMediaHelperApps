@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
@@ -89,7 +90,7 @@ namespace Packager.Factories
             parts.Add(DetermineSpeedUsed(metadata, provenance));
             parts.Add(metadata.Format);
 
-            return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+            return string.Join(";", parts.Where(p => p.IsSet()));
         }
 
         private static List<string> GenerateDevicePartsArray(IEnumerable<Device> devices)
@@ -113,7 +114,7 @@ namespace Packager.Factories
             }
 
             var parts = GenerateDevicePartsArray(provenance.AdDevices);
-            return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+            return string.Join(";", parts.Where(p => p.IsSet()));
         }
 
         // if provenance.speedUsed is present
@@ -122,17 +123,10 @@ namespace Packager.Factories
         private static string DetermineSpeedUsed(AudioPodMetadata metadata, DigitalAudioFile provenance)
         {
             var result = provenance.SpeedUsed;
-
-            //string.IsNullOrWhiteSpace(provenance.SpeedUsed)
-            //    ? metadata.PlaybackSpeed
-            //    : provenance.SpeedUsed;
-
-            if (string.IsNullOrWhiteSpace(result))
-            {
-                return result;
-            }
-
-            return result.Replace(",", ";").Replace("; ", ";");
+            
+            return result.IsNotSet() 
+                ? result 
+                : result.Replace(",", ";").Replace("; ", ";");
         }
     }
 }

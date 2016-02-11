@@ -30,7 +30,7 @@ namespace Packager.Factories
                 Path.GetFileNameWithoutExtension(model.Filename)
             };
 
-            return string.Join(". ", parts.Where(p => string.IsNullOrWhiteSpace(p) == false));
+            return string.Join(". ", parts.Where(p => p.IsSet()));
         }
 
         protected static string GetDateString(DateTime? date, string format, string defaultValue)

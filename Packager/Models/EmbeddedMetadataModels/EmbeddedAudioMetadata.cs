@@ -95,7 +95,7 @@ namespace Packager.Models.EmbeddedMetadataModels
                     p =>
                         new Tuple<string, BextFieldAttribute>(GetValueFromField(this, p),
                             p.GetCustomAttribute<BextFieldAttribute>()))
-                .Where(t => t.Item2 != null && !string.IsNullOrWhiteSpace(t.Item1)))
+                .Where(t => t.Item2 != null && t.Item1.IsSet()))
             {
                 if (info.Item2.ValueWithinLengthLimit(info.Item1) == false)
                 {

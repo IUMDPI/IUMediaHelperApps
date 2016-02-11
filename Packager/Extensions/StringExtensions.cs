@@ -16,20 +16,16 @@ namespace Packager.Extensions
 
         private static string FromCamelCaseToSpaces(this string value)
         {
-            return string.IsNullOrWhiteSpace(value)
-                ? string.Empty
+            return value.IsNotSet()
+                ? value
                 : Regex.Replace(value, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
         }
 
         public static string NormalizeForCommandLine(this string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-
-            return value.Replace("\"","\\\"");
-
+            return value.IsNotSet() 
+                ? value 
+                : value.Replace("\"","\\\"");
         }
 
         public static void InsertBefore(this List<string> parts, Predicate<string> predicate, string toInsert = "")
@@ -82,7 +78,7 @@ namespace Packager.Extensions
                 return defaultValue;
             }
 
-            return string.IsNullOrWhiteSpace(value.ToString()) == false
+            return value.ToString().IsSet()
                 ? value.ToString()
                 : defaultValue;
         }
@@ -122,14 +118,14 @@ namespace Packager.Extensions
 
         public static string RemoveSpaces(this string value)
         {
-            return string.IsNullOrWhiteSpace(value) 
+            return value.IsNotSet()
                 ? value 
                 : value.Replace(" ", "");
         }
 
         public static string TrimWhiteSpace(this string value)
         {
-            return string.IsNullOrWhiteSpace(value)
+            return value.IsNotSet()
                 ? value
                 : value.Trim();
         }
@@ -141,7 +137,7 @@ namespace Packager.Extensions
 
         public static string AppendIfValuePresent(this string value, string toAppend)
         {
-            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(toAppend))
+            if (value.IsNotSet() || toAppend.IsNotSet())
             {
                 return value;
             }
@@ -149,9 +145,24 @@ namespace Packager.Extensions
             return value.Trim() + toAppend;
         }
 
+        public static string PrependIfValuePresent(this string value, string toPrepend)
+        {
+            if (value.IsNotSet() || toPrepend.IsNotSet())
+            {
+                return value;
+            }
+
+            return $"{toPrepend}{value}";
+        }
+
         public static bool IsSet(this string value)
         {
             return string.IsNullOrWhiteSpace(value) == false;
+        }
+
+        public static bool IsNotSet(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value);
         }
     }
 }

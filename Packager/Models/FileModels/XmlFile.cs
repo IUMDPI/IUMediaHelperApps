@@ -1,4 +1,6 @@
-﻿namespace Packager.Models.FileModels
+﻿using Packager.Extensions;
+
+namespace Packager.Models.FileModels
 {
     public class XmlFile : AbstractFile
     {
@@ -14,12 +16,7 @@
         
         public override bool IsValid()
         {
-            if (string.IsNullOrWhiteSpace(ProjectCode))
-            {
-                return false;
-            }
-
-            return !string.IsNullOrWhiteSpace(BarCode);
+            return ProjectCode.IsSet() && BarCode.IsSet();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Packager.Models;
+﻿using Packager.Extensions;
+using Packager.Models;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
@@ -25,7 +26,7 @@ namespace Packager.Utilities.Process
 
         private static string AddRequiredArguments(string arguments)
         {
-            if (string.IsNullOrWhiteSpace(arguments))
+            if (arguments.IsNotSet())
             {
                 return arguments;
             }

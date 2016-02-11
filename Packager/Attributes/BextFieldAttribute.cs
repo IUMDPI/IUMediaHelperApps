@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Packager.Extensions;
 using Packager.Utilities.Bext;
 
 namespace Packager.Attributes
@@ -17,7 +18,7 @@ namespace Packager.Attributes
 
         public bool ValueWithinLengthLimit(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (value.IsNotSet())
             {
                 return true;
             }

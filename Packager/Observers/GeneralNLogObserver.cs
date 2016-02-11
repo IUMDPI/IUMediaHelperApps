@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using Packager.Exceptions;
+using Packager.Extensions;
 
 namespace Packager.Observers
 {
@@ -55,7 +56,7 @@ namespace Packager.Observers
 
         private static void Log(IEnumerable<LogEventInfo> events)
         {
-            foreach (var logEvent in events.Where(e=>!string.IsNullOrWhiteSpace(e.Message)))
+            foreach (var logEvent in events.Where(e=>e.Message.IsSet()))
             {
                 Logger.Log(logEvent);
             }
@@ -63,7 +64,7 @@ namespace Packager.Observers
 
         private static string NormalizeMessage(string message)
         {
-            if (string.IsNullOrWhiteSpace(message))
+            if (message.IsNotSet())
             {
                 return message;
             }

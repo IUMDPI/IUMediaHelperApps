@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using Packager.Extensions;
 using Packager.Factories;
 using RestSharp;
 using RestSharp.Deserializers;
@@ -16,7 +17,7 @@ namespace Packager.Deserializers
 
         public T Deserialize<T>(IRestResponse response)
         {
-            if (string.IsNullOrWhiteSpace(response.Content))
+            if (response.Content.IsNotSet())
             {
                 return default(T);
             }

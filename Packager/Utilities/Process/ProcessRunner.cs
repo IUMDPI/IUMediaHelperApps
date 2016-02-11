@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Packager.Extensions;
 using Packager.Models.ResultModels;
 
 namespace Packager.Utilities.Process
@@ -103,7 +104,7 @@ namespace Packager.Utilities.Process
 
             public void OnDataReceived(object sender, DataReceivedEventArgs args)
             {
-                if (string.IsNullOrWhiteSpace(args.Data))
+                if (args.Data.IsNotSet())
                 {
                     return;
                 }

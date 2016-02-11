@@ -58,7 +58,7 @@ namespace Packager.Factories
             return GetStringValue(settings, name)
                 .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
                 .Select(e => e.Trim()) // trim initial and trailing spaces
-                .Where(e => string.IsNullOrWhiteSpace(e) == false) // remove entries that are empty (just in case)
+                .Where(e => e.IsSet()) // remove entries that are empty (just in case)
                 .ToArray();
         }
     }

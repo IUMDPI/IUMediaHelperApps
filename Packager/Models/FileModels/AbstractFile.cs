@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using Packager.Extensions;
 
 namespace Packager.Models.FileModels
 {
@@ -33,7 +34,7 @@ namespace Packager.Models.FileModels
         {
             get
             {
-                return string.IsNullOrWhiteSpace(_projectCode)
+                return _projectCode.IsNotSet()
                     ? string.Empty
                     : _projectCode.ToUpperInvariant();
             }
@@ -82,17 +83,17 @@ namespace Packager.Models.FileModels
 
         public virtual bool IsValid()
         {
-            if (string.IsNullOrWhiteSpace(ProjectCode))
+            if (ProjectCode.IsNotSet())
             {
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(BarCode))
+            if (BarCode.IsNotSet())
             {
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(Extension))
+            if (Extension.IsNotSet())
             {
                 return false;
             }
@@ -102,7 +103,7 @@ namespace Packager.Models.FileModels
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(FileUse))
+            if (FileUse.IsNotSet())
             {
                 return false;
             }

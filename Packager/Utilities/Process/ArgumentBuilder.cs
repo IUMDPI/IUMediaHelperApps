@@ -24,7 +24,7 @@ namespace Packager.Utilities.Process
 
         public ArgumentBuilder AddArguments(IEnumerable<string> arguments)
         {
-            AddRange(arguments.Select(a=>a.ToDefaultIfEmpty().Trim()).Where(a=>!string.IsNullOrWhiteSpace(a)));
+            AddRange(arguments.Select(a=>a.ToDefaultIfEmpty().Trim()).Where(a=>a.IsSet()));
             return this;
         }
         

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models;
 using Packager.Models.EmailMessageModels;
 using Packager.Models.SettingsModels;
@@ -75,7 +76,7 @@ namespace Packager.Observers
 
         private bool ShouldSendMessage(Exception issue)
         {
-            if (string.IsNullOrWhiteSpace(ProgramSettings.SmtpServer))
+            if (ProgramSettings.SmtpServer.IsNotSet())
             {
                 return false;
             }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Packager.Extensions;
 
 namespace Packager.Validators
 {
@@ -13,7 +14,11 @@ namespace Packager.Validators
 
         public IEnumerable<string> Issues
         {
-            get { return this.Where(v => v.Result == false).Where(v => !string.IsNullOrWhiteSpace(v.Issue)).Select(v => v.Issue).ToList(); }
+            get { return this
+                    .Where(v => v.Result == false)
+                    .Where(v => v.Issue.IsSet())
+                    .Select(v => v.Issue)
+                    .ToList(); }
         }
 
         public void Add(string issue, params object[] args)

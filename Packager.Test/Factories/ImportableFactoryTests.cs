@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Xml.Linq;
-using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.PodMetadataModels;
-using Packager.Providers;
 
 namespace Packager.Test.Factories
 {
@@ -30,7 +28,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldReturnExpectedInstance()
             {
-                var factory = new ImportableFactory(Substitute.For<ILookupsProvider>());
+                var factory = new ImportableFactory();
                 var result = factory.ToImportable<VideoPodMetadata>(GetElement());
                 Assert.That(result, Is.Not.Null);
                 Assert.That(result.Success, Is.EqualTo(true));
@@ -43,11 +41,9 @@ namespace Packager.Test.Factories
             [SetUp]
             public virtual void BeforeEach()
             {
-                LookupsProvider = Substitute.For<ILookupsProvider>();
-                Factory = new ImportableFactory(LookupsProvider);
+                Factory = new ImportableFactory();
             }
 
-            private ILookupsProvider LookupsProvider { get; set; }
             private IImportableFactory Factory { get; set; }
 
             private XElement Parent { get; set; }
@@ -65,7 +61,7 @@ namespace Packager.Test.Factories
                         new XElement("empty") {Value = ""});
                 }
 
-                [TestCase("first", " append" ,"first value append")]
+                [TestCase("first", " append", "first value append")]
                 [TestCase("second", "", "second value")]
                 [TestCase("second", " ", "second value")]
                 [TestCase("empty", " append", "")]
@@ -81,8 +77,6 @@ namespace Packager.Test.Factories
                     var value = Factory.ToStringValue(Parent, "first/invalid");
                     Assert.That(value, Is.EqualTo(string.Empty));
                 }
-
-                
             }
 
 
@@ -120,7 +114,6 @@ namespace Packager.Test.Factories
                     Assert.That(value, Is.False);
                 }
 
-
                 [Test]
                 public void IfPathIsNotValidShouldReturnFalse()
                 {
@@ -153,22 +146,13 @@ namespace Packager.Test.Factories
                 private const string InvalidDate = "2015-06-33T10:28:21Z";
 
 
-                private static object[] DateCases =
+                private static readonly object[] DateCases =
                 {
                     new object[] {"first", new DateTime(2015, 11, 23)},
-                    new object[] {"second", new DateTime(2015, 7, 29,10,28,21)},
-                    new object[] {"third", new DateTime(2015, 6, 30,10,28,21)},
-                    new object[] {"fourth", new DateTime(2015, 5, 29,10,28,21)}
+                    new object[] {"second", new DateTime(2015, 7, 29, 10, 28, 21)},
+                    new object[] {"third", new DateTime(2015, 6, 30, 10, 28, 21)},
+                    new object[] {"fourth", new DateTime(2015, 5, 29, 10, 28, 21)}
                 };
-
-
-                [Test, TestCaseSource(nameof(DateCases))]
-                public void IfPathIsValidShouldReturnCorrectValue(string path, DateTime expected)
-                {
-                    var value = Factory.ToDateTimeValue(Parent, path);
-                    Assert.That(value.HasValue, Is.True);
-                    Assert.That(value.Value, Is.EqualTo(expected));
-                }
 
                 [TestCase("empty")]
                 [TestCase("invalid1")]
@@ -179,143 +163,19 @@ namespace Packager.Test.Factories
                     Assert.That(value.HasValue, Is.False);
                 }
 
-
                 [Test]
                 public void IfPathIsNotValidShouldShouldNotHaveValue()
                 {
                     var value = Factory.ToDateTimeValue(Parent, "first/invalid");
                     Assert.That(value.HasValue, Is.False);
                 }
-            }
-        }
-
-        public class WhenResolving : ImportableFactoryTests
-        {
-            [SetUp]
-            public virtual void BeforeEach()
-            {
-                LookupsProvider = Substitute.For<ILookupsProvider>();
-                Factory = new ImportableFactory(LookupsProvider);
-            }
-
-            private ILookupsProvider LookupsProvider { get; set; }
-
-            private IImportableFactory Factory { get; set; }
-
-            private static XElement GetElement()
-            {
-                return new XElement("base",
-                    new XElement("value") {Value = "value"},
-                    new XElement("values",
-                        new XElement("value1") {Value = "value 1"},
-                        new XElement("value2") {Value = "value 2"}));
-            }
-
-            public class WhenResolvingTrackConfiguration : WhenResolving
-            {
-                [Test]
-                public void IfNoValueInXmlShouldReturnEmptyString()
+                
+                [Test, TestCaseSource(nameof(DateCases))]
+                public void IfPathIsValidShouldReturnCorrectValue(string path, DateTime expected)
                 {
-                    var result = Factory.ResolveTrackConfiguration(GetElement(), "invalid");
-                    Assert.That(result, Is.EqualTo(string.Empty));
-                }
-
-                [Test]
-                public void ItShouldCallLookupsProviderCorrectly()
-                {
-                    Factory.ResolveTrackConfiguration(GetElement(), "values");
-                    // need to assign to variable to make compiler happy
-                    var test = LookupsProvider.Received().TrackConfiguration;
-                }
-            }
-
-            public class WhenResolvingTapeThickness : WhenResolving
-            {
-                [Test]
-                public void IfNoValueInXmlShouldReturnEmptyString()
-                {
-                    var result = Factory.ResolveTapeThickness(GetElement(), "invalid");
-                    Assert.That(result, Is.EqualTo(string.Empty));
-                }
-
-                [Test]
-                public void ItShouldCallLookupsProviderCorrectly()
-                {
-                    Factory.ResolveTapeThickness(GetElement(), "values");
-                    // need to assign to variable to make compiler happy
-                    var test = LookupsProvider.Received().TapeThickness;
-                }
-            }
-
-            public class WhenResolvingPlaybackSpeed : WhenResolving
-            {
-                [Test]
-                public void IfNoValueInXmlShouldReturnEmptyString()
-                {
-                    var result = Factory.ResolvePlaybackSpeed(GetElement(), "invalid");
-                    Assert.That(result, Is.EqualTo(string.Empty));
-                }
-
-                [Test]
-                public void ItShouldCallLookupsProviderCorrectly()
-                {
-                    Factory.ResolvePlaybackSpeed(GetElement(), "values");
-                    // need to assign to variable to make compiler happy
-                    var test = LookupsProvider.Received().PlaybackSpeed;
-                }
-            }
-
-            public class WhenResolvingSoundField : WhenResolving
-            {
-                [Test]
-                public void IfNoValueInXmlShouldReturnEmptyString()
-                {
-                    var result = Factory.ResolveSoundField(GetElement(), "invalid");
-                    Assert.That(result, Is.EqualTo(string.Empty));
-                }
-
-                [Test]
-                public void ItShouldCallLookupsProviderCorrectly()
-                {
-                    Factory.ResolveSoundField(GetElement(), "values");
-                    // need to assign to variable to make compiler happy
-                    var test = LookupsProvider.Received().SoundField;
-                }
-            }
-
-            public class WhenResolvingDamage : WhenResolving
-            {
-                [Test]
-                public void IfNoValueInXmlShouldReturnEmptyString()
-                {
-                    var result = Factory.ResolveDamage(GetElement(), "invalid");
-                    Assert.That(result, Is.EqualTo(string.Empty));
-                }
-
-                [Test]
-                public void ItShouldCallLookupsProviderCorrectly()
-                {
-                    Factory.ResolveDamage(GetElement(), "values");
-                    // need to assign to variable to make compiler happy
-                    var test = LookupsProvider.Received().Damage;
-                }
-            }
-
-            public class WhenResolvingPreservationProblems : WhenResolving
-            {
-                [Test]
-                public void IfNoValueInXmlShouldReturnEmptyString()
-                {
-                    var result = Factory.ResolvePreservationProblems(GetElement(), "invalid");
-                    Assert.That(result, Is.EqualTo(string.Empty));
-                }
-
-                [Test]
-                public void ItShouldCallLookupsProviderCorrectly()
-                {
-                    Factory.ResolvePreservationProblems(GetElement(), "values");
-                    // need to assign to variable to make compiler happy
-                    var test = LookupsProvider.Received().PreservationProblem;
+                    var value = Factory.ToDateTimeValue(Parent, path);
+                    Assert.That(value.HasValue, Is.True);
+                    Assert.That(value.Value, Is.EqualTo(expected));
                 }
             }
         }

@@ -53,7 +53,7 @@ namespace Packager.Test.Processors
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new AudioPodMetadata {Barcode = Barcode};
+            Metadata = new AudioPodMetadata {Barcode = Barcode, Unit = "Unit value"};
 
             MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
 
@@ -189,7 +189,37 @@ namespace Packager.Test.Processors
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
             {
-               
+
+                public class WhenUnitPrefixSet : WhenGettingMetadata
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.UnitPrefix.Returns("Indiana University-Bloomington. ");
+                    }
+
+                    [Test]
+                    public void ItShouldUsePrefix()
+                    {
+                        Assert.That(Metadata.Unit.StartsWith("Indiana University-Bloomington. "), Is.True);
+                    }
+                }
+
+                public class WhenUnitPrefixNotSet : WhenGettingMetadata
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.UnitPrefix.Returns((string)null);
+                    }
+
+                    [Test]
+                    public void ItShouldNotUsePrefix()
+                    {
+                        Assert.That(Metadata.Unit.StartsWith("Indiana University-Bloomington. "), Is.False);
+                    }
+                }
+
                 [Test]
                 public void ItShouldCloseSection()
                 {

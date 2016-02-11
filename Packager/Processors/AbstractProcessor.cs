@@ -116,9 +116,6 @@ namespace Packager.Processors
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
 
-                // verify that all files make it to dropbox
-                VerifyDropboxFiles(processedList);
-
                 // move everything to success folder
                 await MoveToSuccessFolder();
 
@@ -211,37 +208,6 @@ namespace Packager.Processors
             {
                 Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
-        }
-
-        private void VerifyDropboxFiles(IEnumerable<AbstractFile> processedList)
-        {
-            var sectionKey = Observers.BeginSection("Validating dropbox file sizes");
-            try
-            {
-                foreach (var model in processedList)
-                {
-                    var originalSize = FileProvider.GetFileSize(Path.Combine(ProcessingDirectory, model.Filename));
-                    var dropBoxSize = FileProvider.GetFileSize(Path.Combine(DropBoxDirectory, model.Filename));
-                    
-                    if (originalSize.Equals(dropBoxSize))
-                    {
-                        Observers.Log("{0}: {1}", model.Filename, originalSize.ToReadableFileSize());
-                    }
-                    else
-                    {
-                        throw new Exception(
-                            $"Could not validate file {model.Filename}: size ({dropBoxSize.ToReadableFileSize()}) not same as expected ({originalSize.ToReadableFileSize()})");
-                    }
-                }
-
-                Observers.EndSection(sectionKey, "Dropbox file sizes validated successfully!");
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
         }
@@ -398,14 +364,6 @@ namespace Packager.Processors
             {
                 model.Checksum = await Hasher.Hash(model);
                 Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
-            }
-        }
-
-        private void AssignFileSizes(IEnumerable<AbstractFile> models)
-        {
-            foreach (var model in models)
-            {
-                model.Size = FileProvider.GetFileSize(Path.Combine(ProcessingDirectory, model.Filename));
             }
         }
     }

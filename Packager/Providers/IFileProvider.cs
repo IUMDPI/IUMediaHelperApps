@@ -8,7 +8,6 @@ namespace Packager.Providers
     {
         Task CopyFileAsync(string sourceFileName, string destFileName);
         Task MoveFileAsync(string sourceFileName, string destFileName);
-        long GetFileSize(string path);
         bool FileExists(string path);
         bool FileDoesNotExist(string path);
         FileInfo GetFileInfo(string path);

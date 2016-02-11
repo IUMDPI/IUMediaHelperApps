@@ -149,18 +149,9 @@ namespace Packager.Extensions
             return value.Trim() + toAppend;
         }
 
-        public static string ToReadableFileSize(this long size)
+        public static bool IsSet(this string value)
         {
-            string[] sizes = { "B", "KB", "MB", "GB" };
-            double len =size;
-            var order = 0;
-            while (len >= 1024 && order + 1 < sizes.Length)
-            {
-                order++;
-                len = len / 1024;
-            }
-
-            return $"{len:0.##}{sizes[order]}";
+            return string.IsNullOrWhiteSpace(value) == false;
         }
     }
 }

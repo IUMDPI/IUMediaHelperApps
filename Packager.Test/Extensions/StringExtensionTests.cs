@@ -158,5 +158,20 @@ namespace Packager.Test.Extensions
             array.InsertBefore(s => s.StartsWith("test 1"), "insert");
             Assert.That(array, Is.EquivalentTo(expected));
         }
+
+        [Test]
+        public void IsSetShouldReturnFalseWhenValueIsNull()
+        {
+            Assert.That(((string)null).IsSet(), Is.False);
+        }
+
+        [TestCase("value", true)]
+        [TestCase("", false)]
+        [TestCase(" ", false)]
+        [TestCase("  ", false)]
+        public void IsSetShouldReturnCorrectValue(string value, bool expected)
+        {
+            Assert.That(value.IsSet(), Is.EqualTo(expected));
+        }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
 
 namespace Packager.Test.Factories
 {
@@ -15,6 +17,7 @@ namespace Packager.Test.Factories
         [SetUp]
         public void BeforeEach()
         {
+            ProgramSettings = Substitute.For<IProgramSettings>();
             Provenance = GetFileProvenance();
             Model = FileModelFactory.GetModel(PreservationFileName);
             Instances = new List<AbstractFile> {Model};
@@ -32,8 +35,9 @@ namespace Packager.Test.Factories
 
             DoCustomSetup();
 
-            Result = new EmbeddedAudioMetadataFactory().Generate(Instances, Model, Metadata) as EmbeddedAudioMetadata;
+            Result = new EmbeddedAudioMetadataFactory(ProgramSettings).Generate(Instances, Model, Metadata) as EmbeddedAudioMetadata;
         }
+
 
         private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string DigitizingEntity = "Test digitizing entity";
@@ -41,6 +45,8 @@ namespace Packager.Test.Factories
         private const string CallNumber = "AB1243";
         private const string Title = "Test title";
 
+        private IProgramSettings ProgramSettings { get; set; }
+        
         private EmbeddedAudioMetadata Result { get; set; }
         private AbstractFile Model { get; set; }
         private DigitalAudioFile Provenance { get; set; }
@@ -98,6 +104,47 @@ namespace Packager.Test.Factories
             return result;
         }
 
+        public class WhenUnitPrefixIsSet : EmbeddedAudioMetadataFactoryTests
+        {
+            protected override void DoCustomSetup()
+            {
+                base.DoCustomSetup();
+                ProgramSettings.UnitPrefix.Returns("Unit prefix");
+            }
+
+            [Test]
+            public void DescriptionAndIcmtShouldBeSetCorrectly()
+            {
+                var expected =
+                    $"Unit prefix. {Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
+                Assert.That(Result.Description, Is.EqualTo(expected));
+                Assert.That(Result.ICMT, Is.EqualTo(expected));
+            }
+
+            [Test]
+            public void IarlShouldBeSetCorrectly()
+            {
+                Assert.That(Result.IARL.Equals($"Unit prefix. {Unit}"));
+            }
+        }
+
+        public class WhenUnitPrefixIsNotSet : EmbeddedAudioMetadataFactoryTests
+        {
+            [Test]
+            public void DescriptionAndIcmtShouldBeSetCorrectly()
+            {
+                var expected =
+                    $"{Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
+                Assert.That(Result.Description, Is.EqualTo(expected));
+                Assert.That(Result.ICMT, Is.EqualTo(expected));
+            }
+
+            [Test]
+            public void IarlShouldBeSetCorrectly()
+            {
+                Assert.That(Result.IARL.Equals(Unit));
+            }
+        }
 
         public class WhenCallNumberIsSet : EmbeddedAudioMetadataFactoryTests
         {
@@ -263,13 +310,7 @@ namespace Packager.Test.Factories
             var parts = Result.CodingHistory.Split(new[] {"\r\n"}, StringSplitOptions.None);
             Assert.That(parts.Length, Is.EqualTo(3));
         }
-        
-        [Test]
-        public void IarlShouldBeSetCorrectly()
-        {
-            Assert.That(Result.IARL.Equals(Unit));
-        }
-
+       
         [Test]
         public void InamShouldBeSetCorrectly()
         {

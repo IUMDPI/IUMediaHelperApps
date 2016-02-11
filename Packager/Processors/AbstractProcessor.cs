@@ -336,9 +336,6 @@ namespace Packager.Processors
             {
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode);
-
-                // prepend the unit prefix if it is defined (and metadata.unit is set)
-                metadata.Unit = metadata.Unit.PrependIfValuePresent(ProgramSettings.UnitPrefix);
                 
                 // log metadata
                 MetadataProvider.Log(metadata);

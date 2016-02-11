@@ -35,8 +35,8 @@ namespace Packager.Providers
 
             SystemInfoProvider = new SystemInfoProvider(ProgramSettings.LogDirectoryName);
             Observers = new ObserverCollection();
-            AudioMetadataFactory = new EmbeddedAudioMetadataFactory();
-            VideoMetadataFactory = new EmbeddedVideoMetadataFactory();
+            AudioMetadataFactory = new EmbeddedAudioMetadataFactory(ProgramSettings);
+            VideoMetadataFactory = new EmbeddedVideoMetadataFactory(ProgramSettings);
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,
                 ProgramSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());

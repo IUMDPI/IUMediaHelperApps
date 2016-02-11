@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
 
 namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
 {
@@ -33,7 +35,7 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
             DoCustomSetup();
 
             Result =
-                new EmbeddedVideoMetadataFactory().Generate(Instances, ModelToUseForTesting, Metadata) as AbstractEmbeddedVideoMetadata;
+                new EmbeddedVideoMetadataFactory(Substitute.For<IProgramSettings>()).Generate(Instances, ModelToUseForTesting, Metadata) as AbstractEmbeddedVideoMetadata;
         }
 
         private const string PresFilename = "MDPI_4890764553278906_01_pres.mkv";

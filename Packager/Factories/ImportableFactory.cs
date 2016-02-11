@@ -5,7 +5,6 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Packager.Extensions;
-using Packager.Providers;
 
 namespace Packager.Factories
 {
@@ -15,25 +14,11 @@ namespace Packager.Factories
         string ToStringValue(XElement parent, string path, string appendIfPresent = "");
         DateTime? ToDateTimeValue(XElement parent, string path);
         bool ToBooleanValue(XElement parent, string path);
-        string ResolveTrackConfiguration(XElement element, string path);
-        string ResolveTapeThickness(XElement element, string path);
-        string ResolvePlaybackSpeed(XElement element, string path);
-        string ResolveSoundField(XElement element, string path);
-        string ResolveDamage(XElement element, string path);
-        string ResolvePreservationProblems(XElement element, string path);
-
         List<T> ToObjectList<T>(XElement element, string path) where T : IImportable, new();
     }
 
     public class ImportableFactory : IImportableFactory
     {
-        public ImportableFactory(ILookupsProvider lookupsProvider)
-        {
-            LookupsProvider = lookupsProvider;
-        }
-
-        private ILookupsProvider LookupsProvider { get; }
-
         public DateTime? ToDateTimeValue(XElement parent, string path)
         {
             var value = ToStringValue(parent, path);
@@ -43,7 +28,8 @@ namespace Packager.Factories
             }
 
             DateTime result;
-            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out result) == false)
+            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out result) ==
+                false)
             {
                 return null;
             }
@@ -63,36 +49,6 @@ namespace Packager.Factories
             return bool.TryParse(value, out result) && result;
         }
 
-        public string ResolveTrackConfiguration(XElement element, string path)
-        {
-            return ToResolvedDelimitedString(element, path, LookupsProvider.TrackConfiguration);
-        }
-
-        public string ResolveTapeThickness(XElement element, string path)
-        {
-            return ToResolvedDelimitedString(element, path, LookupsProvider.TapeThickness);
-        }
-
-        public string ResolvePlaybackSpeed(XElement element, string path)
-        {
-            return ToResolvedDelimitedString(element, path, LookupsProvider.PlaybackSpeed);
-        }
-
-        public string ResolveSoundField(XElement element, string path)
-        {
-            return ToResolvedDelimitedString(element, path, LookupsProvider.SoundField);
-        }
-
-        public string ResolveDamage(XElement element, string path)
-        {
-            return ToResolvedDelimitedString(element, path, LookupsProvider.Damage);
-        }
-
-        public string ResolvePreservationProblems(XElement element, string path)
-        {
-            return ToResolvedDelimitedString(element, path, LookupsProvider.PreservationProblem);
-        }
-
         public List<T> ToObjectList<T>(XElement element, string path) where T : IImportable, new()
         {
             if (element == null)
@@ -100,8 +56,8 @@ namespace Packager.Factories
                 return new List<T>();
             }
 
-            return element.XPathSelectElements(path)
-                .Select(ToImportable<T>).ToList();
+            return Enumerable.ToList(element.XPathSelectElements(path)
+                .Select(ToImportable<T>));
         }
 
         public T ToImportable<T>(XElement element)
@@ -123,7 +79,7 @@ namespace Packager.Factories
                 ? string.Empty
                 : element.Value.AppendIfValuePresent(appendIfPresent);
         }
-        
+
         /// <summary>
         ///     Converts a POD boolean-child not to comma-delimited list of resolved values
         /// </summary>

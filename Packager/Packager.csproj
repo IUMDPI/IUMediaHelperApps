@@ -125,10 +125,8 @@
     <Compile Include="Observers\ObserverCollectionEqualityComparer.cs" />
     <Compile Include="Processors\VideoProcessor.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Providers\AppConfigLookupsProvider.cs" />
     <Compile Include="Providers\DirectoryProvider.cs" />
     <Compile Include="Providers\FileProvider.cs" />
-    <Compile Include="Providers\ILookupsProvider.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />

@@ -43,8 +43,7 @@ namespace Packager.Providers
             AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
-            LookupsProvider = new AppConfigLookupsProvider();
-            ImportableFactory = new ImportableFactory(LookupsProvider);
+            ImportableFactory = new ImportableFactory();
             ValidatorCollection = new StandardValidatorCollection
             {
                 new ValueRequiredValidator(),
@@ -119,10 +118,7 @@ namespace Packager.Providers
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
         public IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
         public IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
-
-        [ValidateObject]
-        public ILookupsProvider LookupsProvider { get; }
-
+        
         [ValidateObject]
         public IFFProbeRunner FFProbeRunner { get; }
 

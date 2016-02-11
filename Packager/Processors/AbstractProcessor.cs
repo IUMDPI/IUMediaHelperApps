@@ -30,7 +30,6 @@ namespace Packager.Processors
 
         protected string Barcode { get; private set; }
         protected abstract string OriginalsDirectory { get; }
-
         protected IDependencyProvider DependencyProvider { get; }
         private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
         protected IObserverCollection Observers => DependencyProvider.Observers;
@@ -49,11 +48,9 @@ namespace Packager.Processors
         protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
         private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
         private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
-
         protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
         protected abstract IFFMPEGRunner FFMpegRunner { get; }
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
-
         protected abstract AbstractFile CreateProdOrMezzModel(AbstractFile master);
         protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models); 
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
@@ -339,6 +336,11 @@ namespace Packager.Processors
             {
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode);
+
+                if (ProgramSettings.UnitPrefix.IsSet())
+                {
+                    metadata.Unit = $"{ProgramSettings.UnitPrefix}{metadata.Unit}";
+                }
 
                 // log metadata
                 MetadataProvider.Log(metadata);

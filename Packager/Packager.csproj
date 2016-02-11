@@ -169,7 +169,6 @@
     <Compile Include="Extensions\FileModelExtensions.cs" />
     <Compile Include="Extensions\DigitalFileExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Extensions\XElementExtensions.cs" />
     <Compile Include="Factories\IngestDataFactory.cs" />
     <Compile Include="Factories\SideDataFactory.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedAudioMetadata.cs" />

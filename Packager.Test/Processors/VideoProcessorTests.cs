@@ -220,6 +220,22 @@ namespace Packager.Test.Processors
                     }
                 }
 
+                public class WhenUnitPrefixIsSetAndUnitIsNotSet : WhenGettingMetadata
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        ProgramSettings.UnitPrefix.Returns("Indiana University-Bloomington. ");
+                        Metadata.Unit = string.Empty;
+                    }
+
+                    [Test]
+                    public void ItShouldNotUsePrefix()
+                    {
+                        Assert.That(Metadata.Unit, Is.Empty);
+                    }
+                }
+
                 [Test]
                 public void ItShouldCloseSection()
                 {

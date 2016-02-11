@@ -337,11 +337,9 @@ namespace Packager.Processors
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode);
 
-                if (ProgramSettings.UnitPrefix.IsSet())
-                {
-                    metadata.Unit = $"{ProgramSettings.UnitPrefix}{metadata.Unit}";
-                }
-
+                // prepend the unit prefix if it is defined (and metadata.unit is set)
+                metadata.Unit = metadata.Unit.PrependIfValuePresent(ProgramSettings.UnitPrefix);
+                
                 // log metadata
                 MetadataProvider.Log(metadata);
 
@@ -359,7 +357,7 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
-
+        
         private async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
         {
             foreach (var model in models)

@@ -134,7 +134,7 @@ namespace Packager.Test.Processors
 
             DoCustomSetup();
 
-            Result = await Processor.ProcessFile(GetGrouping(ModelList));
+            Result = await Processor.ProcessObject(GetGrouping(ModelList));
         }
     }
 }

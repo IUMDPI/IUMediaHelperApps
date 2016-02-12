@@ -50,9 +50,10 @@ namespace Packager.Engine
                 // and process the files for the group
                 foreach (var group in GetObjectGroups())
                 {
-                    results[group.Key] = await ProcessFile(group);
+                    results[group.Key] = await ProcessObject(group);
                 }
 
+                TurnOffObjectObservers();
                 WriteResultsMessage(results);
             }
             catch (Exception ex)
@@ -105,10 +106,10 @@ namespace Packager.Engine
             return result;
         }
 
-        private async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> group)
+        private async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> group)
         {
             var processor = GetProcessor(group);
-            return await processor.ProcessFile(group);
+            return await processor.ProcessObject(group);
         }
 
         private IProcessor GetProcessor(IEnumerable<AbstractFile> group)
@@ -223,6 +224,14 @@ namespace Packager.Engine
             }
 
             Observers.EndSection(sectionKey);
+        }
+
+        private void TurnOffObjectObservers()
+        {
+            foreach (var observer in Observers.Select(o => o as ObjectNLogObserver).Where(o => o != null))
+            {
+                observer.ClearBarcode();
+            }
         }
     }
 }

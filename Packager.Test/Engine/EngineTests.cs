@@ -30,8 +30,8 @@ namespace Packager.Test.Engine
             MockWavProcessor = Substitute.For<IProcessor>();
             MockMpegProcessor = Substitute.For<IProcessor>();
 
-            MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
-            MockMpegProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
+            MockWavProcessor.ProcessObject(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
+            MockMpegProcessor.ProcessObject(null).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
 
             Observer = Substitute.For<IObserverCollection>();
 
@@ -103,9 +103,9 @@ namespace Packager.Test.Engine
             public void ItShouldCallProcessorForEachKnownExtension()
             {
                 MockWavProcessor.Received()
-                    .ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Key.Equals(BarCode1)));
+                    .ProcessObject(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Key.Equals(BarCode1)));
                 MockMpegProcessor.Received()
-                    .ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Key.Equals(BarCode2)));
+                    .ProcessObject(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Key.Equals(BarCode2)));
             }
 
             [Test]
@@ -117,22 +117,22 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldSendCorrectGroupingsToProcessors()
             {
-                MockWavProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 2));
-                MockWavProcessor.Received().ProcessFile(
+                MockWavProcessor.Received().ProcessObject(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 2));
+                MockWavProcessor.Received().ProcessObject(
                         Arg.Is<IGrouping<string, AbstractFile>>(
                             g =>
                                 g.SingleOrDefault(m => m.Filename.Equals(Grouping1PresFileName)) !=
                                 null));
                 MockWavProcessor.Received()
-                    .ProcessFile(
+                    .ProcessObject(
                         Arg.Is<IGrouping<string, AbstractFile>>(
                             g =>
                                 g.AsEnumerable().SingleOrDefault(m => m.Filename.Equals(Grouping1ProdFileName)) !=
                                 null));
 
-                MockMpegProcessor.Received().ProcessFile(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 1));
+                MockMpegProcessor.Received().ProcessObject(Arg.Is<IGrouping<string, AbstractFile>>(g => g.Count() == 1));
                 MockMpegProcessor.Received()
-                    .ProcessFile(
+                    .ProcessObject(
                         Arg.Is<IGrouping<string, AbstractFile>>(
                             g =>
                                 g.AsEnumerable().SingleOrDefault(m => m.Filename.Equals(Grouping2PresFileName)) !=
@@ -164,7 +164,7 @@ namespace Packager.Test.Engine
             {
                 base.BeforeEach();
 
-                MockWavProcessor.ProcessFile(null).ReturnsForAnyArgs(Task.FromResult(new ValidationResult("issue")));
+                MockWavProcessor.ProcessObject(null).ReturnsForAnyArgs(Task.FromResult(new ValidationResult("issue")));
 
                 await Engine.Start();
             }

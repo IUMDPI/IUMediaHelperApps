@@ -56,10 +56,10 @@ namespace Packager.Processors
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList);
 
-        public virtual async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> fileModels)
+        public virtual async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels)
         {
             Barcode = fileModels.Key;
-
+           
             var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
@@ -109,7 +109,7 @@ namespace Packager.Processors
                 // using the list of files that have been processed
                 // make the xml file
                 processedList.Add(await GenerateXml(metadata, processedList));
-                
+
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
 
@@ -127,7 +127,7 @@ namespace Packager.Processors
                 return new ValidationResult(e.GetBaseMessage());
             }
         }
-
+        
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata)
         {
             foreach (var original in originals)

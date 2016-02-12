@@ -7,18 +7,19 @@ using Packager.Extensions;
 
 namespace Packager.Observers
 {
-    public class GeneralNLogObserver : IObserver
+
+    public abstract class AbstractNLogObserver : IObserver
     {
-        private const string ThisLoggerName = "GeneralFileLogger";
+        private readonly string _loggerName;
+        private readonly string _logDirectory;
 
-        private static readonly Logger Logger = LogManager.GetLogger(ThisLoggerName);
-
-        public GeneralNLogObserver(string logDirectory)
+        protected AbstractNLogObserver(string loggerName, string logDirectory)
         {
-            LogDirectory = logDirectory;
+            _loggerName = loggerName;
+            _logDirectory = logDirectory;
         }
 
-        private string LogDirectory { get; }
+        protected abstract void LogEvent(LogEventInfo eventInfo);
 
         public void Log(string baseMessage, params object[] elements)
         {
@@ -52,16 +53,23 @@ namespace Packager.Observers
             Log(new[] {GetLogEvent(" ")});
         }
 
-        public int UniqueIdentifier => 1;
+        public abstract int UniqueIdentifier { get; }
 
-        private static void Log(IEnumerable<LogEventInfo> events)
+        private IEnumerable<LogEventInfo> GetLogEvents(string baseMessage, params object[] elements)
         {
-            foreach (var logEvent in events.Where(e=>e.Message.IsSet()))
-            {
-                Logger.Log(logEvent);
-            }
+            var message = NormalizeMessage(string.Format(baseMessage, elements));
+
+            return message.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(GetLogEvent).ToArray();
         }
 
+        protected virtual LogEventInfo GetLogEvent(string message)
+        {
+            var eventInfo = LogEventInfo.Create(LogLevel.Info, _loggerName, message);
+            eventInfo.Properties["LogDirectoryName"] = _logDirectory;
+            return eventInfo;
+        }
+        
         private static string NormalizeMessage(string message)
         {
             if (message.IsNotSet())
@@ -75,19 +83,74 @@ namespace Packager.Observers
             return message;
         }
 
-        private LogEventInfo[] GetLogEvents(string baseMessage, params object[] elements)
+        protected virtual void Log(IEnumerable<LogEventInfo> events)
         {
-            var message = NormalizeMessage(string.Format(baseMessage, elements));
+            foreach (var logEvent in events.Where(e => e.Message.IsSet()))
+            {
+                LogEvent(logEvent);
+            }
+        }
+    }
 
-            return message.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(GetLogEvent).ToArray();
+    public class GeneralNLogObserver : AbstractNLogObserver
+    {
+        private const string ThisLoggerName = "GeneralFileLogger";
+
+        private static readonly Logger Logger = LogManager.GetLogger(ThisLoggerName);
+
+        public GeneralNLogObserver(string logDirectory):base(ThisLoggerName, logDirectory)
+        {
+        }
+        
+        protected override void Log(IEnumerable<LogEventInfo> events)
+        {
+            foreach (var logEvent in events.Where(e => e.Message.IsSet()))
+            {
+                Logger.Log(logEvent);
+            }
         }
 
-        private LogEventInfo GetLogEvent(string message)
+        protected override void LogEvent(LogEventInfo eventInfo)
         {
-            var eventInfo = LogEventInfo.Create(LogLevel.Info, ThisLoggerName, message);
-            eventInfo.Properties["LogDirectoryName"] = LogDirectory;
-            return eventInfo;
+            Logger.Log(eventInfo);
         }
+
+        public override int UniqueIdentifier => 1;
+    }
+
+    public class ObjectNLogObserver : AbstractNLogObserver
+    {
+        public string CurrentBarcode { get; set; }
+        private const string ThisLoggerName = "ObjectFileLogger";
+
+        private static readonly Logger Logger = LogManager.GetLogger(ThisLoggerName);
+
+        public ObjectNLogObserver(string logDirectory) : base(ThisLoggerName, logDirectory)
+        {
+        }
+
+        public void ClearBarcode()
+        {
+            CurrentBarcode = string.Empty;
+        }
+
+        protected override LogEventInfo GetLogEvent(string message)
+        {
+            var logEvent = base.GetLogEvent(message);
+            logEvent.Properties["Barcode"] = CurrentBarcode;
+            return logEvent;
+        }
+
+        protected override void LogEvent(LogEventInfo eventInfo)
+        {
+            if (CurrentBarcode.IsNotSet())
+            {
+                return;
+            }
+
+            Logger.Log(eventInfo);
+        }
+        
+        public override int UniqueIdentifier => 2;
     }
 }

@@ -7,6 +7,6 @@ namespace Packager.Processors
 {
     public interface IProcessor
     {
-        Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> fileModels);
+        Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels);
     }
 }

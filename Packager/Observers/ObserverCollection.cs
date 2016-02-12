@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Packager.Exceptions;
 
 namespace Packager.Observers
@@ -34,6 +35,7 @@ namespace Packager.Observers
 
         public string BeginProcessingSection(string barcode, string baseMessage, params object[] elements)
         {
+            SetBarcode(barcode);
             NotifyOfBeginSection(barcode, baseMessage, elements);
             return barcode;
         }
@@ -52,6 +54,19 @@ namespace Packager.Observers
                 observer.EndSection(sectionKey, newTitle, collapse);
             }
         }
+
+        private void SetBarcode(string barcode)
+        {
+            foreach (var observer in GetObjectObservers())
+            {
+                observer.CurrentBarcode = barcode;
+            }
+        }
+        
+        private IEnumerable<ObjectNLogObserver> GetObjectObservers()
+        {
+            return this.Select(o => o as ObjectNLogObserver).Where(o => o != null);
+        } 
 
         public void LogEngineIssue(Exception exception)
         {

@@ -28,7 +28,7 @@ namespace Packager.Models.PodMetadataModels
         public string Repaired { get; set; }
         public string PlaybackSpeed { get; set; }
 
-        //[Required]
+        [Required]
         public string DigitizingEntity { get; set; }
 
         public string Damage { get; set; }

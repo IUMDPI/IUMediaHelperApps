@@ -15,16 +15,13 @@ namespace Packager.Models.PodMetadataModels
 
         [Required]
         public DateTime? DateDigitized { get; set; }
-
         public string Comment { get; set; }
-
         [Required]
         public string CreatedBy { get; set; }
-
         public List<Device> SignalChain { get; set; }
-
         [Required]
         public string Filename { get; set; }
+        public string Bext { get; set; }
 
         [HasMembers]
         public IEnumerable<Device> PlayerDevices
@@ -70,6 +67,7 @@ namespace Packager.Models.PodMetadataModels
             Comment = factory.ToStringValue(element, "comment");
             CreatedBy = factory.ToStringValue(element, "created_by");
             SignalChain = factory.ToObjectList<Device>(element.Element("signal_chain"), "device");
+            Bext = factory.ToStringValue(element, "digital_file_bext");
         }
     }
 }

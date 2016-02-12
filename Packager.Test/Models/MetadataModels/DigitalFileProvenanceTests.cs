@@ -38,6 +38,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
                 Factory.ToStringValue(Element, "filename").Returns("filename value");
                 Factory.ToStringValue(Element, "comment").Returns("comment value");
                 Factory.ToStringValue(Element, "created_by").Returns("created by value");
+                Factory.ToStringValue(Element, "digital_file_bext").Returns("digital file bext value");
 
                 MockPlayerList = new List<Device>
                     {
@@ -131,6 +132,18 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             public void ItShouldCallFactoryCorrectlyToImportDevices()
             {
                 Factory.Received().ToObjectList<Device>(SignalChainElement, "device");
+            }
+
+            [Test]
+            public void ItShouldSetBextCorrectly()
+            {
+                Assert.That(Instance.Bext, Is.EqualTo("digital file bext value"));
+            }
+
+            [Test]
+            public void ItShouldUseCorrectPathToResolveBext()
+            {
+                Factory.Received().ToStringValue(Element, "digital_file_bext");
             }
 
             public class WhenImportingDigitalAudioFiles : WhenImporting

@@ -38,6 +38,9 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Factory.ToStringValue(Element, "data/unit").Returns("unit value");
             Factory.ToStringValue(Element, "data/comments").Returns("comments value");
             Factory.ToStringValue(Element, "data/playback_speed").Returns("speed value");
+            Factory.ToStringValue(Element, "data/file_iarl").Returns("file iarl value");
+            Factory.ToStringValue(Element, "data/file_icmt").Returns("file icmt value");
+            Factory.ToStringValue(Element, "data/file_bext").Returns("file bext value");
         }
 
         private string FormatValue { get; set; }
@@ -470,5 +473,42 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         {
             Factory.Received().ToBooleanValue(Element, "success");
         }
+
+        [Test]
+        public void ItShouldUseCorrectPathToResolveIarl()
+        {
+            Factory.Received().ToStringValue(Element, "data/file_iarl");
+        }
+
+        [Test]
+        public void ItShouldSetIarlCorrectly()
+        {
+            Assert.That(Instance.Iarl, Is.EqualTo("file iarl value"));
+        }
+
+        [Test]
+        public void ItShouldUseCorrectPathToResolveIcmt()
+        {
+            Factory.Received().ToStringValue(Element, "data/file_icmt");
+        }
+
+        [Test]
+        public void ItShouldSetIcmtCorrectly()
+        {
+            Assert.That(Instance.Icmt, Is.EqualTo("file icmt value"));
+        }
+
+        [Test]
+        public void ItShouldSetBextCorrectly()
+        {
+            Assert.That(Instance.Bext, Is.EqualTo("file bext value"));
+        }
+
+        [Test]
+        public void ItShouldUseCorrectPathToResolveBext()
+        {
+            Factory.Received().ToStringValue(Element, "data/file_bext");
+        }
+
     }
 }

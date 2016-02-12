@@ -6,8 +6,6 @@ namespace Packager.Test.Models.FileModelTests
     [TestFixture]
     public abstract class AbstractObjectFileModelTests
     {
-        public string FileName { get; set; }
-
         private string ExpectedFileUse { get; set; }
         private string ExpectedFullFileUse { get; set; }
         private string ExpectedExtension { get; set; }
@@ -113,7 +111,7 @@ namespace Packager.Test.Models.FileModelTests
             public void BeforeEach()
             {
                 ExpectedFileUse = "mezz";
-                ExpectedFullFileUse = "Mezzanine File Version";
+                ExpectedFullFileUse = "Mezzanine File";
                 ExpectedExtension = ".mov";
                 ExpectedToFileName = "MDPI_4890764553278906_01_mezz.mov";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_mezz.mov";
@@ -128,7 +126,7 @@ namespace Packager.Test.Models.FileModelTests
             public void BeforeEach()
             {
                 ExpectedFileUse = "access";
-                ExpectedFullFileUse = "Access File Version";
+                ExpectedFullFileUse = "Access File";
                 ExpectedExtension = ".mp4";
                 ExpectedToFileName = "MDPI_4890764553278906_01_access.mp4";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_access.mp4";

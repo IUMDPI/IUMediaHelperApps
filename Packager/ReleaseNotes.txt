@@ -43,5 +43,7 @@
 						use .gzip standard instead of .zip standard to generate qc files
 						should name quality control file and archive correctly
 						should include comments in xml manifest
+2.4.0.0		2/12/2016	removing dropbox file validation
+						fixing issues embedding metadata
 
 					

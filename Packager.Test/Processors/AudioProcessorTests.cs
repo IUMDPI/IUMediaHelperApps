@@ -53,7 +53,7 @@ namespace Packager.Test.Processors
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new AudioPodMetadata {Barcode = Barcode};
+            Metadata = new AudioPodMetadata {Barcode = Barcode, Unit = "Unit value"};
 
             MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
 
@@ -189,7 +189,6 @@ namespace Packager.Test.Processors
 
             public class WhenGettingMetadata : WhenNothingGoesWrong
             {
-               
                 [Test]
                 public void ItShouldCloseSection()
                 {

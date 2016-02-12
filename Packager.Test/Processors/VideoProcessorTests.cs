@@ -35,7 +35,7 @@ namespace Packager.Test.Processors
                 Arg.Any<AbstractEmbeddedMetadata>())
                 .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
             FFMPEGRunner.AccessArguments.Returns("Test");
-           
+
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
 
@@ -54,7 +54,7 @@ namespace Packager.Test.Processors
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new VideoPodMetadata {Barcode = Barcode};
+            Metadata = new VideoPodMetadata {Barcode = Barcode, Unit = "Unit value"};
 
             MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
 
@@ -299,7 +299,8 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     VideoCarrier = new VideoCarrier();
-                    VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()))
+                    VideoCarrierDataFactory.When(
+                        mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()))
                         .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
                     VideoCarrierDataFactory.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>())
                         .Returns(VideoCarrier);
@@ -374,7 +375,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassExpectedAccessModelsToGenerator()
                 {
                     var mastersCount = GetMasters().Count();
-                    var derivativeCount = GetMasters().Select(GetDerivativeForMaster<AccessFile>).Count();
+                    var derivativeCount = Enumerable.Count(GetMasters().Select(GetDerivativeForMaster<AccessFile>));
                     Assert.That(derivativeCount, Is.EqualTo(mastersCount));
                 }
 
@@ -391,7 +392,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassExpectedMezzModelsToGenerator()
                 {
                     var mastersCount = GetMasters().Count();
-                    var derivativeCount = GetMasters().Select(GetDerivativeForMaster<MezzanineFile>).Count();
+                    var derivativeCount = Enumerable.Count(GetMasters().Select(GetDerivativeForMaster<MezzanineFile>));
                     Assert.That(derivativeCount, Is.EqualTo(mastersCount));
                 }
 
@@ -410,8 +411,6 @@ namespace Packager.Test.Processors
                     var mastersCount = GetMasters().Count();
                     var qualityControlFileCount = GetMasters().Select(GetQualityControlFileForMaster).Count();
                     Assert.That(qualityControlFileCount, Is.EqualTo(mastersCount));
-
-                    
                 }
             }
 
@@ -435,7 +434,7 @@ namespace Packager.Test.Processors
                         .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().Filename} checksum"));
 
                     Hasher.Hash(Arg.Any<string>())
-                       .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} checksum"));
+                        .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} checksum"));
                 }
 
                 [TestCase]

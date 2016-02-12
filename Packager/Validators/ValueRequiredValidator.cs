@@ -8,7 +8,7 @@ namespace Packager.Validators
     {
         public ValidationResult Validate(object value, string friendlyName)
         {
-            return !string.IsNullOrWhiteSpace(value.ToDefaultIfEmpty())
+            return value.ToDefaultIfEmpty().IsSet()
                 ? ValidationResult.Success
                 : new ValidationResult("Value not set for {0}", friendlyName);
         }

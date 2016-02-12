@@ -71,7 +71,7 @@ namespace Packager.Utilities.Bext
 
         private static string NormalizeLogLine(string line, string objectFolder)
         {
-            if (string.IsNullOrWhiteSpace(line))
+            if (line.IsNotSet())
             {
                 return line;
             }

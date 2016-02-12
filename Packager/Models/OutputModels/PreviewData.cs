@@ -1,4 +1,5 @@
 ﻿using System;
+using Packager.Extensions;
 
 namespace Packager.Models.OutputModels
 {
@@ -9,7 +10,7 @@ namespace Packager.Models.OutputModels
 
         public bool ShouldSerializeComments()
         {
-            return string.IsNullOrWhiteSpace(Comments) == false;
+            return Comments.IsSet();
         }
     }
 }

@@ -23,9 +23,7 @@ namespace Packager.Providers
         IProcessRunner ProcessRunner { get; }
         ICarrierDataFactory<AudioPodMetadata> AudioCarrierDataFactory { get; }
         ICarrierDataFactory<VideoPodMetadata> VideoCarrierDataFactory { get; }
-
         IProgramSettings ProgramSettings { get; }
-
         IImportableFactory ImportableFactory { get; }
         IObserverCollection Observers { get; }
         IPodMetadataProvider MetadataProvider { get; }
@@ -33,18 +31,14 @@ namespace Packager.Providers
         IBextProcessor BextProcessor { get; }
         IFFMPEGRunner AudioFFMPEGRunner { get; }
         IFFMPEGRunner VideoFFMPEGRunner { get; }
-
         IBwfMetaEditRunner MetaEditRunner { get; }
         IEmailSender EmailSender { get; }
         ISideDataFactory SideDataFactory { get; }
         IIngestDataFactory IngestDataFactory { get; }
         IValidatorCollection ValidatorCollection { get; }
         ISuccessFolderCleaner SuccessFolderCleaner { get; }
-
         IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
         IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
-        ILookupsProvider LookupsProvider { get; }
-
         IFFProbeRunner FFProbeRunner { get; }
     }
 }

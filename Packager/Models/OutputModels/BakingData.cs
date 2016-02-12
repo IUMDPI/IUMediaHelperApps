@@ -1,4 +1,5 @@
 ﻿using System;
+using Packager.Extensions;
 
 namespace Packager.Models.OutputModels
 {
@@ -9,7 +10,7 @@ namespace Packager.Models.OutputModels
 
         public bool ShouldSerializeDate()
         {
-            return string.IsNullOrWhiteSpace(Date) == false;
+            return Date.IsSet();
         }
     }
 }

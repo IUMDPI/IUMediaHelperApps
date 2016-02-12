@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
@@ -9,21 +8,6 @@ namespace Packager.Providers
 {
     public class FileProvider : IFileProvider
     {
-        public void Move(string sourceFileName, string destFileName)
-        {
-            File.Move(sourceFileName, destFileName);
-        }
-
-        public void Copy(string sourceFileName, string destFileName)
-        {
-            File.Move(sourceFileName, destFileName);
-        }
-
-        public void WriteAllText(string path, string contents)
-        {
-            File.WriteAllText(path, contents);
-        }
-
         public async Task CopyFileAsync(string sourceFileName, string destFileName)
         {
             await Task.Run(() => { File.Copy(sourceFileName, destFileName); });
@@ -47,21 +31,6 @@ namespace Packager.Providers
         public FileInfo GetFileInfo(string path)
         {
             return new FileInfo(path);
-        }
-
-        public FileVersionInfo GetFileVersionInfo(string path)
-        {
-            return !FileExists(path)
-                ? null
-                : FileVersionInfo.GetVersionInfo(path);
-        }
-
-        public string GetFileVersion(string path)
-        {
-            var info = GetFileVersionInfo(path);
-            return info == null
-                ? ""
-                : info.FileVersion;
         }
 
         public void AppendText(string path, string text)

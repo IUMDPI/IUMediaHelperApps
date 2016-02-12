@@ -1,4 +1,5 @@
 ﻿using System;
+using Packager.Extensions;
 
 namespace Packager.Models.OutputModels
 {
@@ -10,7 +11,7 @@ namespace Packager.Models.OutputModels
 
         public bool ShouldSerializePreservationProblem()
         {
-            return string.IsNullOrWhiteSpace(PreservationProblem) == false;
+            return PreservationProblem.IsSet();
         }
     }
 }

@@ -3,9 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
 
 namespace Packager.Factories
 {
@@ -16,20 +18,25 @@ namespace Packager.Factories
         private const string CodingHistoryLine3 = "A=PCM,F=96000,W=24,M=mono,T=Lynx AES16;DIO";
 
         /// <summary>
-        /// Known digital formats
+        ///     Known digital formats
         /// </summary>
-        private readonly List<string> _knownDigitalFormats = new List<string> { "cd-r", "dat" };
-        
+        private readonly List<string> _knownDigitalFormats = new List<string> {"cd-r", "dat"};
+
+        public EmbeddedAudioMetadataFactory(IProgramSettings programSettings) : base(programSettings)
+        {
+        }
+
         /// <summary>
-        /// Generate metadata to embed for a give model, provenance, and set of pod metadata
+        ///     Generate metadata to embed for a give model, provenance, and set of pod metadata
         /// </summary>
         /// <param name="model"></param>
         /// <param name="provenance"></param>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, AudioPodMetadata metadata)
+        protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
+            AudioPodMetadata metadata)
         {
-            var description = GenerateDescription(metadata, model);
+            var description = GenerateDescription(metadata, ProgramSettings, model);
 
             return new EmbeddedAudioMetadata
             {
@@ -37,7 +44,7 @@ namespace Packager.Factories
                 OriginatorReference = Path.GetFileNameWithoutExtension(model.Filename),
                 Description = description,
                 ICMT = description,
-                IARL = metadata.Unit,
+                IARL = GenerateIarl(metadata, ProgramSettings),
                 OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                 OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),
                 TimeReference = "0",
@@ -47,8 +54,20 @@ namespace Packager.Factories
             };
         }
 
+        private static string GenerateIarl(AbstractPodMetadata metadata, IProgramSettings settings)
+        {
+            var parts = new[]
+            {
+                settings.UnitPrefix,
+                metadata.Unit
+            };
+
+            return string.Join(". ", parts.Where(p => p.IsSet()));
+        }
+
+
         /// <summary>
-        /// Return "DIGITAL" if metadata.format is in list of known digital formats; Otherwise return analogue.
+        ///     Return "DIGITAL" if metadata.format is in list of known digital formats; Otherwise return analogue.
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
@@ -64,7 +83,7 @@ namespace Packager.Factories
             var builder = new StringBuilder();
 
             builder.AppendFormat(CodingHistoryLine1Format,
-                GetFormatText(metadata), // use metadata.format to determin if "ANALOGUE" or "DIGITAL"
+                GetFormatText(metadata), // use metadata.format to determine if "ANALOGUE" or "DIGITAL"
                 metadata.SoundField,
                 GeneratePlayerTextField(metadata, provenance));
 
@@ -89,7 +108,7 @@ namespace Packager.Factories
             parts.Add(DetermineSpeedUsed(metadata, provenance));
             parts.Add(metadata.Format);
 
-            return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+            return string.Join(";", parts.Where(p => p.IsSet()));
         }
 
         private static List<string> GenerateDevicePartsArray(IEnumerable<Device> devices)
@@ -113,7 +132,7 @@ namespace Packager.Factories
             }
 
             var parts = GenerateDevicePartsArray(provenance.AdDevices);
-            return string.Join(";", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+            return string.Join(";", parts.Where(p => p.IsSet()));
         }
 
         // if provenance.speedUsed is present
@@ -123,16 +142,9 @@ namespace Packager.Factories
         {
             var result = provenance.SpeedUsed;
 
-            //string.IsNullOrWhiteSpace(provenance.SpeedUsed)
-            //    ? metadata.PlaybackSpeed
-            //    : provenance.SpeedUsed;
-
-            if (string.IsNullOrWhiteSpace(result))
-            {
-                return result;
-            }
-
-            return result.Replace(",", ";").Replace("; ", ";");
+            return result.IsNotSet()
+                ? result
+                : result.Replace(",", ";").Replace("; ", ";");
         }
     }
 }

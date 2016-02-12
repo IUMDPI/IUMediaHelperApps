@@ -35,16 +35,15 @@ namespace Packager.Providers
 
             SystemInfoProvider = new SystemInfoProvider(ProgramSettings.LogDirectoryName);
             Observers = new ObserverCollection();
-            AudioMetadataFactory = new EmbeddedAudioMetadataFactory();
-            VideoMetadataFactory = new EmbeddedVideoMetadataFactory();
+            AudioMetadataFactory = new EmbeddedAudioMetadataFactory(ProgramSettings);
+            VideoMetadataFactory = new EmbeddedVideoMetadataFactory(ProgramSettings);
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,
                 ProgramSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
             AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
-            LookupsProvider = new AppConfigLookupsProvider();
-            ImportableFactory = new ImportableFactory(LookupsProvider);
+            ImportableFactory = new ImportableFactory();
             ValidatorCollection = new StandardValidatorCollection
             {
                 new ValueRequiredValidator(),
@@ -119,10 +118,7 @@ namespace Packager.Providers
         public ISuccessFolderCleaner SuccessFolderCleaner { get; }
         public IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
         public IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
-
-        [ValidateObject]
-        public ILookupsProvider LookupsProvider { get; }
-
+        
         [ValidateObject]
         public IFFProbeRunner FFProbeRunner { get; }
 

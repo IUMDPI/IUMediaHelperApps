@@ -128,6 +128,23 @@ namespace Packager.Test.Extensions
             Assert.That("value".AppendIfValuePresent("   "), Is.EqualTo("value"));
         }
 
+
+        [TestCase("value", "prepend. value")]
+        [TestCase("", "")]
+        public void PrependIfValuePresentShouldReturnCorrectValue(string value, string expected)
+        {
+            Assert.That(value.PrependIfValuePresent("prepend. "), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void PrependIfValuePresentShouldNotPrependIfToPrependIsEmpty()
+        {
+            Assert.That("value".PrependIfValuePresent(""), Is.EqualTo("value"));
+            Assert.That("value".PrependIfValuePresent(null), Is.EqualTo("value"));
+            Assert.That("value".PrependIfValuePresent(" "), Is.EqualTo("value"));
+            Assert.That("value".PrependIfValuePresent("   "), Is.EqualTo("value"));
+        }
+
         private static List<string> GetInsertBeforeArray()
         {
             return new List<string> {"test", "test 1", "test 1 again", "test 2", "test 2 again", "test 1 third time"};
@@ -157,6 +174,21 @@ namespace Packager.Test.Extensions
             var expected = new List<string> { "test", "insert", "test 1", "test 1 again", "test 2", "test 2 again", "insert", "test 1 third time" };
             array.InsertBefore(s => s.StartsWith("test 1"), "insert");
             Assert.That(array, Is.EquivalentTo(expected));
+        }
+
+        [Test]
+        public void IsSetShouldReturnFalseWhenValueIsNull()
+        {
+            Assert.That(((string)null).IsSet(), Is.False);
+        }
+
+        [TestCase("value", true)]
+        [TestCase("", false)]
+        [TestCase(" ", false)]
+        [TestCase("  ", false)]
+        public void IsSetShouldReturnCorrectValue(string value, bool expected)
+        {
+            Assert.That(value.IsSet(), Is.EqualTo(expected));
         }
     }
 }

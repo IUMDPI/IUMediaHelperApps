@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Packager.Extensions;
 using Packager.Models.OutputModels.Ingest;
 
 namespace Packager.Models.OutputModels
@@ -20,12 +21,12 @@ namespace Packager.Models.OutputModels
 
         public bool ShouldSerializeQCStatus()
         {
-            return string.IsNullOrWhiteSpace(QCStatus) == false;
+            return QCStatus.IsSet();
         }
 
         public bool ShouldSerializeManualCheck()
         {
-            return string.IsNullOrWhiteSpace(ManualCheck) == false;
+            return ManualCheck.IsSet();
         }
     }
 }

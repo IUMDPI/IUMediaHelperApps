@@ -30,7 +30,6 @@ namespace Packager.Processors
 
         protected string Barcode { get; private set; }
         protected abstract string OriginalsDirectory { get; }
-
         protected IDependencyProvider DependencyProvider { get; }
         private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
         protected IObserverCollection Observers => DependencyProvider.Observers;
@@ -49,11 +48,9 @@ namespace Packager.Processors
         protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
         private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
         private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
-
         protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
         protected abstract IFFMPEGRunner FFMpegRunner { get; }
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
-
         protected abstract AbstractFile CreateProdOrMezzModel(AbstractFile master);
         protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models); 
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
@@ -115,9 +112,6 @@ namespace Packager.Processors
                 
                 // copy processed files to drop box
                 await CopyToDropbox(processedList);
-
-                // verify that all files make it to dropbox
-                await VerifyDropboxFiles(processedList);
 
                 // move everything to success folder
                 await MoveToSuccessFolder();
@@ -211,36 +205,6 @@ namespace Packager.Processors
             {
                 Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, Barcode);
-                throw new LoggedException(e);
-            }
-        }
-
-        private async Task VerifyDropboxFiles(IEnumerable<AbstractFile> processedList)
-        {
-            var sectionKey = Observers.BeginSection("Validating dropbox files");
-            try
-            {
-                foreach (var model in processedList)
-                {
-                    var dropboxPath = Path.Combine(DropBoxDirectory, model.Filename);
-                    var checksum = await Hasher.Hash(dropboxPath);
-                    if (model.Checksum.Equals(checksum))
-                    {
-                        Observers.Log("{0}: {1}", model.Filename, checksum);
-                    }
-                    else
-                    {
-                        throw new Exception(
-                            $"Could not validate file {model.Filename}: checksum ({checksum}) not same as expected ({model.Checksum})");
-                    }
-                }
-
-                Observers.EndSection(sectionKey, "Dropbox files validated successfully!");
-            }
-            catch (Exception e)
-            {
-                Observers.LogProcessingIssue(e, Barcode);
-                Observers.EndSection(sectionKey);
                 throw new LoggedException(e);
             }
         }
@@ -365,14 +329,14 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        protected async Task<T> GetMetadata<T>(List<AbstractFile> filesToProcess) where T : AbstractPodMetadata, new()
+        private async Task<TMetadataType> GetMetadata<TMetadataType>(List<AbstractFile> filesToProcess) where TMetadataType : AbstractPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
                 // get base metadata
-                var metadata = await MetadataProvider.GetObjectMetadata<T>(Barcode);
-
+                var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode);
+                
                 // log metadata
                 MetadataProvider.Log(metadata);
 
@@ -390,8 +354,8 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
-
-        protected async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
+        
+        private async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
         {
             foreach (var model in models)
             {

@@ -122,6 +122,8 @@
     <Compile Include="Models\PodMetadataModels\DigitalAudioFile.cs" />
     <Compile Include="Models\PodMetadataModels\DigitalVideoFile.cs" />
     <Compile Include="Models\PodMetadataModels\VideoPodMetadata.cs" />
+    <Compile Include="Observers\AbstractNLogObserver.cs" />
+    <Compile Include="Observers\ObjectNLogObserver.cs" />
     <Compile Include="Observers\ObserverCollectionEqualityComparer.cs" />
     <Compile Include="Processors\VideoProcessor.cs" />
     <Compile Include="Properties\Annotations.cs" />

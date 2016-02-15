@@ -93,7 +93,7 @@ namespace Packager.Processors
                 // now remove duplicate entries -- this could happen if production master
                 // already exists
                 processedList = processedList.RemoveDuplicates();
-
+                
                 // now clear the ISFT field from presentation and production/mezz masters
                 await ClearMetadataFields(processedList);
 

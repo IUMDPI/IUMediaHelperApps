@@ -3,6 +3,6 @@
     public interface ISystemInfoProvider
     {
         string MachineName { get; }
-        string CurrentLogPath { get; }
+        string CurrentSystemLogPath { get; }
     }
 }

@@ -55,10 +55,10 @@ namespace Packager
 
         private static void AddObservers(IDependencyProvider dependencyProvider, ViewModel viewModel)
         {
-            dependencyProvider.Observers.Add(new GeneralNLogObserver(dependencyProvider.ProgramSettings.LogDirectoryName));
-            dependencyProvider.Observers.Add(new ObjectNLogObserver(dependencyProvider.ProgramSettings.LogDirectoryName));
-            dependencyProvider.Observers.Add(new ViewModelObserver(viewModel));
+            dependencyProvider.Observers.Add(new GeneralNLogObserver(dependencyProvider.ProgramSettings));
+            dependencyProvider.Observers.Add(new ObjectNLogObserver(dependencyProvider.ProgramSettings));
 
+            dependencyProvider.Observers.Add(new ViewModelObserver(viewModel));
             dependencyProvider.Observers.Add(new IssueEmailerObserver(
                 dependencyProvider.ProgramSettings,
                 dependencyProvider.SystemInfoProvider,
@@ -67,6 +67,8 @@ namespace Packager
 
         private static void ConfigureNLog()
         {
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode",
+                typeof(ProjectCodeLayoutRenderer));
             ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName",
                 typeof (LoggingDirectoryLayoutRenderer));
             ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode",

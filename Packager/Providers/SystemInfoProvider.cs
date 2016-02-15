@@ -16,7 +16,7 @@ namespace Packager.Providers
         
         public string MachineName => Environment.MachineName;
 
-        public string CurrentLogPath
+        public string CurrentSystemLogPath
         {
             get
             {
@@ -31,6 +31,8 @@ namespace Packager.Providers
                 return target.FileName.Render(logEventInfo);
             }
         }
+
+
 
         private static FileTarget GetFileTarget(Target value)
         {

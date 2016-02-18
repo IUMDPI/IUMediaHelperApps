@@ -39,19 +39,21 @@ namespace Packager.Models.OutputModels.Ingest
         [XmlElement("Turnover", Order = 8)]
         public string Turnover { get; set; }
 
-        [XmlElement("Reference_fluxivity", Order = 9)]
+        [XmlElement("Rolloff", Order = 9)]
+        public string Rolloff { get; set; }
+
+        [XmlElement("Reference_fluxivity", Order = 10)]
         public string ReferenceFluxivity { get; set; }
 
-        [XmlElement("Gain", Order = 10)]
+        [XmlElement("Gain", Order = 11)]
         public string Gain { get; set; }
 
-        [XmlElement("Analog_output_voltage", Order = 11)]
+        [XmlElement("Analog_output_voltage", Order = 12)]
         public string AnalogOutputVoltage { get; set; }
 
-        [XmlElement("Peak", Order = 12)]
+        [XmlElement("Peak", Order = 13)]
         public string Peak { get; set; }
 
-        [XmlElement("Rolloff", Order = 13)]
-        public string Rolloff { get; set; }
+       
     }
 }

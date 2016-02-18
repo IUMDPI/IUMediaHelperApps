@@ -57,22 +57,22 @@ namespace Packager.Test.Models.OutputModels
             [TestCase("PreAmpSerialNumber", 6)]
             [TestCase("Stylus", 7)]
             [TestCase("Turnover", 8)]
-            [TestCase("ReferenceFluxivity", 9)]
-            [TestCase("Gain",10)]
-            [TestCase("AnalogOutputVoltage", 11)]
-            [TestCase("Peak", 12)]
-            [TestCase("Rolloff", 13)]
+            [TestCase("Rolloff", 9)]
+            [TestCase("ReferenceFluxivity", 10)]
+            [TestCase("Gain", 11)]
+            [TestCase("AnalogOutputVoltage", 12)]
+            [TestCase("Peak", 13)]
             [TestCase("Players", 14)]
             [TestCase("AdDevices", 15)]
             [TestCase("ExtractionWorkstation", 16)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
-                var info = typeof(AudioIngest).GetProperty(field);
+                var info = typeof (AudioIngest).GetProperty(field);
                 Assert.That(info, Is.Not.Null);
                 Assert.That(OrderAttributePresent(info, order), Is.True);
             }
 
-           
+
             [TestCase("CreatedBy", "Created_by")]
             [TestCase("SpeedUsed", "Speed_used")]
             [TestCase("PreAmp", "Preamp")]
@@ -81,7 +81,7 @@ namespace Packager.Test.Models.OutputModels
             [TestCase("AnalogOutputVoltage", "Analog_output_voltage")]
             public void FieldsShouldHaveCorrectElementNameAttribute(string field, string name)
             {
-                var info = typeof(AudioIngest).GetProperty(field);
+                var info = typeof (AudioIngest).GetProperty(field);
                 Assert.That(info, Is.Not.Null);
                 Assert.That(ElementNamePresent(info, name), Is.True);
             }

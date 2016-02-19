@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.SettingsModels;
@@ -20,7 +19,8 @@ namespace Packager.Utilities.Process
 {
     public abstract class AbstractFFMPEGRunner : IFFMPEGRunner
     {
-        protected AbstractFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
+        protected AbstractFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner,
+            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
         {
             FFMPEGPath = programSettings.FFMPEGPath;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
@@ -28,9 +28,8 @@ namespace Packager.Utilities.Process
             FileProvider = fileProvider;
             Hasher = hasher;
             ProcessRunner = processRunner;
-            
         }
-        
+
         protected abstract string NormalizingArguments { get; }
         private IProcessRunner ProcessRunner { get; }
         private IObserverCollection Observers { get; }
@@ -45,7 +44,12 @@ namespace Packager.Utilities.Process
         {
             try
             {
-                var info = new ProcessStartInfo(FFMPEGPath) {Arguments = "-version"};
+                var info = new ProcessStartInfo(FFMPEGPath)
+                {
+                    Arguments = "-version",
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                };
                 var result = await ProcessRunner.Run(info);
 
                 var parts = result.StandardOutput.GetContent().Split(' ');
@@ -62,7 +66,8 @@ namespace Packager.Utilities.Process
             var sectionKey = Observers.BeginSection("Normalizing {0}", original.Filename);
             try
             {
-                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(), original.Filename);
+                var originalPath = Path.Combine(BaseProcessingDirectory, original.GetOriginalFolderName(),
+                    original.Filename);
                 if (FileProvider.FileDoesNotExist(originalPath))
                 {
                     throw new FileNotFoundException("Original does not exist or is not accessible", originalPath);
@@ -89,7 +94,7 @@ namespace Packager.Utilities.Process
                 throw new LoggedException(e);
             }
         }
-        
+
         public async Task Verify(List<AbstractFile> originals)
         {
             foreach (var model in originals)
@@ -107,7 +112,8 @@ namespace Packager.Utilities.Process
             return await CreateDerivative(original, new AccessFile(original), new ArgumentBuilder(AccessArguments));
         }
 
-        public async Task<AbstractFile> CreateProdOrMezzDerivative(AbstractFile original, AbstractFile target, AbstractEmbeddedMetadata metadata)
+        public async Task<AbstractFile> CreateProdOrMezzDerivative(AbstractFile original, AbstractFile target,
+            AbstractEmbeddedMetadata metadata)
         {
             if (TargetAlreadyExists(target))
             {
@@ -145,13 +151,13 @@ namespace Packager.Utilities.Process
         private static string FilterOutputLog(string log)
         {
             var parts = log.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
-                .Where(p=>p.StartsWith("frame=")==false) // remove frame entries
-                .Where(p=>p.StartsWith("size=")==false) // remove size entries
-                .Where(p=>p.StartsWith("Press [q] to stop")==false) // remove press q message
+                .Where(p => p.StartsWith("frame=") == false) // remove frame entries
+                .Where(p => p.StartsWith("size=") == false) // remove size entries
+                .Where(p => p.StartsWith("Press [q] to stop") == false) // remove press q message
                 .ToList();
 
             // insert empty line before "Input #0" line
-            parts.InsertBefore(p=>p.StartsWith("Input #0"), string.Empty);
+            parts.InsertBefore(p => p.StartsWith("Input #0"), string.Empty);
             // insert empty line before "Output #0" line
             parts.InsertBefore(p => p.StartsWith("Output #0"), string.Empty);
             // insert empty line before "Stream mapping:" line
@@ -161,7 +167,7 @@ namespace Packager.Utilities.Process
             // insert empty line before "guesed" lines
             parts.InsertBefore(p => p.StartsWith("Guessed"), string.Empty);
             // insert empty line before "[matroska @...] lines
-            parts.InsertBefore(p=>p.StartsWith("[matroska @"));
+            parts.InsertBefore(p => p.StartsWith("[matroska @"));
             // insert empty line before "[libx264 @...] lines
             parts.InsertBefore(p => p.StartsWith("[libx264 @"));
 
@@ -172,7 +178,8 @@ namespace Packager.Utilities.Process
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
             Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
-            Observers.EndSection(sectionKey, $"Generate {target.FullFileUse} skipped - already exists: {target.Filename}");
+            Observers.EndSection(sectionKey,
+                $"Generate {target.FullFileUse} skipped - already exists: {target.Filename}");
         }
 
         private bool TargetAlreadyExists(AbstractFile target)
@@ -181,7 +188,8 @@ namespace Packager.Utilities.Process
             return FileProvider.FileExists(path);
         }
 
-        private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target, ArgumentBuilder arguments)
+        private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
+            ArgumentBuilder arguments)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
             try
@@ -205,7 +213,7 @@ namespace Packager.Utilities.Process
                     .AddArguments(outputPath.ToQuoted());
 
                 await RunProgram(completeArguments);
-                
+
                 Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.Filename}");
                 return target;
             }
@@ -245,7 +253,7 @@ namespace Packager.Utilities.Process
 
                 var arguments = new ArgumentBuilder($"-y -i {targetPath}")
                     .AddArguments($"-f framemd5 {md5Path}");
-               
+
                 await RunProgram(arguments);
                 Observers.EndSection(sectionKey, $"{sectionName} hashed successfully");
             }
@@ -262,19 +270,23 @@ namespace Packager.Utilities.Process
             var sectionKey = Observers.BeginSection("Validating {0} (normalized)", model.Filename);
             try
             {
-                var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(), model.ToFrameMd5Filename());
+                var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
+                    model.ToFrameMd5Filename());
                 if (FileProvider.FileDoesNotExist(originalFrameMd5Path))
                 {
-                    throw new FileNotFoundException("framemd5 file does not exist or is not accessible", originalFrameMd5Path);
+                    throw new FileNotFoundException("framemd5 file does not exist or is not accessible",
+                        originalFrameMd5Path);
                 }
 
                 var originalMd5Hash = await Hasher.Hash(originalFrameMd5Path);
                 Observers.Log("original framemd5 hash: {0}", originalMd5Hash);
 
-                var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.ToFrameMd5Filename());
+                var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
+                    model.ToFrameMd5Filename());
                 if (FileProvider.FileDoesNotExist(normalizedFrameMd5Path))
                 {
-                    throw new FileNotFoundException("framemd5 fil does not exist or is not accessible", normalizedFrameMd5Path);
+                    throw new FileNotFoundException("framemd5 fil does not exist or is not accessible",
+                        normalizedFrameMd5Path);
                 }
 
                 var normalizedMd5Hash = await Hasher.Hash(normalizedFrameMd5Path);
@@ -282,7 +294,8 @@ namespace Packager.Utilities.Process
 
                 if (!originalMd5Hash.Equals(normalizedMd5Hash))
                 {
-                    throw new NormalizeOriginalException("Original and normalized framemd5 hashes not equal: {0} {1}", originalMd5Hash, normalizedMd5Hash);
+                    throw new NormalizeOriginalException("Original and normalized framemd5 hashes not equal: {0} {1}",
+                        originalMd5Hash, normalizedMd5Hash);
                 }
 
                 Observers.EndSection(sectionKey, $"{model.Filename} (normalized) validated successfully");

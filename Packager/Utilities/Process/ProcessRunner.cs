@@ -10,13 +10,9 @@ namespace Packager.Utilities.Process
     {
         public Task<IProcessResult> Run(ProcessStartInfo startInfo, IOutputBuffer outputBuffer =null, IOutputBuffer errorBuffer = null)
         {
-            var completionSource = new TaskCompletionSource<IProcessResult>();
-
-            // just in case
-            startInfo.CreateNoWindow = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.RedirectStandardOutput = true;
             startInfo.UseShellExecute = false;
+
+            var completionSource = new TaskCompletionSource<IProcessResult>();
             
             var process = new System.Diagnostics.Process
             {
@@ -34,24 +30,49 @@ namespace Packager.Utilities.Process
                 errorBuffer = new StringOutputBuffer();
             }
 
-            process.ErrorDataReceived += new DataReceivedHandler(errorBuffer).OnDataReceived;
-            process.OutputDataReceived += new DataReceivedHandler(outputBuffer).OnDataReceived;
+            ConfigureEventHandlers(process, startInfo, outputBuffer, errorBuffer, completionSource);
+            
+            if (process.Start() == false)
+            {
+                completionSource.TrySetException(new InvalidOperationException("Failed to start process"));
+            }
+
+            BeginCaptureOutput(process, startInfo);
+            
+            return completionSource.Task;
+        }
+
+        private static void ConfigureEventHandlers(System.Diagnostics.Process process, ProcessStartInfo startInfo, 
+            IOutputBuffer outputBuffer, IOutputBuffer errorBuffer, TaskCompletionSource<IProcessResult> completionSource)
+        {
+            if (startInfo.RedirectStandardOutput)
+            {
+                process.OutputDataReceived += new DataReceivedHandler(outputBuffer).OnDataReceived;
+            }
+
+            if (startInfo.RedirectStandardError)
+            {
+                process.ErrorDataReceived += new DataReceivedHandler(errorBuffer).OnDataReceived;
+            }
 
             process.Exited += new ProcessExitHandler(
                 startInfo,
                 completionSource,
                 outputBuffer,
                 errorBuffer).OnExitHandler;
+        }
 
-            if (process.Start() == false)
+        private static void BeginCaptureOutput(System.Diagnostics.Process process, ProcessStartInfo startInfo)
+        {
+            if (startInfo.RedirectStandardOutput)
             {
-                completionSource.TrySetException(new InvalidOperationException("Failed to start process"));
+                process.BeginOutputReadLine();
             }
 
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
-            return completionSource.Task;
+            if (startInfo.RedirectStandardError)
+            {
+                process.BeginErrorReadLine();
+            }
         }
 
         private class ProcessExitHandler

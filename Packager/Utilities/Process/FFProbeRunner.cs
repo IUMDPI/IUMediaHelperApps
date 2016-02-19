@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
@@ -17,7 +16,8 @@ namespace Packager.Utilities.Process
 {
     public class FFProbeRunner : IFFProbeRunner
     {
-        public FFProbeRunner(IProgramSettings programSettings, IProcessRunner processRunner, IFileProvider fileProvider, IObserverCollection observers)
+        public FFProbeRunner(IProgramSettings programSettings, IProcessRunner processRunner, IFileProvider fileProvider,
+            IObserverCollection observers)
         {
             ProcessRunner = processRunner;
             FileProvider = fileProvider;
@@ -30,7 +30,7 @@ namespace Packager.Utilities.Process
         private IProcessRunner ProcessRunner { get; }
         private IFileProvider FileProvider { get; }
         private IObserverCollection Observers { get; }
-        
+
         private string BaseProcessingDirectory { get; }
 
         [ValidateFile]
@@ -69,15 +69,15 @@ namespace Packager.Utilities.Process
 
                 using (var fileOutputBuffer = new FileOutputBuffer(xmlPath, FileProvider))
                 {
-                    await RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()));
-                } 
+                    await
+                        RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()));
+                }
 
                 //FileProvider.WriteAllText(xmlPath, xml);
                 await FileProvider.ArchiveFile(xmlPath, archivePath);
 
                 Observers.EndSection(sectionKey, $"Quality control file generated successfully: {target.Filename}");
                 return qualityControlFile;
-
             }
             catch (Exception e)
             {
@@ -91,7 +91,12 @@ namespace Packager.Utilities.Process
         {
             try
             {
-                var info = new ProcessStartInfo(FFProbePath) { Arguments = "-version" };
+                var info = new ProcessStartInfo(FFProbePath)
+                {
+                    Arguments = "-version",
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                };
                 var result = await ProcessRunner.Run(info);
 
                 var parts = result.StandardOutput.GetContent().Split(' ');
@@ -102,7 +107,7 @@ namespace Packager.Utilities.Process
                 return "";
             }
         }
-        
+
         private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder)
         {
             var startInfo = new ProcessStartInfo(FFProbePath)
@@ -127,12 +132,12 @@ namespace Packager.Utilities.Process
 
         private static string FilterOutputLog(string log)
         {
-            var parts = log.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+            var parts = log.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                 .Where(p => p.StartsWith("[Parsed_cropdetect_2") == false) // remove frame entries
                 .ToList();
 
             // insert empty line before remaining "Parsed" lines
-            parts.InsertBefore(p=>p.StartsWith("[Parsed_"), string.Empty);
+            parts.InsertBefore(p => p.StartsWith("[Parsed_"), string.Empty);
             // insert empty line before "Input #0" line
             parts.InsertBefore(p => p.StartsWith("Input #0"), string.Empty);
             return string.Join("\n", parts);

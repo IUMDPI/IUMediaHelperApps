@@ -37,14 +37,19 @@ namespace Packager.Test.Models.OutputModels
                 Assert.That(info, Is.Not.Null);
                 Assert.That(OrderAttributePresent(info, order), Is.True);
             }
-
-            [Test]
-            public void CreatedByShouldHaveCorrectElementNameAttribute()
+            
+            [TestCase("CreatedBy", "Created_by")]
+            [TestCase("Players", "Player")]
+            [TestCase("AdDevices", "AD")]
+            [TestCase("TbcDevices", "TBC")]
+            [TestCase("ExtractionWorkstation", "Extraction_workstation")]
+            public void FieldsShouldHaveCorrectElementNameAttribute(string field, string name)
             {
-                var info = typeof (VideoIngest).GetProperty("CreatedBy");
+                var info = typeof(VideoIngest).GetProperty(field);
                 Assert.That(info, Is.Not.Null);
-                Assert.That(ElementNamePresent(info, "Created_by"), Is.True);
+                Assert.That(ElementNamePresent(info, name), Is.True);
             }
+            
         }
 
         public class AudioIngestTests : AbstractIngestModelTests
@@ -53,32 +58,32 @@ namespace Packager.Test.Models.OutputModels
             [TestCase("Comments", 2)]
             [TestCase("CreatedBy", 3)]
             [TestCase("SpeedUsed", 4)]
-            [TestCase("PreAmp", 5)]
-            [TestCase("PreAmpSerialNumber", 6)]
-            [TestCase("Stylus", 7)]
-            [TestCase("Turnover", 8)]
-            [TestCase("Rolloff", 9)]
-            [TestCase("ReferenceFluxivity", 10)]
-            [TestCase("Gain", 11)]
-            [TestCase("AnalogOutputVoltage", 12)]
-            [TestCase("Peak", 13)]
-            [TestCase("Players", 14)]
-            [TestCase("AdDevices", 15)]
-            [TestCase("ExtractionWorkstation", 16)]
+            [TestCase("Stylus", 5)]
+            [TestCase("Turnover", 6)]
+            [TestCase("Rolloff", 7)]
+            [TestCase("ReferenceFluxivity", 8)]
+            [TestCase("Gain", 9)]
+            [TestCase("AnalogOutputVoltage", 10)]
+            [TestCase("Peak", 11)]
+            [TestCase("Players", 12)]
+            [TestCase("AdDevices", 13)]
+            [TestCase("PreAmpDevices", 14)]
+            [TestCase("ExtractionWorkstation", 15)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (AudioIngest).GetProperty(field);
                 Assert.That(info, Is.Not.Null);
                 Assert.That(OrderAttributePresent(info, order), Is.True);
             }
-
-
+            
             [TestCase("CreatedBy", "Created_by")]
             [TestCase("SpeedUsed", "Speed_used")]
-            [TestCase("PreAmp", "Preamp")]
-            [TestCase("PreAmpSerialNumber", "Preamp_serial_number")]
+            [TestCase("Players", "Player")]
+            [TestCase("AdDevices", "AD")]
+            [TestCase("PreAmpDevices", "PreAmp")]
             [TestCase("ReferenceFluxivity", "Reference_fluxivity")]
             [TestCase("AnalogOutputVoltage", "Analog_output_voltage")]
+            [TestCase("ExtractionWorkstation", "Extraction_workstation")]
             public void FieldsShouldHaveCorrectElementNameAttribute(string field, string name)
             {
                 var info = typeof (AudioIngest).GetProperty(field);

@@ -11,6 +11,7 @@ namespace Packager.Models.PodMetadataModels
     {
         private const string AdDeviceType = "AD";
         private const string PlayerDeviceType = "Player";
+        private const string PreampDeviceType = "Preamp";
         private const string ExtractionWorkstationDeviceType = "Extraction Workstation";
 
         [Required]
@@ -44,6 +45,16 @@ namespace Packager.Models.PodMetadataModels
             {
                 return SignalChain?.
                     Where(e => e.DeviceType.Equals(AdDeviceType, StringComparison.InvariantCultureIgnoreCase)) ??
+                       new List<Device>();
+            }
+        }
+
+        public IEnumerable<Device> PreampDevices
+        {
+            get
+            {
+                return SignalChain?.
+                    Where(e => e.DeviceType.Equals(PreampDeviceType, StringComparison.InvariantCultureIgnoreCase)) ??
                        new List<Device>();
             }
         }

@@ -18,16 +18,16 @@ namespace Packager.Models.OutputModels.Ingest
         [XmlElement(ElementName = "Created_by", Order = 4)]
         public string CreatedBy { get; set; }
 
-        [XmlElement(Order = 5)]
+        [XmlElement(Order = 5, ElementName = "Player")]
         public Device[] Players { get; set; }
 
-        [XmlElement(Order = 6)]
+        [XmlElement(Order = 6, ElementName = "TBC")]
         public Device[] TbcDevices { get; set; }
 
-        [XmlElement(Order = 7)]
+        [XmlElement(Order = 7, ElementName = "AD")]
         public Device[] AdDevices { get; set; }
 
-        [XmlElement(Order = 8)]
+        [XmlElement(Order = 8, ElementName = "Extraction_workstation")]
         public Device ExtractionWorkstation { get; set; }
 
         [XmlElement(Order = 9)]

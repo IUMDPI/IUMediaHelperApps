@@ -99,6 +99,10 @@ namespace Packager.Factories
                 AdDevices = digitalFileProvenance.AdDevices
                     .Select(
                         d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
+                    .ToArray(),
+                PreAmpDevices =  digitalFileProvenance.PreampDevices
+                    .Select(
+                        d=> new Device { Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer })
                     .ToArray()
             };
         }

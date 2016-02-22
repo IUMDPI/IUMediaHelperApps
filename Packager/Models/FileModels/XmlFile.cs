@@ -13,7 +13,9 @@ namespace Packager.Models.FileModels
             FullFileUse = "";
             FileUse = "";
         }
-        
+
+        public override int Precedence => 5;
+
         public override bool IsValid()
         {
             return ProjectCode.IsSet() && BarCode.IsSet();

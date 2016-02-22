@@ -41,11 +41,14 @@ namespace Packager.Test.Factories
             PreservationIntermediateSide1FileModel.Checksum = "presInt 1 hash";
 
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
-            IngestDataFactory.Generate((VideoPodMetadata)null, null).ReturnsForAnyArgs(new VideoIngest());
+            IngestDataFactory.Generate(Arg.Any<DigitalVideoFile>()).ReturnsForAnyArgs(
+               x => new VideoIngest { FileName = x.Arg<DigitalVideoFile>().Filename });
 
             PodMetadata = new VideoPodMetadata();
 
             DoCustomSetup();
+
+            AddProvenancesForModels();
 
             var factory = new SideDataFactory(IngestDataFactory);
             Results = factory.Generate(PodMetadata, FilesToProcess);
@@ -78,18 +81,23 @@ namespace Packager.Test.Factories
 
         protected virtual void DoCustomSetup()
         {
-            FilesToProcess = new List<AbstractFile> {PreservationSide1FileModel, ProductionSide1FileModel, AccessSide1FileModel};
+            FilesToProcess = new List<AbstractFile>
+            {
+                PreservationSide1FileModel,
+                ProductionSide1FileModel,
+                AccessSide1FileModel
+            };
             ExpectedSide1MasterFileModel = PreservationSide1FileModel;
             ExpectedSides = 1;
         }
 
-        public class WhenPreservationIntermediateMasterPresent : VideoSideDataFactoryTests
+
+        private void AddProvenancesForModels()
         {
-            protected override void DoCustomSetup()
+            PodMetadata.FileProvenances = new List<AbstractDigitalFile>();
+            foreach (var model in FilesToProcess)
             {
-                base.DoCustomSetup();
-                FilesToProcess.Add(PreservationIntermediateSide1FileModel);
-                ExpectedSide1MasterFileModel = PreservationIntermediateSide1FileModel;
+                PodMetadata.FileProvenances.Add(new DigitalVideoFile { Filename = model.Filename });
             }
         }
 
@@ -111,11 +119,25 @@ namespace Packager.Test.Factories
                 ExpectedSide2MasterFileModel = PreservationSide2FileModel;
                 ExpectedSides = 2;
             }
+        }
 
-            [Test]
-            public void ItShouldCallIngestFactoryCorrectlyForSide2()
+        private static void AssertOrderExpected(IReadOnlyList<File> fileElements, IReadOnlyList<AbstractFile> models)
+        {
+            Assert.That(fileElements.Count, Is.EqualTo(models.Count));
+            for (var i = 0; i < fileElements.Count; i++)
             {
-                IngestDataFactory.Received(1).Generate(PodMetadata, ExpectedSide2MasterFileModel);
+                Assert.That(fileElements[i].FileName, Is.EqualTo(models[i].Filename));
+                Assert.That(fileElements[i].Checksum, Is.Not.Null);
+            }
+        }
+
+        private static void AssertOrderExpected(IReadOnlyList<AbstractIngest> ingestElements,
+            IReadOnlyList<AbstractFile> models)
+        {
+            Assert.That(ingestElements.Count, Is.EqualTo(models.Count));
+            for (var i = 0; i < ingestElements.Count; i++)
+            {
+                Assert.That(((VideoIngest) ingestElements[i]).FileName, Is.EqualTo(models[i].Filename));
             }
         }
 
@@ -124,24 +146,37 @@ namespace Packager.Test.Factories
         {
             for (var i = 0; i < Results.Length; i++)
             {
-                var side = Results[i];
-                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).ToList();
+                var modelsForSide =
+                    FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).OrderBy(m => m.Precedence).ToArray();
 
-                Assert.That(side.Files.Count, Is.EqualTo(modelsForSide.Count()));
-
-                foreach (var model in modelsForSide)
-                {
-                    var fileData = side.Files.SingleOrDefault(f => f.FileName.Equals(model.Filename));
-                    Assert.That(fileData, Is.Not.Null);
-                    Assert.That(string.IsNullOrWhiteSpace(fileData.Checksum), Is.False);
-                }
+                AssertOrderExpected(Results[i].Files.ToArray(), modelsForSide);
             }
         }
 
         [Test]
-        public void ItShouldCallIngestFactoryCorrectlyForSide1()
+        public void IngestElementsShouldBePresentAndInCorrectOrder()
         {
-            IngestDataFactory.Received(1).Generate(PodMetadata, ExpectedSide1MasterFileModel);
+            for (var i = 0; i < Results.Length; i++)
+            {
+                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1))
+                    .OrderBy(m => m.Precedence).ToArray();
+                AssertOrderExpected(Results[i].Ingest.ToArray(), modelsForSide);
+            }
+        }
+
+        [Test]
+        public void ItShouldCallIngestFactoryCorrectlyForSideParts()
+        {
+            for (var i = 0; i < Results.Length; i++)
+            {
+                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).ToList();
+
+                foreach (var model in modelsForSide)
+                {
+                    IngestDataFactory.Received()
+                        .Generate(Arg.Is<DigitalVideoFile>(file => file.Filename.Equals(model.Filename)));
+                }
+            }
         }
 
         [Test]

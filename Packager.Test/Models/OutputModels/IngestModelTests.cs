@@ -22,15 +22,16 @@ namespace Packager.Test.Models.OutputModels
 
         public class VideoIngestTests : AbstractIngestModelTests
         {
-            [TestCase("Date", 1)]
-            [TestCase("DigitStatus", 2)]
-            [TestCase("Comments", 3)]
-            [TestCase("CreatedBy", 4)]
-            [TestCase("Players", 5)]
-            [TestCase("TbcDevices", 6)]
-            [TestCase("AdDevices", 7)]
-            [TestCase("ExtractionWorkstation", 8)]
-            [TestCase("Encoder", 9)]
+            [TestCase("FileName", 1)]
+            [TestCase("Date", 2)]
+            [TestCase("DigitStatus", 3)]
+            [TestCase("Comments", 4)]
+            [TestCase("CreatedBy", 5)]
+            [TestCase("Players", 6)]
+            [TestCase("TbcDevices", 7)]
+            [TestCase("AdDevices", 8)]
+            [TestCase("ExtractionWorkstation", 9)]
+            [TestCase("Encoder", 10)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (VideoIngest).GetProperty(field);
@@ -54,21 +55,22 @@ namespace Packager.Test.Models.OutputModels
 
         public class AudioIngestTests : AbstractIngestModelTests
         {
-            [TestCase("Date", 1)]
-            [TestCase("Comments", 2)]
-            [TestCase("CreatedBy", 3)]
-            [TestCase("SpeedUsed", 4)]
-            [TestCase("Stylus", 5)]
-            [TestCase("Turnover", 6)]
-            [TestCase("Rolloff", 7)]
-            [TestCase("ReferenceFluxivity", 8)]
-            [TestCase("Gain", 9)]
-            [TestCase("AnalogOutputVoltage", 10)]
-            [TestCase("Peak", 11)]
-            [TestCase("Players", 12)]
-            [TestCase("AdDevices", 13)]
-            [TestCase("PreAmpDevices", 14)]
-            [TestCase("ExtractionWorkstation", 15)]
+            [TestCase("FileName", 1)]
+            [TestCase("Date", 2)]
+            [TestCase("Comments", 3)]
+            [TestCase("CreatedBy", 4)]
+            [TestCase("SpeedUsed", 5)]
+            [TestCase("Stylus", 6)]
+            [TestCase("Turnover", 7)]
+            [TestCase("Rolloff", 8)]
+            [TestCase("ReferenceFluxivity", 9)]
+            [TestCase("Gain", 10)]
+            [TestCase("AnalogOutputVoltage", 11)]
+            [TestCase("Peak", 12)]
+            [TestCase("Players", 13)]
+            [TestCase("AdDevices", 14)]
+            [TestCase("PreAmpDevices", 15)]
+            [TestCase("ExtractionWorkstation", 16)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (AudioIngest).GetProperty(field);

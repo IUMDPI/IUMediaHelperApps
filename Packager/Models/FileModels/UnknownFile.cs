@@ -28,7 +28,9 @@ namespace Packager.Models.FileModels
                 .ToLowerInvariant()
                 .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
         }
-     
+
+        public override int Precedence => 6;
+
         public override bool IsValid()
         {
             return false;

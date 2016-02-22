@@ -2,7 +2,7 @@
 using NSubstitute;
 using Packager.Models.ResultModels;
 using Packager.Utilities;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Test.Mocks
 {

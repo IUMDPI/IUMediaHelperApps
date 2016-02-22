@@ -27,6 +27,11 @@ namespace Packager.Observers
                 return;
             }
 
+            if (issue is OperationCanceledException)
+            {
+                issue = new UserCancelledException();
+            }
+
             foreach (var observer in this)
             {
                 observer.LogProcessingError(issue, barcode);

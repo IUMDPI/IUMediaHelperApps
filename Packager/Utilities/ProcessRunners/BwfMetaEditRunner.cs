@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models.FileModels;
@@ -10,26 +12,25 @@ using Packager.Models.ResultModels;
 using Packager.Utilities.Bext;
 using Packager.Validators.Attributes;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class BwfMetaEditRunner : IBwfMetaEditRunner
     {
         private const string VerboseArgument = "--verbose";
         private const string VersionArgument = "--version";
 
-        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory)
+        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory, CancellationToken cancellationToken)
         {
             ProcessRunner = processRunner;
             BwfMetaEditPath = bwfMetaEditPath;
             BaseProcessingDirectory = baseProcessingDirectory;
-            
+            CancellationToken = cancellationToken;
         }
 
         private IProcessRunner ProcessRunner { get; }
         private string BaseProcessingDirectory { get; }
+        private CancellationToken CancellationToken { get; }
         
-        
-
         [ValidateFile]
         public string BwfMetaEditPath { get; }
 
@@ -61,7 +62,7 @@ namespace Packager.Utilities.Process
             }
         }
 
-        private async Task<IProcessResult> ExecuteBextProcess(ArgumentBuilder arguments)
+        private async Task<IProcessResult> ExecuteBextProcess(IEnumerable arguments)
         {
             var startInfo = new ProcessStartInfo(BwfMetaEditPath)
             {
@@ -69,10 +70,10 @@ namespace Packager.Utilities.Process
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
             };
 
-            return await ProcessRunner.Run(startInfo);
+            return await ProcessRunner.RunWithCancellation(startInfo, CancellationToken);
         }
     }
 }

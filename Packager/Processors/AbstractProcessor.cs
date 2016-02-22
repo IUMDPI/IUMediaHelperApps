@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -14,7 +15,7 @@ using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 
@@ -56,18 +57,22 @@ namespace Packager.Processors
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList);
 
-        public virtual async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels)
+      
+
+        public virtual async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
         {
             Barcode = fileModels.Key;
            
             var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
+                cancellationToken.Register(cancellationToken.ThrowIfCancellationRequested);
+
                 // convert grouping to simple list
                 var filesToProcess = fileModels.ToList();
 
                 // now move them to processing
-                await CreateProcessingDirectoryAndMoveOriginals(filesToProcess);
+                await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
 
                 // fetch, log, and validate metadata
                 var metadata = await GetMetadata<T>(filesToProcess);
@@ -93,7 +98,7 @@ namespace Packager.Processors
                 // now remove duplicate entries -- this could happen if production master
                 // already exists
                 processedList = processedList.RemoveDuplicates();
-                
+
                 // now clear the ISFT field from presentation and production/mezz masters
                 await ClearMetadataFields(processedList);
 
@@ -108,16 +113,23 @@ namespace Packager.Processors
 
                 // using the list of files that have been processed
                 // make the xml file
-                processedList.Add(await GenerateXml(metadata, processedList));
+                processedList.Add(await GenerateXml(metadata, processedList, cancellationToken));
 
                 // copy processed files to drop box
-                await CopyToDropbox(processedList);
+                await CopyToDropbox(processedList, cancellationToken);
 
                 // move everything to success folder
                 await MoveToSuccessFolder();
 
                 Observers.EndSection(sectionKey, $"Object processed succesfully: {Barcode}");
                 return ValidationResult.Success;
+            }
+            catch (OperationCanceledException e)
+            {
+                Observers.LogProcessingIssue(new UserCancelledException(), Barcode);
+                MoveToErrorFolder();
+                Observers.EndSection(sectionKey);
+                return new ValidationResult(e.GetBaseMessage());
             }
             catch (Exception e)
             {
@@ -184,18 +196,18 @@ namespace Packager.Processors
             }
         }
 
-        private async Task<XmlFile> GenerateXml(T metadata, List<AbstractFile> filesToProcess)
+        private async Task<XmlFile> GenerateXml(T metadata, List<AbstractFile> filesToProcess, CancellationToken cancellationToken)
         {
             var result = new XmlFile(ProjectCode, Barcode);
             var sectionKey = Observers.BeginSection("Generating {0}", result.Filename);
             try
             {
-                await AssignChecksumValues(filesToProcess);
+                await AssignChecksumValues(filesToProcess, cancellationToken);
 
                 var wrapper = new IU {Carrier = CarrierDataFactory.Generate(metadata, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
 
-                result.Checksum = await Hasher.Hash(result);
+                result.Checksum = await Hasher.Hash(result, cancellationToken);
                 Observers.Log("{0} checksum: {1}", result.Filename, result.Checksum);
 
                 Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
@@ -231,7 +243,7 @@ namespace Packager.Processors
             return preferredPath;
         }
 
-        private async Task CopyToDropbox(IEnumerable<AbstractFile> fileList)
+        private async Task CopyToDropbox(IEnumerable<AbstractFile> fileList, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Copying objects to dropbox");
             try
@@ -248,7 +260,7 @@ namespace Packager.Processors
                     Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
                     await FileProvider.CopyFileAsync(
                         Path.Combine(ProcessingDirectory, fileName),
-                        Path.Combine(DropBoxDirectory, fileName));
+                        Path.Combine(DropBoxDirectory, fileName), cancellationToken);
                 }
                 Observers.EndSection(sectionKey, $"{Barcode} files copied to dropbox folder successfully");
             }
@@ -276,7 +288,7 @@ namespace Packager.Processors
             }
         }
 
-        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<AbstractFile> filesToProcess)
+        private async Task CreateProcessingDirectoryAndMoveOriginals(IEnumerable<AbstractFile> filesToProcess, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Initializing");
             try
@@ -294,7 +306,7 @@ namespace Packager.Processors
                 foreach (var fileModel in filesToProcess)
                 {
                     Observers.Log("Moving originals to processing: {0}", GetFilenameToLog(fileModel));
-                    await MoveOriginalToProcessing(fileModel);
+                    await MoveOriginalToProcessing(fileModel, cancellationToken);
                 }
 
                 Observers.EndSection(sectionKey, "Initialization successful");
@@ -314,7 +326,7 @@ namespace Packager.Processors
                 : $"{model.Filename} ({model.OriginalFileName})";
         }
 
-        private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel)
+        private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel, CancellationToken cancellationToken)
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
             var targetPath = Path.Combine(OriginalsDirectory, fileModel.Filename);
@@ -325,7 +337,7 @@ namespace Packager.Processors
                     OriginalsDirectory);
             }
 
-            await FileProvider.MoveFileAsync(sourcePath, targetPath);
+            await FileProvider.MoveFileAsync(sourcePath, targetPath, cancellationToken);
             return targetPath;
         }
 
@@ -355,11 +367,11 @@ namespace Packager.Processors
             }
         }
         
-        private async Task AssignChecksumValues(IEnumerable<AbstractFile> models)
+        private async Task AssignChecksumValues(IEnumerable<AbstractFile> models, CancellationToken cancellationToken)
         {
             foreach (var model in models)
             {
-                model.Checksum = await Hasher.Hash(model);
+                model.Checksum = await Hasher.Hash(model, cancellationToken);
                 Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
             }
         }

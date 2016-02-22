@@ -4,7 +4,7 @@ using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
 using Packager.Utilities.Bext;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public interface IBwfMetaEditRunner
     {

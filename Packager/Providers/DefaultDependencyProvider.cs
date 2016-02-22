@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Packager.Deserializers;
 using Packager.Factories;
 using Packager.Models.PodMetadataModels;
@@ -8,7 +9,7 @@ using Packager.Utilities.Bext;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 using Packager.Validators.Attributes;
@@ -22,6 +23,7 @@ namespace Packager.Providers
     {
         public DefaultDependencyProvider(IProgramSettings programSettings)
         {
+            CancellationTokenSource = new CancellationTokenSource();
             ProgramSettings = programSettings;
             Hasher = new Hasher(ProgramSettings.ProcessingDirectory);
             XmlExporter = new XmlExporter();
@@ -37,11 +39,10 @@ namespace Packager.Providers
             Observers = new ObserverCollection();
             AudioMetadataFactory = new EmbeddedAudioMetadataFactory(ProgramSettings);
             VideoMetadataFactory = new EmbeddedVideoMetadataFactory(ProgramSettings);
-            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,
-                ProgramSettings.ProcessingDirectory);
+            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,ProgramSettings.ProcessingDirectory, CancellationTokenSource.Token);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
-            AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
-            VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationTokenSource.Token);
+            VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationTokenSource.Token);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ImportableFactory = new ImportableFactory();
             ValidatorCollection = new StandardValidatorCollection
@@ -57,7 +58,8 @@ namespace Packager.Providers
                 ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, ProgramSettings.SuccessDirectoryName,
                 new TimeSpan(ProgramSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
-            FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
+            FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers, CancellationTokenSource.Token);
+           
         }
 
         [ValidateObject]
@@ -121,6 +123,8 @@ namespace Packager.Providers
         
         [ValidateObject]
         public IFFProbeRunner FFProbeRunner { get; }
+
+        public CancellationTokenSource CancellationTokenSource { get; }
 
         [ValidateObject]
         public IBwfMetaEditRunner MetaEditRunner { get; }

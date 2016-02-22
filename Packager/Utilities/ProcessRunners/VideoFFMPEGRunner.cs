@@ -1,15 +1,15 @@
-﻿using Packager.Models;
+﻿using System.Threading;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class VideoFFMPEGRunner : AbstractFFMPEGRunner
     {
-        public VideoFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
-            : base(programSettings, processRunner, observers, fileProvider, hasher)
+        public VideoFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher, CancellationToken cancellationToken)
+            : base(programSettings, processRunner, observers, fileProvider, hasher, cancellationToken)
         {
             ProdOrMezzArguments = programSettings.FFMPEGVideoMezzanineArguments;
             AccessArguments = programSettings.FFMPEGVideoAccessArguments;

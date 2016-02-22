@@ -1,11 +1,11 @@
-﻿using Packager.Extensions;
-using Packager.Models;
+﻿using System.Threading;
+using Packager.Extensions;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     // ReSharper disable once InconsistentNaming
     public class AudioFFMPEGRunner : AbstractFFMPEGRunner
@@ -13,8 +13,8 @@ namespace Packager.Utilities.Process
         private const string RequiredProductionBextArguments = "-write_bext 1";
         private const string RequiredProductionRiffArguments = "-rf64 auto";
 
-        public AudioFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher) :
-            base(programSettings, processRunner, observers, fileProvider, hasher)
+        public AudioFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher, CancellationToken cancellationToken) :
+            base(programSettings, processRunner, observers, fileProvider, hasher, cancellationToken)
         {
             AccessArguments = programSettings.FFMPEGAudioAccessArguments;
             ProdOrMezzArguments = AddRequiredArguments(programSettings.FFMPEGAudioProductionArguments);

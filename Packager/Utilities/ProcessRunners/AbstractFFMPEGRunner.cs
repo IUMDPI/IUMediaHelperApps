@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -15,13 +16,16 @@ using Packager.Providers;
 using Packager.Utilities.Hashing;
 using Packager.Validators.Attributes;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public abstract class AbstractFFMPEGRunner : IFFMPEGRunner
     {
+        private readonly CancellationToken _cancellationToken;
+
         protected AbstractFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner,
-            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
+            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher, CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             FFMPEGPath = programSettings.FFMPEGPath;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
             Observers = observers;
@@ -48,7 +52,8 @@ namespace Packager.Utilities.Process
                 {
                     Arguments = "-version",
                     RedirectStandardError = true,
-                    RedirectStandardOutput = true
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true
                 };
                 var result = await ProcessRunner.Run(info);
 
@@ -134,20 +139,26 @@ namespace Packager.Utilities.Process
                 Arguments = arguments.ToString(),
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
+                RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
 
-            var result = await ProcessRunner.Run(startInfo);
+            var result = await ProcessRunner.RunWithCancellation(startInfo, _cancellationToken);
 
             Observers.Log(FilterOutputLog(result.StandardError.GetContent()));
+
+            if (_cancellationToken.IsCancellationRequested)
+            {
+                throw new UserCancelledException();
+            }
 
             if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
         }
-
+        
         private static string FilterOutputLog(string log)
         {
             var parts = log.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
@@ -278,7 +289,7 @@ namespace Packager.Utilities.Process
                         originalFrameMd5Path);
                 }
 
-                var originalMd5Hash = await Hasher.Hash(originalFrameMd5Path);
+                var originalMd5Hash = await Hasher.Hash(originalFrameMd5Path, _cancellationToken);
                 Observers.Log("original framemd5 hash: {0}", originalMd5Hash);
 
                 var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
@@ -289,7 +300,7 @@ namespace Packager.Utilities.Process
                         normalizedFrameMd5Path);
                 }
 
-                var normalizedMd5Hash = await Hasher.Hash(normalizedFrameMd5Path);
+                var normalizedMd5Hash = await Hasher.Hash(normalizedFrameMd5Path, _cancellationToken);
                 Observers.Log("normalized framemd5 hash: {0}", normalizedMd5Hash);
 
                 if (!originalMd5Hash.Equals(normalizedMd5Hash))

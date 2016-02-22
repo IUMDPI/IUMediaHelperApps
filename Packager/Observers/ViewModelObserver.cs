@@ -6,12 +6,12 @@ namespace Packager.Observers
 {
     internal class ViewModelObserver : IObserver
     {
-        public ViewModelObserver(ViewModel viewModel)
+        public ViewModelObserver(IViewModel viewModel)
         {
             ViewModel = viewModel;
         }
 
-        private ViewModel ViewModel { get; set; }
+        private IViewModel ViewModel { get; }
 
         public void Log(string baseMessage, params object[] elements)
         {

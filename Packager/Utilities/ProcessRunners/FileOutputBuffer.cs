@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using Packager.Providers;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class FileOutputBuffer : IOutputBuffer, IDisposable
     {

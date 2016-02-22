@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class StringOutputBuffer : IOutputBuffer
     {

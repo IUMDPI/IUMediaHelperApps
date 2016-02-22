@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
 
@@ -15,14 +16,14 @@ namespace Packager.Utilities.Hashing
 
         private string BaseProcessingFolder { get; }
 
-        public async Task<string> Hash(AbstractFile model)
+        public async Task<string> Hash(AbstractFile model, CancellationToken cancellationToken)
         {
-            return await Task.Run(() => HashInternal(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.Filename)));
+            return await Task.Run(() => HashInternal(Path.Combine(BaseProcessingFolder, model.GetFolderName(), model.Filename)), cancellationToken);
         }
 
-        public async Task<string> Hash(string path)
+        public async Task<string> Hash(string path,CancellationToken cancellationToken)
         {
-            return await Task.Run(() => HashInternal(path));
+            return await Task.Run(() => HashInternal(path), cancellationToken);
         }
 
         public static string Hash(Stream content)

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -12,16 +13,17 @@ using Packager.Observers;
 using Packager.Providers;
 using Packager.Validators.Attributes;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class FFProbeRunner : IFFProbeRunner
     {
         public FFProbeRunner(IProgramSettings programSettings, IProcessRunner processRunner, IFileProvider fileProvider,
-            IObserverCollection observers)
+            IObserverCollection observers, CancellationToken cancellationToken)
         {
             ProcessRunner = processRunner;
             FileProvider = fileProvider;
             Observers = observers;
+            CancellationToken = cancellationToken;
             FFProbePath = programSettings.FFProbePath;
             VideoQualityControlArguments = programSettings.FFProbeVideoQualityControlArguments;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
@@ -30,6 +32,7 @@ namespace Packager.Utilities.Process
         private IProcessRunner ProcessRunner { get; }
         private IFileProvider FileProvider { get; }
         private IObserverCollection Observers { get; }
+        private CancellationToken CancellationToken { get; set; }
 
         private string BaseProcessingDirectory { get; }
 
@@ -74,7 +77,7 @@ namespace Packager.Utilities.Process
                 }
 
                 //FileProvider.WriteAllText(xmlPath, xml);
-                await FileProvider.ArchiveFile(xmlPath, archivePath);
+                await FileProvider.ArchiveFile(xmlPath, archivePath, CancellationToken);
 
                 Observers.EndSection(sectionKey, $"Quality control file generated successfully: {target.Filename}");
                 return qualityControlFile;
@@ -95,7 +98,8 @@ namespace Packager.Utilities.Process
                 {
                     Arguments = "-version",
                     RedirectStandardError = true,
-                    RedirectStandardOutput = true
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true
                 };
                 var result = await ProcessRunner.Run(info);
 
@@ -115,19 +119,35 @@ namespace Packager.Utilities.Process
                 Arguments = arguments.ToString(),
                 RedirectStandardError = true,
                 RedirectStandardOutput = false,
+                RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = workingFolder
             };
 
-            var result = await ProcessRunner.Run(startInfo, outputbuffer);
+            var result = await ProcessRunner.RunWithCancellation(startInfo, CancellationToken, outputbuffer);
 
             Observers.Log(FilterOutputLog(result.StandardError.GetContent()));
+
+            if (CancellationToken.IsCancellationRequested)
+            {
+                throw new UserCancelledException();
+            }
 
             if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
+        }
+
+        private static void DoCancel(Process process)
+        {
+            if (process.HasExited)
+            {
+                return;
+            }
+
+            process.Kill();
         }
 
         private static string FilterOutputLog(string log)

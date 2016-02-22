@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -20,7 +21,7 @@ using Packager.Providers;
 using Packager.Test.Mocks;
 using Packager.Utilities;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Validators.Attributes;
 
 namespace Packager.Test.Utilities
@@ -52,12 +53,12 @@ namespace Packager.Test.Utilities
             FileProvider = Substitute.For<IFileProvider>();
 
             Hasher = Substitute.For<IHasher>();
-            Hasher.Hash(Arg.Any<string>())
+            Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} hash value"));
 
             Metadata = MockBextMetadata.Get();
 
-            Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationToken.None);
 
             DoCustomSetup();
         }
@@ -116,7 +117,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -write_bext 1");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationToken.None);
                 }
 
                 [Test]
@@ -132,7 +133,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -rf64 auto");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationToken.None);
                 }
 
                 [Test]
@@ -148,7 +149,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns((string) null);
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationToken.None);
                 }
 
                 [Test]
@@ -164,7 +165,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns("");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationToken.None);
                 }
 
                 [Test]
@@ -559,7 +560,7 @@ namespace Packager.Test.Utilities
                     {
                         var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
                             model.ToFrameMd5Filename());
-                        Hasher.Received().Hash(normalizedFrameMd5Path);
+                        Hasher.Received().Hash(normalizedFrameMd5Path, Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -570,7 +571,7 @@ namespace Packager.Test.Utilities
                     {
                         var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
                             model.ToFrameMd5Filename());
-                        Hasher.Received().Hash(originalFrameMd5Path);
+                        Hasher.Received().Hash(originalFrameMd5Path, Arg.Any<CancellationToken>());
                     }
                 }
             }
@@ -584,7 +585,7 @@ namespace Packager.Test.Utilities
                     Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make hasher return different values
-                    Hasher.Hash(Arg.Any<string>()).Returns(x => Task.FromResult(x.Arg<string>()));
+                    Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x => Task.FromResult(x.Arg<string>()));
 
                     ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
                     {

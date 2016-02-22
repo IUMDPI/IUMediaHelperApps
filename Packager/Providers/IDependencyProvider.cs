@@ -1,4 +1,5 @@
-﻿using Packager.Factories;
+﻿using System.Threading;
+using Packager.Factories;
 using Packager.Models;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
@@ -8,7 +9,7 @@ using Packager.Utilities.Bext;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 
@@ -33,12 +34,12 @@ namespace Packager.Providers
         IFFMPEGRunner VideoFFMPEGRunner { get; }
         IBwfMetaEditRunner MetaEditRunner { get; }
         IEmailSender EmailSender { get; }
-        ISideDataFactory SideDataFactory { get; }
-        IIngestDataFactory IngestDataFactory { get; }
         IValidatorCollection ValidatorCollection { get; }
         ISuccessFolderCleaner SuccessFolderCleaner { get; }
         IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
         IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
         IFFProbeRunner FFProbeRunner { get; }
+        
+        CancellationTokenSource CancellationTokenSource { get; }
     }
 }

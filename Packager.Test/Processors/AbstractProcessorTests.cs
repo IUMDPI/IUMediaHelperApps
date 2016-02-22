@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -15,7 +16,7 @@ using Packager.Processors;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 
@@ -134,7 +135,7 @@ namespace Packager.Test.Processors
 
             DoCustomSetup();
 
-            Result = await Processor.ProcessObject(GetGrouping(ModelList));
+            Result = await Processor.ProcessObject(GetGrouping(ModelList), CancellationToken.None);
         }
     }
 }

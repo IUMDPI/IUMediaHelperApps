@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -129,15 +130,15 @@ namespace Packager.Test.Processors
                     {
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalPresFileName),
-                            Path.Combine(ExpectedOriginalsDirectory, PreservationFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, PreservationFileName), Arg.Any<CancellationToken>());
 
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalPresIntFileName),
-                            Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName), Arg.Any<CancellationToken>());
 
                         FileProvider.Received().MoveFileAsync(
                             Path.Combine(InputDirectory, NonNormalProductionFileName),
-                            Path.Combine(ExpectedOriginalsDirectory, ProductionFileName));
+                            Path.Combine(ExpectedOriginalsDirectory, ProductionFileName), Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -157,7 +158,7 @@ namespace Packager.Test.Processors
                         {
                             FileProvider.Received()
                                 .MoveFileAsync(Path.Combine(InputDirectory, PreservationIntermediateFileName),
-                                    Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName));
+                                    Path.Combine(ExpectedOriginalsDirectory, PreservationIntermediateFileName), Arg.Any<CancellationToken>());
                         }
                     }
 
@@ -174,7 +175,7 @@ namespace Packager.Test.Processors
                         public void ItShouldMovePreservationIntermediateMasterToOriginalsDirectory()
                         {
                             FileProvider.Received().MoveFileAsync(Path.Combine(InputDirectory, ProductionFileName),
-                                Path.Combine(ExpectedOriginalsDirectory, ProductionFileName));
+                                Path.Combine(ExpectedOriginalsDirectory, ProductionFileName), Arg.Any<CancellationToken>());
                         }
                     }
 
@@ -183,7 +184,7 @@ namespace Packager.Test.Processors
                     {
                         FileProvider.Received()
                             .MoveFileAsync(Path.Combine(InputDirectory, PreservationFileName),
-                                Path.Combine(ExpectedOriginalsDirectory, PreservationFileName));
+                                Path.Combine(ExpectedOriginalsDirectory, PreservationFileName), Arg.Any<CancellationToken>());
                     }
                 }
             }
@@ -430,10 +431,10 @@ namespace Packager.Test.Processors
                 {
                     base.DoCustomSetup();
 
-                    Hasher.Hash(Arg.Any<AbstractFile>())
+                    Hasher.Hash(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                         .Returns(x => Task.FromResult($"{x.Arg<AbstractFile>().Filename} checksum"));
 
-                    Hasher.Hash(Arg.Any<string>())
+                    Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>())
                         .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} checksum"));
                 }
 
@@ -477,19 +478,19 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallHasherForAccessVersion()
                 {
-                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(AccessFileName))));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(AccessFileName))), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
                 public void ItShouldCallHasherForPreservationMaster()
                 {
-                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(PreservationFileName))));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(PreservationFileName))), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
                 public void ItShouldCallHasherForProductionVersion()
                 {
-                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(ProductionFileName))));
+                    Hasher.Received().Hash(Arg.Is<AbstractFile>(m => m.IsSameAs(new UnknownFile(ProductionFileName))), Arg.Any<CancellationToken>());
                 }
             }
 
@@ -522,7 +523,7 @@ namespace Packager.Test.Processors
                     {
                         var sourcePath = Path.Combine(ExpectedProcessingDirectory, PreservationIntermediateFileName);
                         var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationIntermediateFileName);
-                        FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                        FileProvider.Received().CopyFileAsync(sourcePath, targetPath, Arg.Any<CancellationToken>());
                     }
 
                     [Test]
@@ -546,13 +547,13 @@ namespace Packager.Test.Processors
                 {
                     var sourcePath = Path.Combine(ExpectedProcessingDirectory, AccessFileName);
                     var targetPath = Path.Combine(ExpectedDropboxDirectory, AccessFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath, Arg.Any<CancellationToken>());
                 }
 
                 [Test]
                 public void ItShouldCopyCorrectNumberOfFilesToDropBox()
                 {
-                    FileProvider.Received(ExpectedFiles).CopyFileAsync(Arg.Any<string>(), Arg.Any<string>());
+                    FileProvider.Received(ExpectedFiles).CopyFileAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -560,7 +561,7 @@ namespace Packager.Test.Processors
                 {
                     var sourcePath = Path.Combine(ExpectedProcessingDirectory, PreservationFileName);
                     var targetPath = Path.Combine(ExpectedDropboxDirectory, PreservationFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath, Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -568,7 +569,7 @@ namespace Packager.Test.Processors
                 {
                     var sourcePath = Path.Combine(ExpectedProcessingDirectory, ProductionFileName);
                     var targetPath = Path.Combine(ExpectedDropboxDirectory, ProductionFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath, Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -576,7 +577,7 @@ namespace Packager.Test.Processors
                 {
                     var sourcePath = Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName);
                     var targetPath = Path.Combine(ExpectedDropboxDirectory, XmlManifestFileName);
-                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath);
+                    FileProvider.Received().CopyFileAsync(sourcePath, targetPath, Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -708,7 +709,7 @@ namespace Packager.Test.Processors
                     SubSectionKey = Guid.NewGuid().ToString();
                     Observers.BeginSection("Copying objects to dropbox").Returns(SubSectionKey);
                     IssueMessage = "dropbox operation failed";
-                    FileProvider.CopyFileAsync(Arg.Any<string>(), Arg.Any<string>())
+                    FileProvider.CopyFileAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
                         .Returns(x => { throw new Exception(IssueMessage); });
                 }
 

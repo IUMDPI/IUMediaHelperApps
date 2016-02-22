@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public interface IFFMPEGRunner
     {

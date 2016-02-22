@@ -1,10 +1,11 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models.ResultModels;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class ProcessRunner : IProcessRunner
     {
@@ -14,7 +15,7 @@ namespace Packager.Utilities.Process
 
             var completionSource = new TaskCompletionSource<IProcessResult>();
             
-            var process = new System.Diagnostics.Process
+            var process = new Process
             {
                 StartInfo = startInfo,
                 EnableRaisingEvents = true,
@@ -42,7 +43,64 @@ namespace Packager.Utilities.Process
             return completionSource.Task;
         }
 
-        private static void ConfigureEventHandlers(System.Diagnostics.Process process, ProcessStartInfo startInfo, 
+        public Task<IProcessResult> RunWithCancellation(ProcessStartInfo startInfo, CancellationToken cancellationToken,
+            IOutputBuffer outputBuffer = null, IOutputBuffer errorBuffer = null)
+        {
+            startInfo.UseShellExecute = false;
+         
+            var completionSource = new TaskCompletionSource<IProcessResult>();
+
+            var process = new Process
+            {
+                StartInfo = startInfo,
+                EnableRaisingEvents = true
+                
+            };
+
+            if (outputBuffer == null)
+            {
+                outputBuffer = new StringOutputBuffer();
+            }
+
+            if (errorBuffer == null)
+            {
+                errorBuffer = new StringOutputBuffer();
+            }
+
+            ConfigureEventHandlers(process, startInfo, outputBuffer, errorBuffer, completionSource);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            if (process.Start() == false)
+            {
+                completionSource.TrySetException(new InvalidOperationException("Failed to start process"));
+            }
+
+            cancellationToken.Register(() =>
+            {
+                DoCancel(process);
+                cancellationToken.ThrowIfCancellationRequested();
+            });
+            
+            BeginCaptureOutput(process, startInfo);
+
+            return completionSource.Task;
+        }
+
+        private static void DoCancel(Process process)
+        {
+            if (process.HasExited)
+            {
+                return;
+            }
+
+            process.Kill();
+        }
+        
+        private static void ConfigureEventHandlers(Process process, ProcessStartInfo startInfo, 
             IOutputBuffer outputBuffer, IOutputBuffer errorBuffer, TaskCompletionSource<IProcessResult> completionSource)
         {
             if (startInfo.RedirectStandardOutput)
@@ -62,7 +120,7 @@ namespace Packager.Utilities.Process
                 errorBuffer).OnExitHandler;
         }
 
-        private static void BeginCaptureOutput(System.Diagnostics.Process process, ProcessStartInfo startInfo)
+        private static void BeginCaptureOutput(Process process, ProcessStartInfo startInfo)
         {
             if (startInfo.RedirectStandardOutput)
             {
@@ -93,7 +151,7 @@ namespace Packager.Utilities.Process
 
             public void OnExitHandler(object sender, EventArgs args)
             {
-                var process = sender as System.Diagnostics.Process;
+                var process = sender as Process;
                 if (process == null)
                 {
                     _completionSource.TrySetException(new InvalidOperationException("Could not access completed process"));

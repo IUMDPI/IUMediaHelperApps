@@ -28,7 +28,7 @@ namespace Packager
                 SettingsFactory.Import(ConfigurationManager.AppSettings));
 
             // create the view model
-            var viewModel = new ViewModel();
+            var viewModel = new ViewModel(dependencyProvider.CancellationTokenSource);
 
             // create the window
             var window = new OutputWindow();
@@ -47,10 +47,10 @@ namespace Packager
             };
 
             // initialize engine
-            var engine = new StandardEngine(processors, dependencyProvider);
+            var engine = new StandardEngine(processors, dependencyProvider, viewModel);
 
             // start the engine
-            await engine.Start();
+            await engine.Start(dependencyProvider.CancellationTokenSource.Token);
         }
 
         private static void AddObservers(IDependencyProvider dependencyProvider, ViewModel viewModel)

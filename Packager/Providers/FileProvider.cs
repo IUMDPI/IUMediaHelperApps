@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
@@ -8,14 +9,14 @@ namespace Packager.Providers
 {
     public class FileProvider : IFileProvider
     {
-        public async Task CopyFileAsync(string sourceFileName, string destFileName)
+        public async Task CopyFileAsync(string sourceFileName, string destFileName, CancellationToken cancellationToken)
         {
-            await Task.Run(() => { File.Copy(sourceFileName, destFileName); });
+            await Task.Run(() => { File.Copy(sourceFileName, destFileName); }, cancellationToken);
         }
 
-        public async Task MoveFileAsync(string sourceFileName, string destFileName)
+        public async Task MoveFileAsync(string sourceFileName, string destFileName, CancellationToken cancellationToken)
         {
-            await Task.Run(() => { File.Move(sourceFileName, destFileName); });
+            await Task.Run(() => { File.Move(sourceFileName, destFileName); }, cancellationToken);
         }
 
         public bool FileExists(string path)
@@ -46,9 +47,9 @@ namespace Packager.Providers
             return File.ReadAllText(path);
         }
 
-        public async Task ArchiveFile(string filePath, string archivePath)
+        public async Task ArchiveFile(string filePath, string archivePath, CancellationToken cancellationToken)
         {
-            await ArchiveFileInternal(filePath, archivePath);
+            await ArchiveFileInternal(filePath, archivePath, cancellationToken);
         }
 
         public T Deserialize<T>(string filePath)
@@ -67,7 +68,7 @@ namespace Packager.Providers
             }
         }
 
-        private async Task ArchiveFileInternal(string filePath, string archivePath)
+        private async Task ArchiveFileInternal(string filePath, string archivePath, CancellationToken cancellationToken)
         {
             if (FileDoesNotExist(filePath))
             {
@@ -81,7 +82,7 @@ namespace Packager.Providers
                 {
                     using (var archiveStream = new GZipStream(outputStream, CompressionMode.Compress))
                     {
-                        await inputStream.CopyToAsync(archiveStream);
+                        await inputStream.CopyToAsync(archiveStream, 81920, cancellationToken);
                     }
                 }
             }

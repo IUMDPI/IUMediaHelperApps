@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -31,10 +32,8 @@ namespace Packager.Providers
             var request = new RestRequest($"responses/objects/{barcode}/metadata/digital_provenance");
 
             var response = await Client.ExecuteGetTaskAsync<T>(request);
-
-            VerifyResponse(response, "retrieve metadata from Pod");
-            VerifyResponseMetadata(response.Data);
-
+            VerifyResponse(response);
+           
             return Normalize(response.Data);
         }
 
@@ -81,7 +80,7 @@ namespace Packager.Providers
             return Validators.Validate(podMetadata);
         }
 
-        private ValidationResults ValidateMetadataProvenances(List<AbstractDigitalFile> provenances,
+        private static ValidationResults ValidateMetadataProvenances(List<AbstractDigitalFile> provenances,
             List<AbstractFile> filesToProcess)
         {
             var results = new ValidationResults();
@@ -164,45 +163,66 @@ namespace Packager.Providers
             return value;
         }
 
-        private static void VerifyResponse<T>(IRestResponse<T> response, string operation) where T : AbstractPodMetadata
+        private static void VerifyResponse<T>(IRestResponse<T> response) where T : AbstractPodMetadata
         {
-            if (response.ResponseStatus != ResponseStatus.Completed)
-            {
-                throw new PodMetadataException(response.ErrorException, "Could not {0}", operation);
-            }
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new PodMetadataException(response.ErrorException, "Could not {0}: {1} ({2})", operation,
-                    response.StatusCode, (int) response.StatusCode);
-            }
-
-            if (response.Data == null)
-            {
-                throw new PodMetadataException("Could not {0}: expected result object not present", operation);
-            }
-
-            if (response.Data.Success == false)
-            {
-                throw new PodMetadataException("Could not {0}: {1}", operation,
-                    response.Data.Message.ToDefaultIfEmpty("unknown issue returned from server"));
-            }
+            CheckForInternalIssue(response);
+            CheckForServerIssue(response);
+            CheckForMetadataIssue(response);
         }
 
-
-        private static void VerifyResponseMetadata(AbstractPodMetadata metadata)
+        private static void CheckForInternalIssue<T>(IRestResponse<T> response)
+            where T : AbstractPodMetadata
         {
-            if (metadata == null)
+            if (response.ResponseStatus == ResponseStatus.Completed)
             {
-                throw new PodMetadataException("Could not retrieve metadata from Pod");
+                return;
             }
 
-            if (metadata.Success == false)
-            {
-                throw new PodMetadataException(
-                    "Could not retrieve metadata: {0}",
-                    metadata.Message.ToDefaultIfEmpty("[no error message present]"));
-            }
+            var reportedException = response.ErrorException ?? new Exception("an unknown issue occurred");
+
+            throw new PodMetadataException(response.ErrorException, 
+                $"Could not retrieve metadata from POD: an internal issue occurred\n--- {reportedException}");
         }
+
+        private static void CheckForServerIssue<T>(IRestResponse<T> response)
+            where T : AbstractPodMetadata
+        {
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return;
+            }
+
+            var message = $"Could not retrieve metadata from POD: {response.StatusCode} ({(int)response.StatusCode})";
+            if (ResponseMessageSet(response))
+            {
+                message = $"{message}\n--- {response.Data.Message}";
+            }
+             
+            throw new PodMetadataException(response.ErrorException, message);
+        }
+
+        private static bool ResponseMessageSet<T>(IRestResponse<T> response)
+            where T : AbstractPodMetadata
+        {
+            return response.Data != null && response.Data.Message.IsSet();
+        }
+
+        private static void CheckForMetadataIssue<T>(IRestResponse<T> response)
+            where T : AbstractPodMetadata
+        {
+            if (response.Data != null && response.Data.Success)
+            {
+                return;
+            }
+
+            var message = ResponseMessageSet(response) 
+                // ReSharper disable once PossibleNullReferenceException (ResponseMessageSet checks for null)
+                ? $"Could not retrieve metadata from POD: {response.Data.Message}"
+                : "Could not retrieve metadata from POD: metadata element could not be resolved";
+            
+            throw new PodMetadataException(message);
+            
+        }
+
     }
 }

@@ -54,8 +54,8 @@ namespace Packager.Processors
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
         protected abstract AbstractFile CreateProdOrMezzModel(AbstractFile master);
         protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models); 
-        protected abstract Task ClearMetadataFields(List<AbstractFile> processedList);
-        protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList);
+        protected abstract Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken);
+        protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken);
 
       
 
@@ -78,10 +78,10 @@ namespace Packager.Processors
                 var metadata = await GetMetadata<T>(filesToProcess);
 
                 // normalize originals
-                await NormalizeOriginals(filesToProcess, metadata);
+                await NormalizeOriginals(filesToProcess, metadata, cancellationToken);
 
                 // verify normalized versions of originals
-                await FFMpegRunner.Verify(filesToProcess);
+                await FFMpegRunner.Verify(filesToProcess, cancellationToken);
 
                 // create list of files to process and add the original files that
                 // we know about
@@ -93,23 +93,23 @@ namespace Packager.Processors
                 // then use that file to create the derivatives
                 // then aggregate the results into the processed list
                 processedList = processedList.Concat(
-                    await CreateProdOrMezzDerivatives(processedList, metadata)).ToList();
+                    await CreateProdOrMezzDerivatives(processedList, metadata, cancellationToken)).ToList();
 
                 // now remove duplicate entries -- this could happen if production master
                 // already exists
                 processedList = processedList.RemoveDuplicates();
 
                 // now clear the ISFT field from presentation and production/mezz masters
-                await ClearMetadataFields(processedList);
+                await ClearMetadataFields(processedList, cancellationToken);
 
                 // generate the access versions from production masters
                 processedList = processedList.Concat(
-                    await CreateAccessDerivatives(processedList)).ToList();
+                    await CreateAccessDerivatives(processedList, cancellationToken)).ToList();
 
                 // create QC files
                 // add qc files to processed list
                 processedList = processedList.Concat(
-                    await CreateQualityControlFiles(processedList)).ToList();
+                    await CreateQualityControlFiles(processedList, cancellationToken)).ToList();
 
                 // using the list of files that have been processed
                 // make the xml file
@@ -140,16 +140,16 @@ namespace Packager.Processors
             }
         }
         
-        private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata)
+        private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
             foreach (var original in originals)
             {
                 var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
-                await FFMpegRunner.Normalize(original, metadata);
+                await FFMpegRunner.Normalize(original, metadata, cancellationToken);
             }
         }
         
-        private async Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models, T podMetadata)
+        private async Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models, T podMetadata, CancellationToken cancellationToken)
         {
             var results = new List<AbstractFile>();
             foreach (var master in models
@@ -158,20 +158,20 @@ namespace Packager.Processors
             {
                 var derivative = CreateProdOrMezzModel(master);
                 var metadata = EmbeddedMetadataFactory.Generate(models, derivative, podMetadata);
-                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata));
+                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata, cancellationToken));
             }
 
             return results;
         }
         
-        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models)
+        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models, CancellationToken cancellationToken)
         {
             var results = new List<AbstractFile>();
 
             // for each production master, create an access version
             foreach (var model in GetProdOrMezzModels(models))
             {
-                results.Add(await FFMpegRunner.CreateAccessDerivative(model));
+                results.Add(await FFMpegRunner.CreateAccessDerivative(model, cancellationToken));
             }
             return results;
         }

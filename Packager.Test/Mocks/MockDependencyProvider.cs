@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models;
@@ -72,10 +73,10 @@ namespace Packager.Test.Mocks
             if (ffmpegRunner == null)
             {
                 ffmpegRunner = Substitute.For<IFFMPEGRunner>();
-                ffmpegRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
+                ffmpegRunner.CreateAccessDerivative(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                     .Returns(a=> Task.FromResult((AbstractFile)new AccessFile(a.Arg<AbstractFile>())));
                     
-                ffmpegRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>())
+                ffmpegRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>(), Arg.Any<CancellationToken>())
                     .Returns(a => new AccessFile(a.Arg<AbstractFile>()));
             }
 

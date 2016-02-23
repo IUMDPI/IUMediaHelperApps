@@ -20,12 +20,9 @@ namespace Packager.Utilities.ProcessRunners
 {
     public abstract class AbstractFFMPEGRunner : IFFMPEGRunner
     {
-        private readonly CancellationToken _cancellationToken;
-
         protected AbstractFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner,
-            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher, CancellationToken cancellationToken)
+            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
         {
-            _cancellationToken = cancellationToken;
             FFMPEGPath = programSettings.FFMPEGPath;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
             Observers = observers;
@@ -55,7 +52,7 @@ namespace Packager.Utilities.ProcessRunners
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true
                 };
-                var result = await ProcessRunner.Run(info);
+                var result = await ProcessRunner.Run(info, CancellationToken.None);
 
                 var parts = result.StandardOutput.GetContent().Split(' ');
                 return parts[2];
@@ -66,7 +63,7 @@ namespace Packager.Utilities.ProcessRunners
             }
         }
 
-        public async Task Normalize(AbstractFile original, AbstractEmbeddedMetadata metadata)
+        public async Task Normalize(AbstractFile original, AbstractEmbeddedMetadata metadata, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Normalizing {0}", original.Filename);
             try
@@ -89,7 +86,7 @@ namespace Packager.Utilities.ProcessRunners
                     .AddArguments(metadata.AsArguments())
                     .AddArguments(targetPath.ToQuoted());
 
-                await RunProgram(arguments);
+                await RunProgram(arguments, cancellationToken);
                 Observers.EndSection(sectionKey, $"{original.Filename} normalized successfully");
             }
             catch (Exception e)
@@ -100,25 +97,25 @@ namespace Packager.Utilities.ProcessRunners
             }
         }
 
-        public async Task Verify(List<AbstractFile> originals)
+        public async Task Verify(List<AbstractFile> originals, CancellationToken cancellationToken)
         {
             foreach (var model in originals)
             {
-                await GenerateMd5Hashes(model);
-                await VerifyHashes(model);
+                await GenerateMd5Hashes(model, cancellationToken);
+                await VerifyHashes(model, cancellationToken);
             }
         }
 
         public abstract string ProdOrMezzArguments { get; }
         public abstract string AccessArguments { get; }
 
-        public async Task<AbstractFile> CreateAccessDerivative(AbstractFile original)
+        public async Task<AbstractFile> CreateAccessDerivative(AbstractFile original, CancellationToken cancellationToken)
         {
-            return await CreateDerivative(original, new AccessFile(original), new ArgumentBuilder(AccessArguments));
+            return await CreateDerivative(original, new AccessFile(original), new ArgumentBuilder(AccessArguments), cancellationToken);
         }
 
         public async Task<AbstractFile> CreateProdOrMezzDerivative(AbstractFile original, AbstractFile target,
-            AbstractEmbeddedMetadata metadata)
+            AbstractEmbeddedMetadata metadata, CancellationToken cancellationToken)
         {
             if (TargetAlreadyExists(target))
             {
@@ -129,10 +126,10 @@ namespace Packager.Utilities.ProcessRunners
             var args = new ArgumentBuilder(ProdOrMezzArguments)
                 .AddArguments(metadata.AsArguments());
 
-            return await CreateDerivative(original, target, args);
+            return await CreateDerivative(original, target, args, cancellationToken);
         }
 
-        private async Task RunProgram(IEnumerable arguments)
+        private async Task RunProgram(IEnumerable arguments, CancellationToken cancellationToken)
         {
             var startInfo = new ProcessStartInfo(FFMPEGPath)
             {
@@ -144,11 +141,11 @@ namespace Packager.Utilities.ProcessRunners
                 CreateNoWindow = true
             };
 
-            var result = await ProcessRunner.RunWithCancellation(startInfo, _cancellationToken);
+            var result = await ProcessRunner.Run(startInfo, cancellationToken);
 
             Observers.Log(FilterOutputLog(result.StandardError.GetContent()));
 
-            if (_cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
                 throw new UserCancelledException();
             }
@@ -200,7 +197,7 @@ namespace Packager.Utilities.ProcessRunners
         }
 
         private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
-            ArgumentBuilder arguments)
+            ArgumentBuilder arguments, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
             try
@@ -223,7 +220,7 @@ namespace Packager.Utilities.ProcessRunners
                     .AddArguments(arguments)
                     .AddArguments(outputPath.ToQuoted());
 
-                await RunProgram(completeArguments);
+                await RunProgram(completeArguments, cancellationToken);
 
                 Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.Filename}");
                 return target;
@@ -236,13 +233,13 @@ namespace Packager.Utilities.ProcessRunners
             }
         }
 
-        private async Task GenerateMd5Hashes(AbstractFile original)
+        private async Task GenerateMd5Hashes(AbstractFile original, CancellationToken cancellationToken)
         {
-            await GenerateMd5Hash(original, true);
-            await GenerateMd5Hash(original, false);
+            await GenerateMd5Hash(original, true, cancellationToken);
+            await GenerateMd5Hash(original, false, cancellationToken);
         }
 
-        private async Task GenerateMd5Hash(AbstractFile model, bool isOriginal)
+        private async Task GenerateMd5Hash(AbstractFile model, bool isOriginal, CancellationToken cancellationToken)
         {
             var sectionName = isOriginal
                 ? $"{model.Filename} (original)"
@@ -265,7 +262,7 @@ namespace Packager.Utilities.ProcessRunners
                 var arguments = new ArgumentBuilder($"-y -i {targetPath}")
                     .AddArguments($"-f framemd5 {md5Path}");
 
-                await RunProgram(arguments);
+                await RunProgram(arguments, cancellationToken);
                 Observers.EndSection(sectionKey, $"{sectionName} hashed successfully");
             }
             catch (Exception e)
@@ -276,7 +273,7 @@ namespace Packager.Utilities.ProcessRunners
             }
         }
 
-        private async Task VerifyHashes(AbstractFile model)
+        private async Task VerifyHashes(AbstractFile model, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Validating {0} (normalized)", model.Filename);
             try
@@ -289,7 +286,7 @@ namespace Packager.Utilities.ProcessRunners
                         originalFrameMd5Path);
                 }
 
-                var originalMd5Hash = await Hasher.Hash(originalFrameMd5Path, _cancellationToken);
+                var originalMd5Hash = await Hasher.Hash(originalFrameMd5Path, cancellationToken);
                 Observers.Log("original framemd5 hash: {0}", originalMd5Hash);
 
                 var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
@@ -300,7 +297,7 @@ namespace Packager.Utilities.ProcessRunners
                         normalizedFrameMd5Path);
                 }
 
-                var normalizedMd5Hash = await Hasher.Hash(normalizedFrameMd5Path, _cancellationToken);
+                var normalizedMd5Hash = await Hasher.Hash(normalizedFrameMd5Path, cancellationToken);
                 Observers.Log("normalized framemd5 hash: {0}", normalizedMd5Hash);
 
                 if (!originalMd5Hash.Equals(normalizedMd5Hash))

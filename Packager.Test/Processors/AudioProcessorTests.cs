@@ -31,9 +31,9 @@ namespace Packager.Test.Processors
 
         protected override void DoCustomSetup()
         {
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult((AbstractFile)new AccessFile(x.Arg<AbstractFile>())));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>())
+            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
 
             SectionKey = Guid.NewGuid().ToString();
@@ -227,14 +227,14 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(model as AbstractFile, ExpectedMetadata);
+                        FFMPEGRunner.Received().Normalize(model as AbstractFile, ExpectedMetadata, Arg.Any<CancellationToken>());
                     }
                 }
 
                 [Test]
                 public void ItShouldVerifyAllNormalizedFiles()
                 {
-                    FFMPEGRunner.Received().Verify(Arg.Is<List<AbstractFile>>(l => l.SequenceEqual(ModelList)));
+                    FFMPEGRunner.Received().Verify(Arg.Is<List<AbstractFile>>(l => l.SequenceEqual(ModelList)), Arg.Any<CancellationToken>());
                 }
             }
 
@@ -243,9 +243,10 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallBextProcessorWithCorrectListOfFields()
                 {
-                    BextProcessor.Received().ClearMetadataFields(Arg.Any<List<AbstractFile>>(),
-                        Arg.Is<List<BextFields>>(
-                            a => a.SequenceEqual(new List<BextFields> {BextFields.ISFT, BextFields.ITCH})));
+                    BextProcessor.Received().ClearMetadataFields(
+                        Arg.Any<List<AbstractFile>>(), 
+                        Arg.Is<List<BextFields>>(a => a.SequenceEqual(new List<BextFields> {BextFields.ISFT, BextFields.ITCH})), 
+                        Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -298,7 +299,7 @@ namespace Packager.Test.Processors
                 public void ItShouldCreateAccessFileFromProductionMaster()
                 {
                     FFMPEGRunner.Received()
-                        .CreateAccessDerivative(Arg.Is<AbstractFile>(m => m.IsProductionVersion()));
+                        .CreateAccessDerivative(Arg.Is<AbstractFile>(m => m.IsProductionVersion()), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -306,7 +307,7 @@ namespace Packager.Test.Processors
                 {
                     FFMPEGRunner.Received()
                         .CreateProdOrMezzDerivative(ExpectedMasterModel,
-                            Arg.Is<AbstractFile>(m => m.IsProductionVersion()), ExpectedMetadata);
+                            Arg.Is<AbstractFile>(m => m.IsProductionVersion()), ExpectedMetadata, Arg.Any<CancellationToken>());
                 }
             }
 

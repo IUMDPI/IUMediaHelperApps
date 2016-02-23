@@ -8,8 +8,8 @@ namespace Packager.Utilities.ProcessRunners
 {
     public class VideoFFMPEGRunner : AbstractFFMPEGRunner
     {
-        public VideoFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher, CancellationToken cancellationToken)
-            : base(programSettings, processRunner, observers, fileProvider, hasher, cancellationToken)
+        public VideoFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
+            : base(programSettings, processRunner, observers, fileProvider, hasher)
         {
             ProdOrMezzArguments = programSettings.FFMPEGVideoMezzanineArguments;
             AccessArguments = programSettings.FFMPEGVideoAccessArguments;

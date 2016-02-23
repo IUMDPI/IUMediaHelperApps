@@ -30,10 +30,10 @@ namespace Packager.Test.Processors
 
         protected override void DoCustomSetup()
         {
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>())
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult((AbstractFile) new AccessFile(x.Arg<AbstractFile>())));
             FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(),
-                Arg.Any<AbstractEmbeddedMetadata>())
+                Arg.Any<AbstractEmbeddedMetadata>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
             FFMPEGRunner.AccessArguments.Returns("Test");
 
@@ -229,14 +229,14 @@ namespace Packager.Test.Processors
                     foreach (var model in ModelList)
                     {
                         FFMPEGRunner.Received().Normalize(Arg.Is<AbstractFile>(m => m.Filename.Equals(model.Filename)),
-                            Arg.Any<AbstractEmbeddedVideoMetadata>());
+                            Arg.Any<AbstractEmbeddedVideoMetadata>(), Arg.Any<CancellationToken>());
                     }
                 }
 
                 [Test]
                 public void ItShouldVerifyAllNormalizedFiles()
                 {
-                    FFMPEGRunner.Received().Verify(Arg.Is<List<AbstractFile>>(l => l.SequenceEqual(ModelList)));
+                    FFMPEGRunner.Received().Verify(Arg.Is<List<AbstractFile>>(l => l.SequenceEqual(ModelList)), Arg.Any<CancellationToken>());
                 }
             }
 
@@ -268,24 +268,24 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallMetadataFactoryWithMezzanineMasterAsTarget()
                 {
-                    VideoMetadataFactory.Received()
-                        .Generate(Arg.Any<List<AbstractFile>>(),
-                            Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<VideoPodMetadata>());
+                    VideoMetadataFactory.Received().Generate(
+                        Arg.Any<List<AbstractFile>>(),
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), 
+                        Arg.Any<VideoPodMetadata>());
                 }
 
                 [Test]
                 public void ItShouldCreateAccessFileFromMezzanineMaster()
                 {
-                    FFMPEGRunner.Received()
-                        .CreateAccessDerivative(Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()));
+                    FFMPEGRunner.Received().CreateAccessDerivative(
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
                 public void ItShouldCreateProdFromMasterWithExpectedMetadata()
                 {
-                    FFMPEGRunner.Received()
-                        .CreateProdOrMezzDerivative(ExpectedMasterModel,
-                            Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), ExpectedMetadata);
+                    FFMPEGRunner.Received().CreateProdOrMezzDerivative(ExpectedMasterModel,
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), ExpectedMetadata, Arg.Any<CancellationToken>());
                 }
             }
 

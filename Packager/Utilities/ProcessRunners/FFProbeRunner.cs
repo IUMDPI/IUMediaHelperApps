@@ -18,12 +18,11 @@ namespace Packager.Utilities.ProcessRunners
     public class FFProbeRunner : IFFProbeRunner
     {
         public FFProbeRunner(IProgramSettings programSettings, IProcessRunner processRunner, IFileProvider fileProvider,
-            IObserverCollection observers, CancellationToken cancellationToken)
+            IObserverCollection observers)
         {
             ProcessRunner = processRunner;
             FileProvider = fileProvider;
             Observers = observers;
-            CancellationToken = cancellationToken;
             FFProbePath = programSettings.FFProbePath;
             VideoQualityControlArguments = programSettings.FFProbeVideoQualityControlArguments;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
@@ -32,8 +31,7 @@ namespace Packager.Utilities.ProcessRunners
         private IProcessRunner ProcessRunner { get; }
         private IFileProvider FileProvider { get; }
         private IObserverCollection Observers { get; }
-        private CancellationToken CancellationToken { get; set; }
-
+        
         private string BaseProcessingDirectory { get; }
 
         [ValidateFile]
@@ -42,7 +40,7 @@ namespace Packager.Utilities.ProcessRunners
         [Required]
         public string VideoQualityControlArguments { get; }
 
-        public async Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target)
+        public async Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Generating quality control file: {0}", target.Filename);
             try
@@ -72,12 +70,11 @@ namespace Packager.Utilities.ProcessRunners
 
                 using (var fileOutputBuffer = new FileOutputBuffer(xmlPath, FileProvider))
                 {
-                    await
-                        RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()));
+                    await RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()), 
+                        cancellationToken);
                 }
-
-                //FileProvider.WriteAllText(xmlPath, xml);
-                await FileProvider.ArchiveFile(xmlPath, archivePath, CancellationToken);
+                
+                await FileProvider.ArchiveFile(xmlPath, archivePath, cancellationToken);
 
                 Observers.EndSection(sectionKey, $"Quality control file generated successfully: {target.Filename}");
                 return qualityControlFile;
@@ -101,7 +98,7 @@ namespace Packager.Utilities.ProcessRunners
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true
                 };
-                var result = await ProcessRunner.Run(info);
+                var result = await ProcessRunner.Run(info, CancellationToken.None);
 
                 var parts = result.StandardOutput.GetContent().Split(' ');
                 return parts[2];
@@ -112,24 +109,24 @@ namespace Packager.Utilities.ProcessRunners
             }
         }
 
-        private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder)
+        private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder, CancellationToken cancellationToken)
         {
             var startInfo = new ProcessStartInfo(FFProbePath)
             {
                 Arguments = arguments.ToString(),
                 RedirectStandardError = true,
-                RedirectStandardOutput = false,
+                RedirectStandardOutput = true,
                 RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = workingFolder
             };
 
-            var result = await ProcessRunner.RunWithCancellation(startInfo, CancellationToken, outputbuffer);
+            var result = await ProcessRunner.Run(startInfo, cancellationToken, outputbuffer);
 
             Observers.Log(FilterOutputLog(result.StandardError.GetContent()));
 
-            if (CancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
                 throw new UserCancelledException();
             }
@@ -139,17 +136,7 @@ namespace Packager.Utilities.ProcessRunners
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
         }
-
-        private static void DoCancel(Process process)
-        {
-            if (process.HasExited)
-            {
-                return;
-            }
-
-            process.Kill();
-        }
-
+        
         private static string FilterOutputLog(string log)
         {
             var parts = log.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)

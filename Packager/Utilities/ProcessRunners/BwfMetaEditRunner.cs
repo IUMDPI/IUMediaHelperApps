@@ -19,22 +19,20 @@ namespace Packager.Utilities.ProcessRunners
         private const string VerboseArgument = "--verbose";
         private const string VersionArgument = "--version";
 
-        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory, CancellationToken cancellationToken)
+        public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory)
         {
             ProcessRunner = processRunner;
             BwfMetaEditPath = bwfMetaEditPath;
             BaseProcessingDirectory = baseProcessingDirectory;
-            CancellationToken = cancellationToken;
         }
 
         private IProcessRunner ProcessRunner { get; }
         private string BaseProcessingDirectory { get; }
-        private CancellationToken CancellationToken { get; }
-        
+     
         [ValidateFile]
         public string BwfMetaEditPath { get; }
 
-        public async Task<IProcessResult> ClearMetadata(AbstractFile model, IEnumerable<BextFields> fields)
+        public async Task<IProcessResult> ClearMetadata(AbstractFile model, IEnumerable<BextFields> fields, CancellationToken cancellationToken)
         {
             var arguments = new ArgumentBuilder(VerboseArgument);
         
@@ -44,14 +42,14 @@ namespace Packager.Utilities.ProcessRunners
             }
 
             arguments.AddArguments(Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.Filename).ToQuoted());
-            return await ExecuteBextProcess(arguments);
+            return await ExecuteBextProcess(arguments, cancellationToken);
         }
 
         public async Task<string> GetVersion()
         {
             try
             {
-                var result = await ExecuteBextProcess(new ArgumentBuilder(VersionArgument));
+                var result = await ExecuteBextProcess(new ArgumentBuilder(VersionArgument), CancellationToken.None);
 
                 var parts = result.StandardOutput.GetContent().Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
                 return parts.Last();
@@ -62,7 +60,7 @@ namespace Packager.Utilities.ProcessRunners
             }
         }
 
-        private async Task<IProcessResult> ExecuteBextProcess(IEnumerable arguments)
+        private async Task<IProcessResult> ExecuteBextProcess(IEnumerable arguments, CancellationToken cancellationToken)
         {
             var startInfo = new ProcessStartInfo(BwfMetaEditPath)
             {
@@ -73,7 +71,7 @@ namespace Packager.Utilities.ProcessRunners
                 CreateNoWindow = true,
             };
 
-            return await ProcessRunner.RunWithCancellation(startInfo, CancellationToken);
+            return await ProcessRunner.Run(startInfo, cancellationToken);
         }
     }
 }

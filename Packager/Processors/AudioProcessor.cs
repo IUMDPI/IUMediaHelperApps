@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -40,14 +41,13 @@ namespace Packager.Processors
             return models.Where(m => m.IsProductionVersion());
         }
 
-        protected override async Task ClearMetadataFields(List<AbstractFile> processedList)
+        protected override async Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Clearing metadata fields");
             try
             {
-                await
-                    BextProcessor.ClearMetadataFields(processedList,
-                        new List<BextFields> {BextFields.ISFT, BextFields.ITCH});
+                var fieldsToClear = new List<BextFields> {BextFields.ISFT, BextFields.ITCH};
+                await BextProcessor.ClearMetadataFields(processedList, fieldsToClear, cancellationToken);
                 Observers.EndSection(sectionKey, "Metadata fields cleared successfully");
             }
             catch (Exception e)
@@ -58,7 +58,7 @@ namespace Packager.Processors
             }
         }
 
-        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList)
+        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken)
         {
             // do nothing here
             return await Task.FromResult(new List<AbstractFile>());

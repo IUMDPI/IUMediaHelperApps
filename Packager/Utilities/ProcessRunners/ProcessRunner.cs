@@ -9,41 +9,7 @@ namespace Packager.Utilities.ProcessRunners
 {
     public class ProcessRunner : IProcessRunner
     {
-        public Task<IProcessResult> Run(ProcessStartInfo startInfo, IOutputBuffer outputBuffer =null, IOutputBuffer errorBuffer = null)
-        {
-            startInfo.UseShellExecute = false;
-
-            var completionSource = new TaskCompletionSource<IProcessResult>();
-            
-            var process = new Process
-            {
-                StartInfo = startInfo,
-                EnableRaisingEvents = true,
-            };
-
-            if (outputBuffer == null)
-            {
-                outputBuffer = new StringOutputBuffer();
-            }
-
-            if (errorBuffer == null)
-            {
-                errorBuffer = new StringOutputBuffer();
-            }
-
-            ConfigureEventHandlers(process, startInfo, outputBuffer, errorBuffer, completionSource);
-            
-            if (process.Start() == false)
-            {
-                completionSource.TrySetException(new InvalidOperationException("Failed to start process"));
-            }
-
-            BeginCaptureOutput(process, startInfo);
-            
-            return completionSource.Task;
-        }
-
-        public Task<IProcessResult> RunWithCancellation(ProcessStartInfo startInfo, CancellationToken cancellationToken,
+        public Task<IProcessResult> Run(ProcessStartInfo startInfo, CancellationToken cancellationToken,
             IOutputBuffer outputBuffer = null, IOutputBuffer errorBuffer = null)
         {
             startInfo.UseShellExecute = false;
@@ -54,7 +20,6 @@ namespace Packager.Utilities.ProcessRunners
             {
                 StartInfo = startInfo,
                 EnableRaisingEvents = true
-                
             };
 
             if (outputBuffer == null)

@@ -23,7 +23,6 @@ namespace Packager.Providers
     {
         public DefaultDependencyProvider(IProgramSettings programSettings)
         {
-            CancellationTokenSource = new CancellationTokenSource();
             ProgramSettings = programSettings;
             Hasher = new Hasher(ProgramSettings.ProcessingDirectory);
             XmlExporter = new XmlExporter();
@@ -39,10 +38,10 @@ namespace Packager.Providers
             Observers = new ObserverCollection();
             AudioMetadataFactory = new EmbeddedAudioMetadataFactory(ProgramSettings);
             VideoMetadataFactory = new EmbeddedVideoMetadataFactory(ProgramSettings);
-            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,ProgramSettings.ProcessingDirectory, CancellationTokenSource.Token);
+            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,ProgramSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
-            AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationTokenSource.Token);
-            VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher, CancellationTokenSource.Token);
+            AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ImportableFactory = new ImportableFactory();
             ValidatorCollection = new StandardValidatorCollection
@@ -58,7 +57,7 @@ namespace Packager.Providers
                 ValidatorCollection);
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, ProgramSettings.SuccessDirectoryName,
                 new TimeSpan(ProgramSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
-            FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers, CancellationTokenSource.Token);
+            FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
            
         }
 
@@ -123,9 +122,7 @@ namespace Packager.Providers
         
         [ValidateObject]
         public IFFProbeRunner FFProbeRunner { get; }
-
-        public CancellationTokenSource CancellationTokenSource { get; }
-
+        
         [ValidateObject]
         public IBwfMetaEditRunner MetaEditRunner { get; }
 

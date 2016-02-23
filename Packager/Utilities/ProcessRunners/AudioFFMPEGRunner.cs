@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Packager.Extensions;
+﻿using Packager.Extensions;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
@@ -13,8 +12,9 @@ namespace Packager.Utilities.ProcessRunners
         private const string RequiredProductionBextArguments = "-write_bext 1";
         private const string RequiredProductionRiffArguments = "-rf64 auto";
 
-        public AudioFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner, IObserverCollection observers, IFileProvider fileProvider, IHasher hasher, CancellationToken cancellationToken) :
-            base(programSettings, processRunner, observers, fileProvider, hasher, cancellationToken)
+        public AudioFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner,
+            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher) :
+                base(programSettings, processRunner, observers, fileProvider, hasher)
         {
             AccessArguments = programSettings.FFMPEGAudioAccessArguments;
             ProdOrMezzArguments = AddRequiredArguments(programSettings.FFMPEGAudioProductionArguments);

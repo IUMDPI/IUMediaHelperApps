@@ -39,7 +39,5 @@ namespace Packager.Providers
         IEmbeddedMetadataFactory<AudioPodMetadata> AudioMetadataFactory { get; }
         IEmbeddedMetadataFactory<VideoPodMetadata> VideoMetadataFactory { get; }
         IFFProbeRunner FFProbeRunner { get; }
-        
-        CancellationTokenSource CancellationTokenSource { get; }
     }
 }

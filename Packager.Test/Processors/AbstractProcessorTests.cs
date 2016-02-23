@@ -112,7 +112,7 @@ namespace Packager.Test.Processors
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFProbeRunner = Substitute.For<IFFProbeRunner>();
-            FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>())
+            FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                 .Returns(a => Task.FromResult(new QualityControlFile(a.Arg<AbstractFile>())));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();

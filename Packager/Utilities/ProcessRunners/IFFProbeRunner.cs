@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Packager.Models.FileModels;
 
 namespace Packager.Utilities.ProcessRunners
@@ -7,7 +8,7 @@ namespace Packager.Utilities.ProcessRunners
     {
         string FFProbePath { get; }
         string VideoQualityControlArguments { get; }
-        Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target);
+        Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target, CancellationToken cancellationToken);
 
         Task<string> GetVersion();
     }

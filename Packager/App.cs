@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
+using System.Threading;
 using System.Windows;
 using NLog.Config;
 using Packager.Engine;
@@ -23,12 +24,13 @@ namespace Packager
 
             ConfigureNLog();
         
+            var cancellationTokenSource = new CancellationTokenSource();
             // initialize dependency provider with program settings
             var dependencyProvider = new DefaultDependencyProvider(
                 SettingsFactory.Import(ConfigurationManager.AppSettings));
-
+            
             // create the view model
-            var viewModel = new ViewModel(dependencyProvider.CancellationTokenSource);
+            var viewModel = new ViewModel(cancellationTokenSource);
 
             // create the window
             var window = new OutputWindow();
@@ -50,7 +52,7 @@ namespace Packager
             var engine = new StandardEngine(processors, dependencyProvider, viewModel);
 
             // start the engine
-            await engine.Start(dependencyProvider.CancellationTokenSource.Token);
+            await engine.Start(cancellationTokenSource.Token);
         }
 
         private static void AddObservers(IDependencyProvider dependencyProvider, ViewModel viewModel)

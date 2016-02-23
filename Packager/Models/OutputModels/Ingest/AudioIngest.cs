@@ -21,11 +21,11 @@ namespace Packager.Models.OutputModels.Ingest
         [XmlElement(Order = 13, ElementName = "Player")]
         public Device[] Players { get; set; }
 
-        [XmlElement(Order = 14, ElementName = "AD")]
-        public Device[] AdDevices { get; set; }
-
-        [XmlElement(Order = 15, ElementName = "PreAmp")]
+        [XmlElement(Order = 14, ElementName = "PreAmp")]
         public Device[] PreAmpDevices { get; set; }
+
+        [XmlElement(Order = 15, ElementName = "AD")]
+        public Device[] AdDevices { get; set; }
 
         [XmlElement(Order = 16, ElementName = "Extraction_workstation")]
         public Device ExtractionWorkstation { get; set; }

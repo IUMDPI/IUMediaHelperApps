@@ -30,10 +30,12 @@ namespace Packager.Models.OutputModels.Ingest
         [XmlElement(Order = 8, ElementName = "AD")]
         public Device[] AdDevices { get; set; }
 
-        [XmlElement(Order = 9, ElementName = "Extraction_workstation")]
+        [XmlElement(Order = 9)]
+        public Device Encoder { get; set; }
+
+        [XmlElement(Order = 10, ElementName = "Extraction_workstation")]
         public Device ExtractionWorkstation { get; set; }
 
-        [XmlElement(Order = 10)]
-        public Device Encoder { get; set; }
+        
     }
 }

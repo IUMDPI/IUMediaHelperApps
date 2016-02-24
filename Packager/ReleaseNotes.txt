@@ -46,9 +46,11 @@
 2.4.0.0		2/12/2016	removing dropbox file validation
 						fixing issues embedding metadata
 2.5.0.0		2/18/2016	rolloff xml field should appear after turnover field in export xml
-2.6.0.0		2/24/2016	added support for new consolidated POD metadata fields
+2.6.0.0		2/19/2016	fixing names of device nodes; adding PreAmp devices nodes for audio
+2.7.0.0		2/24/2016	added support for new consolidated POD metadata fields
 						includes ingest elements for all original files in output xml
 						standardizes order of devices in output xml
 						added cancel button to user interface
+
 
 					

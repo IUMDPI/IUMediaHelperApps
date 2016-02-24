@@ -3,21 +3,22 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
 using Packager.Models.FileModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Validators.Attributes;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class FFProbeRunner : IFFProbeRunner
     {
-        public FFProbeRunner(IProgramSettings programSettings, IProcessRunner processRunner, IFileProvider fileProvider, IObserverCollection observers)
+        public FFProbeRunner(IProgramSettings programSettings, IProcessRunner processRunner, IFileProvider fileProvider,
+            IObserverCollection observers)
         {
             ProcessRunner = processRunner;
             FileProvider = fileProvider;
@@ -39,7 +40,7 @@ namespace Packager.Utilities.Process
         [Required]
         public string VideoQualityControlArguments { get; }
 
-        public async Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target)
+        public async Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Generating quality control file: {0}", target.Filename);
             try
@@ -69,15 +70,14 @@ namespace Packager.Utilities.Process
 
                 using (var fileOutputBuffer = new FileOutputBuffer(xmlPath, FileProvider))
                 {
-                    await RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()));
-                } 
-
-                //FileProvider.WriteAllText(xmlPath, xml);
-                await FileProvider.ArchiveFile(xmlPath, archivePath);
+                    await RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()), 
+                        cancellationToken);
+                }
+                
+                await FileProvider.ArchiveFile(xmlPath, archivePath, cancellationToken);
 
                 Observers.EndSection(sectionKey, $"Quality control file generated successfully: {target.Filename}");
                 return qualityControlFile;
-
             }
             catch (Exception e)
             {
@@ -91,8 +91,14 @@ namespace Packager.Utilities.Process
         {
             try
             {
-                var info = new ProcessStartInfo(FFProbePath) { Arguments = "-version" };
-                var result = await ProcessRunner.Run(info);
+                var info = new ProcessStartInfo(FFProbePath)
+                {
+                    Arguments = "-version",
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true
+                };
+                var result = await ProcessRunner.Run(info, CancellationToken.None);
 
                 var parts = result.StandardOutput.GetContent().Split(' ');
                 return parts[2];
@@ -102,37 +108,43 @@ namespace Packager.Utilities.Process
                 return "";
             }
         }
-        
-        private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder)
+
+        private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder, CancellationToken cancellationToken)
         {
             var startInfo = new ProcessStartInfo(FFProbePath)
             {
                 Arguments = arguments.ToString(),
                 RedirectStandardError = true,
-                RedirectStandardOutput = false,
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = workingFolder
             };
 
-            var result = await ProcessRunner.Run(startInfo, outputbuffer);
+            var result = await ProcessRunner.Run(startInfo, cancellationToken, outputbuffer);
 
             Observers.Log(FilterOutputLog(result.StandardError.GetContent()));
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                throw new UserCancelledException();
+            }
 
             if (result.ExitCode != 0)
             {
                 throw new GenerateDerivativeException("Could not generate derivative: {0}", result.ExitCode);
             }
         }
-
+        
         private static string FilterOutputLog(string log)
         {
-            var parts = log.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+            var parts = log.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
                 .Where(p => p.StartsWith("[Parsed_cropdetect_2") == false) // remove frame entries
                 .ToList();
 
             // insert empty line before remaining "Parsed" lines
-            parts.InsertBefore(p=>p.StartsWith("[Parsed_"), string.Empty);
+            parts.InsertBefore(p => p.StartsWith("[Parsed_"), string.Empty);
             // insert empty line before "Input #0" line
             parts.InsertBefore(p => p.StartsWith("Input #0"), string.Empty);
             return string.Join("\n", parts);

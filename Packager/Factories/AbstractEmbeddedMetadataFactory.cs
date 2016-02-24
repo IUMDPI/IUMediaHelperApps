@@ -29,18 +29,9 @@ namespace Packager.Factories
         protected abstract AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
             T metadata);
         
-        protected string GenerateDescription(AbstractPodMetadata metadata, IProgramSettings settings, AbstractFile model)
+        protected string GenerateDescription(AbstractPodMetadata metadata, AbstractFile model)
         {
-            var parts = new[]
-            {
-                settings.UnitPrefix,
-                metadata.Unit,
-                metadata.CallNumber,
-                $"File use: {model.FullFileUse}",
-                Path.GetFileNameWithoutExtension(model.Filename)
-            };
-
-            return string.Join(". ", parts.Where(p => p.IsSet()));
+            return $"{metadata.Bext} {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.Filename)}";
         }
 
         protected static string GetDateString(DateTime? date, string format, string defaultValue)

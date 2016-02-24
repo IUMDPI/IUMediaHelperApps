@@ -80,6 +80,7 @@
     <Compile Include="Attributes\AbstractFromConfigSettingAttribute.cs" />
     <Compile Include="Attributes\BextFieldAttribute.cs" />
     <Compile Include="Attributes\FFMPEGArgumentAttribute.cs" />
+    <Compile Include="Exceptions\UserCancelledException.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\AudioCarrierDataFactory.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
@@ -122,6 +123,8 @@
     <Compile Include="Models\PodMetadataModels\DigitalAudioFile.cs" />
     <Compile Include="Models\PodMetadataModels\DigitalVideoFile.cs" />
     <Compile Include="Models\PodMetadataModels\VideoPodMetadata.cs" />
+    <Compile Include="Observers\AbstractNLogObserver.cs" />
+    <Compile Include="Observers\ObjectNLogObserver.cs" />
     <Compile Include="Observers\ObserverCollectionEqualityComparer.cs" />
     <Compile Include="Processors\VideoProcessor.cs" />
     <Compile Include="Properties\Annotations.cs" />
@@ -130,21 +133,26 @@
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />
+    <Compile Include="UserInterface\CancelPanel.xaml.cs">
+      <DependentUpon>CancelPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\IViewModel.cs" />
+    <Compile Include="UserInterface\RelayCommand.cs" />
     <Compile Include="Utilities\Bext\BextFields.cs" />
     <Compile Include="Utilities\FileSystem\SuccessFolderCleaner.cs" />
-    <Compile Include="Utilities\Process\AbstractFFMPEGRunner.cs" />
-    <Compile Include="Utilities\Process\ArgumentBuilder.cs" />
-    <Compile Include="Utilities\Process\AudioFFMPEGRunner.cs" />
-    <Compile Include="Utilities\Process\BwfMetaEditRunner.cs" />
-    <Compile Include="Utilities\Process\FFProbeRunner.cs" />
-    <Compile Include="Utilities\Process\FileOutputBuffer.cs" />
-    <Compile Include="Utilities\Process\IBwfMetaEditRunner.cs" />
-    <Compile Include="Utilities\Process\IFFMpegRunner.cs" />
-    <Compile Include="Utilities\Process\IFFProbeRunner.cs" />
-    <Compile Include="Utilities\Process\IOutputBuffer.cs" />
+    <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\ArgumentBuilder.cs" />
+    <Compile Include="Utilities\ProcessRunners\AudioFFMPEGRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\BwfMetaEditRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\FFProbeRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\FileOutputBuffer.cs" />
+    <Compile Include="Utilities\ProcessRunners\IBwfMetaEditRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\IFFMpegRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\IFFProbeRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\IOutputBuffer.cs" />
     <Compile Include="Utilities\FileSystem\ISuccessFolderCleaner.cs" />
-    <Compile Include="Utilities\Process\StringOutputBuffer.cs" />
-    <Compile Include="Utilities\Process\VideoFFMPEGRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\StringOutputBuffer.cs" />
+    <Compile Include="Utilities\ProcessRunners\VideoFFMPEGRunner.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
@@ -223,14 +231,14 @@
     <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Factories\IIngestDataFactory.cs" />
     <Compile Include="Factories\ICarrierDataFactory.cs" />
-    <Compile Include="Utilities\Process\IProcessRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\IProcessRunner.cs" />
     <Compile Include="Factories\ISideDataFactory.cs" />
     <Compile Include="Factories\VideoCarrierDataFactory.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\Xml\IXmlExporter.cs" />
     <Compile Include="Providers\DefaultDependencyProvider.cs" />
     <Compile Include="Models\EmailMessageModels\ProcessingIssueMessage.cs" />
-    <Compile Include="Utilities\Process\ProcessRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\ProcessRunner.cs" />
     <Compile Include="Utilities\Xml\XmlExporter.cs" />
     <Compile Include="Validators\DirectoryExistsValidator.cs" />
     <Compile Include="Validators\FileExistsValidator.cs" />
@@ -287,6 +295,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="UserInterface\CancelPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserInterface\View.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

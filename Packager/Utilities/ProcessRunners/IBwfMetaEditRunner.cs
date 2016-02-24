@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
 using Packager.Utilities.Bext;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public interface IBwfMetaEditRunner
     {
         string BwfMetaEditPath { get; }
-        //Task<IProcessResult> AddMetadata(ObjectFileModel model, BextMetadata core);
-        //Task<IProcessResult> ClearMetadata(ObjectFileModel model);
-
-        Task<IProcessResult> ClearMetadata(AbstractFile model, IEnumerable<BextFields> fields);
+        Task<IProcessResult> ClearMetadata(AbstractFile model, IEnumerable<BextFields> fields, CancellationToken cancellationToken);
         Task<string> GetVersion();
     }
 }

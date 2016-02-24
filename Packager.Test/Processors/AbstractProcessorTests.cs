@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -15,7 +16,7 @@ using Packager.Processors;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 
@@ -111,7 +112,7 @@ namespace Packager.Test.Processors
             BextProcessor = Substitute.For<IBextProcessor>();
             FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
             FFProbeRunner = Substitute.For<IFFProbeRunner>();
-            FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>())
+            FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                 .Returns(a => Task.FromResult(new QualityControlFile(a.Arg<AbstractFile>())));
 
             DependencyProvider = Substitute.For<IDependencyProvider>();
@@ -134,7 +135,7 @@ namespace Packager.Test.Processors
 
             DoCustomSetup();
 
-            Result = await Processor.ProcessFile(GetGrouping(ModelList));
+            Result = await Processor.ProcessObject(GetGrouping(ModelList), CancellationToken.None);
         }
     }
 }

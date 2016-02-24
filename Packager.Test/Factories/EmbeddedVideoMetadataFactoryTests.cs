@@ -29,6 +29,8 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
                 CallNumber = CallNumber,
                 Format = "Record",
                 Title = Title,
+                Iarl = Iarl,
+                Bext = Bext,
                 FileProvenances = new List<AbstractDigitalFile> {PresProvenance, MezzProvenance}
             };
 
@@ -44,6 +46,8 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         private const string Unit = "Test unit";
         private const string CallNumber = "AB1243";
         private const string Title = "Test title";
+        private const string Iarl = "Indiana University-Bloomington. Office of University Archives and Records Management";
+        private const string Bext = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use:";
 
         private string FilenameToUseForTesting { get; set; }
         private AbstractFile ModelToUseForTesting { get; set; }
@@ -53,7 +57,6 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         private DigitalVideoFile PresProvenance { get; set; }
         private DigitalVideoFile MezzProvenance { get; set; }
         private VideoPodMetadata Metadata { get; set; }
-
         private List<AbstractFile> Instances { get; set; }
 
         protected virtual void DoCustomSetup()
@@ -103,6 +106,12 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         }
 
         [Test]
+        public void DescriptionShouldBeCorrect()
+        {
+            Assert.That(Result.Description, Is.EqualTo($"{Bext} {ModelToUseForTesting.FullFileUse}. {Path.GetFileNameWithoutExtension(ModelToUseForTesting.Filename)}"));
+        }
+
+        [Test]
         public void TitleShouldBeCorrect()
         {
             Assert.That(Result.Title, Is.EqualTo(Metadata.Title));
@@ -118,41 +127,6 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         public void CommentShouldBeCorrect()
         {
             Assert.That(Result.Comment, Is.EqualTo($"File created by {Metadata.DigitizingEntity}"));
-        }
-
-        public class WhenCallNumberIsSet : EmbeddedVideoMetadataFactoryTests
-        {
-            protected override void DoCustomSetup()
-            {
-                base.DoCustomSetup();
-                FilenameToUseForTesting = PresFilename;
-                ModelToUseForTesting = PresModel;
-            }
-
-            [Test]
-            public void DescriptionShouldBeCorrect()
-            {
-                var expected = $"{Unit}. {CallNumber}. File use: {ModelToUseForTesting.FullFileUse}. {Path.GetFileNameWithoutExtension(FilenameToUseForTesting)}";
-                Assert.That(Result.Description, Is.EqualTo(expected));
-            }
-        }
-
-        public class WhenCallNumberIsNotSet : EmbeddedVideoMetadataFactoryTests
-        {
-            protected override void DoCustomSetup()
-            {
-                base.DoCustomSetup();
-                Metadata.CallNumber = "";
-                FilenameToUseForTesting = PresFilename;
-                ModelToUseForTesting = PresModel;
-            }
-
-            [Test]
-            public void DescriptionShouldBeCorrect()
-            {
-                var expected = $"{Unit}. File use: {ModelToUseForTesting.FullFileUse}. {Path.GetFileNameWithoutExtension(FilenameToUseForTesting)}";
-                Assert.That(Result.Description, Is.EqualTo(expected));
-            }
         }
 
         public class WhenModelIsPreservationMaster : EmbeddedVideoMetadataFactoryTests

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -5,6 +6,7 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Ingest;
 using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories
@@ -29,10 +31,18 @@ namespace Packager.Factories
             return sideGroupings.Select(grouping => new SideData
             {
                 Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
-                Files = grouping.Select(GetFileData).ToList(),
-                Ingest = IngestDataFactory.Generate(podMetadata, grouping.GetPreservationOrIntermediateModel()),
+                Files = grouping.OrderBy(model=>model.Precedence).Select(GetFileData).ToList(),
+                Ingest = GenerateAudioIngestElements(podMetadata, grouping),
                 ManualCheck = "No"
             }).ToArray();
+        }
+
+        private List<AbstractIngest> GenerateAudioIngestElements(AbstractPodMetadata podMetadata,
+            IEnumerable<AbstractFile> models)
+        {
+            return GetMatchingProvenances<DigitalAudioFile>(podMetadata, models)
+               .Select(IngestDataFactory.Generate)
+               .ToList();
         }
 
         public SideData[] Generate(VideoPodMetadata podMetadata, IEnumerable<AbstractFile> filesToProcess)
@@ -46,11 +56,29 @@ namespace Packager.Factories
             return sideGroupings.Select(grouping => new SideData
             {
                 Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
-                Files = grouping.Select(GetFileData).ToList(),
-                Ingest = IngestDataFactory.Generate(podMetadata, grouping.GetPreservationOrIntermediateModel()),
+                Files = grouping.OrderBy(model => model.Precedence).Select(GetFileData).ToList(),
+                Ingest = GenerateVideoIngestElements(podMetadata, grouping),
                 ManualCheck = "No", // todo: ok?
                 QCStatus = "OK" // todo: ok?
             }).ToArray();
+        }
+
+        private List<AbstractIngest> GenerateVideoIngestElements(AbstractPodMetadata podMetadata,
+           IEnumerable<AbstractFile> models)
+        {
+            return GetMatchingProvenances<DigitalVideoFile>(podMetadata, models)
+               .Select(IngestDataFactory.Generate)
+               .ToList();
+        }
+
+        private static List<T> GetMatchingProvenances<T>(AbstractPodMetadata podMetadata,
+            IEnumerable<AbstractFile> filesToProcess) where T : AbstractDigitalFile
+        {
+            // intersect digital provenances with applicable models
+            return filesToProcess
+                .OrderBy(model => model.Precedence)
+                .Select(model => podMetadata.FileProvenances.GetFileProvenance(model) as T)
+                .Where(provenance => provenance != null).ToList();
         }
 
         private static File GetFileData(AbstractFile model)

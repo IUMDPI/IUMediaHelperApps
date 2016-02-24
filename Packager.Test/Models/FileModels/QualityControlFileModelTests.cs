@@ -28,6 +28,12 @@ namespace Packager.Test.Models.FileModels
         }
 
         [Test]
+        public void PrecedenceShouldBeCorrect()
+        {
+            Assert.That(Model.Precedence, Is.EqualTo(4));
+        }
+
+        [Test]
         public void FileUseShouldBeCorrect()
         {
             Assert.That(Model.FileUse, Is.EqualTo("pres"));

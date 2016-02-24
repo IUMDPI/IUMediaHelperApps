@@ -26,7 +26,7 @@ namespace Packager.Factories
         {
             return new T
             {
-                Description = GenerateDescription(metadata, ProgramSettings, model),
+                Description = GenerateDescription(metadata, model),
                 Title = metadata.Title,
                 MasteredDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                 Comment = $"File created by {metadata.DigitizingEntity}"

@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Providers;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Processors
 {
@@ -37,20 +38,20 @@ namespace Packager.Processors
             return models.Where(m => m.IsMezzanineVersion());
         }
 
-        protected override async Task ClearMetadataFields(List<AbstractFile> processedList)
+        protected override async Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken)
         {
             // do nothing
             await Task.FromResult(0);
         }
 
-        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList)
+        protected override async Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken)
         {
             var results = new List<AbstractFile>();
             foreach (
                 var model in
                     processedList.Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion()))
             {
-                results.Add(await FFProbeRunner.GenerateQualityControlFile(model));
+                results.Add(await FFProbeRunner.GenerateQualityControlFile(model, cancellationToken));
             }
 
             return results;

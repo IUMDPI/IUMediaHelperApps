@@ -41,11 +41,14 @@ namespace Packager.Test.Factories
             PreservationIntermediateSide1FileModel.Checksum = "presInt 1 hash";
 
             IngestDataFactory = Substitute.For<IIngestDataFactory>();
-            IngestDataFactory.Generate((AudioPodMetadata)null, null).ReturnsForAnyArgs(new AudioIngest());
+            IngestDataFactory.Generate(Arg.Any<DigitalAudioFile>()).ReturnsForAnyArgs(
+                x=>new AudioIngest {FileName = x.Arg<DigitalAudioFile>().Filename});
 
             PodMetadata = new AudioPodMetadata();
 
             DoCustomSetup();
+
+            AddProvenancesForModels();
 
             var factory = new SideDataFactory(IngestDataFactory);
             Results = factory.Generate(PodMetadata, FilesToProcess);
@@ -83,16 +86,15 @@ namespace Packager.Test.Factories
             ExpectedSides = 1;
         }
 
-        public class WhenPreservationIntermediateMasterPresent : AudioSideDataFactoryTests
+        private void AddProvenancesForModels()
         {
-            protected override void DoCustomSetup()
+            PodMetadata.FileProvenances = new List<AbstractDigitalFile>();
+            foreach (var model in FilesToProcess)
             {
-                base.DoCustomSetup();
-                FilesToProcess.Add(PreservationIntermediateSide1FileModel);
-                ExpectedSide1MasterFileModel = PreservationIntermediateSide1FileModel;
+                PodMetadata.FileProvenances.Add(new DigitalAudioFile {Filename = model.Filename});
             }
         }
-
+    
         public class WhenMoreThanOneAudioSidePresent : AudioSideDataFactoryTests
         {
             protected override void DoCustomSetup()
@@ -111,12 +113,6 @@ namespace Packager.Test.Factories
                 ExpectedSide2MasterFileModel = PreservationSide2FileModel;
                 ExpectedSides = 2;
             }
-
-            [Test]
-            public void ItShouldCallIngestFactoryCorrectlyForSide2()
-            {
-                IngestDataFactory.Received(1).Generate(PodMetadata, ExpectedSide2MasterFileModel);
-            }
         }
 
         [Test]
@@ -124,24 +120,56 @@ namespace Packager.Test.Factories
         {
             for (var i = 0; i < Results.Length; i++)
             {
-                var side = Results[i];
-                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).ToList();
+                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).OrderBy(m=>m.Precedence).ToArray();
 
-                Assert.That(side.Files.Count, Is.EqualTo(modelsForSide.Count));
+                AssertOrderExpected(Results[i].Files.ToArray(), modelsForSide);
+            }
+        }
+
+        [Test]
+        public void ItShouldCallIngestFactoryCorrectlyForSideParts()
+        {
+            for (var i = 0; i < Results.Length; i++)
+            {
+                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).ToList();
 
                 foreach (var model in modelsForSide)
                 {
-                    var fileData = side.Files.SingleOrDefault(f => f.FileName.Equals(model.Filename));
-                    Assert.That(fileData, Is.Not.Null);
-                    Assert.That(string.IsNullOrWhiteSpace(fileData.Checksum), Is.False);
+                    IngestDataFactory.Received()
+                        .Generate(Arg.Is<DigitalAudioFile>(file => file.Filename.Equals(model.Filename)));
                 }
             }
         }
 
         [Test]
-        public void ItShouldCallIngestFactoryCorrectlyForSide1()
+        public void IngestElementsShouldBePresentAndInCorrectOrder()
         {
-            IngestDataFactory.Received(1).Generate(PodMetadata, ExpectedSide1MasterFileModel);
+            for (var i = 0; i < Results.Length; i++)
+            {
+                var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1))
+                    .OrderBy(m=>m.Precedence).ToArray();
+                AssertOrderExpected(Results[i].Ingest.ToArray(), modelsForSide);
+            }
+        }
+
+        private static void AssertOrderExpected(IReadOnlyList<File> fileElements, IReadOnlyList<AbstractFile> models)
+        {
+            Assert.That(fileElements.Count, Is.EqualTo(models.Count));
+            for (var i = 0; i < fileElements.Count; i++)
+            {
+                Assert.That(fileElements[i].FileName, Is.EqualTo(models[i].Filename));
+                Assert.That(fileElements[i].Checksum, Is.Not.Null);
+            }
+        }
+
+
+        private static void AssertOrderExpected(IReadOnlyList<AbstractIngest> ingestElements, IReadOnlyList<AbstractFile> models)
+        {
+            Assert.That(ingestElements.Count, Is.EqualTo(models.Count));
+            for (var i = 0; i < ingestElements.Count; i++)
+            {
+                Assert.That(((AudioIngest)ingestElements[i]).FileName, Is.EqualTo(models[i].Filename));
+            }
         }
 
         [Test]

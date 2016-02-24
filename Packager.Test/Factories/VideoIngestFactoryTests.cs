@@ -15,9 +15,6 @@ namespace Packager.Test.Factories
     public class VideoIngestFactoryTests
     {
         private const string GoodFileName = "MDPI_4890764553278906_01_pres.mkv";
-        private const string MissingFileName = "MDPI_111111111111_01_pres.mkv";
-
-        private VideoPodMetadata PodMetadata { get; set; }
         private AbstractFile FileModel { get; set; }
         private DigitalVideoFile Provenance { get; set; }
         private VideoIngest Result { get; set; }
@@ -87,61 +84,26 @@ namespace Packager.Test.Factories
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 Provenance.DateDigitized = null;
-
-                PodMetadata = new VideoPodMetadata
-                {
-                    Format = "8mm Video",
-                    FileProvenances = new List<AbstractDigitalFile> {Provenance}
-                };
             }
 
             [Test]
             public void ShouldThrowOutputXmlException()
             {
                 var factory = new IngestDataFactory();
-                Assert.Throws<OutputXmlException>(() => factory.Generate(PodMetadata, FileModel));
+                Assert.Throws<OutputXmlException>(() => factory.Generate(Provenance));
             }
         }
 
-        public class WhenProvenanceIsMissing : VideoIngestFactoryTests
-        {
-            [SetUp]
-            public void BeforeEach()
-            {
-                FileModel = FileModelFactory.GetModel(MissingFileName);
-                Provenance = GenerateFileProvenance(GoodFileName);
-
-                PodMetadata = new VideoPodMetadata
-                {
-                    Format = "8mm Video",
-                    FileProvenances = new List<AbstractDigitalFile> {Provenance}
-                };
-            }
-
-            [Test]
-            public void ShouldThrowOutputXmlException()
-            {
-                var factory = new IngestDataFactory();
-                Assert.Throws<OutputXmlException>(() => factory.Generate(PodMetadata, FileModel));
-            }
-        }
-
-        public class WhenProvenanceIsPresent : VideoIngestFactoryTests
+        public class WhenExpectedFieldsPresent : VideoIngestFactoryTests
         {
             [SetUp]
             public void BeforeEach()
             {
                 FileModel = FileModelFactory.GetModel(GoodFileName);
                 Provenance = GenerateFileProvenance(GoodFileName);
-
-                PodMetadata = new VideoPodMetadata
-                {
-                    Format = "8mm video",
-                    FileProvenances = new List<AbstractDigitalFile> {Provenance}
-                };
-
+                
                 var factory = new IngestDataFactory();
-                Result = factory.Generate(PodMetadata, FileModel);
+                Result = factory.Generate(Provenance) as VideoIngest;
             }
 
             private static void AssertDeviceCollectionOk(IReadOnlyList<Device> devices,

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Packager.Extensions;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class ArgumentBuilder : List<string>
     {

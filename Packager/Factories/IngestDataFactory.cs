@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.FileModels;
@@ -12,48 +12,79 @@ namespace Packager.Factories
 {
     public class IngestDataFactory : IIngestDataFactory
     {
-        public VideoIngest Generate(VideoPodMetadata podMetadata, AbstractFile masterFileModel)
+        public AbstractIngest Generate(DigitalAudioFile provenance)
         {
-            var digitalFileProvenance =
-                podMetadata.FileProvenances.GetFileProvenance(masterFileModel) as DigitalVideoFile;
-            if (digitalFileProvenance == null)
+            return new AudioIngest
             {
-                throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.Filename);
-            }
-
-            return new VideoIngest
-            {
-                Comments = digitalFileProvenance.Comment,
-                CreatedBy = digitalFileProvenance.CreatedBy,
+                FileName = provenance.Filename,
+                Comments = provenance.Comment,
+                CreatedBy = provenance.CreatedBy,
                 ExtractionWorkstation = new Device
                 {
-                    Model = digitalFileProvenance.ExtractionWorkstation.Model,
-                    SerialNumber = digitalFileProvenance.ExtractionWorkstation.SerialNumber,
-                    Manufacturer = digitalFileProvenance.ExtractionWorkstation.Manufacturer
+                    Model = provenance.ExtractionWorkstation.Model,
+                    SerialNumber = provenance.ExtractionWorkstation.SerialNumber,
+                    Manufacturer = provenance.ExtractionWorkstation.Manufacturer
+                },
+                SpeedUsed = provenance.SpeedUsed,
+                Date = GetDateDigitized(provenance.DateDigitized, "yyyy-MM-dd"),
+                Stylus = provenance.StylusSize,
+                Turnover = provenance.Turnover,
+                ReferenceFluxivity = provenance.ReferenceFluxivity,
+                Gain = provenance.Gain,
+                AnalogOutputVoltage = provenance.AnalogOutputVoltage,
+                Peak = provenance.Peak,
+                Rolloff = provenance.Rolloff,
+                Players = provenance.PlayerDevices
+                    .Select(
+                        d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
+                    .ToArray(),
+                AdDevices = provenance.AdDevices
+                    .Select(
+                        d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
+                    .ToArray(),
+                PreAmpDevices = provenance.PreampDevices
+                    .Select(
+                        d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
+                    .ToArray()
+            };
+        }
+
+        public AbstractIngest Generate(DigitalVideoFile provenance)
+        {
+            return new VideoIngest
+            {
+                FileName = provenance.Filename,
+                Comments = provenance.Comment,
+                CreatedBy = provenance.CreatedBy,
+                ExtractionWorkstation = new Device
+                {
+                    Model = provenance.ExtractionWorkstation.Model,
+                    SerialNumber = provenance.ExtractionWorkstation.SerialNumber,
+                    Manufacturer = provenance.ExtractionWorkstation.Manufacturer
                 },
                 DigitStatus = "OK", // todo: confirm is valid
-                Date = GetDateDigitized(digitalFileProvenance.DateDigitized, "yyyy-MM-dd"),
-                Players = digitalFileProvenance.PlayerDevices
+                Date = GetDateDigitized(provenance.DateDigitized, "yyyy-MM-dd"),
+                Players = provenance.PlayerDevices
                     .Select(
                         d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
                     .ToArray(),
-                AdDevices = digitalFileProvenance.AdDevices
+                AdDevices = provenance.AdDevices
                     .Select(
                         d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
                     .ToArray(),
-                TbcDevices = digitalFileProvenance.TBCDevices
+                TbcDevices = provenance.TBCDevices
                     .Select(
                         d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
                     .ToArray(),
                 Encoder = new Device
                 {
-                    Model = digitalFileProvenance.Encoder.Model,
-                    SerialNumber = digitalFileProvenance.Encoder.SerialNumber,
-                    Manufacturer = digitalFileProvenance.Encoder.Manufacturer
+                    Model = provenance.Encoder.Model,
+                    SerialNumber = provenance.Encoder.SerialNumber,
+                    Manufacturer = provenance.Encoder.Manufacturer
                 }
             };
         }
-
+        
         private static string GetDateDigitized(DateTime? date, string format)
         {
             if (!date.HasValue)
@@ -62,49 +93,6 @@ namespace Packager.Factories
             }
 
             return date.Value.ToUniversalTime().ToString(format);
-        }
-
-        public AudioIngest Generate(AudioPodMetadata podMetadata, AbstractFile masterFileModel)
-        {
-            var digitalFileProvenance =
-                podMetadata.FileProvenances.GetFileProvenance(masterFileModel) as DigitalAudioFile;
-            if (digitalFileProvenance == null)
-            {
-                throw new OutputXmlException("No digital file provenance found for {0}", masterFileModel.Filename);
-            }
-
-            return new AudioIngest
-            {
-                Comments = digitalFileProvenance.Comment,
-                CreatedBy = digitalFileProvenance.CreatedBy,
-                ExtractionWorkstation = new Device
-                {
-                    Model = digitalFileProvenance.ExtractionWorkstation.Model,
-                    SerialNumber = digitalFileProvenance.ExtractionWorkstation.SerialNumber,
-                    Manufacturer = digitalFileProvenance.ExtractionWorkstation.Manufacturer
-                },
-                SpeedUsed = digitalFileProvenance.SpeedUsed,
-                Date = GetDateDigitized(digitalFileProvenance.DateDigitized, "yyyy-MM-dd"),
-                Stylus = digitalFileProvenance.StylusSize,
-                Turnover = digitalFileProvenance.Turnover,
-                ReferenceFluxivity = digitalFileProvenance.ReferenceFluxivity,
-                Gain = digitalFileProvenance.Gain,
-                AnalogOutputVoltage = digitalFileProvenance.AnalogOutputVoltage,
-                Peak = digitalFileProvenance.Peak,
-                Rolloff = digitalFileProvenance.Rolloff,
-                Players = digitalFileProvenance.PlayerDevices
-                    .Select(
-                        d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
-                    .ToArray(),
-                AdDevices = digitalFileProvenance.AdDevices
-                    .Select(
-                        d => new Device {Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer})
-                    .ToArray(),
-                PreAmpDevices =  digitalFileProvenance.PreampDevices
-                    .Select(
-                        d=> new Device { Model = d.Model, SerialNumber = d.SerialNumber, Manufacturer = d.Manufacturer })
-                    .ToArray()
-            };
         }
     }
 }

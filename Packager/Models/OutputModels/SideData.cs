@@ -12,7 +12,9 @@ namespace Packager.Models.OutputModels
         [XmlAttribute("Side")]
         public string Side { get; set; }
 
-        public AbstractIngest Ingest { get; set; }
+        [XmlElement("Ingest")]
+        public List<AbstractIngest> Ingest { get; set; }
+
         public string ManualCheck { get; set; }
 
         public string QCStatus { get; set; }

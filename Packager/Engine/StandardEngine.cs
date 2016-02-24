@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -11,19 +12,23 @@ using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
+using Packager.UserInterface;
 using Packager.Validators;
 
 namespace Packager.Engine
 {
     public class StandardEngine : IEngine
     {
+        private IViewModel ViewModel { get; set; }
         private readonly IDependencyProvider _dependencyProvider;
         private readonly Dictionary<string, IProcessor> _processors;
 
         public StandardEngine(
             Dictionary<string, IProcessor> processors,
-            IDependencyProvider dependencyProvider)
+            IDependencyProvider dependencyProvider,
+            IViewModel viewModel)
         {
+            ViewModel = viewModel;
             _processors = processors;
             _dependencyProvider = dependencyProvider;
         }
@@ -32,8 +37,9 @@ namespace Packager.Engine
         private IProgramSettings ProgramSettings => _dependencyProvider.ProgramSettings;
         private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
         private IValidatorCollection ValidatorCollection => _dependencyProvider.ValidatorCollection;
-
-        public async Task Start()
+      
+        
+        public async Task Start(CancellationToken cancellationToken)
         {
             try
             {
@@ -46,14 +52,25 @@ namespace Packager.Engine
 
                 await CleanupOldFiles();
 
+                cancellationToken.Register(cancellationToken.ThrowIfCancellationRequested);
+
                 // Get the processor for each group
                 // and process the files for the group
-                foreach (var group in GetObjectGroups())
+                var groupings = GetObjectGroups();
+                for(var index =0; index<groupings.Length; index++)
                 {
-                    results[group.Key] = await ProcessFile(group);
+                    var group = groupings[index];
+                    UpdateCancelBanner($"Processing object {index+1} of {groupings.Length}: {group.Key}");
+                    results[group.Key] = await ProcessObject(group, cancellationToken);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
                 }
 
-                WriteResultsMessage(results);
+                HideCancelBanner();
+                TurnOffObjectObservers();
+                WriteResultsMessage(groupings, results, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -61,6 +78,17 @@ namespace Packager.Engine
             }
 
             WriteGoodbyeMessage();
+        }
+        
+        private void UpdateCancelBanner(string message)
+        {
+            ViewModel.Processing = true;
+            ViewModel.ProcessingMessage = message;
+        }
+
+        private void HideCancelBanner()
+        {
+            ViewModel.Processing = false;
         }
 
         public void AddObserver(IObserver observer)
@@ -87,7 +115,7 @@ namespace Packager.Engine
             }
         }
 
-        private IEnumerable<IGrouping<string, AbstractFile>> GetObjectGroups()
+        private IGrouping<string, AbstractFile>[] GetObjectGroups()
         {
             // want to get all files in the input directory
             // and convert them to file models (via out file model factory)
@@ -102,13 +130,13 @@ namespace Packager.Engine
 
             Observers.Log("Found {0} to process", result.ToSingularOrPlural("object", "objects"));
 
-            return result;
+            return result.ToArray();
         }
 
-        private async Task<ValidationResult> ProcessFile(IGrouping<string, AbstractFile> group)
+        private async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> group, CancellationToken cancellationToken)
         {
             var processor = GetProcessor(group);
-            return await processor.ProcessFile(group);
+            return await processor.ProcessObject(group, cancellationToken);
         }
 
         private IProcessor GetProcessor(IEnumerable<AbstractFile> group)
@@ -187,7 +215,7 @@ namespace Packager.Engine
             Observers.EndSection(sectionKey);
         }
 
-        private void WriteResultsMessage(Dictionary<string, ValidationResult> results)
+        private void WriteResultsMessage(IEnumerable<IGrouping<string, AbstractFile>> groupings, Dictionary<string, ValidationResult> results, CancellationToken cancellationToken)
         {
             if (!results.Any())
             {
@@ -197,13 +225,18 @@ namespace Packager.Engine
 
             var section = Observers.BeginSection("Results Summary:");
 
-            Observers.Log("Found {0} to process.", results.ToSingularOrPlural("object", "objects"));
+            Observers.Log("Found {0} to process.", groupings.ToSingularOrPlural("object", "objects"));
 
             var inError = results.Where(r => r.Value.Result == false).ToList();
             var success = results.Where(r => r.Value.Result).ToList();
 
             LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
             LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Observers.Log($"User canceled operation while processing {results.Last().Key}");
+            }
 
             Observers.EndSection(section);
         }
@@ -223,6 +256,14 @@ namespace Packager.Engine
             }
 
             Observers.EndSection(sectionKey);
+        }
+
+        private void TurnOffObjectObservers()
+        {
+            foreach (var observer in Observers.Select(o => o as ObjectNLogObserver).Where(o => o != null))
+            {
+                observer.ClearBarcode();
+            }
         }
     }
 }

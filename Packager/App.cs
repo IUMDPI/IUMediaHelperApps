@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
+using System.Threading;
 using System.Windows;
 using NLog.Config;
 using Packager.Engine;
@@ -23,12 +24,13 @@ namespace Packager
 
             ConfigureNLog();
         
+            var cancellationTokenSource = new CancellationTokenSource();
             // initialize dependency provider with program settings
             var dependencyProvider = new DefaultDependencyProvider(
                 SettingsFactory.Import(ConfigurationManager.AppSettings));
-
+            
             // create the view model
-            var viewModel = new ViewModel();
+            var viewModel = new ViewModel(cancellationTokenSource);
 
             // create the window
             var window = new OutputWindow();
@@ -47,18 +49,18 @@ namespace Packager
             };
 
             // initialize engine
-            var engine = new StandardEngine(processors, dependencyProvider);
+            var engine = new StandardEngine(processors, dependencyProvider, viewModel);
 
             // start the engine
-            await engine.Start();
+            await engine.Start(cancellationTokenSource.Token);
         }
 
         private static void AddObservers(IDependencyProvider dependencyProvider, ViewModel viewModel)
         {
-            dependencyProvider.Observers.Add(new GeneralNLogObserver(dependencyProvider.ProgramSettings.LogDirectoryName));
+            dependencyProvider.Observers.Add(new GeneralNLogObserver(dependencyProvider.ProgramSettings));
+            dependencyProvider.Observers.Add(new ObjectNLogObserver(dependencyProvider.ProgramSettings));
 
             dependencyProvider.Observers.Add(new ViewModelObserver(viewModel));
-
             dependencyProvider.Observers.Add(new IssueEmailerObserver(
                 dependencyProvider.ProgramSettings,
                 dependencyProvider.SystemInfoProvider,
@@ -67,14 +69,13 @@ namespace Packager
 
         private static void ConfigureNLog()
         {
+            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode",
+                typeof(ProjectCodeLayoutRenderer));
             ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("LogDirectoryName",
                 typeof (LoggingDirectoryLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProcessingDirectoryName",
-                typeof (ProcessingDirectoryNameLayoutRenderer));
             ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode",
                 typeof (BarcodeLayoutRenderer));
-            ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("ProjectCode",
-                typeof (ProjectCodeLayoutRenderer));
+            
         }
     }
 }

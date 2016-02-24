@@ -64,30 +64,6 @@ namespace Packager.Test.Factories
             return result;
         }
 
-        public class WhenProvenanceIsMissing : AudioIngestFactoryTests
-        {
-            [SetUp]
-            public void BeforeEach()
-            {
-                FileModel = FileModelFactory.GetModel(MissingFileName);
-                Provenance = GenerateFileProvenance(GoodFileName);
-
-                PodMetadata = new AudioPodMetadata
-                {
-                    Format = "CD-R",
-                    FileProvenances = new List<AbstractDigitalFile> {Provenance}
-                };
-            }
-
-            [Test]
-            public void ShouldThrowOutputXmlException()
-            {
-                var factory = new IngestDataFactory();
-                Assert.Throws<OutputXmlException>(() => factory.Generate(PodMetadata, FileModel));
-            }
-        }
-
-
         public class WhenDateDigitizedIsNotSet : AudioIngestFactoryTests
         {
             [SetUp]
@@ -97,25 +73,18 @@ namespace Packager.Test.Factories
                 Provenance = GenerateFileProvenance(GoodFileName);
 
                 Provenance.DateDigitized = null;
-
-
-                PodMetadata = new AudioPodMetadata
-                {
-                    Format = "CD-R",
-                    FileProvenances = new List<AbstractDigitalFile> { Provenance }
-                };
             }
 
             [Test]
             public void ShouldThrowOutputXmlException()
             {
                 var factory = new IngestDataFactory();
-                Assert.Throws<OutputXmlException>(() => factory.Generate(PodMetadata, FileModel));
+                Assert.Throws<OutputXmlException>(() => factory.Generate(Provenance));
             }
         }
 
 
-        public class WhenProvenanceIsPresent : AudioIngestFactoryTests
+        public class WhenExpectedFieldsPresent : AudioIngestFactoryTests
         {
             [SetUp]
             public void BeforeEach()
@@ -130,7 +99,7 @@ namespace Packager.Test.Factories
                 };
 
                 var factory = new IngestDataFactory();
-                Result = factory.Generate(PodMetadata, FileModel);
+                Result = factory.Generate(Provenance) as AudioIngest;
             }
 
             private static void AssertDeviceCollectionOk(IReadOnlyList<Device> devices,

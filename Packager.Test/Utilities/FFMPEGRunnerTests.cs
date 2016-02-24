@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -20,7 +21,7 @@ using Packager.Providers;
 using Packager.Test.Mocks;
 using Packager.Utilities;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Validators.Attributes;
 
 namespace Packager.Test.Utilities
@@ -52,7 +53,7 @@ namespace Packager.Test.Utilities
             FileProvider = Substitute.For<IFileProvider>();
 
             Hasher = Substitute.For<IHasher>();
-            Hasher.Hash(Arg.Any<string>())
+            Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult($"{Path.GetFileName(x.Arg<string>())} hash value"));
 
             Metadata = MockBextMetadata.Get();
@@ -216,13 +217,13 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                     {
                         ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    await Runner.Normalize(PreservationFileModel, Metadata);
+                    await Runner.Normalize(PreservationFileModel, Metadata, CancellationToken.None);
                 }
 
                 private ProcessStartInfo StartInfo { get; set; }
@@ -230,9 +231,10 @@ namespace Packager.Test.Utilities
                 protected override void DoCustomSetup()
                 {
                     base.DoCustomSetup();
-                    ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg));
+                    ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg), CancellationToken.None);
                 }
 
+                [Test]
                 public void ArgsShouldIncludeRf64Commands()
                 {
                     Assert.That(StartInfo.Arguments.Contains("-rf64 auto"));
@@ -344,14 +346,14 @@ namespace Packager.Test.Utilities
                     FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
                         PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
 
-                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                     {
                         ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
                     var issue =
-                        Assert.Throws<LoggedException>(async () => await Runner.Normalize(PreservationFileModel, null));
+                        Assert.Throws<LoggedException>(async () => await Runner.Normalize(PreservationFileModel, null, CancellationToken.None));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
@@ -425,13 +427,13 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
 
-                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                     {
                         ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    await Runner.Verify(Originals);
+                    await Runner.Verify(Originals, CancellationToken.None);
                 }
 
                 [Test]
@@ -458,7 +460,7 @@ namespace Packager.Test.Utilities
                         var targetPath = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.Filename);
 
                         var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
-                        ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)));
+                        ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)), Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -473,7 +475,7 @@ namespace Packager.Test.Utilities
                             model.Filename);
 
                         var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
-                        ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)));
+                        ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)), Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -559,7 +561,7 @@ namespace Packager.Test.Utilities
                     {
                         var normalizedFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetFolderName(),
                             model.ToFrameMd5Filename());
-                        Hasher.Received().Hash(normalizedFrameMd5Path);
+                        Hasher.Received().Hash(normalizedFrameMd5Path, Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -570,7 +572,7 @@ namespace Packager.Test.Utilities
                     {
                         var originalFrameMd5Path = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
                             model.ToFrameMd5Filename());
-                        Hasher.Received().Hash(originalFrameMd5Path);
+                        Hasher.Received().Hash(originalFrameMd5Path, Arg.Any<CancellationToken>());
                     }
                 }
             }
@@ -584,15 +586,15 @@ namespace Packager.Test.Utilities
                     Originals = new List<AbstractFile> {PreservationFileModel};
 
                     // make hasher return different values
-                    Hasher.Hash(Arg.Any<string>()).Returns(x => Task.FromResult(x.Arg<string>()));
+                    Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(x => Task.FromResult(x.Arg<string>()));
 
-                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                     {
                         ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Verify(Originals));
+                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Verify(Originals, CancellationToken.None));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<NormalizeOriginalException>());
                 }
@@ -623,13 +625,13 @@ namespace Packager.Test.Utilities
                     FileProvider.FileDoesNotExist(Path.Combine(BaseProcessingDirectory,
                         PreservationFileModel.GetOriginalFolderName(), MasterFileName)).Returns(true);
 
-                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                     {
                         ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Verify(Originals));
+                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Verify(Originals, CancellationToken.None));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
@@ -660,13 +662,13 @@ namespace Packager.Test.Utilities
                     base.BeforeEach();
                     DerivativeFileModel = new AccessFile(new ProductionFile( MasterFileModel));
 
-                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                    ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                     {
                         ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    Result = await Runner.CreateAccessDerivative(new ProductionFile(MasterFileModel));
+                    Result = await Runner.CreateAccessDerivative(new ProductionFile(MasterFileModel), CancellationToken.None);
                 }
 
                 private const string AccessDerivativeFileName = "MDPI_123456789_01_access.mp4";
@@ -677,7 +679,7 @@ namespace Packager.Test.Utilities
                 {
                     base.DoCustomSetup();
                     FileProvider.FileExists(null).ReturnsForAnyArgs(false);
-                    ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg));
+                    ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -750,13 +752,13 @@ namespace Packager.Test.Utilities
                     {
                         base.BeforeEach();
 
-                        ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
+                        ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                         {
                             ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        Result = await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata);
+                        Result = await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None);
                     }
 
                     public class WhenDerivativeAlreadyExists : WhenThingsGoWell
@@ -785,7 +787,7 @@ namespace Packager.Test.Utilities
                         [Test]
                         public void ItShouldNotCallProcessRunner()
                         {
-                            ProcessRunner.DidNotReceive().Run(Arg.Any<ProcessStartInfo>());
+                            ProcessRunner.DidNotReceive().Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>());
                         }
                     }
 
@@ -797,7 +799,7 @@ namespace Packager.Test.Utilities
                         {
                             base.DoCustomSetup();
                             FileProvider.FileExists(null).ReturnsForAnyArgs(false);
-                            ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg));
+                            ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg), Arg.Any<CancellationToken>());
                         }
 
                         [Test]
@@ -924,17 +926,17 @@ namespace Packager.Test.Utilities
                     {
                         base.BeforeEach();
                         ProcessRunnerResult.ExitCode.Returns(-1);
-                        ProcessRunner.Run(Arg.Any<ProcessStartInfo>()).ReturnsForAnyArgs(x =>
-                        {
-                            ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
-                            return Task.FromResult(ProcessRunnerResult);
-                        });
+                        ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x => 
+                            {
+                                ProcessRunnerResult.StartInfo.Returns(x.Arg<ProcessStartInfo>());
+                                return Task.FromResult(ProcessRunnerResult);
+                            });
 
                         FinalException =
                             Assert.Throws<LoggedException>(
                                 async () =>
                                     await
-                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata));
+                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None));
                     }
 
                     [Test]
@@ -953,12 +955,9 @@ namespace Packager.Test.Utilities
                         base.BeforeEach();
                         DerivativeFileModel = new ProductionFile(MasterFileModel);
                         Exception = new Exception("testing");
-                        ProcessRunner.WhenForAnyArgs(x => x.Run(null)).Do(x => { throw Exception; });
-                        FinalException =
-                            Assert.Throws<LoggedException>(
-                                async () =>
-                                    await
-                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata));
+                        ProcessRunner.WhenForAnyArgs(x => x.Run(null, CancellationToken.None)).Do(x => { throw Exception; });
+                        FinalException = Assert.Throws<LoggedException>(async () => await
+                            Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None));
                     }
 
                     private Exception Exception { get; set; }

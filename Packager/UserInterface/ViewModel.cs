@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
@@ -14,19 +16,22 @@ using ICSharpCode.AvalonEdit.Folding;
 using Packager.Annotations;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models;
-using Packager.Models.SettingsModels;
 using Packager.Models.UserInterfaceModels;
 
 namespace Packager.UserInterface
 {
-    public class ViewModel : INotifyPropertyChanged
+    public class ViewModel : INotifyPropertyChanged, IViewModel, IDisposable
     {
+        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly List<SectionModel> _sections = new List<SectionModel>();
+        private ICommand _cancelCommand;
+        private bool _processing;
+        private string _processingMessage;
         private string _title;
 
-        public ViewModel()
+        public ViewModel(CancellationTokenSource cancellationTokenSource)
         {
+            _cancellationTokenSource = cancellationTokenSource;
             Document = new TextDocument();
         }
 
@@ -44,6 +49,14 @@ namespace Packager.UserInterface
 
         public TextDocument Document { get; }
 
+        public ICommand CancelCommand
+        {
+            get
+            {
+                return _cancelCommand ?? (_cancelCommand = new RelayCommand(param => DoCancel(), param => Processing));
+            }
+        }
+
         private FoldingManager FoldingManager { get; set; }
 
         private int TextLength => Document.TextLength;
@@ -52,7 +65,32 @@ namespace Packager.UserInterface
 
         private TextEditor TextEditor { get; set; }
 
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Dispose();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public string ProcessingMessage
+        {
+            get { return _processingMessage; }
+            set
+            {
+                _processingMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool Processing
+        {
+            get { return _processing; }
+            set
+            {
+                _processing = value;
+                OnPropertyChanged();
+            }
+        }
 
         public void Initialize(OutputWindow outputWindow, string projectCode)
         {
@@ -77,43 +115,6 @@ namespace Packager.UserInterface
             Title = $"{projectCode.ToUpperInvariant()} Media Packager";
 
             FoldingManager = FoldingManager.Install(TextArea);
-        }
-
-        private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)
-        {
-            var viewer = sender as ScrollViewer;
-            if (viewer == null)
-            {
-                return;
-            }
-
-            if (!e.ExtentHeightChange.Equals(0))
-            {
-                return;
-            }
-
-            AutoScroll = viewer.VerticalOffset.Equals(viewer.ScrollableHeight);
-        }
-
-        private void DocumentPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
-        {
-            if (!e.PropertyName.Equals("LineCount"))
-            {
-                return;
-            }
-
-            if (!AutoScroll)
-            {
-                return;
-            }
-
-            var scrollTo = TextArea.TextView.GetVisualTopByDocumentLine(Document.LineCount);
-            TextEditor.ScrollToVerticalOffset(scrollTo);
-        }
-
-        private void InsertLine()
-        {
-            Document.Insert(TextLength, "\n");
         }
 
         public void InsertLine(string value)
@@ -163,13 +164,6 @@ namespace Packager.UserInterface
             EndSection(sectionKey);
         }
 
-        private int GetIndents(string value)
-        {
-            return _sections
-                .Where(m => m.Completed == false)
-                .Count(m => !m.Title.Equals(value));
-        }
-
         public void BeginSection(string sectionKey, string text)
         {
             if (sectionKey.IsNotSet())
@@ -194,21 +188,6 @@ namespace Packager.UserInterface
 
             InsertLine(text);
             InsertLine();
-        }
-
-        private SectionModel GetOrCreateSectionModel(string key)
-        {
-            var sectionModel = _sections.SingleOrDefault(m => m.Key.Equals(key));
-            if (sectionModel != null) return sectionModel;
-
-            sectionModel = new SectionModel
-            {
-                Key = key,
-                Indent = _sections.Count(m => !m.Completed)
-            };
-
-            _sections.Add(sectionModel);
-            return sectionModel;
         }
 
         public void EndSection(string sectionKey, string newTitle = "", bool collapse = false)
@@ -242,6 +221,70 @@ namespace Packager.UserInterface
             InsertLine();
         }
 
+        private void DoCancel()
+        {
+            _cancellationTokenSource.Cancel();
+        }
+
+        private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)
+        {
+            var viewer = sender as ScrollViewer;
+            if (viewer == null)
+            {
+                return;
+            }
+
+            if (!e.ExtentHeightChange.Equals(0))
+            {
+                return;
+            }
+
+            AutoScroll = viewer.VerticalOffset.Equals(viewer.ScrollableHeight);
+        }
+
+        private void DocumentPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+        {
+            if (!e.PropertyName.Equals("LineCount"))
+            {
+                return;
+            }
+
+            if (!AutoScroll)
+            {
+                return;
+            }
+
+            var scrollTo = TextArea.TextView.GetVisualTopByDocumentLine(Document.LineCount);
+            TextEditor.ScrollToVerticalOffset(scrollTo);
+        }
+
+        private void InsertLine()
+        {
+            Document.Insert(TextLength, "\n");
+        }
+
+        private int GetIndents(string value)
+        {
+            return _sections
+                .Where(m => m.Completed == false)
+                .Count(m => !m.Title.Equals(value));
+        }
+
+        private SectionModel GetOrCreateSectionModel(string key)
+        {
+            var sectionModel = _sections.SingleOrDefault(m => m.Key.Equals(key));
+            if (sectionModel != null) return sectionModel;
+
+            sectionModel = new SectionModel
+            {
+                Key = key,
+                Indent = _sections.Count(m => !m.Completed)
+            };
+
+            _sections.Add(sectionModel);
+            return sectionModel;
+        }
+
         private static string Indent(string value, int indent)
         {
             return indent == 0
@@ -250,7 +293,7 @@ namespace Packager.UserInterface
         }
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             var handler = PropertyChanged;
             handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));

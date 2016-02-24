@@ -1,4 +1,4 @@
-﻿namespace Packager.Utilities.Process
+﻿namespace Packager.Utilities.ProcessRunners
 {
     public interface IOutputBuffer
     {

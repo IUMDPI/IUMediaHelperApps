@@ -36,7 +36,7 @@ namespace Packager.Factories
         protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
             AudioPodMetadata metadata)
         {
-            var description = GenerateDescription(metadata, ProgramSettings, model);
+            var description = GenerateDescription(metadata, model);
 
             return new EmbeddedAudioMetadata
             {
@@ -44,7 +44,7 @@ namespace Packager.Factories
                 OriginatorReference = Path.GetFileNameWithoutExtension(model.Filename),
                 Description = description,
                 ICMT = description,
-                IARL = GenerateIarl(metadata, ProgramSettings),
+                IARL = metadata.Iarl,
                 OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                 OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),
                 TimeReference = "0",
@@ -53,18 +53,6 @@ namespace Packager.Factories
                 CodingHistory = GenerateCodingHistory(metadata, provenance as DigitalAudioFile)
             };
         }
-
-        private static string GenerateIarl(AbstractPodMetadata metadata, IProgramSettings settings)
-        {
-            var parts = new[]
-            {
-                settings.UnitPrefix,
-                metadata.Unit
-            };
-
-            return string.Join(". ", parts.Where(p => p.IsSet()));
-        }
-
 
         /// <summary>
         ///     Return "DIGITAL" if metadata.format is in list of known digital formats; Otherwise return analogue.

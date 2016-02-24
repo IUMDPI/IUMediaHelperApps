@@ -1,10 +1,10 @@
-﻿using Packager.Models;
+﻿using System.Threading;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class VideoFFMPEGRunner : AbstractFFMPEGRunner
     {

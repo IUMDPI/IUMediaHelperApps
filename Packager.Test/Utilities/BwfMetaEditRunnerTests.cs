@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -8,7 +9,7 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
 using Packager.Utilities.Bext;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Test.Utilities
 {
@@ -23,7 +24,7 @@ namespace Packager.Test.Utilities
             PreservationIntermediateFileModel = FileModelFactory.GetModel(PreservationIntermediateFileName);
 
             ProcessRunner = Substitute.For<IProcessRunner>();
-            ProcessRunner.Run(null).ReturnsForAnyArgs(x =>
+            ProcessRunner.Run(null, CancellationToken.None).ReturnsForAnyArgs(x =>
             {
                 var result = Substitute.For<IProcessResult>();
                 result.ExitCode = 0;
@@ -63,7 +64,7 @@ namespace Packager.Test.Utilities
 
                 FieldsToClear = new List<BextFields> {BextFields.IARL, BextFields.ICRD, BextFields.IGNR};
                 var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory);
-                await runner.ClearMetadata(ProductionFileModel, FieldsToClear);
+                await runner.ClearMetadata(ProductionFileModel, FieldsToClear, CancellationToken.None);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
                 Assert.That(StartInfo, Is.Not.Null);
             }

@@ -7,5 +7,7 @@ namespace Packager.Models.FileModels
         public VideoPreservationIntermediateFile(AbstractFile original) : base(original, ExtensionValue)
         {
         }
+
+        public override int Precedence => 1;
     }
 }

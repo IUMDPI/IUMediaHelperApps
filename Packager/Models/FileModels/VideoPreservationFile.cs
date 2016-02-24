@@ -7,5 +7,7 @@
         public VideoPreservationFile(AbstractFile original) : base(original, ExtensionValue)
         {
         }
+
+        public override int Precedence => 0;
     }
 }

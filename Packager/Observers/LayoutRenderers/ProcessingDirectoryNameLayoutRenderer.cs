@@ -5,7 +5,7 @@ using NLog.LayoutRenderers;
 namespace Packager.Observers.LayoutRenderers
 {
     [LayoutRenderer("ProcessingDirectoryName")]
-    public class ProcessingDirectoryNameLayoutRenderer:LayoutRenderer
+    public class ProcessingDirectoryNameLayoutRenderer : LayoutRenderer
     {
         protected override void Append(StringBuilder builder, LogEventInfo logEvent)
         {

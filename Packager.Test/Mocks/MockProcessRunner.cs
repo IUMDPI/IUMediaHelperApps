@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using Packager.Models.ResultModels;
 using Packager.Utilities;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Test.Mocks
 {
@@ -24,8 +25,8 @@ namespace Packager.Test.Mocks
                 ffmpegResult.ExitCode.ReturnsForAnyArgs(0);
             }
 
-            runner.Run(null).ReturnsForAnyArgs(Task.FromResult(bwfMetaEditResult));
-            runner.Run(null).ReturnsForAnyArgs(Task.FromResult(ffmpegResult));
+            runner.Run(null, CancellationToken.None).ReturnsForAnyArgs(Task.FromResult(bwfMetaEditResult));
+            runner.Run(null, CancellationToken.None).ReturnsForAnyArgs(Task.FromResult(ffmpegResult));
             return runner;
         }
     }

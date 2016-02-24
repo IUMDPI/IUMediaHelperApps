@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Packager.Deserializers;
 using Packager.Factories;
 using Packager.Models.PodMetadataModels;
@@ -8,7 +9,7 @@ using Packager.Utilities.Bext;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 using Packager.Validators.Attributes;
@@ -37,8 +38,7 @@ namespace Packager.Providers
             Observers = new ObserverCollection();
             AudioMetadataFactory = new EmbeddedAudioMetadataFactory(ProgramSettings);
             VideoMetadataFactory = new EmbeddedVideoMetadataFactory(ProgramSettings);
-            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,
-                ProgramSettings.ProcessingDirectory);
+            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,ProgramSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
             AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
@@ -58,6 +58,7 @@ namespace Packager.Providers
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, ProgramSettings.SuccessDirectoryName,
                 new TimeSpan(ProgramSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
             FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
+           
         }
 
         [ValidateObject]
@@ -121,7 +122,7 @@ namespace Packager.Providers
         
         [ValidateObject]
         public IFFProbeRunner FFProbeRunner { get; }
-
+        
         [ValidateObject]
         public IBwfMetaEditRunner MetaEditRunner { get; }
 

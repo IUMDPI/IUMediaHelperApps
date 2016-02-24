@@ -30,7 +30,9 @@ namespace Packager.Test.Factories
                 Title = Title,
                 SoundField = "Mono",
                 PlaybackSpeed = "7.5 ips",
-                FileProvenances = new List<AbstractDigitalFile> {Provenance}
+                FileProvenances = new List<AbstractDigitalFile> {Provenance},
+                Iarl = Iarl,
+                Bext = Bext,
             };
 
             DoCustomSetup();
@@ -38,12 +40,13 @@ namespace Packager.Test.Factories
             Result = new EmbeddedAudioMetadataFactory(ProgramSettings).Generate(Instances, Model, Metadata) as EmbeddedAudioMetadata;
         }
 
-
         private const string PreservationFileName = "MDPI_4890764553278906_01_pres.wav";
         private const string DigitizingEntity = "Test digitizing entity";
         private const string Unit = "Test unit";
         private const string CallNumber = "AB1243";
         private const string Title = "Test title";
+        private const string Iarl = "Indiana University-Bloomington. Office of University Archives and Records Management";
+        private const string Bext = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use:";
 
         private IProgramSettings ProgramSettings { get; set; }
         
@@ -103,80 +106,7 @@ namespace Packager.Test.Factories
 
             return result;
         }
-
-        public class WhenUnitPrefixIsSet : EmbeddedAudioMetadataFactoryTests
-        {
-            protected override void DoCustomSetup()
-            {
-                base.DoCustomSetup();
-                ProgramSettings.UnitPrefix.Returns("Unit prefix");
-            }
-
-            [Test]
-            public void DescriptionAndIcmtShouldBeSetCorrectly()
-            {
-                var expected =
-                    $"Unit prefix. {Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
-                Assert.That(Result.Description, Is.EqualTo(expected));
-                Assert.That(Result.ICMT, Is.EqualTo(expected));
-            }
-
-            [Test]
-            public void IarlShouldBeSetCorrectly()
-            {
-                Assert.That(Result.IARL.Equals($"Unit prefix. {Unit}"));
-            }
-        }
-
-        public class WhenUnitPrefixIsNotSet : EmbeddedAudioMetadataFactoryTests
-        {
-            [Test]
-            public void DescriptionAndIcmtShouldBeSetCorrectly()
-            {
-                var expected =
-                    $"{Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
-                Assert.That(Result.Description, Is.EqualTo(expected));
-                Assert.That(Result.ICMT, Is.EqualTo(expected));
-            }
-
-            [Test]
-            public void IarlShouldBeSetCorrectly()
-            {
-                Assert.That(Result.IARL.Equals(Unit));
-            }
-        }
-
-        public class WhenCallNumberIsSet : EmbeddedAudioMetadataFactoryTests
-        {
-            [Test]
-            public void DescriptionAndIcmtShouldBeSetCorrectly()
-            {
-                var expected =
-                    $"{Unit}. {CallNumber}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
-                Assert.That(Result.Description, Is.EqualTo(expected));
-                Assert.That(Result.ICMT, Is.EqualTo(expected));
-            }
-        }
-
-        public class WhenCallNumberIsNotSet : EmbeddedAudioMetadataFactoryTests
-        {
-            protected override void DoCustomSetup()
-            {
-                base.DoCustomSetup();
-                Metadata.CallNumber = "";
-               
-            }
-
-            [Test]
-            public void DescriptionAndIcmtShouldBeSetCorrectly()
-            {
-                var expected =
-                    $"{Unit}. File use: {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(PreservationFileName)}";
-                Assert.That(Result.Description, Is.EqualTo(expected));
-                Assert.That(Result.ICMT, Is.EqualTo(expected));
-            }
-        }
-
+        
         [TestFixture]
         public class WhenFormatIsCDR : EmbeddedAudioMetadataFactoryTests
         {
@@ -240,28 +170,7 @@ namespace Packager.Test.Factories
                 Assert.That(parts[0], Is.EqualTo(expected));
             }
         }
-
-       /* [TestFixture]
-        public class WhenSpeedNotSetInProvenance : EmbeddedAudioMetadataFactoryTests
-        {
-            protected override void DoCustomSetup()
-            {
-                base.DoCustomSetup();
-                Provenance.SpeedUsed = "";
-            }
-
-            [Test]
-            public void ItShouldUseMetadataPlaybackSpeed()
-            {
-                var parts = Result.CodingHistory.Split(new[] {"\r\n"}, StringSplitOptions.None);
-
-                var expected = $"A={ExpectedDigitalOrAnalog}," + "M=Mono," +
-                               $"T=Player manufacturer Player model;SNPlayer serial number;{Metadata.PlaybackSpeed};{Metadata.Format},";
-
-                Assert.That(parts[0], Is.EqualTo(expected));
-            }
-        }*/
-
+        
         [TestFixture]
         public class WhenSpeedMissing : EmbeddedAudioMetadataFactoryTests
         {
@@ -269,7 +178,6 @@ namespace Packager.Test.Factories
             {
                 base.DoCustomSetup();
                 Provenance.SpeedUsed = "";
-                //Metadata.PlaybackSpeed = "";
             }
 
             [Test]
@@ -346,6 +254,21 @@ namespace Packager.Test.Factories
         public void TimeReferenceShouldBeSetCorrectly()
         {
             Assert.That(Result.TimeReference.Equals("0"));
+        }
+
+        [Test]
+        public void IarlShouldBeSetCorrectly()
+        {
+            Assert.That(Result.IARL, Is.EqualTo(Iarl));
+        }
+
+        [Test]
+        public void IcmtAndDescriptionShouldBeCorrect()
+        {
+            var expected =
+                $"{Bext} {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(Model.Filename)}";
+            Assert.That(Result.ICMT, Is.EqualTo(expected));
+            Assert.That(Result.Description, Is.EqualTo(expected));
         }
     }
 }

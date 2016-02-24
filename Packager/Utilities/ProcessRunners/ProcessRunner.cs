@@ -1,27 +1,25 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models.ResultModels;
 
-namespace Packager.Utilities.Process
+namespace Packager.Utilities.ProcessRunners
 {
     public class ProcessRunner : IProcessRunner
     {
-        public Task<IProcessResult> Run(ProcessStartInfo startInfo, IOutputBuffer outputBuffer =null, IOutputBuffer errorBuffer = null)
+        public Task<IProcessResult> Run(ProcessStartInfo startInfo, CancellationToken cancellationToken,
+            IOutputBuffer outputBuffer = null, IOutputBuffer errorBuffer = null)
         {
+            startInfo.UseShellExecute = false;
+         
             var completionSource = new TaskCompletionSource<IProcessResult>();
 
-            // just in case
-            startInfo.CreateNoWindow = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.UseShellExecute = false;
-            
-            var process = new System.Diagnostics.Process
+            var process = new Process
             {
                 StartInfo = startInfo,
-                EnableRaisingEvents = true,
+                EnableRaisingEvents = true
             };
 
             if (outputBuffer == null)
@@ -34,24 +32,70 @@ namespace Packager.Utilities.Process
                 errorBuffer = new StringOutputBuffer();
             }
 
-            process.ErrorDataReceived += new DataReceivedHandler(errorBuffer).OnDataReceived;
-            process.OutputDataReceived += new DataReceivedHandler(outputBuffer).OnDataReceived;
+            ConfigureEventHandlers(process, startInfo, outputBuffer, errorBuffer, completionSource);
 
-            process.Exited += new ProcessExitHandler(
-                startInfo,
-                completionSource,
-                outputBuffer,
-                errorBuffer).OnExitHandler;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             if (process.Start() == false)
             {
                 completionSource.TrySetException(new InvalidOperationException("Failed to start process"));
             }
 
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            cancellationToken.Register(() =>
+            {
+                DoCancel(process);
+                cancellationToken.ThrowIfCancellationRequested();
+            });
+            
+            BeginCaptureOutput(process, startInfo);
 
             return completionSource.Task;
+        }
+
+        private static void DoCancel(Process process)
+        {
+            if (process.HasExited)
+            {
+                return;
+            }
+
+            process.Kill();
+        }
+        
+        private static void ConfigureEventHandlers(Process process, ProcessStartInfo startInfo, 
+            IOutputBuffer outputBuffer, IOutputBuffer errorBuffer, TaskCompletionSource<IProcessResult> completionSource)
+        {
+            if (startInfo.RedirectStandardOutput)
+            {
+                process.OutputDataReceived += new DataReceivedHandler(outputBuffer).OnDataReceived;
+            }
+
+            if (startInfo.RedirectStandardError)
+            {
+                process.ErrorDataReceived += new DataReceivedHandler(errorBuffer).OnDataReceived;
+            }
+
+            process.Exited += new ProcessExitHandler(
+                startInfo,
+                completionSource,
+                outputBuffer,
+                errorBuffer).OnExitHandler;
+        }
+
+        private static void BeginCaptureOutput(Process process, ProcessStartInfo startInfo)
+        {
+            if (startInfo.RedirectStandardOutput)
+            {
+                process.BeginOutputReadLine();
+            }
+
+            if (startInfo.RedirectStandardError)
+            {
+                process.BeginErrorReadLine();
+            }
         }
 
         private class ProcessExitHandler
@@ -72,7 +116,7 @@ namespace Packager.Utilities.Process
 
             public void OnExitHandler(object sender, EventArgs args)
             {
-                var process = sender as System.Diagnostics.Process;
+                var process = sender as Process;
                 if (process == null)
                 {
                     _completionSource.TrySetException(new InvalidOperationException("Could not access completed process"));

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Observers;
-using Packager.Utilities.Process;
+using Packager.Utilities.ProcessRunners;
 using Packager.Verifiers;
 
 namespace Packager.Utilities.Bext
@@ -25,11 +26,11 @@ namespace Packager.Utilities.Bext
         private IObserverCollection Observers { get; }
         private IBwfMetaEditResultsVerifier Verifier { get; }
 
-        public async Task ClearMetadataFields(List<AbstractFile> instances, List<BextFields> fields)
+        public async Task ClearMetadataFields(List<AbstractFile> instances, List<BextFields> fields, CancellationToken cancellationToken)
         {
             foreach (var instance in instances)
             {
-                var result = await MetaEditRunner.ClearMetadata(instance, fields);
+                var result = await MetaEditRunner.ClearMetadata(instance, fields, cancellationToken);
 
                 if (instances.IsFirst(instance) == false)
                 {

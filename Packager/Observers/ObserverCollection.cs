@@ -29,7 +29,7 @@ namespace Packager.Observers
 
             if (issue is OperationCanceledException)
             {
-                issue = new UserCancelledException();
+                issue = new UserCancelledException(issue);
             }
 
             foreach (var observer in this)

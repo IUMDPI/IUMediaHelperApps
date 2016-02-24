@@ -154,7 +154,9 @@ namespace Packager.UserInterface
         {
             if (e is AbstractEngineException)
             {
+                InsertLine();
                 InsertLine($"ERROR: {e.Message}");
+                InsertLine();
                 return;
             }
 
@@ -223,7 +225,14 @@ namespace Packager.UserInterface
 
         private void DoCancel()
         {
-            _cancellationTokenSource.Cancel();
+            try
+            {
+                _cancellationTokenSource.Cancel(true);
+            }
+            catch (OperationCanceledException)
+            {
+                // swallow issue here - it will be reported elsewhere
+            }
         }
 
         private void ScrollChangedHandler(object sender, ScrollChangedEventArgs e)
@@ -284,7 +293,7 @@ namespace Packager.UserInterface
             _sections.Add(sectionModel);
             return sectionModel;
         }
-
+        
         private static string Indent(string value, int indent)
         {
             return indent == 0

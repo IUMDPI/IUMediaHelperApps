@@ -45,6 +45,10 @@
 						should include comments in xml manifest
 2.4.0.0		2/12/2016	removing dropbox file validation
 						fixing issues embedding metadata
-2.5.0.0		2/18/2016	Rolloff xml field should appear after turnover field in export xml
+2.5.0.0		2/18/2016	rolloff xml field should appear after turnover field in export xml
+2.6.0.0		2/24/2016	added support for new consolidated POD metadata fields
+						includes ingest elements for all original files in output xml
+						standardizes order of devices in output xml
+						added cancel button to user interface
 
 					

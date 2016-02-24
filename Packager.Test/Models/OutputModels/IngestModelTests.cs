@@ -30,8 +30,8 @@ namespace Packager.Test.Models.OutputModels
             [TestCase("Players", 6)]
             [TestCase("TbcDevices", 7)]
             [TestCase("AdDevices", 8)]
-            [TestCase("ExtractionWorkstation", 9)]
-            [TestCase("Encoder", 10)]
+            [TestCase("Encoder", 9)]
+            [TestCase("ExtractionWorkstation", 10)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (VideoIngest).GetProperty(field);
@@ -68,8 +68,8 @@ namespace Packager.Test.Models.OutputModels
             [TestCase("AnalogOutputVoltage", 11)]
             [TestCase("Peak", 12)]
             [TestCase("Players", 13)]
-            [TestCase("AdDevices", 14)]
-            [TestCase("PreAmpDevices", 15)]
+            [TestCase("PreAmpDevices", 14)]
+            [TestCase("AdDevices", 15)]
             [TestCase("ExtractionWorkstation", 16)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {

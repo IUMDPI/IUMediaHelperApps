@@ -14,7 +14,6 @@
         string FFProbeVideoQualityControlArguments { get; }
         string ProjectCode { get; }
         string DropBoxDirectoryName { get; }
-        //PodAuth PodAuth { get; }
         string WebServiceUrl { get; }
         string ErrorDirectoryName { get; }
         string SuccessDirectoryName { get; }
@@ -25,5 +24,6 @@
         int DeleteSuccessfulObjectsAfterDays { get; }
         string UnitPrefix { get; }
         string PodAuthFilePath { get; }
+        string DigitizingEntity { get; }
     }
 }

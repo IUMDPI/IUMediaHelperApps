@@ -7,6 +7,6 @@ namespace Packager.Factories
 {
     public interface ICarrierDataFactory<in T> where T:AbstractPodMetadata
     {
-        AbstractCarrierData Generate(T metadata, List<AbstractFile> filesToProcess);
+        AbstractCarrierData Generate(T metadata, string digitizingEntity, List<AbstractFile> filesToProcess);
     }
 }

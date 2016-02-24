@@ -32,15 +32,16 @@ namespace Packager.Factories
         /// <param name="model"></param>
         /// <param name="provenance"></param>
         /// <param name="metadata"></param>
+        /// <param name="digitizingEntity"></param>
         /// <returns></returns>
         protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
-            AudioPodMetadata metadata)
+            AudioPodMetadata metadata, string digitizingEntity)
         {
             var description = GenerateDescription(metadata, model);
 
             return new EmbeddedAudioMetadata
             {
-                Originator = metadata.DigitizingEntity,
+                Originator = digitizingEntity,
                 OriginatorReference = Path.GetFileNameWithoutExtension(model.Filename),
                 Description = description,
                 ICMT = description,

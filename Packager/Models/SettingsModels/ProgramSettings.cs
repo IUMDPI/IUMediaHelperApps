@@ -1,14 +1,14 @@
-﻿using System.Collections.Specialized;
-using Packager.Factories;
-using Packager.Validators.Attributes;
+﻿using Packager.Validators.Attributes;
 
 namespace Packager.Models.SettingsModels
 {
     public class ProgramSettings : IProgramSettings
     {
-   
         [ValidateFile]
         public string PodAuthFilePath { get; set; }
+
+        [Required]
+        public string DigitizingEntity { get; set; }
 
         [ValidateFile]
         public string BwfMetaEditPath { get; set; }

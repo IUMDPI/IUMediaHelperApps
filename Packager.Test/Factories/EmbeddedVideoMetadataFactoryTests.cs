@@ -17,6 +17,8 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         [SetUp]
         public void BeforeEach()
         {
+            ProgramSettings = Substitute.For<IProgramSettings>();
+            ProgramSettings.DigitizingEntity.Returns(DigitizingEntity);
             PresProvenance = GetFileProvenance(PresFilename);
             MezzProvenance = GetFileProvenance(MezzFilename);
             PresModel = FileModelFactory.GetModel(PresFilename);
@@ -24,7 +26,6 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
             Instances = new List<AbstractFile> {PresModel, MezzModel};
             Metadata = new VideoPodMetadata
             {
-                DigitizingEntity = DigitizingEntity,
                 Unit = Unit,
                 CallNumber = CallNumber,
                 Format = "Record",
@@ -36,8 +37,8 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
 
             DoCustomSetup();
 
-            Result =
-                new EmbeddedVideoMetadataFactory(Substitute.For<IProgramSettings>()).Generate(Instances, ModelToUseForTesting, Metadata) as AbstractEmbeddedVideoMetadata;
+            Result = new EmbeddedVideoMetadataFactory(ProgramSettings)
+                .Generate(Instances, ModelToUseForTesting, Metadata) as AbstractEmbeddedVideoMetadata;
         }
 
         private const string PresFilename = "MDPI_4890764553278906_01_pres.mkv";
@@ -58,7 +59,7 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         private DigitalVideoFile MezzProvenance { get; set; }
         private VideoPodMetadata Metadata { get; set; }
         private List<AbstractFile> Instances { get; set; }
-
+        private IProgramSettings ProgramSettings { get; set; }
         protected virtual void DoCustomSetup()
         {
         }
@@ -126,7 +127,7 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         [Test]
         public void CommentShouldBeCorrect()
         {
-            Assert.That(Result.Comment, Is.EqualTo($"File created by {Metadata.DigitizingEntity}"));
+            Assert.That(Result.Comment, Is.EqualTo($"File created by {DigitizingEntity}"));
         }
 
         public class WhenModelIsPreservationMaster : EmbeddedVideoMetadataFactoryTests

@@ -301,9 +301,9 @@ namespace Packager.Test.Processors
 
                     VideoCarrier = new VideoCarrier();
                     VideoCarrierDataFactory.When(
-                        mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()))
+                        mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
                         .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
-                    VideoCarrierDataFactory.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>())
+                    VideoCarrierDataFactory.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
                         .Returns(VideoCarrier);
                 }
 
@@ -321,6 +321,7 @@ namespace Packager.Test.Processors
                     {
                         VideoCarrierDataFactory.Received().Generate(
                             Arg.Any<VideoPodMetadata>(),
+                            Arg.Any<string>(),
                             Arg.Is<List<AbstractFile>>(
                                 l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
                     }
@@ -397,12 +398,12 @@ namespace Packager.Test.Processors
                     Assert.That(derivativeCount, Is.EqualTo(mastersCount));
                 }
 
-
                 [Test]
                 public void ItShouldPassSinglePreservationModelToGenerator()
                 {
                     VideoCarrierDataFactory.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
+                        Arg.Any<string>(),
                         Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
                 }
 
@@ -413,6 +414,13 @@ namespace Packager.Test.Processors
                     var qualityControlFileCount = GetMasters().Select(GetQualityControlFileForMaster).Count();
                     Assert.That(qualityControlFileCount, Is.EqualTo(mastersCount));
                 }
+
+                [Test]
+                public void ItShouldPassCorrectDigitizingEntityToFactory()
+                {
+                    VideoCarrierDataFactory.Received()
+                        .Generate(Arg.Any<VideoPodMetadata>(), DigitizingEntity, Arg.Any<List<AbstractFile>>());
+                }
             }
 
             public class WhenHashingFiles : WhenNothingGoesWrong
@@ -422,7 +430,7 @@ namespace Packager.Test.Processors
                     base.BeforeEach();
 
                     ProcessedModelList = VideoCarrierDataFactory.ReceivedCalls()
-                        .First().GetArguments()[1] as List<AbstractFile>;
+                        .First().GetArguments()[2] as List<AbstractFile>;
                 }
 
                 private List<AbstractFile> ProcessedModelList { get; set; }

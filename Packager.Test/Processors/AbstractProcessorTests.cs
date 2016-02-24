@@ -30,6 +30,7 @@ namespace Packager.Test.Processors
         protected const string DropBoxRoot = "dropbox";
         protected const string ErrorDirectory = "error";
         protected const string ProcessingRoot = "processing";
+        protected const string DigitizingEntity = "test digitizing entity";
 
         protected IProgramSettings ProgramSettings { get; set; }
         protected IDependencyProvider DependencyProvider { get; set; }
@@ -86,6 +87,7 @@ namespace Packager.Test.Processors
             ProgramSettings.DropBoxDirectoryName.Returns(DropBoxRoot);
             ProgramSettings.ErrorDirectoryName.Returns(ErrorDirectory);
             ProgramSettings.ProcessingDirectory.Returns(ProcessingRoot);
+            ProgramSettings.DigitizingEntity.Returns(DigitizingEntity);
 
             AudioMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
             AudioMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(), Arg.Any<AbstractFile>(),Arg.Any<AudioPodMetadata>())

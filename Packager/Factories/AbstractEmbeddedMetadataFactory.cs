@@ -15,19 +15,18 @@ namespace Packager.Factories
     {
         protected AbstractEmbeddedMetadataFactory(IProgramSettings programSettings)
         {
-            ProgramSettings = programSettings;
+            DigitizingEntity = programSettings.DigitizingEntity;
         }
 
-        protected IProgramSettings ProgramSettings { get; }
+        protected string DigitizingEntity { get; }
 
         public AbstractEmbeddedMetadata Generate(IEnumerable<AbstractFile> models, AbstractFile target, T metadata)
         {
             var provenance = GetProvenance(metadata, models, target);
-            return Generate(target, provenance, metadata);
+            return Generate(target, provenance, metadata, DigitizingEntity);
         }
 
-        protected abstract AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
-            T metadata);
+        protected abstract AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, T metadata, string digitizingEntity);
         
         protected string GenerateDescription(AbstractPodMetadata metadata, AbstractFile model)
         {

@@ -12,24 +12,23 @@ namespace Packager.Factories
         {
         }
 
-        protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
-            VideoPodMetadata metadata)
+        protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, VideoPodMetadata metadata, string digitizingEntity)
         {
             return model.IsMezzanineVersion()
-                ? GetForUse<EmbeddedVideoMezzanineMetadata>(model, provenance, metadata)
-                : GetForUse<EmbeddedVideoPreservationMetadata>(model, provenance, metadata);
+                ? GetForUse<EmbeddedVideoMezzanineMetadata>(model, provenance, metadata, digitizingEntity)
+                : GetForUse<EmbeddedVideoPreservationMetadata>(model, provenance, metadata, digitizingEntity);
         }
 
 
         private AbstractEmbeddedMetadata GetForUse<T>(AbstractFile model, AbstractDigitalFile provenance,
-            AbstractPodMetadata metadata) where T : AbstractEmbeddedVideoMetadata, new()
+            AbstractPodMetadata metadata, string digitizingEntity) where T : AbstractEmbeddedVideoMetadata, new()
         {
             return new T
             {
                 Description = GenerateDescription(metadata, model),
                 Title = metadata.Title,
                 MasteredDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
-                Comment = $"File created by {metadata.DigitizingEntity}"
+                Comment = $"File created by {digitizingEntity}"
             };
         }
     }

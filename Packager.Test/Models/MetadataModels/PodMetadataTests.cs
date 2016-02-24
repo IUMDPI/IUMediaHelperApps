@@ -31,7 +31,6 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Factory.ToStringValue(Element, "data/cleaning_comment").Returns("cleaning comment value");
             Factory.ToDateTimeValue(Element, "data/cleaning_date")
                 .Returns(new DateTime(2016, 2, 1));
-            Factory.ToStringValue(Element, "data/digitizing_entity").Returns("digitizing entity value");
             Factory.ToStringValue(Element, "data/repaired").Returns("No"); //todo: fix this so it's a factory method and is more easily mockable
 
             Factory.ToStringValue(Element, "data/title").Returns("title value");
@@ -365,19 +364,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
         {
             Assert.That(Instance.CleaningDate, Is.EqualTo(new DateTime(2016,2,1)));
         }
-
-        [Test]
-        public void ItShouldUseCorrectPathToResolveDigitizingEntity()
-        {
-            Factory.Received().ToStringValue(Element, "data/digitizing_entity");
-        }
-
-        [Test]
-        public void ItShouldSetDigitizingEntityCorrectly()
-        {
-            Assert.That(Instance.DigitizingEntity, Is.EqualTo("digitizing entity value"));
-        }
-
+        
         [Test]
         public void ItShouldUseCorrectPathToResolveFormet()
         {

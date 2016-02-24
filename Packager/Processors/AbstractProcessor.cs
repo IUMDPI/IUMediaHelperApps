@@ -202,7 +202,7 @@ namespace Packager.Processors
             {
                 await AssignChecksumValues(filesToProcess, cancellationToken);
 
-                var wrapper = new IU {Carrier = CarrierDataFactory.Generate(metadata, filesToProcess)};
+                var wrapper = new IU {Carrier = CarrierDataFactory.Generate(metadata, ProgramSettings.DigitizingEntity, filesToProcess)};
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
 
                 result.Checksum = await Hasher.Hash(result, cancellationToken);

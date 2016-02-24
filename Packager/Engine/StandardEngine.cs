@@ -172,6 +172,7 @@ namespace Packager.Engine
             var sectionKey = Observers.BeginSection("Configuration:");
 
             Observers.Log("Project code: {0}", ProgramSettings.ProjectCode.ToDefaultIfEmpty("[not set]"));
+            Observers.Log("Digitizing entity: {0}", ProgramSettings.DigitizingEntity.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Web-service host: {0}", ProgramSettings.WebServiceUrl.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("Input folder: {0}", ProgramSettings.InputDirectory.ToDefaultIfEmpty("[not set]"));

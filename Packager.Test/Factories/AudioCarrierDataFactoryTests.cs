@@ -24,7 +24,6 @@ namespace Packager.Test.Factories
                 Format = "CD-R",
                 DirectionsRecorded = "1",
                 CallNumber = "Call number",
-                DigitizingEntity = "Test entity",
                 SoundField = "Mono",
                 PlaybackSpeed = "7.5 ips",
                 TapeThickness = "1 mm",
@@ -53,12 +52,13 @@ namespace Packager.Test.Factories
             };
 
             var generator = new AudioCarrierDataFactory(SideDataFactory);
-            Result = generator.Generate(PodMetadata, FilesToProcess) as AudioCarrier;
+            Result = generator.Generate(PodMetadata, DigitizingEntity, FilesToProcess) as AudioCarrier;
         }
 
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
         private const string ProductionSide1FileName = "MDPI_4890764553278906_01_prod.wav";
         private const string AccessSide1FileName = "MDPI_4890764553278906_01_access.mp4";
+        private const string DigitizingEntity = "Test digitizing entity";
 
         private AbstractFile PreservationSide1FileModel { get; set; }
         private AbstractFile ProductionSide1FileModel { get; set; }
@@ -194,7 +194,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetSpeedCorrectly()
             {
-                //Assert.That(Result.Configuration.Speed, Is.EqualTo(PodMetadata.PlaybackSpeed));
+                Assert.That(Result.Configuration.Speed, Is.EqualTo(PodMetadata.PlaybackSpeed));
             }
 
             [Test]
@@ -236,7 +236,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetDigitizingEntityCorrectly()
             {
-                Assert.That(Result.Parts.DigitizingEntity, Is.EqualTo(PodMetadata.DigitizingEntity));
+                Assert.That(Result.Parts.DigitizingEntity, Is.EqualTo(DigitizingEntity));
             }
 
             [Test]

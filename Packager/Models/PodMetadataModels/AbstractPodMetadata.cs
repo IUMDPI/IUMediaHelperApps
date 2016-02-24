@@ -23,8 +23,7 @@ namespace Packager.Models.PodMetadataModels
         public DateTime? BakingDate { get; set; }
         public string Repaired { get; set; }
         public string PlaybackSpeed { get; set; }
-        [Required]
-        public string DigitizingEntity { get; set; }
+       
         public string Damage { get; set; }
         public string PreservationProblems { get; set; }
         public List<AbstractDigitalFile> FileProvenances { get; set; }
@@ -49,7 +48,6 @@ namespace Packager.Models.PodMetadataModels
             Title = factory.ToStringValue(element, "data/title");
             Unit = factory.ToStringValue(element, "data/unit");
             Barcode = factory.ToStringValue(element, "data/mdpi_barcode");
-            DigitizingEntity = factory.ToStringValue(element, "data/digitizing_entity");
             BakingDate = factory.ToDateTimeValue(element, "data/baking_date");
             CleaningDate = factory.ToDateTimeValue(element, "data/cleaning_date");
             CleaningComment = factory.ToStringValue(element, "data/cleaning_comment");

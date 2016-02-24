@@ -18,12 +18,12 @@ namespace Packager.Test.Factories
         public void BeforeEach()
         {
             ProgramSettings = Substitute.For<IProgramSettings>();
+            ProgramSettings.DigitizingEntity.Returns(DigitizingEntity);
             Provenance = GetFileProvenance();
             Model = FileModelFactory.GetModel(PreservationFileName);
             Instances = new List<AbstractFile> {Model};
             Metadata = new AudioPodMetadata
             {
-                DigitizingEntity = DigitizingEntity,
                 Unit = Unit,
                 CallNumber = CallNumber,
                 Format = "Record",

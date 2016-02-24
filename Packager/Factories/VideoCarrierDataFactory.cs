@@ -16,7 +16,7 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; }
 
-        public AbstractCarrierData Generate(VideoPodMetadata metadata, List<AbstractFile> filesToProcess)
+        public AbstractCarrierData Generate(VideoPodMetadata metadata, string digitizingEntity, List<AbstractFile> filesToProcess)
         {
             return new VideoCarrier
             {
@@ -25,7 +25,7 @@ namespace Packager.Factories
                 Identifier = metadata.CallNumber.ToDefaultIfEmpty("Unknown"),
                 Baking = new BakingData {Date = metadata.BakingDate?.ToString("yyyy-MM-dd") },
                 Cleaning = new CleaningData {Date = metadata.CleaningDate?.ToString("yyyy-MM-dd"), Comment = metadata.CleaningComment},
-                Parts = GeneratePartsData(metadata, filesToProcess),
+                Parts = GeneratePartsData(metadata, digitizingEntity, filesToProcess),
                 PhysicalCondition = new PhysicalConditionData
                 {
                     Damage = metadata.Damage,
@@ -39,11 +39,11 @@ namespace Packager.Factories
             };
         }
 
-        private PartsData GeneratePartsData(VideoPodMetadata metadata, IEnumerable<AbstractFile> filesToProcess)
+        private PartsData GeneratePartsData(VideoPodMetadata metadata, string digitizingEntity, IEnumerable<AbstractFile> filesToProcess)
         {
             return new PartsData
             {
-                DigitizingEntity = metadata.DigitizingEntity,
+                DigitizingEntity = digitizingEntity,
                 Sides = SideDataFactory.Generate(metadata, filesToProcess)
             };
         }

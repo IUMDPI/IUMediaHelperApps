@@ -56,9 +56,7 @@ namespace Packager.Processors
         protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models); 
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken);
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken);
-
-      
-
+        
         public virtual async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
         {
             Barcode = fileModels.Key;
@@ -75,7 +73,7 @@ namespace Packager.Processors
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
 
                 // fetch, log, and validate metadata
-                var metadata = await GetMetadata<T>(filesToProcess);
+                var metadata = await GetMetadata<T>(filesToProcess, cancellationToken);
 
                 // normalize originals
                 await NormalizeOriginals(filesToProcess, metadata, cancellationToken);
@@ -341,13 +339,13 @@ namespace Packager.Processors
             return targetPath;
         }
 
-        private async Task<TMetadataType> GetMetadata<TMetadataType>(List<AbstractFile> filesToProcess) where TMetadataType : AbstractPodMetadata, new()
+        private async Task<TMetadataType> GetMetadata<TMetadataType>(List<AbstractFile> filesToProcess, CancellationToken cancellationToken) where TMetadataType : AbstractPodMetadata, new()
         {
             var sectionKey = Observers.BeginSection("Requesting metadata for object: {0}", Barcode);
             try
             {
                 // get base metadata
-                var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode);
+                var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode, cancellationToken);
                 
                 // log metadata
                 MetadataProvider.Log(metadata);

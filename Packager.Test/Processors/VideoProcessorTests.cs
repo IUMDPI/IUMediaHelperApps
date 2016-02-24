@@ -57,7 +57,7 @@ namespace Packager.Test.Processors
 
             Metadata = new VideoPodMetadata {Barcode = Barcode, Unit = "Unit value"};
 
-            MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
+            MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
             Processor = new VideoProcessor(DependencyProvider);
 
@@ -200,7 +200,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
-                    MetadataProvider.Received().GetObjectMetadata<VideoPodMetadata>(Barcode);
+                    MetadataProvider.Received().GetObjectMetadata<VideoPodMetadata>(Barcode, Arg.Any<CancellationToken>());
                 }
 
                 [Test]

@@ -56,7 +56,7 @@ namespace Packager.Test.Processors
 
             Metadata = new AudioPodMetadata {Barcode = Barcode, Unit = "Unit value"};
 
-            MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode).Returns(Task.FromResult(Metadata));
+            MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
             Processor = new AudioProcessor(DependencyProvider);
 
@@ -199,7 +199,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldGetPodMetadata()
                 {
-                    MetadataProvider.Received().GetObjectMetadata<AudioPodMetadata>(Barcode);
+                    MetadataProvider.Received().GetObjectMetadata<AudioPodMetadata>(Barcode, Arg.Any<CancellationToken>());
                 }
 
                 [Test]

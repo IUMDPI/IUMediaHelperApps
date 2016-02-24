@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
@@ -27,11 +28,11 @@ namespace Packager.Providers
         private IObserverCollection Observers { get; }
         private IValidatorCollection Validators { get; }
 
-        public async Task<T> GetObjectMetadata<T>(string barcode) where T : AbstractPodMetadata, new()
+        public async Task<T> GetObjectMetadata<T>(string barcode, CancellationToken cancellationToken) where T : AbstractPodMetadata, new()
         {
             var request = new RestRequest($"responses/objects/{barcode}/metadata/digital_provenance");
 
-            var response = await Client.ExecuteGetTaskAsync<T>(request);
+            var response = await Client.ExecuteGetTaskAsync<T>(request, cancellationToken);
             VerifyResponse(response);
            
             return Normalize(response.Data);

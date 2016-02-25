@@ -51,6 +51,6 @@
 						includes ingest elements for all original files in output xml
 						standardizes order of devices in output xml
 						added cancel button to user interface
-
+2.8.0.0		2/25/2016	set digitizing entity from config file
 
 					

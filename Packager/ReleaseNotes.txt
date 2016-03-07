@@ -52,5 +52,6 @@
 						standardizes order of devices in output xml
 						added cancel button to user interface
 2.8.0.0		2/25/2016	set digitizing entity from config file
+2.9.0.0		3/7/2016	remove QCStatus, ManualCheck, and Digitstatus fields from output xml.
 
 					

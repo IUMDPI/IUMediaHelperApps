@@ -62,7 +62,6 @@ namespace Packager.Factories
                     SerialNumber = provenance.ExtractionWorkstation.SerialNumber,
                     Manufacturer = provenance.ExtractionWorkstation.Manufacturer
                 },
-                DigitStatus = "OK", // todo: confirm is valid
                 Date = GetDateDigitized(provenance.DateDigitized, "yyyy-MM-dd"),
                 Players = provenance.PlayerDevices
                     .Select(

@@ -13,27 +13,24 @@ namespace Packager.Models.OutputModels.Ingest
         public string Date { get; set; }
 
         [XmlElement(Order = 3)]
-        public string DigitStatus { get; set; }
-
-        [XmlElement(Order = 4)]
         public string Comments { get; set; }
 
-        [XmlElement(ElementName = "Created_by", Order = 5)]
+        [XmlElement(ElementName = "Created_by", Order = 4)]
         public string CreatedBy { get; set; }
 
-        [XmlElement(Order = 6, ElementName = "Player")]
+        [XmlElement(Order = 5, ElementName = "Player")]
         public Device[] Players { get; set; }
 
-        [XmlElement(Order = 7, ElementName = "TBC")]
+        [XmlElement(Order = 6, ElementName = "TBC")]
         public Device[] TbcDevices { get; set; }
 
-        [XmlElement(Order = 8, ElementName = "AD")]
+        [XmlElement(Order = 7, ElementName = "AD")]
         public Device[] AdDevices { get; set; }
 
-        [XmlElement(Order = 9)]
+        [XmlElement(Order = 8)]
         public Device Encoder { get; set; }
 
-        [XmlElement(Order = 10, ElementName = "Extraction_workstation")]
+        [XmlElement(Order = 9, ElementName = "Extraction_workstation")]
         public Device ExtractionWorkstation { get; set; }
 
         

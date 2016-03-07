@@ -24,14 +24,13 @@ namespace Packager.Test.Models.OutputModels
         {
             [TestCase("FileName", 1)]
             [TestCase("Date", 2)]
-            [TestCase("DigitStatus", 3)]
-            [TestCase("Comments", 4)]
-            [TestCase("CreatedBy", 5)]
-            [TestCase("Players", 6)]
-            [TestCase("TbcDevices", 7)]
-            [TestCase("AdDevices", 8)]
-            [TestCase("Encoder", 9)]
-            [TestCase("ExtractionWorkstation", 10)]
+            [TestCase("Comments", 3)]
+            [TestCase("CreatedBy", 4)]
+            [TestCase("Players", 5)]
+            [TestCase("TbcDevices", 6)]
+            [TestCase("AdDevices", 7)]
+            [TestCase("Encoder", 8)]
+            [TestCase("ExtractionWorkstation", 9)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (VideoIngest).GetProperty(field);

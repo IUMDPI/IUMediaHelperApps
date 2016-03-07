@@ -159,12 +159,6 @@ namespace Packager.Test.Factories
             }
 
             [Test]
-            public void ItShouldSetDigitStatusCorrectly()
-            {
-                Assert.That(Result.DigitStatus, Is.EqualTo("OK"));
-            }
-
-            [Test]
             public void ItShouldSetEncoderCorrectly()
             {
                 Assert.That(Result.Encoder.SerialNumber,

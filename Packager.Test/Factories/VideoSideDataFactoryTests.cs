@@ -180,24 +180,6 @@ namespace Packager.Test.Factories
         }
 
         [Test]
-        public void ManualCheckShouldBeSetCorrectly()
-        {
-            foreach (var side in Results)
-            {
-                Assert.That(side.ManualCheck, Is.EqualTo("No"));
-            }
-        }
-
-        [Test]
-        public void QCStatusShouldBeSetCorrect()
-        {
-            foreach (var side in Results)
-            {
-                Assert.That(side.QCStatus, Is.EqualTo("OK"));
-            }
-        }
-
-        [Test]
         public void ResultShouldContainExpectedSides()
         {
             Assert.That(Results.Length, Is.EqualTo(ExpectedSides));

@@ -33,7 +33,6 @@ namespace Packager.Factories
                 Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
                 Files = grouping.OrderBy(model=>model.Precedence).Select(GetFileData).ToList(),
                 Ingest = GenerateAudioIngestElements(podMetadata, grouping),
-                ManualCheck = "No"
             }).ToArray();
         }
 
@@ -58,8 +57,6 @@ namespace Packager.Factories
                 Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
                 Files = grouping.OrderBy(model => model.Precedence).Select(GetFileData).ToList(),
                 Ingest = GenerateVideoIngestElements(podMetadata, grouping),
-                ManualCheck = "No", // todo: ok?
-                QCStatus = "OK" // todo: ok?
             }).ToArray();
         }
 

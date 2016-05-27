@@ -102,9 +102,17 @@ namespace Recorder.Utilities
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
 
-            Process.StartInfo.Arguments = $"{Settings.FFMPEGArguments} -ac {ObjectModel.Channels} {GetTargetPartFilename(part)}";
-            WriteArguments(Process.StartInfo.Arguments);
+            var blackMagicFourChannelPrepend = FourChannelsSpecified() && UsingDeckLink()
+                ? "-bm_channels 8" 
+                : string.Empty;
 
+            var fourChannelAppend = FourChannelsSpecified()
+                ? " -map_channel 0.0.0 -map_channel 0.0.1 -map_channel 0.0.2 -map_channel 0.0.3" 
+                :string.Empty;
+
+            Process.StartInfo.Arguments = $"{blackMagicFourChannelPrepend} {Settings.FFMPEGArguments} {fourChannelAppend} {GetTargetPartFilename(part)}";
+
+            WriteArguments(Process.StartInfo.Arguments);
 
             Process.StartInfo.EnvironmentVariables["FFREPORT"] = $"file={GetTargetPartLogFilename(part)}:level=32";
             Process.StartInfo.WorkingDirectory = ObjectModel.WorkingFolderPath;
@@ -113,6 +121,16 @@ namespace Recorder.Utilities
 
             Process.BeginErrorReadLine();
             Process.BeginOutputReadLine();
+        }
+
+        private bool FourChannelsSpecified()
+        {
+            return ObjectModel.Channels > 2;
+        }
+
+        private bool UsingDeckLink()
+        {
+            return Settings.FFMPEGArguments.ToLowerInvariant().Contains("-f decklink");
         }
 
         public void StopRecording()

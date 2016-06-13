@@ -106,8 +106,10 @@ namespace Recorder.Utilities
                 ? "-bm_channels 8" 
                 : string.Empty;
 
+            const string toFourMonoStreamsAppend = "-filter_complex channelsplit=channel_layout=FL+FR+FC+LFE";
+                
             var fourChannelAppend = FourChannelsSpecified()
-                ? " -map_channel 0.0.0 -map_channel 0.0.1 -map_channel 0.0.2 -map_channel 0.0.3" 
+                ? toFourMonoStreamsAppend 
                 :string.Empty;
 
             Process.StartInfo.Arguments = $"{blackMagicFourChannelPrepend} {Settings.FFMPEGArguments} {fourChannelAppend} {GetTargetPartFilename(part)}";

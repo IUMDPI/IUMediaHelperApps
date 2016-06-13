@@ -49,6 +49,7 @@ namespace Packager.Processors
         protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
         private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
         private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
+        private IMediaInfoProvider MediaInfoProvider => DependencyProvider.MediaInfoProvider;
         protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
         protected abstract IFFMPEGRunner FFMpegRunner { get; }
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
@@ -80,6 +81,9 @@ namespace Packager.Processors
 
                 // verify normalized versions of originals
                 await FFMpegRunner.Verify(filesToProcess, cancellationToken);
+
+                // get media info about originals
+                await GetMediaInfo(filesToProcess, cancellationToken);
 
                 // create list of files to process and add the original files that
                 // we know about
@@ -137,6 +141,14 @@ namespace Packager.Processors
                 return new ValidationResult(e.GetBaseMessage());
             }
         }
+
+        private async Task GetMediaInfo(IEnumerable<AbstractFile> filesToProcess, CancellationToken cancellationToken)
+        {
+            foreach (var file in filesToProcess)
+            {
+                await MediaInfoProvider.SetMediaInfo(file, cancellationToken);
+            }
+        }
         
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
@@ -161,7 +173,7 @@ namespace Packager.Processors
 
             return results;
         }
-        
+
         private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models, CancellationToken cancellationToken)
         {
             var results = new List<AbstractFile>();

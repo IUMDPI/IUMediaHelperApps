@@ -131,6 +131,8 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Providers\DirectoryProvider.cs" />
     <Compile Include="Providers\FileProvider.cs" />
+    <Compile Include="Providers\IMediaInfoProvider.cs" />
+    <Compile Include="Providers\MediaInfoProvider.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />

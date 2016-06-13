@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Packager.Models.SettingsModels;
+﻿using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Hashing;

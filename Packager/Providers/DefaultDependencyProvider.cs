@@ -58,7 +58,7 @@ namespace Packager.Providers
             SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, ProgramSettings.SuccessDirectoryName,
                 new TimeSpan(ProgramSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
             FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
-           
+            MediaInfoProvider = new MediaInfoProvider(ProgramSettings, FFProbeRunner);
         }
 
         [ValidateObject]
@@ -122,7 +122,10 @@ namespace Packager.Providers
         
         [ValidateObject]
         public IFFProbeRunner FFProbeRunner { get; }
-        
+
+        [ValidateObject]
+        public IMediaInfoProvider MediaInfoProvider { get; }
+
         [ValidateObject]
         public IBwfMetaEditRunner MetaEditRunner { get; }
 

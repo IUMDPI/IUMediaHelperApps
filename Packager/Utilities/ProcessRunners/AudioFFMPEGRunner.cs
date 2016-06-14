@@ -1,8 +1,5 @@
 ﻿using Packager.Extensions;
-using Packager.Models.SettingsModels;
-using Packager.Observers;
 using Packager.Providers;
-using Packager.Utilities.Hashing;
 
 namespace Packager.Utilities.ProcessRunners
 {
@@ -12,12 +9,11 @@ namespace Packager.Utilities.ProcessRunners
         private const string RequiredProductionBextArguments = "-write_bext 1";
         private const string RequiredProductionRiffArguments = "-rf64 auto";
 
-        public AudioFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner,
-            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher) :
-                base(programSettings, processRunner, observers, fileProvider, hasher)
+        public AudioFFMPEGRunner(IDependencyProvider dependencyProvider) :
+                base(dependencyProvider)
         {
-            AccessArguments = programSettings.FFMPEGAudioAccessArguments;
-            ProdOrMezzArguments = AddRequiredArguments(programSettings.FFMPEGAudioProductionArguments);
+            AccessArguments = dependencyProvider.ProgramSettings.FFMPEGAudioAccessArguments;
+            ProdOrMezzArguments = AddRequiredArguments(dependencyProvider.ProgramSettings.FFMPEGAudioProductionArguments);
         }
 
         protected override string NormalizingArguments => "-acodec copy -write_bext 1 -rf64 auto -map_metadata -1";

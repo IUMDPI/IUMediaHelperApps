@@ -112,9 +112,7 @@ namespace Packager.Utilities.ProcessRunners
 
         public async Task<InfoFile> GetMediaInfo(AbstractFile target, CancellationToken cancellationToken)
         {
-            const string infoArguments = "-print_format xml -show_format -show_streams {0}";
-
-            var sectionKey = Observers.BeginSection("Generating media info: {0}", target.Filename);
+            const string infoArguments = "-v quiet -print_format xml -show_format -show_streams {0}";
             try
             {
                 var infoFile = new InfoFile(target);
@@ -135,14 +133,10 @@ namespace Packager.Utilities.ProcessRunners
                     await RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()),
                         cancellationToken);
                 }
-
-                Observers.EndSection(sectionKey, $"Media info generated: {target.Filename}");
                 return infoFile;
-
             }
             catch (Exception e)
             {
-                Observers.EndSection(sectionKey);
                 Observers.LogProcessingIssue(e, target.BarCode);
                 throw new LoggedException(e);
             }

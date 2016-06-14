@@ -40,8 +40,6 @@ namespace Packager.Providers
             VideoMetadataFactory = new EmbeddedVideoMetadataFactory(ProgramSettings);
             MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,ProgramSettings.ProcessingDirectory);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
-            AudioFFMPEGRunner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
-            VideoFFMPEGRunner = new VideoFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
             EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
             ImportableFactory = new ImportableFactory();
             ValidatorCollection = new StandardValidatorCollection
@@ -59,6 +57,9 @@ namespace Packager.Providers
                 new TimeSpan(ProgramSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
             FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
             MediaInfoProvider = new MediaInfoProvider(ProgramSettings, FFProbeRunner);
+
+            AudioFFMPEGRunner = new AudioFFMPEGRunner(this);
+            VideoFFMPEGRunner = new VideoFFMPEGRunner(this);
         }
 
         [ValidateObject]

@@ -49,7 +49,6 @@ namespace Packager.Processors
         protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
         private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
         private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
-        private IMediaInfoProvider MediaInfoProvider => DependencyProvider.MediaInfoProvider;
         protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
         protected abstract IFFMPEGRunner FFMpegRunner { get; }
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
@@ -101,10 +100,6 @@ namespace Packager.Processors
                 // now clear the ISFT field from presentation and production/mezz masters
                 await ClearMetadataFields(processedList, cancellationToken);
 
-                // get media info about processed files - we will need this to determine
-                // how to produce the access versions in some instances
-                await SetMediaInfo(filesToProcess, cancellationToken);
-
                 // generate the access versions from production masters
                 processedList = processedList.Concat(
                     await CreateAccessDerivatives(processedList, cancellationToken)).ToList();
@@ -140,14 +135,6 @@ namespace Packager.Processors
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
                 return new ValidationResult(e.GetBaseMessage());
-            }
-        }
-
-        private async Task SetMediaInfo(IEnumerable<AbstractFile> filesToProcess, CancellationToken cancellationToken)
-        {
-            foreach (var file in filesToProcess)
-            {
-                file.MediaInfo = await MediaInfoProvider.GetMediaInfo(file, cancellationToken);
             }
         }
         

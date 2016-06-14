@@ -31,12 +31,16 @@ namespace Packager.Providers
             return element.Descendants("stream").Count(d => d.Attribute("codec_type").Value.Equals("video"));
         }
 
-        public async Task SetMediaInfo(AbstractFile target, CancellationToken cancellationToken)
+        public async Task<MediaInfo> GetMediaInfo(AbstractFile target, CancellationToken cancellationToken)
         {
             var infoFile = await FFProbeRunner.GetMediaInfo(target, cancellationToken);
             var element = GetXElement(infoFile);
-            target.AudioStreams = GetAudioStreamCount(element);
-            target.VideoStreams = GetVideoStreamCount(element);
+
+            return new MediaInfo
+            {
+                AudioStreams = GetAudioStreamCount(element),
+                VideoStreams = GetVideoStreamCount(element)
+            };
         }
 
         private XElement GetXElement(InfoFile target)

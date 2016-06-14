@@ -22,9 +22,7 @@ namespace Packager.Models.FileModels
             FileUse = fileUse;
             FullFileUse = fullFileUse;
             Filename = NormalizeFilename();
-            VideoStreams = original.VideoStreams;
-            AudioStreams = original.AudioStreams;
-
+        
             OriginalFileName = IsSameAs(original)
                 ? original.OriginalFileName
                 : Filename;
@@ -54,8 +52,7 @@ namespace Packager.Models.FileModels
         public string Extension { get; protected set; }
         public string Filename { get; protected set; }
         
-        public int VideoStreams { get; set; }
-        public int AudioStreams { get; set; }
+        public MediaInfo MediaInfo { get; set; }
         
         public string GetFolderName()
         {

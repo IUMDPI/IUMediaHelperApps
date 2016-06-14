@@ -6,6 +6,6 @@ namespace Packager.Providers
 {
     public interface IMediaInfoProvider
     {
-        Task SetMediaInfo(AbstractFile target, CancellationToken cancellationToken);
+        Task<MediaInfo> GetMediaInfo(AbstractFile target, CancellationToken cancellationToken);
     }
 }

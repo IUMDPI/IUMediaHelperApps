@@ -82,9 +82,6 @@ namespace Packager.Processors
                 // verify normalized versions of originals
                 await FFMpegRunner.Verify(filesToProcess, cancellationToken);
 
-                // get media info about originals
-                await GetMediaInfo(filesToProcess, cancellationToken);
-
                 // create list of files to process and add the original files that
                 // we know about
                 var processedList = new List<AbstractFile>().Concat(filesToProcess)
@@ -103,6 +100,10 @@ namespace Packager.Processors
 
                 // now clear the ISFT field from presentation and production/mezz masters
                 await ClearMetadataFields(processedList, cancellationToken);
+
+                // get media info about processed files - we will need this to determine
+                // how to produce the access versions in some instances
+                await SetMediaInfo(filesToProcess, cancellationToken);
 
                 // generate the access versions from production masters
                 processedList = processedList.Concat(
@@ -142,11 +143,11 @@ namespace Packager.Processors
             }
         }
 
-        private async Task GetMediaInfo(IEnumerable<AbstractFile> filesToProcess, CancellationToken cancellationToken)
+        private async Task SetMediaInfo(IEnumerable<AbstractFile> filesToProcess, CancellationToken cancellationToken)
         {
             foreach (var file in filesToProcess)
             {
-                await MediaInfoProvider.SetMediaInfo(file, cancellationToken);
+                file.MediaInfo = await MediaInfoProvider.GetMediaInfo(file, cancellationToken);
             }
         }
         

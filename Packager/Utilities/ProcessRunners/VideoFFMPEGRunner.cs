@@ -2,7 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
+using Packager.Observers;
 using Packager.Providers;
+using Packager.Utilities.Hashing;
 
 namespace Packager.Utilities.ProcessRunners
 {
@@ -13,13 +16,20 @@ namespace Packager.Utilities.ProcessRunners
         private const string ReduceStreamsAccessArguments =
             "-filter_complex \"[0:a:0][0:a:1]amerge=inputs=2[aout]\" -map 0:v -map \"[aout]\"";
 
-        public VideoFFMPEGRunner(IDependencyProvider dependencyProvider)
+        public VideoFFMPEGRunner(IProgramSettings programSettings, IFileProvider fileProvider, IHasher hasher, IObserverCollection observers, IProcessRunner processRunner, IMediaInfoProvider mediaInfoProvider) : base(programSettings, fileProvider, hasher, observers, processRunner)
+        {
+            MediaInfoProvider = mediaInfoProvider;
+            ProdOrMezzArguments = programSettings.FFMPEGVideoMezzanineArguments;
+            AccessArguments = programSettings.FFMPEGVideoAccessArguments;
+        }
+
+       /* public VideoFFMPEGRunner(IDependencyProvider dependencyProvider)
             : base(dependencyProvider)
         {
             MediaInfoProvider = dependencyProvider.MediaInfoProvider;
             ProdOrMezzArguments = dependencyProvider.ProgramSettings.FFMPEGVideoMezzanineArguments;
             AccessArguments = dependencyProvider.ProgramSettings.FFMPEGVideoAccessArguments;
-        }
+        }*/
 
         protected override string NormalizingArguments => "-map 0 -acodec copy -vcodec copy";
 

@@ -10,6 +10,7 @@ using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
@@ -19,6 +20,16 @@ namespace Packager.Utilities.ProcessRunners
 {
     public abstract class AbstractFFMPEGRunner : IFFMPEGRunner
     {
+        protected AbstractFFMPEGRunner(IProgramSettings programSettings, IFileProvider fileProvider, IHasher hasher, IObserverCollection observers, IProcessRunner processRunner)
+        {
+            FFMPEGPath = programSettings.FFMPEGPath;
+            BaseProcessingDirectory = programSettings.ProcessingDirectory;
+            FileProvider = fileProvider;
+            Hasher = hasher;
+            Observers = observers;
+            ProcessRunner = processRunner;
+        }
+
         protected AbstractFFMPEGRunner(IDependencyProvider dependencyProvider)
         {
             FFMPEGPath = dependencyProvider.ProgramSettings.FFMPEGPath;

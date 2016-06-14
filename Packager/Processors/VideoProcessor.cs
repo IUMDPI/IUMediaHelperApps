@@ -7,21 +7,34 @@ using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.SettingsModels;
+using Packager.Observers;
 using Packager.Providers;
+using Packager.Utilities.Bext;
+using Packager.Utilities.Hashing;
 using Packager.Utilities.ProcessRunners;
+using Packager.Utilities.Xml;
 
 namespace Packager.Processors
 {
     public class VideoProcessor : AbstractProcessor<VideoPodMetadata>
     {
-        public VideoProcessor(IDependencyProvider dependencyProvider) : base(dependencyProvider)
+        /*public VideoProcessor(IDependencyProvider dependencyProvider) : base(dependencyProvider)
         {
-            EmbeddedMetadataFactory = DependencyProvider.VideoMetadataFactory;
-            FFMpegRunner = DependencyProvider.VideoFFMPEGRunner;
-            FFProbeRunner = DependencyProvider.FFProbeRunner;
-            CarrierDataFactory = DependencyProvider.VideoCarrierDataFactory;
+            EmbeddedMetadataFactory = dependencyProvider.VideoMetadataFactory;
+            FFMpegRunner = dependencyProvider.VideoFFMPEGRunner;
+            FFProbeRunner = dependencyProvider.FFProbeRunner;
+            CarrierDataFactory = dependencyProvider.VideoCarrierDataFactory;
+        }*/
+
+        public VideoProcessor(IBextProcessor bextProcessor, IDirectoryProvider directoryProvider, IFileProvider fileProvider, IHasher hasher, IPodMetadataProvider metadataProvider, IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter, ICarrierDataFactory<VideoPodMetadata> carrierDataFactory, IEmbeddedMetadataFactory<VideoPodMetadata> embeddedMetadataFactory, VideoFFMPEGRunner ffMpegRunner, IFFProbeRunner ffProbeRunner) : base(bextProcessor, directoryProvider, fileProvider, hasher, metadataProvider, observers, programSettings, xmlExporter)
+        {
+            CarrierDataFactory = carrierDataFactory;
+            EmbeddedMetadataFactory = embeddedMetadataFactory;
+            FFMpegRunner = ffMpegRunner;
+            FFProbeRunner = ffProbeRunner;
         }
-        
+
         private IFFProbeRunner FFProbeRunner { get; }
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
         protected override ICarrierDataFactory<VideoPodMetadata> CarrierDataFactory { get; }

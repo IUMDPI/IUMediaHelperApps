@@ -2,15 +2,21 @@
 using NLog;
 using NLog.Targets;
 using NLog.Targets.Wrappers;
+using Packager.Models.SettingsModels;
 
 namespace Packager.Providers
 {
     public class SystemInfoProvider : ISystemInfoProvider
     {
+        public SystemInfoProvider(IProgramSettings programSettings)
+        {
+            LogFolder = programSettings.LogDirectoryName;
+        }
+/*
         public SystemInfoProvider(string logFolder)
         {
             LogFolder = logFolder;
-        }
+        }*/
 
         private string LogFolder { get; set; }
         

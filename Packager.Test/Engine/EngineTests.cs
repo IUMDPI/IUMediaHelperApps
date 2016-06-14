@@ -55,12 +55,12 @@ namespace Packager.Test.Engine
 
             Validators.Validate(DependencyProvider).Returns(new ValidationResults());
 
-            Engine = new StandardEngine(
+           /* Engine = new StandardEngine(
                 new Dictionary<string, IProcessor>
                 {
                     {MockWavProcessorExtension, MockWavProcessor},
                     {MockMkvProcessorExtension, MockMpegProcessor}
-                }, DependencyProvider, Substitute.For<IViewModel>());
+                }, DependencyProvider, Substitute.For<IViewModel>());*/
         }
 
         private const string MockWavProcessorExtension = ".wav";

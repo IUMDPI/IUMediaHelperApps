@@ -106,9 +106,6 @@ namespace Packager.UserInterface
             TextArea.SelectionBorder = new Pen(SystemColors.HighlightBrush, 1);
             TextArea.SelectionBrush = SystemColors.HighlightBrush;
 
-            outputWindow.DataContext = this;
-            outputWindow.Show();
-
             ((IScrollInfo) outputWindow.OutputText.TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
 
             Document.PropertyChanged += DocumentPropertyChangedHandler;

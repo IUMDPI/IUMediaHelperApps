@@ -24,7 +24,7 @@ namespace Packager.Providers
         public DefaultDependencyProvider(IProgramSettings programSettings)
         {
             ProgramSettings = programSettings;
-            Hasher = new Hasher(ProgramSettings.ProcessingDirectory);
+            Hasher = new Hasher(ProgramSettings);
             XmlExporter = new XmlExporter();
             DirectoryProvider = new DirectoryProvider();
             FileProvider = new FileProvider();
@@ -34,13 +34,13 @@ namespace Packager.Providers
             AudioCarrierDataFactory = new AudioCarrierDataFactory(SideDataFactory);
             VideoCarrierDataFactory = new VideoCarrierDataFactory(SideDataFactory);
 
-            SystemInfoProvider = new SystemInfoProvider(ProgramSettings.LogDirectoryName);
+            SystemInfoProvider = new SystemInfoProvider(ProgramSettings);
             Observers = new ObserverCollection();
             AudioMetadataFactory = new EmbeddedAudioMetadataFactory(ProgramSettings);
             VideoMetadataFactory = new EmbeddedVideoMetadataFactory(ProgramSettings);
-            MetaEditRunner = new BwfMetaEditRunner(ProcessRunner, ProgramSettings.BwfMetaEditPath,ProgramSettings.ProcessingDirectory);
+            MetaEditRunner = new BwfMetaEditRunner(ProgramSettings, ProcessRunner);
             BextProcessor = new BextProcessor(MetaEditRunner, Observers, new BwfMetaEditResultsVerifier());
-            EmailSender = new EmailSender(FileProvider, ProgramSettings.SmtpServer);
+            EmailSender = new EmailSender(ProgramSettings, FileProvider);
             ImportableFactory = new ImportableFactory();
             ValidatorCollection = new StandardValidatorCollection
             {
@@ -53,13 +53,12 @@ namespace Packager.Providers
             MetadataProvider = new PodMetadataProvider(GetRestClient(ProgramSettings, FileProvider, ImportableFactory),
                 Observers,
                 ValidatorCollection);
-            SuccessFolderCleaner = new SuccessFolderCleaner(DirectoryProvider, ProgramSettings.SuccessDirectoryName,
-                new TimeSpan(ProgramSettings.DeleteSuccessfulObjectsAfterDays, 0, 0, 0), Observers);
+            SuccessFolderCleaner = new SuccessFolderCleaner(ProgramSettings, DirectoryProvider, Observers);
             FFProbeRunner = new FFProbeRunner(ProgramSettings, ProcessRunner, FileProvider, Observers);
             MediaInfoProvider = new MediaInfoProvider(ProgramSettings, FFProbeRunner);
 
-            AudioFFMPEGRunner = new AudioFFMPEGRunner(this);
-            VideoFFMPEGRunner = new VideoFFMPEGRunner(this);
+            //AudioFFMPEGRunner = new AudioFFMPEGRunner(this);
+            //VideoFFMPEGRunner = new VideoFFMPEGRunner(this);
         }
 
         [ValidateObject]

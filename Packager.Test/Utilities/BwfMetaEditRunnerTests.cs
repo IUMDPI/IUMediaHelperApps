@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
+using Packager.Models.SettingsModels;
 using Packager.Utilities.Bext;
 using Packager.Utilities.ProcessRunners;
 
@@ -62,8 +63,12 @@ namespace Packager.Test.Utilities
             {
                 base.BeforeEach();
 
+                var programSettings = Substitute.For<IProgramSettings>();
+                programSettings.BwfMetaEditPath.Returns(BwfMetaEditPath);
+                programSettings.ProcessingDirectory.Returns(BaseProcessingDirectory);
+
                 FieldsToClear = new List<BextFields> {BextFields.IARL, BextFields.ICRD, BextFields.IGNR};
-                var runner = new BwfMetaEditRunner(ProcessRunner, BwfMetaEditPath, BaseProcessingDirectory);
+                var runner = new BwfMetaEditRunner(programSettings, ProcessRunner);
                 await runner.ClearMetadata(ProductionFileModel, FieldsToClear, CancellationToken.None);
                 StartInfo = ProcessRunner.ReceivedCalls().First().GetArguments()[0] as ProcessStartInfo;
                 Assert.That(StartInfo, Is.Not.Null);

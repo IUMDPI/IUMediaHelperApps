@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities;
@@ -17,19 +18,22 @@ namespace Packager.Test.Utilities
         public virtual void BeforeEach()
         {
             Observers = Substitute.For<IObserverCollection>();
-            Interval = new TimeSpan(5, 0, 0, 0);
+            Interval = 5;
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
 
             DoCustomSetup();
 
-            Cleaner = new SuccessFolderCleaner(DirectoryProvider, SuccessFolder, Interval, Observers);
+            var programSettings = Substitute.For<IProgramSettings>();
+            programSettings.SuccessDirectoryName.Returns(SuccessFolder);
+            programSettings.DeleteSuccessfulObjectsAfterDays.Returns(Interval);
+            Cleaner = new SuccessFolderCleaner(programSettings, DirectoryProvider, Observers);
         }
 
         private const string SuccessFolder = "success folder";
         private IObserverCollection Observers { get; set; }
         private IDirectoryProvider DirectoryProvider { get; set; }
 
-        private TimeSpan Interval { get; set; }
+        private int Interval { get; set; }
 
         private SuccessFolderCleaner Cleaner { get; set; }
 
@@ -76,7 +80,7 @@ namespace Packager.Test.Utilities
             protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
-                Interval = new TimeSpan(0, 0, 0, 0);
+                Interval = 0;
             }
 
             [Test]
@@ -91,7 +95,7 @@ namespace Packager.Test.Utilities
             protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
-                Interval = new TimeSpan(1, 0, 0, 0);
+                Interval = 1;
             }
 
             [Test]

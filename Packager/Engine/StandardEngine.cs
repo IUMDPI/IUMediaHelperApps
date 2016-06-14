@@ -13,32 +13,54 @@ using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
+using Packager.Utilities.FileSystem;
 using Packager.Validators;
 
 namespace Packager.Engine
 {
     public class StandardEngine : IEngine
     {
-        private IViewModel ViewModel { get; set; }
-        private readonly IDependencyProvider _dependencyProvider;
-        private readonly Dictionary<string, IProcessor> _processors;
+        private IViewModel ViewModel { get; }
+        private Dictionary<string, IProcessor> Processors { get; }
+        private IProgramSettings ProgramSettings { get; }
+        private IDirectoryProvider DirectoryProvider { get; }
+        private IObserverCollection Observers { get; }
+        private IValidatorCollection ValidatorCollection { get; }
+        private ISuccessFolderCleaner SuccessFolderCleaner { get; set; }
+
 
         public StandardEngine(
+            Dictionary<string, IProcessor> processors, 
+            IViewModel viewModel,
+            IProgramSettings programSettings, 
+            IDirectoryProvider directoryProvider,
+            IValidatorCollection validatorCollection, 
+            ISuccessFolderCleaner successFolderCleaner,
+            IObserverCollection observerCollection)
+        {
+            ViewModel = viewModel;
+            ProgramSettings = programSettings;
+            DirectoryProvider = directoryProvider;
+            ValidatorCollection = validatorCollection;
+            SuccessFolderCleaner = successFolderCleaner;
+            Observers = observerCollection;
+            Processors = processors;
+        }
+
+      /*  public StandardEngine(
             Dictionary<string, IProcessor> processors,
             IDependencyProvider dependencyProvider,
             IViewModel viewModel)
         {
             ViewModel = viewModel;
-            _processors = processors;
+            Processors = processors;
             _dependencyProvider = dependencyProvider;
-        }
+            ProgramSettings = dependencyProvider.ProgramSettings;
+            DirectoryProvider = dependencyProvider.DirectoryProvider;
+            ValidatorCollection = dependencyProvider.ValidatorCollection;
+            Observers = dependencyProvider.Observers;
+        }*/
 
-        private IObserverCollection Observers => _dependencyProvider.Observers;
-        private IProgramSettings ProgramSettings => _dependencyProvider.ProgramSettings;
-        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
-        private IValidatorCollection ValidatorCollection => _dependencyProvider.ValidatorCollection;
-      
-        
         public async Task Start(CancellationToken cancellationToken)
         {
             try
@@ -48,7 +70,7 @@ namespace Packager.Engine
                 WriteHelloMessage();
 
                 await LogConfiguration();
-                ValidateDependencyProvider();
+                //ValidateDependencyProvider();
 
                 await CleanupOldFiles();
 
@@ -103,17 +125,17 @@ namespace Packager.Engine
 
         private async Task CleanupOldFiles()
         {
-            await _dependencyProvider.SuccessFolderCleaner.DoCleaning();
+            await SuccessFolderCleaner.DoCleaning();
         }
 
-        private void ValidateDependencyProvider()
+        /*private void ValidateDependencyProvider()
         {
             var result = ValidatorCollection.Validate(_dependencyProvider);
             if (result.Succeeded == false)
             {
                 throw new ProgramSettingsException(result.Issues);
             }
-        }
+        }*/
 
         private IGrouping<string, AbstractFile>[] GetObjectGroups()
         {
@@ -145,7 +167,7 @@ namespace Packager.Engine
             // take those that have extensions associated with a processor
             // and group them by that extension
             var validExtensions = group
-                .Where(m => _processors.Keys.Contains(m.Extension))
+                .Where(m => Processors.Keys.Contains(m.Extension))
                 .GroupBy(m => m.Extension).ToList();
 
             // if we have no groups or if we have more than one group, we have a problem
@@ -154,7 +176,7 @@ namespace Packager.Engine
                 throw new DetermineProcessorException("Can not determine extension for file batch");
             }
 
-            return _processors[validExtensions.First().Key];
+            return Processors[validExtensions.First().Key];
         }
 
         private void WriteHelloMessage()
@@ -181,8 +203,7 @@ namespace Packager.Engine
             Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
-            Observers.Log("BWF MetaEdit path: {0}",
-                _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
+            /*Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
             Observers.Log("BWF MetaEdit version: {0}",
                 (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("Unit prefix: {0}",
@@ -212,7 +233,7 @@ namespace Packager.Engine
                 _dependencyProvider.SuccessFolderCleaner.Enabled
                     ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}"
                     : "disabled");
-
+*/
             Observers.EndSection(sectionKey);
         }
 

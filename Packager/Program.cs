@@ -115,7 +115,6 @@ namespace Packager
                 new UriValidator(),
                 new MembersValidator()
             });
-
             
             container.RegisterSingleton<IObserverCollection>(()=>new ObserverCollection()
                 {

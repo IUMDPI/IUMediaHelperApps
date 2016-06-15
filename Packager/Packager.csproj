@@ -148,6 +148,7 @@
     <Compile Include="UserInterface\IViewModel.cs" />
     <Compile Include="UserInterface\RelayCommand.cs" />
     <Compile Include="Utilities\Bext\BextFields.cs" />
+    <Compile Include="Utilities\Configuration\ConfigurationLogger.cs" />
     <Compile Include="Utilities\FileSystem\SuccessFolderCleaner.cs" />
     <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\ArgumentBuilder.cs" />

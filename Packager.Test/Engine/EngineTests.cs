@@ -13,6 +13,7 @@ using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
+using Packager.Utilities.Configuration;
 using Packager.Utilities.FileSystem;
 using Packager.Validators;
 
@@ -52,7 +53,7 @@ namespace Packager.Test.Engine
                     Grouping2PresFileName
                 });
             
-            //Validators.Validate(DependencyProvider).Returns(new ValidationResults());
+            Validators.Validate(ProgramSettings).Returns(new ValidationResults());
 
             var processors = new Dictionary<string, IProcessor>
             {
@@ -61,7 +62,7 @@ namespace Packager.Test.Engine
             };
 
             Engine = new StandardEngine(processors, ViewModel, ProgramSettings, DirectoryProvider, Validators,
-                SuccessFolderCleaner, Observer);
+                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), Observer);
         }
 
         private const string MockWavProcessorExtension = ".wav";

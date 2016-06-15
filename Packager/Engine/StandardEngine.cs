@@ -13,6 +13,7 @@ using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
+using Packager.Utilities.Configuration;
 using Packager.Utilities.FileSystem;
 using Packager.Validators;
 
@@ -26,7 +27,8 @@ namespace Packager.Engine
         private IDirectoryProvider DirectoryProvider { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection ValidatorCollection { get; }
-        private ISuccessFolderCleaner SuccessFolderCleaner { get; set; }
+        private ISuccessFolderCleaner SuccessFolderCleaner { get; }
+        private IConfigurationLogger ConfigurationLogger { get; }
 
 
         public StandardEngine(
@@ -36,6 +38,7 @@ namespace Packager.Engine
             IDirectoryProvider directoryProvider,
             IValidatorCollection validatorCollection, 
             ISuccessFolderCleaner successFolderCleaner,
+            IConfigurationLogger configurationLogger,
             IObserverCollection observerCollection)
         {
             ViewModel = viewModel;
@@ -43,24 +46,11 @@ namespace Packager.Engine
             DirectoryProvider = directoryProvider;
             ValidatorCollection = validatorCollection;
             SuccessFolderCleaner = successFolderCleaner;
+            ConfigurationLogger = configurationLogger;
             Observers = observerCollection;
             Processors = processors;
         }
-
-      /*  public StandardEngine(
-            Dictionary<string, IProcessor> processors,
-            IDependencyProvider dependencyProvider,
-            IViewModel viewModel)
-        {
-            ViewModel = viewModel;
-            Processors = processors;
-            _dependencyProvider = dependencyProvider;
-            ProgramSettings = dependencyProvider.ProgramSettings;
-            DirectoryProvider = dependencyProvider.DirectoryProvider;
-            ValidatorCollection = dependencyProvider.ValidatorCollection;
-            Observers = dependencyProvider.Observers;
-        }*/
-
+        
         public async Task Start(CancellationToken cancellationToken)
         {
             try
@@ -69,8 +59,8 @@ namespace Packager.Engine
 
                 WriteHelloMessage();
 
-                await LogConfiguration();
-                //ValidateDependencyProvider();
+                await ConfigurationLogger.Log();
+                ValidateSettings();
 
                 await CleanupOldFiles();
 
@@ -128,14 +118,14 @@ namespace Packager.Engine
             await SuccessFolderCleaner.DoCleaning();
         }
 
-        /*private void ValidateDependencyProvider()
+        private void ValidateSettings()
         {
-            var result = ValidatorCollection.Validate(_dependencyProvider);
+            var result = ValidatorCollection.Validate(ProgramSettings);
             if (result.Succeeded == false)
             {
                 throw new ProgramSettingsException(result.Issues);
             }
-        }*/
+        }
 
         private IGrouping<string, AbstractFile>[] GetObjectGroups()
         {
@@ -189,53 +179,7 @@ namespace Packager.Engine
             Observers.Log("Completed {0}", DateTime.Now);
         }
 
-        private async Task LogConfiguration()
-        {
-            var sectionKey = Observers.BeginSection("Configuration:");
-
-            Observers.Log("Project code: {0}", ProgramSettings.ProjectCode.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Digitizing entity: {0}", ProgramSettings.DigitizingEntity.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Web-service host: {0}", ProgramSettings.WebServiceUrl.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("Input folder: {0}", ProgramSettings.InputDirectory.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Processing folder: {0}", ProgramSettings.ProcessingDirectory.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Dropbox folder: {0}", ProgramSettings.DropBoxDirectoryName.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            /*Observers.Log("BWF MetaEdit path: {0}", _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("BWF MetaEdit version: {0}",
-                (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("Unit prefix: {0}",
-                _dependencyProvider.ProgramSettings.UnitPrefix.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("FFMPEG path: {0}",
-                _dependencyProvider.AudioFFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPEG version: {0}",
-                (await _dependencyProvider.AudioFFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("FFMPeg audio production args: {0}",
-                _dependencyProvider.AudioFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg audio access args: {0}",
-                _dependencyProvider.AudioFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg video mezzanine args: {0}",
-                _dependencyProvider.VideoFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg video access args: {0}",
-                _dependencyProvider.VideoFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("FFProbe path: {0}",
-                _dependencyProvider.FFProbeRunner.FFProbePath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFProbe version: {0}",
-                (await _dependencyProvider.FFProbeRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("FFProbe video QC args: {0}",
-                _dependencyProvider.FFProbeRunner.VideoQualityControlArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("Success folder cleaning: {0}",
-                _dependencyProvider.SuccessFolderCleaner.Enabled
-                    ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}"
-                    : "disabled");
-*/
-            Observers.EndSection(sectionKey);
-        }
+    
 
         private void WriteResultsMessage(IEnumerable<IGrouping<string, AbstractFile>> groupings, Dictionary<string, ValidationResult> results, CancellationToken cancellationToken)
         {

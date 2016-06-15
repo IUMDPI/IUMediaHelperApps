@@ -196,7 +196,7 @@ namespace Packager.Utilities.ProcessRunners
             return FileProvider.FileExists(path);
         }
 
-        protected async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
+        private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
             ArgumentBuilder arguments, CancellationToken cancellationToken)
         {
             return await CreateDerivative(original, target, arguments, cancellationToken, new List<string>());

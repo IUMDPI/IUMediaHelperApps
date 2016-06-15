@@ -21,20 +21,31 @@ namespace Packager.Processors
 {
     public class AudioProcessor : AbstractProcessor<AudioPodMetadata>
     {
-        public AudioProcessor(IBextProcessor bextProcessor, IDirectoryProvider directoryProvider, IFileProvider fileProvider, IHasher hasher, IPodMetadataProvider metadataProvider, IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter, ICarrierDataFactory<AudioPodMetadata> carrierDataFactory, IEmbeddedMetadataFactory<AudioPodMetadata> embeddedMetadataFactory, IFFMPEGRunner ffMpegRunner) : base(bextProcessor, directoryProvider, fileProvider, hasher, metadataProvider, observers, programSettings, xmlExporter)
+        public AudioProcessor(
+            IBextProcessor bextProcessor, 
+            IDirectoryProvider directoryProvider, 
+            IFileProvider fileProvider, 
+            IHasher hasher, 
+            IPodMetadataProvider metadataProvider, 
+            IObserverCollection observers, 
+            IProgramSettings programSettings, 
+            IXmlExporter xmlExporter, 
+            ICarrierDataFactory<AudioPodMetadata> carrierDataFactory, 
+            IEmbeddedMetadataFactory<AudioPodMetadata> embeddedMetadataFactory, 
+            IFFMPEGRunner ffMpegRunner) : base(
+                bextProcessor, 
+                directoryProvider, 
+                fileProvider, 
+                hasher, 
+                metadataProvider, 
+                observers, 
+                programSettings, 
+                xmlExporter)
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;
             FFMpegRunner = ffMpegRunner;
         }
-
-        /*public AudioProcessor(IDependencyProvider dependencyProvider)
-            : base(dependencyProvider)
-        {
-            EmbeddedMetadataFactory = dependencyProvider.AudioMetadataFactory;
-            CarrierDataFactory = dependencyProvider.AudioCarrierDataFactory;
-            FFMpegRunner = dependencyProvider.AudioFFMPEGRunner;
-        }*/
 
         protected override ICarrierDataFactory<AudioPodMetadata> CarrierDataFactory { get; }
         protected override IFFMPEGRunner FFMpegRunner { get; }

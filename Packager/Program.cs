@@ -15,6 +15,7 @@ using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
 using Packager.Utilities.Bext;
+using Packager.Utilities.Configuration;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
@@ -82,9 +83,9 @@ namespace Packager
             container.RegisterSingleton<IPodMetadataProvider, PodMetadataProvider>();
             container.RegisterSingleton<ISuccessFolderCleaner, SuccessFolderCleaner>();
             container.RegisterSingleton<IFFProbeRunner, FFProbeRunner>();
-
             container.RegisterSingleton<IMediaInfoProvider, MediaInfoProvider>();
-            
+            container.RegisterSingleton<IConfigurationLogger, ConfigurationLogger>();
+
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
             
@@ -92,7 +93,7 @@ namespace Packager
                 c=>c.Consumer.ImplementationType == typeof(VideoProcessor));
 
             container.RegisterConditional<IFFMPEGRunner, AudioFFMPEGRunner>(Lifestyle.Singleton,
-                c => c.Consumer.ImplementationType == typeof(AudioProcessor));
+                c => c.Consumer.ImplementationType == typeof(AudioProcessor) || c.Consumer.ImplementationType == typeof(ConfigurationLogger));
 
             container.RegisterSingleton( ()=> new Dictionary<string, IProcessor>
             {

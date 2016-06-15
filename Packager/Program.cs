@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Threading;
 using NLog.Config;
 using Packager.Deserializers;
@@ -86,9 +87,12 @@ namespace Packager
             
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
+            
+            container.RegisterConditional<IFFMPEGRunner, VideoFFMPEGRunner>(Lifestyle.Singleton, 
+                c=>c.Consumer.ImplementationType == typeof(VideoProcessor));
 
-            container.RegisterSingleton<VideoFFMPEGRunner>();
-            container.RegisterSingleton<AudioFFMPEGRunner>();
+            container.RegisterConditional<IFFMPEGRunner, AudioFFMPEGRunner>(Lifestyle.Singleton,
+                c => c.Consumer.ImplementationType == typeof(AudioProcessor));
 
             container.RegisterSingleton( ()=> new Dictionary<string, IProcessor>
             {

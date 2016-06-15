@@ -23,28 +23,13 @@ namespace Packager.Processors
 {
     public abstract class AbstractProcessor<T> : IProcessor where T: AbstractPodMetadata, new()
     {
-        // constructor
-        protected AbstractProcessor(IDependencyProvider dependencyProvider)
-        {
-            ProgramSettings = dependencyProvider.ProgramSettings;
-            Observers = dependencyProvider.Observers;
-            MetadataProvider = dependencyProvider.MetadataProvider;
-            XmlExporter = dependencyProvider.XmlExporter;
-            BextProcessor = dependencyProvider.BextProcessor;
-            DirectoryProvider = dependencyProvider.DirectoryProvider;
-            FileProvider = dependencyProvider.FileProvider;
-            Hasher = dependencyProvider.Hasher;
-
-            ProjectCode = dependencyProvider.ProgramSettings.ProjectCode;
-
-            InputDirectory = dependencyProvider.ProgramSettings.InputDirectory;
-            RootDropBoxDirectory = dependencyProvider.ProgramSettings.DropBoxDirectoryName;
-            RootProcessingDirectory = dependencyProvider.ProgramSettings.ProcessingDirectory;
-            BaseErrorDirectory = dependencyProvider.ProgramSettings.ErrorDirectoryName;
-            BaseSuccessDirectory = dependencyProvider.ProgramSettings.SuccessDirectoryName;
-        }
-
-        protected AbstractProcessor(IBextProcessor bextProcessor, IDirectoryProvider directoryProvider, IFileProvider fileProvider, IHasher hasher, IPodMetadataProvider metadataProvider, IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter)
+       protected AbstractProcessor(
+           IBextProcessor bextProcessor, 
+           IDirectoryProvider directoryProvider, 
+           IFileProvider fileProvider, 
+           IHasher hasher, 
+           IPodMetadataProvider metadataProvider, 
+           IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter)
         {
             ProgramSettings = programSettings;
             Observers = observers;

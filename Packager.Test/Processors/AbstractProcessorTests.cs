@@ -33,7 +33,7 @@ namespace Packager.Test.Processors
         protected const string DigitizingEntity = "test digitizing entity";
 
         protected IProgramSettings ProgramSettings { get; set; }
-        protected IDependencyProvider DependencyProvider { get; set; }
+        //protected IDependencyProvider DependencyProvider { get; set; }
         protected IDirectoryProvider DirectoryProvider { get; set; }
         protected IFileProvider FileProvider { get; set; }
         protected IHasher Hasher { get; set; }
@@ -47,7 +47,7 @@ namespace Packager.Test.Processors
         protected IBextProcessor BextProcessor { get; set; }
         protected IFFMPEGRunner FFMPEGRunner { get; set; }
         protected IFFProbeRunner FFProbeRunner { get; set; }
-
+        
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
         protected string ExpectedObjectFolderName { get; set; }
@@ -102,6 +102,8 @@ namespace Packager.Test.Processors
                 Arg.Any<VideoPodMetadata>())
                 .Returns(new EmbeddedVideoPreservationMetadata());
 
+            FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
+
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             FileProvider = Substitute.For<IFileProvider>();
             Hasher = Substitute.For<IHasher>();
@@ -112,28 +114,10 @@ namespace Packager.Test.Processors
             AudioCarrierDataFactory = Substitute.For<ICarrierDataFactory<AudioPodMetadata>>();
             VideoCarrierDataFactory = Substitute.For<ICarrierDataFactory<VideoPodMetadata>>();
             BextProcessor = Substitute.For<IBextProcessor>();
-            FFMPEGRunner = Substitute.For<IFFMPEGRunner>();
+            
             FFProbeRunner = Substitute.For<IFFProbeRunner>();
             FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                 .Returns(a => Task.FromResult(new QualityControlFile(a.Arg<AbstractFile>())));
-
-            DependencyProvider = Substitute.For<IDependencyProvider>();
-            DependencyProvider.FileProvider.Returns(FileProvider);
-            DependencyProvider.DirectoryProvider.Returns(DirectoryProvider);
-            DependencyProvider.Hasher.Returns(Hasher);
-            DependencyProvider.MetadataProvider.Returns(MetadataProvider);
-            DependencyProvider.ProcessRunner.Returns(ProcessRunner);
-            DependencyProvider.ProgramSettings.Returns(ProgramSettings);
-            DependencyProvider.Observers.Returns(Observers);
-            DependencyProvider.XmlExporter.Returns(XmlExporter);
-            DependencyProvider.BextProcessor.Returns(BextProcessor);
-            DependencyProvider.AudioCarrierDataFactory.Returns(AudioCarrierDataFactory);
-            DependencyProvider.VideoCarrierDataFactory.Returns(VideoCarrierDataFactory);
-            DependencyProvider.AudioFFMPEGRunner.Returns(FFMPEGRunner);
-            DependencyProvider.VideoFFMPEGRunner.Returns(FFMPEGRunner);
-            DependencyProvider.AudioMetadataFactory.Returns(AudioMetadataFactory);
-            DependencyProvider.VideoMetadataFactory.Returns(VideoMetadataFactory);
-            DependencyProvider.FFProbeRunner.Returns(FFProbeRunner);
 
             DoCustomSetup();
 

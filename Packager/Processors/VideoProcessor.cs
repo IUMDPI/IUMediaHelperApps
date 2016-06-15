@@ -27,7 +27,7 @@ namespace Packager.Processors
             CarrierDataFactory = dependencyProvider.VideoCarrierDataFactory;
         }*/
 
-        public VideoProcessor(IBextProcessor bextProcessor, IDirectoryProvider directoryProvider, IFileProvider fileProvider, IHasher hasher, IPodMetadataProvider metadataProvider, IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter, ICarrierDataFactory<VideoPodMetadata> carrierDataFactory, IEmbeddedMetadataFactory<VideoPodMetadata> embeddedMetadataFactory, VideoFFMPEGRunner ffMpegRunner, IFFProbeRunner ffProbeRunner) : base(bextProcessor, directoryProvider, fileProvider, hasher, metadataProvider, observers, programSettings, xmlExporter)
+        public VideoProcessor(IBextProcessor bextProcessor, IDirectoryProvider directoryProvider, IFileProvider fileProvider, IHasher hasher, IPodMetadataProvider metadataProvider, IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter, ICarrierDataFactory<VideoPodMetadata> carrierDataFactory, IEmbeddedMetadataFactory<VideoPodMetadata> embeddedMetadataFactory, IFFMPEGRunner ffMpegRunner, IFFProbeRunner ffProbeRunner) : base(bextProcessor, directoryProvider, fileProvider, hasher, metadataProvider, observers, programSettings, xmlExporter)
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;

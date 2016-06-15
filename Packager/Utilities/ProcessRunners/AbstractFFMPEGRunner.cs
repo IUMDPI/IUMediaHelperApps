@@ -29,20 +29,11 @@ namespace Packager.Utilities.ProcessRunners
             Observers = observers;
             ProcessRunner = processRunner;
         }
-
-        protected AbstractFFMPEGRunner(IDependencyProvider dependencyProvider)
-        {
-            FFMPEGPath = dependencyProvider.ProgramSettings.FFMPEGPath;
-            BaseProcessingDirectory = dependencyProvider.ProgramSettings.ProcessingDirectory;
-            Observers = dependencyProvider.Observers;
-            FileProvider = dependencyProvider.FileProvider;
-            Hasher = dependencyProvider.Hasher;
-            ProcessRunner = dependencyProvider.ProcessRunner;
-        }
+        
 
         protected abstract string NormalizingArguments { get; }
         private IProcessRunner ProcessRunner { get; }
-        protected IObserverCollection Observers { get; }
+        private IObserverCollection Observers { get; }
         private IFileProvider FileProvider { get; }
         private IHasher Hasher { get; }
         private string BaseProcessingDirectory { get; }

@@ -23,14 +23,6 @@ namespace Packager.Utilities.ProcessRunners
             AccessArguments = programSettings.FFMPEGVideoAccessArguments;
         }
 
-       /* public VideoFFMPEGRunner(IDependencyProvider dependencyProvider)
-            : base(dependencyProvider)
-        {
-            MediaInfoProvider = dependencyProvider.MediaInfoProvider;
-            ProdOrMezzArguments = dependencyProvider.ProgramSettings.FFMPEGVideoMezzanineArguments;
-            AccessArguments = dependencyProvider.ProgramSettings.FFMPEGVideoAccessArguments;
-        }*/
-
         protected override string NormalizingArguments => "-map 0 -acodec copy -vcodec copy";
 
         public override string ProdOrMezzArguments { get; }

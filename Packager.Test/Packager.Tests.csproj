@@ -91,7 +91,6 @@
     <Compile Include="Factories\VideoIngestFactoryTests.cs" />
     <Compile Include="Factories\VideoSideDataFactoryTests.cs" />
     <Compile Include="Mocks\MockBextMetadata.cs" />
-    <Compile Include="Mocks\MockDependencyProvider.cs" />
     <Compile Include="Mocks\MockPodMetadata.cs" />
     <Compile Include="Models\EmailMessageTests\EngineIssueMessageTests.cs" />
     <Compile Include="Models\EmailMessageTests\ProcessingIssueMessageTests.cs" />

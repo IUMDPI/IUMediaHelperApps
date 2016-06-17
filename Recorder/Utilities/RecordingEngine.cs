@@ -101,7 +101,7 @@ namespace Recorder.Utilities
             OutputWindowViewModel.ShowVolumeMeter();
 
             _volumeMeter.StartMonitoring();
-
+            
             CumulativeTimeSpan = await GetDurationOfExistingParts();
 
             Process.StartInfo.Arguments = $"{GetBlackMagicArguments()} {Settings.FFMPEGArguments} {GetFilterArguments()} {GetTargetPartFilename(part)}";

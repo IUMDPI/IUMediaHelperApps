@@ -65,8 +65,6 @@ namespace Recorder.Utilities
 
         private static int FindDevice(string deviceName)
         {
-            
-
             var deviceCount = WaveIn.DeviceCount;
             for (var index = 0; index < deviceCount; index++)
             {
@@ -105,6 +103,7 @@ namespace Recorder.Utilities
         private float _maxValue;
         private float _minValue;
         public int NotificationCount { get; set; }
+
         public event EventHandler<MaxSampleEventArgs> MaximumCalculated;
         
         private void Reset()

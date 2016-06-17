@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using System.Windows.Threading;
 using Microsoft.VisualBasic.FileIO;
 using Recorder.Handlers;
@@ -102,17 +104,7 @@ namespace Recorder.Utilities
 
             CumulativeTimeSpan = await GetDurationOfExistingParts();
 
-            var blackMagicFourChannelPrepend = FourChannelsSpecified() && UsingDeckLink()
-                ? "-bm_channels 8" 
-                : string.Empty;
-
-            const string toFourMonoStreamsAppend = "-filter_complex channelsplit=channel_layout=FL+FR+FC+LFE";
-                
-            var fourChannelAppend = FourChannelsSpecified()
-                ? toFourMonoStreamsAppend 
-                :string.Empty;
-
-            Process.StartInfo.Arguments = $"{blackMagicFourChannelPrepend} {Settings.FFMPEGArguments} {fourChannelAppend} {GetTargetPartFilename(part)}";
+            Process.StartInfo.Arguments = $"{GetBlackMagicArguments()} {Settings.FFMPEGArguments} {GetFilterArguments()} {GetTargetPartFilename(part)}";
 
             WriteArguments(Process.StartInfo.Arguments);
 
@@ -125,6 +117,20 @@ namespace Recorder.Utilities
             Process.BeginOutputReadLine();
         }
 
+        private string GetBlackMagicArguments()
+        {
+            return UsingDeckLink() && FourChannelsSpecified() 
+                ? "-bm_channels 8" 
+                : string.Empty;
+        }
+
+        private string GetFilterArguments()
+        {
+            return FourChannelsSpecified()
+                ? "-filter_complex channelsplit=channel_layout=15" // 15 = first four channels
+                : string.Empty;
+        }
+
         private bool FourChannelsSpecified()
         {
             return ObjectModel.Channels > 2;
@@ -134,6 +140,7 @@ namespace Recorder.Utilities
         {
             return Settings.FFMPEGArguments.ToLowerInvariant().Contains("-f decklink");
         }
+        
 
         public void StopRecording()
         {
@@ -216,13 +223,12 @@ namespace Recorder.Utilities
                 return new TimeSpan();
             }
 
-            var result = new TimeSpan();
-            foreach (var part in GetExistingParts())
-            {
-                result = result.Add(await _infoEngine.GetDuration(part));
-            }
+            var tasks = GetExistingParts().Select(p => _infoEngine.GetDuration(p));
+            var results = await Task.WhenAll(tasks);
 
-            return result;
+            return results.Any() 
+                ? results.Aggregate((current, duration) => current + duration) 
+                : new TimeSpan();
         }
 
         public async Task<TimeSpan> ResetCumulativeTimestamp()

@@ -4,16 +4,17 @@ using System.Linq;
 using System.Net.Mail;
 using System.Net.Mime;
 using Packager.Models.EmailMessageModels;
+using Packager.Models.SettingsModels;
 using Packager.Providers;
 
 namespace Packager.Utilities.Email
 {
     public class EmailSender : IEmailSender
     {
-        public EmailSender(IFileProvider fileProvider, string smtpServer)
+        public EmailSender(IProgramSettings programSettings, IFileProvider fileProvider)
         {
             FileProvider = fileProvider;
-            SmtpServer = smtpServer;
+            SmtpServer = programSettings.SmtpServer;
         }
 
         private IFileProvider FileProvider { get; set; }

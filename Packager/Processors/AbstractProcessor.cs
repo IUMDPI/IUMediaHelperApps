@@ -23,32 +23,56 @@ namespace Packager.Processors
 {
     public abstract class AbstractProcessor<T> : IProcessor where T: AbstractPodMetadata, new()
     {
-        // constructor
-        protected AbstractProcessor(IDependencyProvider dependencyProvider)
+       protected AbstractProcessor(
+           IBextProcessor bextProcessor, 
+           IDirectoryProvider directoryProvider, 
+           IFileProvider fileProvider, 
+           IHasher hasher, 
+           IPodMetadataProvider metadataProvider, 
+           IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter)
         {
-            DependencyProvider = dependencyProvider;
+            ProgramSettings = programSettings;
+            Observers = observers;
+            MetadataProvider = metadataProvider;
+            XmlExporter = xmlExporter;
+            BextProcessor = bextProcessor;
+            DirectoryProvider = directoryProvider;
+            FileProvider = fileProvider;
+            Hasher = hasher;
+
+            ProjectCode = programSettings.ProjectCode;
+            
+            InputDirectory = programSettings.InputDirectory;
+            RootDropBoxDirectory = programSettings.DropBoxDirectoryName;
+            RootProcessingDirectory = programSettings.ProcessingDirectory;
+            BaseErrorDirectory = programSettings.ErrorDirectoryName;
+            BaseSuccessDirectory = programSettings.SuccessDirectoryName;
         }
 
         protected string Barcode { get; private set; }
+        private string ProjectCode { get; }
+
         protected abstract string OriginalsDirectory { get; }
-        protected IDependencyProvider DependencyProvider { get; }
-        private IProgramSettings ProgramSettings => DependencyProvider.ProgramSettings;
-        protected IObserverCollection Observers => DependencyProvider.Observers;
-        private IPodMetadataProvider MetadataProvider => DependencyProvider.MetadataProvider;
-        private IXmlExporter XmlExporter => DependencyProvider.XmlExporter;
-        private string ProjectCode => ProgramSettings.ProjectCode;
+        
+        private IProgramSettings ProgramSettings { get; }
+        protected IObserverCollection Observers { get; }
+        private IPodMetadataProvider MetadataProvider { get; }
+        private IXmlExporter XmlExporter { get; }
+        private IHasher Hasher { get; }
+        private IFileProvider FileProvider { get; }
+        private IDirectoryProvider DirectoryProvider { get; }
+        protected IBextProcessor BextProcessor { get; }
+
+        private string InputDirectory { get; }
+        private string RootDropBoxDirectory { get; }
+        private string RootProcessingDirectory { get; }
+        private string BaseSuccessDirectory { get; }
+        private string BaseErrorDirectory { get; }
+
         private string ObjectDirectoryName => $"{ProjectCode.ToUpperInvariant()}_{Barcode}";
         protected string ProcessingDirectory => Path.Combine(RootProcessingDirectory, ObjectDirectoryName);
         private string DropBoxDirectory => Path.Combine(RootDropBoxDirectory, ObjectDirectoryName);
-        private string InputDirectory => ProgramSettings.InputDirectory;
-        private string RootDropBoxDirectory => ProgramSettings.DropBoxDirectoryName;
-        private string RootProcessingDirectory => ProgramSettings.ProcessingDirectory;
-        private IHasher Hasher => DependencyProvider.Hasher;
-        private IFileProvider FileProvider => DependencyProvider.FileProvider;
-        private IDirectoryProvider DirectoryProvider => DependencyProvider.DirectoryProvider;
-        protected IBextProcessor BextProcessor => DependencyProvider.BextProcessor;
-        private string BaseSuccessDirectory => ProgramSettings.SuccessDirectoryName;
-        private string BaseErrorDirectory => ProgramSettings.ErrorDirectoryName;
+
         protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
         protected abstract IFFMPEGRunner FFMpegRunner { get; }
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
@@ -161,7 +185,7 @@ namespace Packager.Processors
 
             return results;
         }
-        
+
         private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models, CancellationToken cancellationToken)
         {
             var results = new List<AbstractFile>();

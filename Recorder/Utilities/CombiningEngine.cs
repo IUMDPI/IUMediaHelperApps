@@ -14,7 +14,7 @@ namespace Recorder.Utilities
 {
     public class CombiningEngine : AbstractEngine
     {
-        private const string ArgumentFormat = "-y -f concat -i \"{0}\" -c copy \"{1}\"";
+        private const string ArgumentFormat = "-y -f concat -i \"{0}\" -c copy -map 0 \"{1}\"";
         private bool _combining;
 
         public CombiningEngine(IProgramSettings settings, ObjectModel objectModel, OutputWindowViewModel outputModel, IssueNotifyModel issueNotifyModel)

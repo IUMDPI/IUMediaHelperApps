@@ -22,7 +22,7 @@ namespace Packager.Models.FileModels
             FileUse = fileUse;
             FullFileUse = fullFileUse;
             Filename = NormalizeFilename();
-
+        
             OriginalFileName = IsSameAs(original)
                 ? original.OriginalFileName
                 : Filename;

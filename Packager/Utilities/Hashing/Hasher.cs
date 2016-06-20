@@ -4,15 +4,21 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
+using Packager.Models.SettingsModels;
 
 namespace Packager.Utilities.Hashing
 {
     public class Hasher : IHasher
     {
-        public Hasher(string baseProcessingFolder)
+        public Hasher(IProgramSettings programSettings)
+        {
+            BaseProcessingFolder = programSettings.ProcessingDirectory;
+        }
+
+     /*   public Hasher(string baseProcessingFolder)
         {
             BaseProcessingFolder = baseProcessingFolder;
-        }
+        }*/
 
         private string BaseProcessingFolder { get; }
 

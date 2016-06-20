@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Packager.Extensions;
+using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 
@@ -10,14 +11,14 @@ namespace Packager.Utilities.FileSystem
 {
     public class SuccessFolderCleaner : ISuccessFolderCleaner
     {
-        public SuccessFolderCleaner(IDirectoryProvider directoryProvider, string successFolder, TimeSpan interval, IObserverCollection observers)
+        public SuccessFolderCleaner(IProgramSettings programSettings, IDirectoryProvider directoryProvider, IObserverCollection observers)
         {
             DirectoryProvider = directoryProvider;
-            SuccessFolder = successFolder;
+            SuccessFolder = programSettings.SuccessDirectoryName;
             Observers = observers;
-            Interval = interval;
+            Interval = new TimeSpan(programSettings.DeleteSuccessfulObjectsAfterDays,0,0,0);
         }
-
+     
         private IDirectoryProvider DirectoryProvider { get; }
         private string SuccessFolder { get; }
         private IObserverCollection Observers { get; }

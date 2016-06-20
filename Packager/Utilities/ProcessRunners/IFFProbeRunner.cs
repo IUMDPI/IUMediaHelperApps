@@ -11,5 +11,7 @@ namespace Packager.Utilities.ProcessRunners
         Task<QualityControlFile> GenerateQualityControlFile(AbstractFile target, CancellationToken cancellationToken);
 
         Task<string> GetVersion();
+
+        Task<InfoFile> GetMediaInfo(AbstractFile target, CancellationToken cancellation);
     }
 }

@@ -13,31 +13,43 @@ using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
+using Packager.Utilities.Configuration;
+using Packager.Utilities.FileSystem;
 using Packager.Validators;
 
 namespace Packager.Engine
 {
     public class StandardEngine : IEngine
     {
-        private IViewModel ViewModel { get; set; }
-        private readonly IDependencyProvider _dependencyProvider;
-        private readonly Dictionary<string, IProcessor> _processors;
+        private IViewModel ViewModel { get; }
+        private Dictionary<string, IProcessor> Processors { get; }
+        private IProgramSettings ProgramSettings { get; }
+        private IDirectoryProvider DirectoryProvider { get; }
+        private IObserverCollection Observers { get; }
+        private IValidatorCollection ValidatorCollection { get; }
+        private ISuccessFolderCleaner SuccessFolderCleaner { get; }
+        private IConfigurationLogger ConfigurationLogger { get; }
+
 
         public StandardEngine(
-            Dictionary<string, IProcessor> processors,
-            IDependencyProvider dependencyProvider,
-            IViewModel viewModel)
+            Dictionary<string, IProcessor> processors, 
+            IViewModel viewModel,
+            IProgramSettings programSettings, 
+            IDirectoryProvider directoryProvider,
+            IValidatorCollection validatorCollection, 
+            ISuccessFolderCleaner successFolderCleaner,
+            IConfigurationLogger configurationLogger,
+            IObserverCollection observerCollection)
         {
             ViewModel = viewModel;
-            _processors = processors;
-            _dependencyProvider = dependencyProvider;
+            ProgramSettings = programSettings;
+            DirectoryProvider = directoryProvider;
+            ValidatorCollection = validatorCollection;
+            SuccessFolderCleaner = successFolderCleaner;
+            ConfigurationLogger = configurationLogger;
+            Observers = observerCollection;
+            Processors = processors;
         }
-
-        private IObserverCollection Observers => _dependencyProvider.Observers;
-        private IProgramSettings ProgramSettings => _dependencyProvider.ProgramSettings;
-        private IDirectoryProvider DirectoryProvider => _dependencyProvider.DirectoryProvider;
-        private IValidatorCollection ValidatorCollection => _dependencyProvider.ValidatorCollection;
-      
         
         public async Task Start(CancellationToken cancellationToken)
         {
@@ -47,8 +59,8 @@ namespace Packager.Engine
 
                 WriteHelloMessage();
 
-                await LogConfiguration();
-                ValidateDependencyProvider();
+                await ConfigurationLogger.Log();
+                ValidateSettings();
 
                 await CleanupOldFiles();
 
@@ -103,12 +115,12 @@ namespace Packager.Engine
 
         private async Task CleanupOldFiles()
         {
-            await _dependencyProvider.SuccessFolderCleaner.DoCleaning();
+            await SuccessFolderCleaner.DoCleaning();
         }
 
-        private void ValidateDependencyProvider()
+        private void ValidateSettings()
         {
-            var result = ValidatorCollection.Validate(_dependencyProvider);
+            var result = ValidatorCollection.Validate(ProgramSettings);
             if (result.Succeeded == false)
             {
                 throw new ProgramSettingsException(result.Issues);
@@ -145,7 +157,7 @@ namespace Packager.Engine
             // take those that have extensions associated with a processor
             // and group them by that extension
             var validExtensions = group
-                .Where(m => _processors.Keys.Contains(m.Extension))
+                .Where(m => Processors.Keys.Contains(m.Extension))
                 .GroupBy(m => m.Extension).ToList();
 
             // if we have no groups or if we have more than one group, we have a problem
@@ -154,7 +166,7 @@ namespace Packager.Engine
                 throw new DetermineProcessorException("Can not determine extension for file batch");
             }
 
-            return _processors[validExtensions.First().Key];
+            return Processors[validExtensions.First().Key];
         }
 
         private void WriteHelloMessage()
@@ -167,54 +179,7 @@ namespace Packager.Engine
             Observers.Log("Completed {0}", DateTime.Now);
         }
 
-        private async Task LogConfiguration()
-        {
-            var sectionKey = Observers.BeginSection("Configuration:");
-
-            Observers.Log("Project code: {0}", ProgramSettings.ProjectCode.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Digitizing entity: {0}", ProgramSettings.DigitizingEntity.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Web-service host: {0}", ProgramSettings.WebServiceUrl.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("Input folder: {0}", ProgramSettings.InputDirectory.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Processing folder: {0}", ProgramSettings.ProcessingDirectory.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Dropbox folder: {0}", ProgramSettings.DropBoxDirectoryName.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Success folder: {0}", ProgramSettings.SuccessDirectoryName.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("Error folder: {0}", ProgramSettings.ErrorDirectoryName.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("BWF MetaEdit path: {0}",
-                _dependencyProvider.MetaEditRunner.BwfMetaEditPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("BWF MetaEdit version: {0}",
-                (await _dependencyProvider.MetaEditRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("Unit prefix: {0}",
-                _dependencyProvider.ProgramSettings.UnitPrefix.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("FFMPEG path: {0}",
-                _dependencyProvider.AudioFFMPEGRunner.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPEG version: {0}",
-                (await _dependencyProvider.AudioFFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("FFMPeg audio production args: {0}",
-                _dependencyProvider.AudioFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg audio access args: {0}",
-                _dependencyProvider.AudioFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg video mezzanine args: {0}",
-                _dependencyProvider.VideoFFMPEGRunner.ProdOrMezzArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPeg video access args: {0}",
-                _dependencyProvider.VideoFFMPEGRunner.AccessArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("FFProbe path: {0}",
-                _dependencyProvider.FFProbeRunner.FFProbePath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFProbe version: {0}",
-                (await _dependencyProvider.FFProbeRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
-            Observers.Log("FFProbe video QC args: {0}",
-                _dependencyProvider.FFProbeRunner.VideoQualityControlArguments.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("");
-            Observers.Log("Success folder cleaning: {0}",
-                _dependencyProvider.SuccessFolderCleaner.Enabled
-                    ? $"remove items older than {_dependencyProvider.SuccessFolderCleaner.ConfiguredInterval}"
-                    : "disabled");
-
-            Observers.EndSection(sectionKey);
-        }
+    
 
         private void WriteResultsMessage(IEnumerable<IGrouping<string, AbstractFile>> groupings, Dictionary<string, ValidationResult> results, CancellationToken cancellationToken)
         {

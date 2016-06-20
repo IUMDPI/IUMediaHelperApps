@@ -12,8 +12,9 @@ using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
-using Packager.Test.Mocks;
 using Packager.UserInterface;
+using Packager.Utilities.Configuration;
+using Packager.Utilities.FileSystem;
 using Packager.Validators;
 
 namespace Packager.Test.Engine
@@ -24,6 +25,8 @@ namespace Packager.Test.Engine
         [SetUp]
         public virtual void BeforeEach()
         {
+            SuccessFolderCleaner = Substitute.For<ISuccessFolderCleaner>();
+            ViewModel = Substitute.For<IViewModel>();
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.ProjectCode.Returns(ProjectCode);
 
@@ -49,18 +52,17 @@ namespace Packager.Test.Engine
                     Grouping1ProdFileName,
                     Grouping2PresFileName
                 });
+            
+            Validators.Validate(ProgramSettings).Returns(new ValidationResults());
 
-            DependencyProvider = MockDependencyProvider.Get(observers: Observer, programSettings: ProgramSettings,
-                directoryProvider: DirectoryProvider, validators: Validators);
+            var processors = new Dictionary<string, IProcessor>
+            {
+                {MockWavProcessorExtension, MockWavProcessor},
+                {MockMkvProcessorExtension, MockMpegProcessor}
+            };
 
-            Validators.Validate(DependencyProvider).Returns(new ValidationResults());
-
-            Engine = new StandardEngine(
-                new Dictionary<string, IProcessor>
-                {
-                    {MockWavProcessorExtension, MockWavProcessor},
-                    {MockMkvProcessorExtension, MockMpegProcessor}
-                }, DependencyProvider, Substitute.For<IViewModel>());
+            Engine = new StandardEngine(processors, ViewModel, ProgramSettings, DirectoryProvider, Validators,
+                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), Observer);
         }
 
         private const string MockWavProcessorExtension = ".wav";
@@ -70,17 +72,18 @@ namespace Packager.Test.Engine
         private const string BarCode2 = "7890764553278907";
         private StandardEngine Engine { get; set; }
         private IObserverCollection Observer { get; set; }
-        private IDependencyProvider DependencyProvider { get; set; }
         private IProcessor MockWavProcessor { get; set; }
         private IProcessor MockMpegProcessor { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
         private IDirectoryProvider DirectoryProvider { get; set; }
+        private IViewModel ViewModel { get; set; }
         private string Grouping1PresFileName { get; set; }
         private string Grouping1ProdFileName { get; set; }
         private string Grouping2PresFileName { get; set; }
+        
 
         private IValidatorCollection Validators { get; set; }
-
+        private ISuccessFolderCleaner SuccessFolderCleaner { get; set; }
 
         private static string GetPresFileNameForBarCode(string barcode, string extension)
         {
@@ -140,7 +143,7 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldValidateDependencyProvider()
             {
-                Validators.Received().Validate(DependencyProvider);
+                //Validators.Received().Validate(DependencyProvider);
             }
 
             [Test]

@@ -11,7 +11,6 @@ using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
-using Packager.Models;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.ResultModels;
@@ -19,7 +18,6 @@ using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Test.Mocks;
-using Packager.Utilities;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.ProcessRunners;
 using Packager.Validators.Attributes;
@@ -58,7 +56,8 @@ namespace Packager.Test.Utilities
 
             Metadata = MockBextMetadata.Get();
 
-            Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+            
+            Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
 
             DoCustomSetup();
         }
@@ -81,7 +80,6 @@ namespace Packager.Test.Utilities
         private AbstractFile Result { get; set; }
         private IProcessResult ProcessRunnerResult { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
-
         private EmbeddedAudioMetadata Metadata { get; set; }
 
         private IHasher Hasher { get; set; }
@@ -117,7 +115,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -write_bext 1");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
 
                 [Test]
@@ -133,7 +131,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -rf64 auto");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
 
                 [Test]
@@ -149,7 +147,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns((string) null);
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
 
                 [Test]
@@ -165,7 +163,7 @@ namespace Packager.Test.Utilities
                 {
                     base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns("");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, ProcessRunner, Observers, FileProvider, Hasher);
+                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
 
                 [Test]
@@ -459,7 +457,7 @@ namespace Packager.Test.Utilities
                             model.ToFrameMd5Filename());
                         var targetPath = Path.Combine(BaseProcessingDirectory, model.GetFolderName(), model.Filename);
 
-                        var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
+                        var expectedArgs = $"-y -i {targetPath} -map 0 -f framemd5 {frameMd5Path}";
                         ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)), Arg.Any<CancellationToken>());
                     }
                 }
@@ -474,7 +472,7 @@ namespace Packager.Test.Utilities
                         var targetPath = Path.Combine(BaseProcessingDirectory, model.GetOriginalFolderName(),
                             model.Filename);
 
-                        var expectedArgs = $"-y -i {targetPath} -f framemd5 {frameMd5Path}";
+                        var expectedArgs = $"-y -i {targetPath} -map 0 -f framemd5 {frameMd5Path}";
                         ProcessRunner.Received().Run(Arg.Is<ProcessStartInfo>(i => i.Arguments.Equals(expectedArgs)), Arg.Any<CancellationToken>());
                     }
                 }

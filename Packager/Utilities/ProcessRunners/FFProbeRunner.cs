@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -107,6 +108,39 @@ namespace Packager.Utilities.ProcessRunners
             {
                 return "";
             }
+        }
+
+        public async Task<InfoFile> GetMediaInfo(AbstractFile target, CancellationToken cancellationToken)
+        {
+            const string infoArguments = "-v quiet -print_format xml -show_format -show_streams {0}";
+            try
+            {
+                var infoFile = new InfoFile(target);
+                var targetDirectory   = Path.Combine(BaseProcessingDirectory, target.GetFolderName());
+
+                var targetPath = Path.Combine(targetDirectory, target.Filename);
+                if (FileProvider.FileDoesNotExist(targetPath))
+                {
+                    throw new FileNotFoundException($"{target.Filename} could not be found or is not accessible");
+                }
+                
+                var outputPath = Path.Combine(targetDirectory, infoFile.Filename);
+
+                var args = new ArgumentBuilder(string.Format(infoArguments, target.Filename));
+
+                using (var fileOutputBuffer = new FileOutputBuffer(outputPath, FileProvider))
+                {
+                    await RunProgram(args, fileOutputBuffer, Path.Combine(BaseProcessingDirectory, target.GetFolderName()),
+                        cancellationToken);
+                }
+                return infoFile;
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, target.BarCode);
+                throw new LoggedException(e);
+            }
+
         }
 
         private async Task RunProgram(IEnumerable arguments, IOutputBuffer outputbuffer, string workingFolder, CancellationToken cancellationToken)

@@ -20,16 +20,16 @@ namespace Packager.Utilities.ProcessRunners
 {
     public abstract class AbstractFFMPEGRunner : IFFMPEGRunner
     {
-        protected AbstractFFMPEGRunner(IProgramSettings programSettings, IProcessRunner processRunner,
-            IObserverCollection observers, IFileProvider fileProvider, IHasher hasher)
+        protected AbstractFFMPEGRunner(IProgramSettings programSettings, IFileProvider fileProvider, IHasher hasher, IObserverCollection observers, IProcessRunner processRunner)
         {
             FFMPEGPath = programSettings.FFMPEGPath;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
-            Observers = observers;
             FileProvider = fileProvider;
             Hasher = hasher;
+            Observers = observers;
             ProcessRunner = processRunner;
         }
+        
 
         protected abstract string NormalizingArguments { get; }
         private IProcessRunner ProcessRunner { get; }
@@ -109,11 +109,11 @@ namespace Packager.Utilities.ProcessRunners
         public abstract string ProdOrMezzArguments { get; }
         public abstract string AccessArguments { get; }
 
-        public async Task<AbstractFile> CreateAccessDerivative(AbstractFile original, CancellationToken cancellationToken)
+        public virtual async Task<AbstractFile> CreateAccessDerivative(AbstractFile original, CancellationToken cancellationToken)
         {
             return await CreateDerivative(original, new AccessFile(original), new ArgumentBuilder(AccessArguments), cancellationToken);
         }
-
+        
         public async Task<AbstractFile> CreateProdOrMezzDerivative(AbstractFile original, AbstractFile target,
             AbstractEmbeddedMetadata metadata, CancellationToken cancellationToken)
         {
@@ -199,9 +199,21 @@ namespace Packager.Utilities.ProcessRunners
         private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
             ArgumentBuilder arguments, CancellationToken cancellationToken)
         {
+            return await CreateDerivative(original, target, arguments, cancellationToken, new List<string>());
+        }
+
+        protected async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
+            ArgumentBuilder arguments, CancellationToken cancellationToken, List<string> notes)
+        {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
             try
             {
+                if (notes.Any())
+                {
+                    Observers.Log(string.Join("\\n\\n", notes));
+                    Observers.Log("");
+                }
+                
                 var outputFolder = Path.Combine(BaseProcessingDirectory, original.GetFolderName());
 
                 var inputPath = Path.Combine(outputFolder, original.Filename);
@@ -260,7 +272,7 @@ namespace Packager.Utilities.ProcessRunners
                 var md5Path = Path.Combine(folderPath, model.ToFrameMd5Filename());
 
                 var arguments = new ArgumentBuilder($"-y -i {targetPath}")
-                    .AddArguments($"-f framemd5 {md5Path}");
+                    .AddArguments($"-map 0 -f framemd5 {md5Path}");
 
                 await RunProgram(arguments, cancellationToken);
                 Observers.EndSection(sectionKey, $"{sectionName} hashed successfully");

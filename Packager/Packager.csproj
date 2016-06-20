@@ -36,7 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>Packager.App</StartupObject>
+    <StartupObject>Packager.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.AvalonEdit">
@@ -54,6 +54,10 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SimpleInjector, Version=3.1.5.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.3.1.5\lib\net45\SimpleInjector.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -99,6 +103,8 @@
     <Compile Include="Models\FileModels\AudioPreservationFile.cs" />
     <Compile Include="Models\FileModels\AudioPreservationIntermediateFile.cs" />
     <Compile Include="Factories\FileModelFactory.cs" />
+    <Compile Include="Models\FileModels\InfoFile.cs" />
+    <Compile Include="Models\FileModels\MediaInfo.cs" />
     <Compile Include="Models\FileModels\MezzanineFile.cs" />
     <Compile Include="Models\FileModels\ProductionFile.cs" />
     <Compile Include="Models\FileModels\QualityControlFile.cs" />
@@ -127,9 +133,12 @@
     <Compile Include="Observers\ObjectNLogObserver.cs" />
     <Compile Include="Observers\ObserverCollectionEqualityComparer.cs" />
     <Compile Include="Processors\VideoProcessor.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Providers\DirectoryProvider.cs" />
     <Compile Include="Providers\FileProvider.cs" />
+    <Compile Include="Providers\IMediaInfoProvider.cs" />
+    <Compile Include="Providers\MediaInfoProvider.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
     <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\BarCodeLinkText.cs" />
@@ -139,6 +148,7 @@
     <Compile Include="UserInterface\IViewModel.cs" />
     <Compile Include="UserInterface\RelayCommand.cs" />
     <Compile Include="Utilities\Bext\BextFields.cs" />
+    <Compile Include="Utilities\Configuration\ConfigurationLogger.cs" />
     <Compile Include="Utilities\FileSystem\SuccessFolderCleaner.cs" />
     <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\ArgumentBuilder.cs" />
@@ -228,7 +238,6 @@
     <Compile Include="Utilities\Email\IEmailSender.cs" />
     <Compile Include="Utilities\Hashing\IHasher.cs" />
     <Compile Include="Models\OutputModels\Carrier\AbstractCarrierData.cs" />
-    <Compile Include="Providers\IDependencyProvider.cs" />
     <Compile Include="Factories\IIngestDataFactory.cs" />
     <Compile Include="Factories\ICarrierDataFactory.cs" />
     <Compile Include="Utilities\ProcessRunners\IProcessRunner.cs" />
@@ -236,7 +245,6 @@
     <Compile Include="Factories\VideoCarrierDataFactory.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Utilities\Xml\IXmlExporter.cs" />
-    <Compile Include="Providers\DefaultDependencyProvider.cs" />
     <Compile Include="Models\EmailMessageModels\ProcessingIssueMessage.cs" />
     <Compile Include="Utilities\ProcessRunners\ProcessRunner.cs" />
     <Compile Include="Utilities\Xml\XmlExporter.cs" />
@@ -291,10 +299,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
     <Page Include="UserInterface\CancelPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -309,7 +313,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Page Include="App.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

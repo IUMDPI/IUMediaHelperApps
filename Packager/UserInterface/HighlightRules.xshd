@@ -44,6 +44,7 @@
     <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />
     <Span color="ProvenanceHeader" begin="File Provenance:" end=": " />
+    <Span color="Warning" begin="Multiple audio streams present; merging audio streams." />
 
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     

@@ -53,5 +53,7 @@
 						added cancel button to user interface
 2.8.0.0		2/25/2016	set digitizing entity from config file
 2.9.0.0		3/7/2016	remove QCStatus, ManualCheck, and Digitstatus fields from output xml.
+3.0.0.0		6/20/2016	should handle 5 stream (1 video, 4 audio correctly)
+						added proper dependency injection
 
 					

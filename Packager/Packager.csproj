@@ -84,6 +84,7 @@
     <Compile Include="Attributes\AbstractFromConfigSettingAttribute.cs" />
     <Compile Include="Attributes\BextFieldAttribute.cs" />
     <Compile Include="Attributes\FFMPEGArgumentAttribute.cs" />
+    <Compile Include="Engine\EngineExitCodes.cs" />
     <Compile Include="Exceptions\UserCancelledException.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\AudioCarrierDataFactory.cs" />
@@ -130,6 +131,8 @@
     <Compile Include="Models\PodMetadataModels\DigitalAudioFile.cs" />
     <Compile Include="Models\PodMetadataModels\DigitalVideoFile.cs" />
     <Compile Include="Models\PodMetadataModels\VideoPodMetadata.cs" />
+    <Compile Include="Models\ProgramArgumentsModels\IProgramArguments.cs" />
+    <Compile Include="Models\ProgramArgumentsModels\ProgramArguments.cs" />
     <Compile Include="Observers\AbstractNLogObserver.cs" />
     <Compile Include="Observers\ObjectNLogObserver.cs" />
     <Compile Include="Observers\ObserverCollectionEqualityComparer.cs" />

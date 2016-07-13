@@ -4,11 +4,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Models.EmailMessageModels;
 using Packager.Models.FileModels;
+using Packager.Models.ProgramArgumentsModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
@@ -26,6 +28,7 @@ namespace Packager.Engine
         private IViewModel ViewModel { get; }
         private Dictionary<string, IProcessor> Processors { get; }
         private IProgramSettings ProgramSettings { get; }
+        private IProgramArguments ProgramArguments { get; }
         private IDirectoryProvider DirectoryProvider { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection ValidatorCollection { get; }
@@ -39,6 +42,7 @@ namespace Packager.Engine
             Dictionary<string, IProcessor> processors, 
             IViewModel viewModel,
             IProgramSettings programSettings, 
+            IProgramArguments programArguments,
             IDirectoryProvider directoryProvider,
             IValidatorCollection validatorCollection, 
             ISuccessFolderCleaner successFolderCleaner,
@@ -49,6 +53,7 @@ namespace Packager.Engine
         {
             ViewModel = viewModel;
             ProgramSettings = programSettings;
+            ProgramArguments = programArguments;
             DirectoryProvider = directoryProvider;
             ValidatorCollection = validatorCollection;
             SuccessFolderCleaner = successFolderCleaner;
@@ -61,10 +66,11 @@ namespace Packager.Engine
         
         public async Task Start(CancellationToken cancellationToken)
         {
+            EngineExitCodes exitCode;
+
             try
             {
                 var results = new Dictionary<string, ValidationResult>();
-
                 WriteHelloMessage();
 
                 await ConfigurationLogger.Log();
@@ -92,13 +98,39 @@ namespace Packager.Engine
                 TurnOffObjectObservers();
                 WriteResultsMessage(groupings, results, cancellationToken);
                 SendSuccessEmail(results);
+                exitCode = GetExitCode(results);
             }
             catch (Exception ex)
             {
                 Observers.LogEngineIssue(ex);
+                exitCode = EngineExitCodes.EngineIssue;
             }
 
             WriteGoodbyeMessage();
+
+            ExitIfNonInteractive(exitCode);
+        }
+
+        private void ExitIfNonInteractive(EngineExitCodes exitCode)
+        {
+            if (ProgramArguments.Interactive)
+            {
+                return;
+            }
+
+            SystemInfoProvider.ExitApplication(exitCode);
+        }
+
+        private EngineExitCodes GetExitCode(Dictionary<string, ValidationResult> results)
+        {
+            if (!results.Any())
+            {
+                return EngineExitCodes.NothingToDo;
+            }
+
+            return results.Any(r => r.Value.Result == false) 
+                ? EngineExitCodes.ProcessingIssue
+                : EngineExitCodes.Success; // success
         }
 
         private void SendSuccessEmail(Dictionary<string, ValidationResult> results)

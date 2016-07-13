@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Packager.Engine;
 using Packager.Models.EmailMessageModels;
 using Packager.Models.FileModels;
+using Packager.Models.ProgramArgumentsModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
@@ -29,6 +30,8 @@ namespace Packager.Test.Engine
         {
             SuccessFolderCleaner = Substitute.For<ISuccessFolderCleaner>();
             ViewModel = Substitute.For<IViewModel>();
+            ProgramArguments = Substitute.For<IProgramArguments>();
+            ProgramArguments.Interactive.Returns(true);
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.ProjectCode.Returns(ProjectCode);
             
@@ -66,7 +69,7 @@ namespace Packager.Test.Engine
                 {MockMkvProcessorExtension, MockMpegProcessor}
             };
 
-            Engine = new StandardEngine(processors, ViewModel, ProgramSettings, DirectoryProvider, Validators,
+            Engine = new StandardEngine(processors, ViewModel, ProgramSettings, ProgramArguments, DirectoryProvider, Validators,
                 SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), SystemInfoProvider, EmailSender, Observer);
 
             DoCustomSetup();
@@ -88,6 +91,7 @@ namespace Packager.Test.Engine
         private IProcessor MockWavProcessor { get; set; }
         private IProcessor MockMpegProcessor { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
+        private IProgramArguments ProgramArguments { get; set; }
         private IDirectoryProvider DirectoryProvider { get; set; }
         private IViewModel ViewModel { get; set; }
         private ISystemInfoProvider SystemInfoProvider { get; set; }
@@ -193,6 +197,36 @@ namespace Packager.Test.Engine
                     EmailSender.DidNotReceive().Send(Arg.Any<SuccessEmailMessage>());
                 }
             }
+
+            public class WhenInteractive : WhenEngineRunsWithoutIssues
+            {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramArguments.Interactive.Returns(true);
+                }
+
+                [Test]
+                public void ItShouldNotExitApplication()
+                {
+                    SystemInfoProvider.DidNotReceive().ExitApplication(Arg.Any<EngineExitCodes>());
+                }
+            }
+
+            public class WhenNotInteractive : WhenEngineRunsWithoutIssues
+            {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramArguments.Interactive.Returns(false);
+                }
+
+                [Test]
+                public void ItShouldExitApplicationWithCorrectExitCode()
+                {
+                    SystemInfoProvider.Received().ExitApplication(EngineExitCodes.Success);
+                }
+            }
         }
 
         public class WhenProcessorEncountersAnIssue : EngineTests
@@ -201,6 +235,36 @@ namespace Packager.Test.Engine
             {
                 base.DoCustomSetup();
                 MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(new ValidationResult("issue")));
+            }
+
+            public class WhenInteractive : WhenProcessorEncountersAnIssue
+            {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramArguments.Interactive.Returns(true);
+                }
+
+                [Test]
+                public void ItShouldNotExitApplication()
+                {
+                    SystemInfoProvider.DidNotReceive().ExitApplication(Arg.Any<EngineExitCodes>());
+                }
+            }
+
+            public class WhenNotInteractive : WhenProcessorEncountersAnIssue
+            {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramArguments.Interactive.Returns(false);
+                }
+
+                [Test]
+                public void ItShouldExitApplicationWithCorrectExitCode()
+                {
+                    SystemInfoProvider.Received().ExitApplication(EngineExitCodes.ProcessingIssue);
+                }
             }
         }
 
@@ -220,6 +284,36 @@ namespace Packager.Test.Engine
             public void ItShouldWriteErrorMessage()
             {
                 Observer.Received().LogEngineIssue(Exception);
+            }
+
+            public class WhenInteractive : WhenEngineEncountersAnIssue
+            {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramArguments.Interactive.Returns(true);
+                }
+
+                [Test]
+                public void ItShouldNotExitApplication()
+                {
+                    SystemInfoProvider.DidNotReceive().ExitApplication(Arg.Any<EngineExitCodes>());
+                }
+            }
+
+            public class WhenNotInteractive : WhenEngineEncountersAnIssue
+            {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramArguments.Interactive.Returns(false);
+                }
+
+                [Test]
+                public void ItShouldExitApplicationWithCorrectExitCode()
+                {
+                    SystemInfoProvider.Received().ExitApplication(EngineExitCodes.EngineIssue);
+                }
             }
         }
     }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Windows;
 using NLog;
 using NLog.Targets;
 using NLog.Targets.Wrappers;
+using Packager.Engine;
 using Packager.Models.SettingsModels;
 
 namespace Packager.Providers
@@ -12,13 +14,8 @@ namespace Packager.Providers
         {
             LogFolder = programSettings.LogDirectoryName;
         }
-/*
-        public SystemInfoProvider(string logFolder)
-        {
-            LogFolder = logFolder;
-        }*/
 
-        private string LogFolder { get; set; }
+        private string LogFolder { get; }
         
         public string MachineName => Environment.MachineName;
 
@@ -38,8 +35,11 @@ namespace Packager.Providers
             }
         }
 
-
-
+        public void ExitApplication(EngineExitCodes exitCode)
+        {
+            Application.Current.Shutdown((int) exitCode);
+        }
+        
         private static FileTarget GetFileTarget(Target value)
         {
             var wrapper = value as AsyncTargetWrapper;

@@ -123,11 +123,6 @@ namespace Packager.Engine
 
         private EngineExitCodes GetExitCode(Dictionary<string, ValidationResult> results)
         {
-            if (!results.Any())
-            {
-                return EngineExitCodes.NothingToDo;
-            }
-
             return results.Any(r => r.Value.Result == false) 
                 ? EngineExitCodes.ProcessingIssue
                 : EngineExitCodes.Success; // success

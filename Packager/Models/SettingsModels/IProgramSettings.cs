@@ -1,4 +1,6 @@
-﻿namespace Packager.Models.SettingsModels
+﻿using System.Windows.Forms.VisualStyles;
+
+namespace Packager.Models.SettingsModels
 {
     public interface IProgramSettings
     {
@@ -19,6 +21,7 @@
         string SuccessDirectoryName { get; }
         string LogDirectoryName { get; }
         string[] IssueNotifyEmailAddresses { get; }
+        string[] SuccessNotifyEmailAddresses { get; }
         string SmtpServer { get; }
         string FromEmailAddress { get; }
         int DeleteSuccessfulObjectsAfterDays { get; }

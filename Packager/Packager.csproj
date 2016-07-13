@@ -92,6 +92,7 @@
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\ImportableFactory.cs" />
     <Compile Include="Factories\SettingsFactory.cs" />
+    <Compile Include="Models\EmailMessageModels\SuccessEmailMessage.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedVideoMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\EmbeddedVideoMezzanineMetadata.cs" />

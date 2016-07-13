@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Engine;
+using Packager.Models.EmailMessageModels;
 using Packager.Models.FileModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
@@ -14,6 +15,7 @@ using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
 using Packager.Utilities.Configuration;
+using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Validators;
 
@@ -23,12 +25,15 @@ namespace Packager.Test.Engine
     public class EngineTests
     {
         [SetUp]
-        public virtual void BeforeEach()
+        public async void BeforeEach()
         {
             SuccessFolderCleaner = Substitute.For<ISuccessFolderCleaner>();
             ViewModel = Substitute.For<IViewModel>();
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.ProjectCode.Returns(ProjectCode);
+            
+            EmailSender = Substitute.For<IEmailSender>();
+            SystemInfoProvider = Substitute.For<ISystemInfoProvider>();
 
             Validators = Substitute.For<IValidatorCollection>();
 
@@ -62,7 +67,15 @@ namespace Packager.Test.Engine
             };
 
             Engine = new StandardEngine(processors, ViewModel, ProgramSettings, DirectoryProvider, Validators,
-                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), Observer);
+                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), SystemInfoProvider, EmailSender, Observer);
+
+            DoCustomSetup();
+            await Engine.Start(CancellationToken.None);
+        }
+
+        protected virtual void DoCustomSetup()
+        {
+            
         }
 
         private const string MockWavProcessorExtension = ".wav";
@@ -77,6 +90,9 @@ namespace Packager.Test.Engine
         private IProgramSettings ProgramSettings { get; set; }
         private IDirectoryProvider DirectoryProvider { get; set; }
         private IViewModel ViewModel { get; set; }
+        private ISystemInfoProvider SystemInfoProvider { get; set; }
+        private IEmailSender EmailSender { get; set; }
+
         private string Grouping1PresFileName { get; set; }
         private string Grouping1ProdFileName { get; set; }
         private string Grouping2PresFileName { get; set; }
@@ -97,13 +113,7 @@ namespace Packager.Test.Engine
 
         public class WhenEngineRunsWithoutIssues : EngineTests
         {
-            public override async void BeforeEach()
-            {
-                base.BeforeEach();
-
-                await Engine.Start(CancellationToken.None);
-            }
-
+           
             [Test]
             public void ItShouldCallProcessorForEachKnownExtension()
             {
@@ -157,31 +167,58 @@ namespace Packager.Test.Engine
             {
                 Observer.Received().Log(Arg.Is("Starting {0} (version {1})"), Arg.Any<DateTime>(), Arg.Any<Version>());
             }
+
+            public class WhenSuccessEmailAddressesSpecified : WhenEngineRunsWithoutIssues
+            {
+                private static string[] SuccessAddresses => new [] {"test@nomail.no"};
+
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramSettings.SuccessNotifyEmailAddresses.Returns(SuccessAddresses);
+                }
+
+                [Test]
+                public void ItShouldSendSuccessEmail()
+                {
+                    EmailSender.Received().Send(Arg.Is<SuccessEmailMessage>(
+                        m=>m.ToAddresses.SingleOrDefault(a=>a.Equals("test@nomail.no"))!=null));
+                }
+            }
+
+            public class WhenSuccessEmailAddressesNotSpecified : WhenEngineRunsWithoutIssues
+            {
+                protected override void DoCustomSetup()
+                {
+                    base.DoCustomSetup();
+                    ProgramSettings.SuccessNotifyEmailAddresses.Returns(new string[0]);
+                }
+
+                [Test]
+                public void ItShouldSendSuccessEmail()
+                {
+                    EmailSender.DidNotReceive().Send(Arg.Any<SuccessEmailMessage>());
+                }
+            }
         }
 
         public class WhenProcessorEncountersAnIssue : EngineTests
         {
-            public override async void BeforeEach()
+            protected override void DoCustomSetup()
             {
-                base.BeforeEach();
-
+                base.DoCustomSetup();
                 MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(new ValidationResult("issue")));
-
-                await Engine.Start(CancellationToken.None);
             }
         }
 
         public class WhenEngineEncountersAnIssue : EngineTests
         {
-            public override async void BeforeEach()
+            protected override void DoCustomSetup()
             {
-                base.BeforeEach();
-
+                base.DoCustomSetup();
                 Exception = new DirectoryNotFoundException("invalid path");
 
                 DirectoryProvider.EnumerateFiles(null).ReturnsForAnyArgs(r => { throw Exception; });
-
-                await Engine.Start(CancellationToken.None);
             }
 
             private Exception Exception { get; set; }

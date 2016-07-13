@@ -113,7 +113,6 @@ namespace Packager.Test.Engine
 
         public class WhenEngineRunsWithoutIssues : EngineTests
         {
-           
             [Test]
             public void ItShouldCallProcessorForEachKnownExtension()
             {
@@ -148,12 +147,6 @@ namespace Packager.Test.Engine
                 MockMpegProcessor.Received().ProcessObject(
                     Arg.Is<IGrouping<string, AbstractFile>>(g => g.AsEnumerable().SingleOrDefault(m => m.Filename.Equals(Grouping2PresFileName)) !=null),
                     Arg.Any<CancellationToken>());
-            }
-
-            [Test]
-            public void ItShouldValidateDependencyProvider()
-            {
-                //Validators.Received().Validate(DependencyProvider);
             }
 
             [Test]

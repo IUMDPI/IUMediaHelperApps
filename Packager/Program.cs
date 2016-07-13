@@ -51,8 +51,7 @@ namespace Packager
             }
             catch (Exception e)
             {
-                var trs = 0;
-                // todo: log
+               // todo: log
             }
         }
 

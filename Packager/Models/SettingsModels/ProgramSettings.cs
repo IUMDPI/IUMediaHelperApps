@@ -57,6 +57,8 @@ namespace Packager.Models.SettingsModels
 
         public string[] IssueNotifyEmailAddresses { get; set; }
 
+        public string[] SuccessNotifyEmailAddresses { get; set; }
+
         [Required]
         public string UnitPrefix { get; set; }
 

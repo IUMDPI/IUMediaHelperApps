@@ -55,5 +55,12 @@
 2.9.0.0		3/7/2016	remove QCStatus, ManualCheck, and Digitstatus fields from output xml.
 3.0.0.0		6/20/2016	should handle 5 stream (1 video, 4 audio correctly)
 						added proper dependency injection
+3.1.0.0		7/13/2016	added ability to e-mail users on success
+						added "-NonInteractive" command-line argument. If specified, packager will
+						exit immediately after it completes. In non-interactive mode, the packager 
+						will return the following exit codes when it closes:
+							 0 = success (or nothing to do)
+							-1 = issue occurred while processing one or more objects
+							-2 = engine issue occurred
 
 					

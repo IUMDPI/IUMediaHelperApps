@@ -4,16 +4,20 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
+using Packager.Models.EmailMessageModels;
 using Packager.Models.FileModels;
+using Packager.Models.ProgramArgumentsModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
 using Packager.Providers;
 using Packager.UserInterface;
 using Packager.Utilities.Configuration;
+using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Validators;
 
@@ -24,39 +28,49 @@ namespace Packager.Engine
         private IViewModel ViewModel { get; }
         private Dictionary<string, IProcessor> Processors { get; }
         private IProgramSettings ProgramSettings { get; }
+        private IProgramArguments ProgramArguments { get; }
         private IDirectoryProvider DirectoryProvider { get; }
         private IObserverCollection Observers { get; }
         private IValidatorCollection ValidatorCollection { get; }
         private ISuccessFolderCleaner SuccessFolderCleaner { get; }
         private IConfigurationLogger ConfigurationLogger { get; }
+        private ISystemInfoProvider SystemInfoProvider { get; }
+        private IEmailSender EmailSender { get; }
 
 
         public StandardEngine(
             Dictionary<string, IProcessor> processors, 
             IViewModel viewModel,
             IProgramSettings programSettings, 
+            IProgramArguments programArguments,
             IDirectoryProvider directoryProvider,
             IValidatorCollection validatorCollection, 
             ISuccessFolderCleaner successFolderCleaner,
             IConfigurationLogger configurationLogger,
+            ISystemInfoProvider systemInfoProvider,
+            IEmailSender emailSender,
             IObserverCollection observerCollection)
         {
             ViewModel = viewModel;
             ProgramSettings = programSettings;
+            ProgramArguments = programArguments;
             DirectoryProvider = directoryProvider;
             ValidatorCollection = validatorCollection;
             SuccessFolderCleaner = successFolderCleaner;
             ConfigurationLogger = configurationLogger;
+            SystemInfoProvider = systemInfoProvider;
+            EmailSender = emailSender;
             Observers = observerCollection;
             Processors = processors;
         }
         
         public async Task Start(CancellationToken cancellationToken)
         {
+            EngineExitCodes exitCode;
+
             try
             {
                 var results = new Dictionary<string, ValidationResult>();
-
                 WriteHelloMessage();
 
                 await ConfigurationLogger.Log();
@@ -83,15 +97,60 @@ namespace Packager.Engine
                 HideCancelBanner();
                 TurnOffObjectObservers();
                 WriteResultsMessage(groupings, results, cancellationToken);
+                SendSuccessEmail(results);
+                exitCode = GetExitCode(results);
             }
             catch (Exception ex)
             {
                 Observers.LogEngineIssue(ex);
+                exitCode = EngineExitCodes.EngineIssue;
             }
 
             WriteGoodbyeMessage();
+
+            ExitIfNonInteractive(exitCode);
         }
-        
+
+        private void ExitIfNonInteractive(EngineExitCodes exitCode)
+        {
+            if (ProgramArguments.Interactive)
+            {
+                return;
+            }
+
+            SystemInfoProvider.ExitApplication(exitCode);
+        }
+
+        private EngineExitCodes GetExitCode(Dictionary<string, ValidationResult> results)
+        {
+            return results.Any(r => r.Value.Result == false) 
+                ? EngineExitCodes.ProcessingIssue
+                : EngineExitCodes.Success; // success
+        }
+
+        private void SendSuccessEmail(Dictionary<string, ValidationResult> results)
+        {
+            var succeededBarCodes = results.Where(r => r.Value.Result).Select(r=>r.Key).ToArray();
+            if (succeededBarCodes.Any() == false)
+            {
+                return;
+            }
+
+            if (ProgramSettings.SuccessNotifyEmailAddresses.Any() == false)
+            {
+                return;
+            }
+
+            var message = new SuccessEmailMessage(
+                succeededBarCodes, 
+                ProgramSettings.SuccessNotifyEmailAddresses, 
+                ProgramSettings.FromEmailAddress, 
+                SystemInfoProvider.MachineName,
+                SystemInfoProvider.CurrentSystemLogPath);
+
+            EmailSender.Send(message);
+        }
+
         private void UpdateCancelBanner(string message)
         {
             ViewModel.Processing = true;
@@ -178,9 +237,7 @@ namespace Packager.Engine
         {
             Observers.Log("Completed {0}", DateTime.Now);
         }
-
-    
-
+        
         private void WriteResultsMessage(IEnumerable<IGrouping<string, AbstractFile>> groupings, Dictionary<string, ValidationResult> results, CancellationToken cancellationToken)
         {
             if (!results.Any())

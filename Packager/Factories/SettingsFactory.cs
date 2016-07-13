@@ -36,6 +36,7 @@ namespace Packager.Factories
                 FromEmailAddress = GetStringValue(settings, "FromEmailAddress"),
 
                 IssueNotifyEmailAddresses = GetStringValues(settings, "IssueNotifyEmailAddresses"),
+                SuccessNotifyEmailAddresses = GetStringValues(settings,"SuccessNotifyEmailAddresses"),
                 DeleteSuccessfulObjectsAfterDays = GetIntValue(settings, "DeleteProcessedAfterInDays", 0),
 
                 DigitizingEntity = GetStringValue(settings, "DigitizingEntity")

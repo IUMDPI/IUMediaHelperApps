@@ -8,6 +8,7 @@ using Packager.Deserializers;
 using Packager.Engine;
 using Packager.Factories;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.ProgramArgumentsModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Observers.LayoutRenderers;
@@ -32,11 +33,11 @@ namespace Packager
     static class Program
     {
         [STAThread]
-        static void Main()
+        static void Main(string[] arguments)
         {
             ConfigureNLog();
 
-            var container = Bootstrap();
+            var container = Bootstrap(arguments);
             RunApplication(container);
         }
 
@@ -51,18 +52,18 @@ namespace Packager
             }
             catch (Exception e)
             {
-                var trs = 0;
-                // todo: log
+               // todo: log
             }
         }
 
-        private static Container Bootstrap()
+        private static Container Bootstrap(string[] arguments)
         {
             var container = new Container();
             
             container.RegisterSingleton<IEngine, StandardEngine>();
 
             container.RegisterSingleton (()=>SettingsFactory.Import(ConfigurationManager.AppSettings));
+            container.RegisterSingleton<IProgramArguments>(new ProgramArguments(arguments));
             container.RegisterSingleton<IHasher, Hasher>();
             container.RegisterSingleton<IXmlExporter, XmlExporter>();
             container.RegisterSingleton<IDirectoryProvider, DirectoryProvider>();

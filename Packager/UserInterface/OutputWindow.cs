@@ -19,7 +19,6 @@ namespace Packager.UserInterface
         private IEngine Engine { get; }
         private CancellationTokenSource CancellationTokenSource { get; }
     
-
         public OutputWindow(IProgramSettings programSettings, IViewModel viewModel, IEngine engine, CancellationTokenSource cancellationTokenSource)
         {
             InitializeComponent();

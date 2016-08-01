@@ -62,5 +62,7 @@
 							 0 = success (or nothing to do)
 							-1 = issue occurred while processing one or more objects
 							-2 = engine issue occurred
+3.2.0.0		8/1/2016	fixing issue that was causing a series of flickering  windows to be shown 
+						at startup.
 
 					

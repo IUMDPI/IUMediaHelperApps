@@ -26,14 +26,7 @@ namespace Packager.Utilities.ProcessRunners
             BwfMetaEditPath = programSettings.BwfMetaEditPath;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
         }
-
-      /*  public BwfMetaEditRunner(IProcessRunner processRunner, string bwfMetaEditPath, string baseProcessingDirectory)
-        {
-            ProcessRunner = processRunner;
-            BwfMetaEditPath = bwfMetaEditPath;
-            BaseProcessingDirectory = baseProcessingDirectory;
-        }*/
-
+        
         private IProcessRunner ProcessRunner { get; }
         private string BaseProcessingDirectory { get; }
      
@@ -77,6 +70,7 @@ namespace Packager.Utilities.ProcessRunners
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             return await ProcessRunner.Run(startInfo, cancellationToken);

@@ -50,8 +50,11 @@ namespace Packager.Utilities.ProcessRunners
                     Arguments = "-version",
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
-                    RedirectStandardInput = true
+                    RedirectStandardInput = true,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
                 };
+
                 var result = await ProcessRunner.Run(info, CancellationToken.None);
 
                 var parts = result.StandardOutput.GetContent().Split(' ');
@@ -138,7 +141,8 @@ namespace Packager.Utilities.ProcessRunners
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             var result = await ProcessRunner.Run(startInfo, cancellationToken);

@@ -97,7 +97,9 @@ namespace Packager.Utilities.ProcessRunners
                     Arguments = "-version",
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
-                    RedirectStandardInput = true
+                    RedirectStandardInput = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true
                 };
                 var result = await ProcessRunner.Run(info, CancellationToken.None);
 
@@ -153,6 +155,7 @@ namespace Packager.Utilities.ProcessRunners
                 RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = workingFolder
             };
 

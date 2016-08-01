@@ -50,8 +50,7 @@ namespace Packager.Utilities.Configuration
             Observers.Log("Unit prefix: {0}", ProgramSettings.UnitPrefix.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");
             Observers.Log("FFMPEG path: {0}",ProgramSettings.FFMPEGPath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFMPEG version: {0}",
-                (await FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFMPEG version: {0}", (await FFMPEGRunner.GetFFMPEGVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("FFMPeg audio production args: {0}",
                 ProgramSettings.FFMPEGAudioProductionArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("FFMPeg audio access args: {0}",
@@ -63,8 +62,7 @@ namespace Packager.Utilities.Configuration
             Observers.Log("");
             Observers.Log("FFProbe path: {0}",
                 ProgramSettings.FFProbePath.ToDefaultIfEmpty("[not set]"));
-            Observers.Log("FFProbe version: {0}",
-                (await FFProbeRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
+            Observers.Log("FFProbe version: {0}", (await FFProbeRunner.GetVersion()).ToDefaultIfEmpty("[not available]"));
             Observers.Log("FFProbe video QC args: {0}",
                 FFProbeRunner.VideoQualityControlArguments.ToDefaultIfEmpty("[not set]"));
             Observers.Log("");

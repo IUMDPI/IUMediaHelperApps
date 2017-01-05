@@ -1,0 +1,276 @@
+﻿<Window x:Class="InteractiveScheduler.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="MainWindow" Width="525" SizeToContent="Height" WindowStyle="None" Margin="0" Padding="0"
+        WindowStartupLocation="CenterScreen" FontSize="16" BorderThickness="1" 
+        BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Background="White" AllowsTransparency="True">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="4,6"></Setter>
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="Label" x:Key="ColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Right"></Setter>
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+            <Setter Property="Margin" Value="0,0,8,0"></Setter>
+            <Setter Property="MinWidth" Value="120"></Setter>
+        </Style>
+        <Style TargetType="Label" x:Key="AdvancedMenuEntry">
+            <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+            <Setter Property="Margin" Value="0"></Setter>
+            <Setter Property="Padding" Value="8"></Setter>
+            <Setter Property="FontSize" Value="12"></Setter>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin" Value="4"></Setter>
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"></Setter>
+        </Style>
+        <Style TargetType="Grid">
+            <Setter Property="Margin" Value="8,0,8,8"></Setter>
+        </Style>
+        <Style TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"></Setter>
+        </Style>
+        <Style TargetType="{x:Type Hyperlink}">
+            <Setter Property="TextDecorations" Value="None" />
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextDecorations" Value="Underline" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="DockPanel">
+            <Setter Property="Margin" Value="8,16,8,0"></Setter>
+        </Style>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+    <StackPanel Margin="0">
+        <Border BorderThickness="0,0,0,1" Background="LightSteelBlue" Padding="8,4,8,4">
+            <Label DockPanel.Dock="Left" HorizontalAlignment="Left" Foreground="White">Task Scheduler Utility</Label>
+        </Border>
+        <Border BorderThickness="0,0,0,1" Background="LightYellow" Padding="8,16,8,16" 
+                Visibility="{Binding ToggleMessage, Converter={StaticResource BoolToVis}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Label Margin="0" Padding="0" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"  Content="{Binding MessageTitle, FallbackValue='Test Message Title'}" FontSize="20" VerticalAlignment="Top"></Label>
+                <Label Margin="0" Padding="0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="20" VerticalAlignment="Top">
+                    <Label.ToolTip>
+                        <ToolTip>Dismiss this message</ToolTip>
+                    </Label.ToolTip>
+                    <Hyperlink Command="{Binding HideMessage}" FontSize="10" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrush}}">X</Hyperlink>
+                </Label>
+                <Label Margin="0" Padding="0,4,0,0" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Content="{Binding Message, FallbackValue='Test Message Text'}"></Label>
+
+            </Grid>
+
+        </Border>
+        
+        <DockPanel Margin="8,24,8,0">
+            <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
+                <Label.Content>Task Name</Label.Content>
+                <Label.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Task Name (read-only)</TextBlock>
+                            <TextBlock>Specifies the name of the scheduled task.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Label.ToolTip>
+            </Label>
+            <TextBox DockPanel.Dock="Right" VerticalContentAlignment="Center" 
+                 Text="{Binding TaskName}" IsReadOnly="True"></TextBox>
+        </DockPanel>
+
+        <DockPanel>
+            <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
+                <Label.Content>Packager Path</Label.Content>
+                <Label.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Packager Path</TextBlock>
+                            <TextBlock>Specifies the path to the Packager. This is the program that the scheduled task will start when it runs.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Label.ToolTip>
+            </Label>
+            <Button DockPanel.Dock="Right" Width="36" Margin="8,0,0,0" Command="{Binding BrowseForPackager}">
+                <Button.Content>...</Button.Content>
+                <Button.ToolTip>Open a file-browser dialog to locate the Packager</Button.ToolTip>
+            </Button>
+            <TextBox DockPanel.Dock="Right" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding PackagerPath}"></TextBox>
+        </DockPanel>
+
+        <DockPanel>
+            <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
+                <Label.Content>Start Time</Label.Content>
+                <Label.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Start Time</TextBlock>
+                            <TextBlock>Specifies when Windows should start the scheduled task.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Label.ToolTip>
+            </Label>
+            <xctk:DateTimeUpDown DockPanel.Dock="Left" Padding="4,6" VerticalAlignment="Center"
+                             FormatString="hh:mm" Format="ShortTime" VerticalContentAlignment="Center"
+                             HorizontalAlignment="Left"
+                             Value="{Binding StartOn}"></xctk:DateTimeUpDown>
+        </DockPanel>
+
+        <DockPanel>
+            <Label DockPanel.Dock="Left" VerticalContentAlignment="Top" Style="{StaticResource ColumnHeader}">
+                <Label.Content>Run On</Label.Content>
+                <Label.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Run On</TextBlock>
+                            <TextBlock>Specifies the days of the week when the task should run. At least one day must be checked.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Label.ToolTip>
+            </Label>
+            <WrapPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                <CheckBox MinWidth="95" IsChecked="{Binding MondayChecked}">Monday</CheckBox>
+                <CheckBox MinWidth="95" IsChecked="{Binding TuesdayChecked}">Tuesday</CheckBox>
+                <CheckBox MinWidth="95" IsChecked="{Binding WednesdayChecked}">Wednesday</CheckBox>
+                <CheckBox MinWidth="95" IsChecked="{Binding ThursdayChecked}">Thursday</CheckBox>
+                <CheckBox MinWidth="95" IsChecked="{Binding FridayChecked}">Friday</CheckBox>
+                <CheckBox MinWidth="95" IsChecked="{Binding SaturdayChecked}">Saturday</CheckBox>
+                <CheckBox MinWidth="95" IsChecked="{Binding SundayChecked}">Sunday</CheckBox>
+            </WrapPanel>
+        </DockPanel>
+
+        <DockPanel>
+           <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}" VerticalAlignment="Top">
+                <Label.Content>Impersonate</Label.Content>
+                <Label.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Impersonate</TextBlock>
+                            <TextBlock TextWrapping="Wrap">Specifies whether Windows should log on as a specific user to run the task. If not checked, the task will only run if a user is logged onto the computer.</TextBlock>
+                            <TextBlock TextWrapping="Wrap">This is useful if multiple engineers will be sharing this computer, and you want to run the packager at a fixed time no matter what.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Label.ToolTip>
+            </Label>
+            <CheckBox DockPanel.Dock="Left" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding Impersonate}"></CheckBox>
+        </DockPanel>
+
+        <DockPanel Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}">
+            <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
+                <Label.Content>Username</Label.Content>
+                <Label.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Username (read-only)</TextBlock>
+                            <TextBlock TextWrapping="Wrap">Specifies the username to use when logging into the computer to run the task.</TextBlock>
+                            <TextBlock TextWrapping="Wrap">This value always defaults to the username of the currently logged in user.</TextBlock>
+                            <TextBlock TextWrapping="Wrap">To specify a different user, exit the utility and run the utility again as that user.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Label.ToolTip>
+            </Label>
+            <TextBox DockPanel.Dock="Right" Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}" 
+                 Text="{Binding Username}" IsReadOnly="True"></TextBox>
+        </DockPanel>
+
+        <DockPanel Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}" Margin="8,16,8,8">
+            <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
+                <Label.Content>Password</Label.Content>
+                <Label.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Password</TextBlock>
+                            <TextBlock TextWrapping="Wrap">Specifies the password to use when logging into the computer to run the task.</TextBlock>
+                            <TextBlock TextWrapping="Wrap">This value should be the password that the user uses to log into this computer.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Label.ToolTip>
+            </Label>
+            <PasswordBox DockPanel.Dock="Right" Padding="4,6" 
+                     PasswordChanged="PasswordChangedHandler" 
+                     Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}"
+                     VerticalContentAlignment="Center" VerticalAlignment="Center"></PasswordBox>
+        </DockPanel>
+
+        <Border  Margin="0,20,0,0" BorderThickness="0,1,0,0">
+            <DockPanel Margin="8,12,4,12">
+                <xctk:DropDownButton DockPanel.Dock="Left" Width="100" Content="Advanced" Padding="8">
+                    <xctk:DropDownButton.DropDownContent>
+                        <StackPanel>
+                            <Label HorizontalAlignment="Left" Style="{StaticResource AdvancedMenuEntry}">
+                                <Label.ToolTip>
+                                    <ToolTip>Open the Windows task scheduler.</ToolTip>
+                                </Label.ToolTip>
+                                <Hyperlink Command="{Binding OpenScheduler}">Open Windows Task Scheduler</Hyperlink>
+                            </Label>
+                            <Label Style="{StaticResource AdvancedMenuEntry}">
+                                <Label.ToolTip>
+                                    <ToolTip>Open the Windows Local Security Policy Manager.</ToolTip>
+                                </Label.ToolTip>
+                                <Hyperlink Command="{Binding OpenPolicy}">Open Local Security Policy Manager</Hyperlink>
+                            </Label>
+                            <Label Visibility="{Binding TaskRunning, Converter={StaticResource BoolToVis}}" Style="{StaticResource AdvancedMenuEntry}">
+                                <Label.ToolTip>
+                                    <ToolTip>Stop the Packager task from running. This option is only visible if the Packager task is currently running.</ToolTip>
+                                </Label.ToolTip>
+                                <Hyperlink Command="{Binding StopTask}">Stop Task</Hyperlink>
+                            </Label>
+                            <Label Visibility="{Binding TaskDisabled, Converter={StaticResource BoolToVis}}" Style="{StaticResource AdvancedMenuEntry}">
+                                <Label.ToolTip>
+                                    <ToolTip>Enable the Packager task. This option is only visible if the Packager task is disabled.</ToolTip>
+                                </Label.ToolTip>
+                                <Hyperlink Command="{Binding EnableTask}">Enable Task</Hyperlink>
+                            </Label>
+                            <Label Visibility="{Binding TaskEnabled, Converter={StaticResource BoolToVis}}" Style="{StaticResource AdvancedMenuEntry}">
+                                <Label.ToolTip>
+                                    <ToolTip>Disable the Packager task. This option is only visible if the Packager task is disabled.</ToolTip>
+                                </Label.ToolTip>
+                                <Hyperlink Command="{Binding DisableTask}">Disable Task</Hyperlink>
+                            </Label>
+                            <Label Style="{StaticResource AdvancedMenuEntry}" Visibility="{Binding TaskExists, Converter={StaticResource BoolToVis}}">
+                                <Label.ToolTip>
+                                    <ToolTip>Delete the Packager task. This option is only visible if the Packager task exists.</ToolTip>
+                                </Label.ToolTip>
+                                <Hyperlink Command="{Binding RemoveTask}">Delete Existing Task</Hyperlink>
+                            </Label>
+                        </StackPanel>
+                    </xctk:DropDownButton.DropDownContent>
+                </xctk:DropDownButton>
+
+                <Button DockPanel.Dock="Right" Width="100" Command="{Binding CloseWindow}" IsCancel="True" Padding="8" Margin="0,0,4,0">
+                    <Button.Content>Exit</Button.Content>
+                    <Button.ToolTip>Exit this utility</Button.ToolTip>
+                </Button>
+                <Button DockPanel.Dock="Right" Width="100" Padding="8" HorizontalAlignment="Right" Margin="0,0,8,0"
+                    Command="{Binding ScheduleTask}" IsDefault="True">
+                    <Button.Content>Schedule</Button.Content>
+                    <Button.ToolTip>Schedule the Task</Button.ToolTip>
+                </Button>
+                
+            </DockPanel>
+        </Border>
+    </StackPanel>
+
+
+
+</Window>
+

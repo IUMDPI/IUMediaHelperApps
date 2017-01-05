@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager", "Packager\Packager.csproj", "{C29CEACF-32EB-45CF-818F-87590A0EFDC0}"
 EndProject
@@ -39,6 +39,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{031C313B-FF3F-458D-82B4-667AAF2B5FF8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractiveScheduler", "InteractiveScheduler\InteractiveScheduler.csproj", "{F2E38B68-6CF1-4659-A377-DC78FFFBB302}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{FD737CE4-6FD8-4EF9-88F4-3105F499190D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD737CE4-6FD8-4EF9-88F4-3105F499190D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD737CE4-6FD8-4EF9-88F4-3105F499190D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2E38B68-6CF1-4659-A377-DC78FFFBB302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2E38B68-6CF1-4659-A377-DC78FFFBB302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2E38B68-6CF1-4659-A377-DC78FFFBB302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2E38B68-6CF1-4659-A377-DC78FFFBB302}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,5 +79,6 @@ Global
 		{52D5A6E9-5667-4163-B97A-4DB1AC4500F0} = {031C313B-FF3F-458D-82B4-667AAF2B5FF8}
 		{5F458C66-5C16-48EB-B11D-C0CF0D8F2AFE} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 		{FD737CE4-6FD8-4EF9-88F4-3105F499190D} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
+		{F2E38B68-6CF1-4659-A377-DC78FFFBB302} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 	EndGlobalSection
 EndGlobal

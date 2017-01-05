@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -50,8 +51,7 @@ namespace Scheduler
                     definition.Settings.MultipleInstances = TaskInstancesPolicy.IgnoreNew;
                     definition.Settings.RunOnlyIfIdle = false;
                     definition.Settings.WakeToRun = true;
-
-                    definition.RegistrationInfo.Description = $"Runs {Path.GetFileName(arguments.Target)} every {string.Join(",", arguments.Days)} at {$"{arguments.StartTime:hh:mm tt}"}";
+                    definition.RegistrationInfo.Description = $"Runs {Path.GetFileName(arguments.Target)} every {string.Join(",", arguments.Days)} at {arguments.StartTime:hh:mm tt}";
 
                     var trigger = new WeeklyTrigger(arguments.Days)
                     {

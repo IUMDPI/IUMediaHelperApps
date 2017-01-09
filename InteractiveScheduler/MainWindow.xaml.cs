@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using InteractiveScheduler.Models;
 using InteractiveScheduler.Services;
 
 namespace InteractiveScheduler
@@ -43,6 +45,16 @@ namespace InteractiveScheduler
             }
 
             viewModel.Password = passwordBox.SecurePassword;
+        }
+
+        private void FlashingCompleted(object sender, EventArgs e)
+        {
+            var viewModel = DataContext as ViewModel;
+            if (viewModel == null)
+            {
+                return;
+            }
+            viewModel.FlashMessage = false;
         }
     }
 }

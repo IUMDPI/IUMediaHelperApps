@@ -41,6 +41,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{031C313B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractiveScheduler", "InteractiveScheduler\InteractiveScheduler.csproj", "{F2E38B68-6CF1-4659-A377-DC78FFFBB302}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetLogonAsBatchRight", "SetLogonAsBatchRight\SetLogonAsBatchRight.csproj", "{9CC9665F-FFD5-45DD-893C-550D48E15384}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{F2E38B68-6CF1-4659-A377-DC78FFFBB302}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2E38B68-6CF1-4659-A377-DC78FFFBB302}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2E38B68-6CF1-4659-A377-DC78FFFBB302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CC9665F-FFD5-45DD-893C-550D48E15384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CC9665F-FFD5-45DD-893C-550D48E15384}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CC9665F-FFD5-45DD-893C-550D48E15384}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CC9665F-FFD5-45DD-893C-550D48E15384}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,5 +86,6 @@ Global
 		{5F458C66-5C16-48EB-B11D-C0CF0D8F2AFE} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 		{FD737CE4-6FD8-4EF9-88F4-3105F499190D} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 		{F2E38B68-6CF1-4659-A377-DC78FFFBB302} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
+		{9CC9665F-FFD5-45DD-893C-550D48E15384} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 	EndGlobalSection
 EndGlobal

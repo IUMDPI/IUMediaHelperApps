@@ -47,6 +47,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -89,16 +90,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Commands\AsyncRelayCommand.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Extensions\ProcessExtensions.cs" />
     <Compile Include="Extensions\SecureStringExtensions.cs" />
-    <Compile Include="ManagedCode\LsaWrapper.cs" />
+    <Compile Include="ManagedCode\UserInterfaceHelper.cs" />
     <Compile Include="Models\BooleanResult.cs" />
     <Compile Include="Services\IFileDialogService.cs" />
     <Compile Include="Services\FileDialogService.cs" />
     <Compile Include="Services\ITaskScheduler.cs" />
     <Compile Include="Services\IUserService.cs" />
     <Compile Include="Services\UserService.cs" />
-    <Compile Include="ViewModel.cs" />
+    <Compile Include="Models\ViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -139,6 +142,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SetLogonAsBatchRight\SetLogonAsBatchRight.csproj">
+      <Project>{9cc9665f-ffd5-45dd-893c-550d48e15384}</Project>
+      <Name>SetLogonAsBatchRight</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

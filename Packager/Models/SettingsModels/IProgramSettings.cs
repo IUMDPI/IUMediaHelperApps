@@ -28,5 +28,6 @@ namespace Packager.Models.SettingsModels
         string UnitPrefix { get; }
         string PodAuthFilePath { get; }
         string DigitizingEntity { get; }
+        string ImageDirectory { get; }
     }
 }

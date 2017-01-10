@@ -10,6 +10,9 @@ namespace Packager.Models.SettingsModels
         [Required]
         public string DigitizingEntity { get; set; }
 
+        [ValidateFolder]
+        public string ImageDirectory { get; set; }
+
         [ValidateFile]
         public string BwfMetaEditPath { get; set; }
 

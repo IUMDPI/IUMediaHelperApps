@@ -20,6 +20,7 @@ using Packager.Utilities.Configuration;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
+using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
@@ -86,10 +87,11 @@ namespace Packager
             container.RegisterSingleton<IFFProbeRunner, FFProbeRunner>();
             container.RegisterSingleton<IMediaInfoProvider, MediaInfoProvider>();
             container.RegisterSingleton<IConfigurationLogger, ConfigurationLogger>();
-
+            container.RegisterSingleton<IImageProcessor, ImageProcessor>();
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
             
+
             container.RegisterConditional<IFFMPEGRunner, VideoFFMPEGRunner>(Lifestyle.Singleton, 
                 c=>c.Consumer.ImplementationType == typeof(VideoProcessor));
 

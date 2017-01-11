@@ -15,6 +15,7 @@ using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
+using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
@@ -29,12 +30,16 @@ namespace Packager.Processors
            IFileProvider fileProvider, 
            IHasher hasher, 
            IPodMetadataProvider metadataProvider, 
-           IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter)
+           IObserverCollection observers, 
+           IProgramSettings programSettings, 
+           IXmlExporter xmlExporter, 
+           IImageProcessor imageProcessor)
         {
             ProgramSettings = programSettings;
             Observers = observers;
             MetadataProvider = metadataProvider;
             XmlExporter = xmlExporter;
+            ImageProcessor = imageProcessor;
             BextProcessor = bextProcessor;
             DirectoryProvider = directoryProvider;
             FileProvider = fileProvider;
@@ -58,6 +63,7 @@ namespace Packager.Processors
         protected IObserverCollection Observers { get; }
         private IPodMetadataProvider MetadataProvider { get; }
         private IXmlExporter XmlExporter { get; }
+        private IImageProcessor ImageProcessor { get; set; }
         private IHasher Hasher { get; }
         private IFileProvider FileProvider { get; }
         private IDirectoryProvider DirectoryProvider { get; }
@@ -95,7 +101,7 @@ namespace Packager.Processors
 
                 // now move them to processing
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
-
+                
                 // fetch, log, and validate metadata
                 var metadata = await GetMetadata<T>(filesToProcess, cancellationToken);
 
@@ -133,6 +139,11 @@ namespace Packager.Processors
                 processedList = processedList.Concat(
                     await CreateQualityControlFiles(processedList, cancellationToken)).ToList();
 
+                // import label images and add them to list of files to process
+                processedList = processedList
+                    .Concat(await ImportLabelImages(cancellationToken))
+                    .ToList();
+
                 // using the list of files that have been processed
                 // make the xml file
                 processedList.Add(await GenerateXml(metadata, processedList, cancellationToken));
@@ -164,7 +175,7 @@ namespace Packager.Processors
         
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
-            foreach (var original in originals)
+            foreach (var original in originals.Where(f=> f is TiffImageFile == false))
             {
                 var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
                 await FFMpegRunner.Normalize(original, metadata, cancellationToken);
@@ -234,6 +245,27 @@ namespace Packager.Processors
 
                 Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
                 return result;
+            }
+            catch (Exception e)
+            {
+                Observers.EndSection(sectionKey);
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
+            }
+        }
+
+        private async Task<List<AbstractFile>> ImportLabelImages(CancellationToken cancellationToken)
+        {
+            var sectionKey = Observers.BeginSection("Importing Label Images");
+            try
+            {
+                var results = await ImageProcessor.ImportMediaImages(Barcode, cancellationToken);
+                Observers.Log(results.Any() 
+                    ? string.Join("\n", results.Select(f => $"imported {f.Filename}"))
+                    : "No label images found");
+
+                Observers.EndSection(sectionKey);
+                return results;
             }
             catch (Exception e)
             {

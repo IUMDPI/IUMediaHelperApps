@@ -16,7 +16,8 @@ namespace Packager.Factories
                 {VideoPresKey, GetVideoPresModel},
                 {VideoPresIntKey, GetVideoPresIntModel},
                 {VideoMezzKey, GetMezzModel},
-                {AccessKey, GetAccessModel}
+                {AccessKey, GetAccessModel},
+                {TiffImageKey, GetTiffImageModel }
             };
 
         private static ResolverKey AudioPresKey => new ResolverKey(".wav", "pres");
@@ -26,6 +27,7 @@ namespace Packager.Factories
         private static ResolverKey AudioProdKey => new ResolverKey(".wav", "prod");
         private static ResolverKey VideoMezzKey => new ResolverKey(".mov", "mezz");
         private static ResolverKey AccessKey => new ResolverKey(".mp4", "access");
+        private static ResolverKey TiffImageKey => new ResolverKey(".tif","label");
 
         private static AbstractFile GetMezzModel(AbstractFile arg)
         {
@@ -60,6 +62,11 @@ namespace Packager.Factories
         private static AbstractFile GetAccessModel(AbstractFile arg)
         {
             return new AccessFile(arg);
+        }
+
+        private static AbstractFile GetTiffImageModel(AbstractFile arg)
+        {
+            return new TiffImageFile(arg);
         }
 
         public static AbstractFile GetModel(string path)

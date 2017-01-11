@@ -14,6 +14,7 @@ using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
+using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 
@@ -32,7 +33,8 @@ namespace Packager.Processors
             IXmlExporter xmlExporter, 
             ICarrierDataFactory<AudioPodMetadata> carrierDataFactory, 
             IEmbeddedMetadataFactory<AudioPodMetadata> embeddedMetadataFactory, 
-            IFFMPEGRunner ffMpegRunner) : base(
+            IFFMPEGRunner ffMpegRunner, 
+            IImageProcessor imageProcessor) : base(
                 bextProcessor, 
                 directoryProvider, 
                 fileProvider, 
@@ -40,7 +42,8 @@ namespace Packager.Processors
                 metadataProvider, 
                 observers, 
                 programSettings, 
-                xmlExporter)
+                xmlExporter,
+                imageProcessor)
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;
@@ -50,7 +53,7 @@ namespace Packager.Processors
         protected override ICarrierDataFactory<AudioPodMetadata> CarrierDataFactory { get; }
         protected override IFFMPEGRunner FFMpegRunner { get; }
         protected override IEmbeddedMetadataFactory<AudioPodMetadata> EmbeddedMetadataFactory { get; } 
-            
+           
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
 
         protected override AbstractFile CreateProdOrMezzModel(AbstractFile master)

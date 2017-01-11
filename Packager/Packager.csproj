@@ -110,6 +110,7 @@
     <Compile Include="Models\FileModels\MezzanineFile.cs" />
     <Compile Include="Models\FileModels\ProductionFile.cs" />
     <Compile Include="Models\FileModels\QualityControlFile.cs" />
+    <Compile Include="Models\FileModels\TiffImageFile.cs" />
     <Compile Include="Models\FileModels\UnknownFile.cs" />
     <Compile Include="Models\FileModels\VideoPreservationFile.cs" />
     <Compile Include="Models\FileModels\VideoPreservationIntermediateFile.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Utilities\Bext\BextFields.cs" />
     <Compile Include="Utilities\Configuration\ConfigurationLogger.cs" />
     <Compile Include="Utilities\FileSystem\SuccessFolderCleaner.cs" />
+    <Compile Include="Utilities\Images\IImageProcessor.cs" />
     <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\ArgumentBuilder.cs" />
     <Compile Include="Utilities\ProcessRunners\AudioFFMPEGRunner.cs" />

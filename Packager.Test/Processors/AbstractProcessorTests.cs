@@ -16,6 +16,7 @@ using Packager.Processors;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
+using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
@@ -47,7 +48,8 @@ namespace Packager.Test.Processors
         protected IBextProcessor BextProcessor { get; set; }
         protected IFFMPEGRunner FFMPEGRunner { get; set; }
         protected IFFProbeRunner FFProbeRunner { get; set; }
-        
+        protected IImageProcessor ImageProcessor { get; set; }
+
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
         protected string ExpectedObjectFolderName { get; set; }
@@ -118,6 +120,10 @@ namespace Packager.Test.Processors
             FFProbeRunner = Substitute.For<IFFProbeRunner>();
             FFProbeRunner.GenerateQualityControlFile(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                 .Returns(a => Task.FromResult(new QualityControlFile(a.Arg<AbstractFile>())));
+
+            ImageProcessor = Substitute.For<IImageProcessor>();
+            ImageProcessor.ImportMediaImages(Arg.Any<string>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult(new List<AbstractFile>()));
 
             DoCustomSetup();
 

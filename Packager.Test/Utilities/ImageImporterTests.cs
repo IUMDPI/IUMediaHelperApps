@@ -24,7 +24,7 @@ namespace Packager.Test.Utilities
         private IFileProvider FileProvider { get; set; }
         private IDirectoryProvider DirectoryProvider { get; set; }
         private IHasher Hasher { get; set; }
-        private IImageProcessor ImageImporter { get; set; }
+        private ILabelImageImporter ImageImporter { get; set; }
 
         private List<string> SourceFiles { get; set; }
         private string ValidFilename1 => $"{ProjectCode}_{Barcode}_01_label.tif";
@@ -52,7 +52,7 @@ namespace Packager.Test.Utilities
             Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>())
                 .Returns(args => $"{Path.GetFileName(args.Arg<string>())} hash");
 
-            ImageImporter = new ImageProcessor(Settings, FileProvider, DirectoryProvider, Hasher);
+            ImageImporter = new LabelImageImporter(Settings, FileProvider, DirectoryProvider, Hasher);
         }
 
         private string GetSourcePath(string filename)

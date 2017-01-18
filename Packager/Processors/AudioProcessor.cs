@@ -34,7 +34,7 @@ namespace Packager.Processors
             ICarrierDataFactory<AudioPodMetadata> carrierDataFactory, 
             IEmbeddedMetadataFactory<AudioPodMetadata> embeddedMetadataFactory, 
             IFFMPEGRunner ffMpegRunner, 
-            IImageProcessor imageProcessor) : base(
+            ILabelImageImporter imageProcessor) : base(
                 bextProcessor, 
                 directoryProvider, 
                 fileProvider, 

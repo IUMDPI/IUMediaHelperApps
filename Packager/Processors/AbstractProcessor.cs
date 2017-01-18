@@ -33,13 +33,13 @@ namespace Packager.Processors
            IObserverCollection observers, 
            IProgramSettings programSettings, 
            IXmlExporter xmlExporter, 
-           IImageProcessor imageProcessor)
+           ILabelImageImporter imageProcessor)
         {
             ProgramSettings = programSettings;
             Observers = observers;
             MetadataProvider = metadataProvider;
             XmlExporter = xmlExporter;
-            ImageProcessor = imageProcessor;
+            LabelImageImporter = imageProcessor;
             BextProcessor = bextProcessor;
             DirectoryProvider = directoryProvider;
             FileProvider = fileProvider;
@@ -63,7 +63,7 @@ namespace Packager.Processors
         protected IObserverCollection Observers { get; }
         private IPodMetadataProvider MetadataProvider { get; }
         private IXmlExporter XmlExporter { get; }
-        private IImageProcessor ImageProcessor { get; set; }
+        private ILabelImageImporter LabelImageImporter { get; }
         private IHasher Hasher { get; }
         private IFileProvider FileProvider { get; }
         private IDirectoryProvider DirectoryProvider { get; }
@@ -259,7 +259,7 @@ namespace Packager.Processors
             var sectionKey = Observers.BeginSection("Importing Label Images");
             try
             {
-                var results = await ImageProcessor.ImportMediaImages(Barcode, cancellationToken);
+                var results = await LabelImageImporter.ImportMediaImages(Barcode, cancellationToken);
                 Observers.Log(results.Any() 
                     ? string.Join("\n", results.Select(f => $"imported {f.Filename}"))
                     : "No label images found");

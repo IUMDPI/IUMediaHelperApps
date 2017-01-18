@@ -87,7 +87,7 @@ namespace Packager
             container.RegisterSingleton<IFFProbeRunner, FFProbeRunner>();
             container.RegisterSingleton<IMediaInfoProvider, MediaInfoProvider>();
             container.RegisterSingleton<IConfigurationLogger, ConfigurationLogger>();
-            container.RegisterSingleton<IImageProcessor, ImageProcessor>();
+            container.RegisterSingleton<ILabelImageImporter, LabelImageImporter>();
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
             

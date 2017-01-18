@@ -12,12 +12,7 @@ using Packager.Utilities.Hashing;
 
 namespace Packager.Utilities.Images
 {
-    public interface IImageProcessor
-    {
-        Task<List<AbstractFile>> ImportMediaImages(string barcode, CancellationToken cancellationToken);
-    }
-
-    public class ImageProcessor : IImageProcessor
+    public class LabelImageImporter : ILabelImageImporter
     {
         private IFileProvider FileProvider { get; }
         private IDirectoryProvider DirectoryProvider { get; }
@@ -26,7 +21,7 @@ namespace Packager.Utilities.Images
         private string ProjectCode { get; }
         private string BaseProcessingFolder { get; }
        
-        public ImageProcessor(IProgramSettings settings, IFileProvider fileProvider, IDirectoryProvider directoryProvider, IHasher hasher)
+        public LabelImageImporter(IProgramSettings settings, IFileProvider fileProvider, IDirectoryProvider directoryProvider, IHasher hasher)
         {
             ProjectCode = settings.ProjectCode;
             ImageDirectory = settings.ImageDirectory;

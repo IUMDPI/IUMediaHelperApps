@@ -90,8 +90,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Commands\AsyncRelayCommand.cs" />
-    <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Extensions\ProcessExtensions.cs" />
     <Compile Include="Extensions\SecureStringExtensions.cs" />
     <Compile Include="ManagedCode\UserInterfaceHelper.cs" />
@@ -144,6 +142,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{3c6b5bb3-a9c6-401e-9d7f-3473b7c96dec}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SetLogonAsBatchRight\SetLogonAsBatchRight.csproj">
       <Project>{9cc9665f-ffd5-45dd-893c-550d48e15384}</Project>
       <Name>SetLogonAsBatchRight</Name>

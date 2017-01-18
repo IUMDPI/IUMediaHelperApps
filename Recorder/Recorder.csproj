@@ -165,7 +165,6 @@
     <Compile Include="ViewModels\AskExitViewModel.cs" />
     <Compile Include="ViewModels\FrameStatsViewModel.cs" />
     <Compile Include="ViewModels\IssueNotifyModel.cs" />
-    <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Utilities\AbstractEngine.cs" />
     <Compile Include="Utilities\BarcodeHandler.cs" />
     <Compile Include="Utilities\CombiningEngine.cs" />
@@ -275,6 +274,12 @@
     <Content Include="ReleaseNotes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{3c6b5bb3-a9c6-401e-9d7f-3473b7c96dec}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

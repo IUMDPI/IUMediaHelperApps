@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace InteractiveScheduler.Commands
+namespace Common.UserInterface.Commands
 {
     public class AsyncRelayCommand : RelayCommand
     {
@@ -12,8 +12,8 @@ namespace InteractiveScheduler.Commands
 
         public event EventHandler Ended;
 
-        public AsyncRelayCommand(Action<object> execute)
-            : base(execute)
+        public AsyncRelayCommand(Action<object> execute, Predicate<object> canExecute = null)
+            : base(execute, canExecute)
         {
         }
 

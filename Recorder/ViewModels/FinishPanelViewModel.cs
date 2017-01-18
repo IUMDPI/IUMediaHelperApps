@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Common.UserInterface.Commands;
 using Recorder.Models;
 
 namespace Recorder.ViewModels

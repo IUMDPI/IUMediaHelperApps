@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace InteractiveScheduler.Commands
+namespace Common.UserInterface.Commands
 {
     public class RelayCommand : ICommand
     {
@@ -39,7 +39,7 @@ namespace InteractiveScheduler.Commands
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        protected void RaiseCanExecuteChanged()
+        public void RaiseCanExecuteChanged()
         {
             CommandManager.InvalidateRequerySuggested();
         }

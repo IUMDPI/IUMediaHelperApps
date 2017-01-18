@@ -8,7 +8,7 @@ using System.Security.Principal;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using InteractiveScheduler.Commands;
+using Common.UserInterface.Commands;
 using InteractiveScheduler.ManagedCode;
 using InteractiveScheduler.Services;
 using Microsoft.Win32.TaskScheduler;

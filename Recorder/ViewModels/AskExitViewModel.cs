@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using Common.UserInterface.Commands;
 using JetBrains.Annotations;
 
 namespace Recorder.ViewModels

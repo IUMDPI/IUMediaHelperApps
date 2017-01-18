@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Common.UserInterface.Commands;
 using Recorder.Models;
 
 namespace Recorder.ViewModels

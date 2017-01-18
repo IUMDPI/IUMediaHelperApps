@@ -1,4 +1,6 @@
-﻿namespace Recorder.ViewModels
+﻿using Common.UserInterface.Commands;
+
+namespace Recorder.ViewModels
 {
     public class IssueNotifyModel : AbstractNotifyModel
     {

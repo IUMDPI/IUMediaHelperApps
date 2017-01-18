@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace Packager.UserInterface
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly List<SectionModel> _sections = new List<SectionModel>();
-        private ICommand _cancelCommand;
+        private RelayCommand _cancelCommand;
         private bool _processing;
         private string _processingMessage;
         private string _title;
@@ -49,7 +50,7 @@ namespace Packager.UserInterface
 
         public TextDocument Document { get; }
 
-        public ICommand CancelCommand
+        public RelayCommand CancelCommand
         {
             get
             {
@@ -87,8 +88,10 @@ namespace Packager.UserInterface
             get { return _processing; }
             set
             {
+                Debug.Print($"processing set to {value}");
                 _processing = value;
                 OnPropertyChanged();
+                CancelCommand?.RaiseCanExecuteChanged();
             }
         }
 

@@ -46,6 +46,11 @@ namespace Packager.UserInterface
             ToExecute(parameter);
         }
 
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
+        
         #endregion // ICommand Members
     }
 
@@ -95,6 +100,7 @@ namespace Packager.UserInterface
         {
             _isExecuting = false;
             Ended?.Invoke(this, e);
+            RaiseCanExecuteChanged();
         }
     }
 }

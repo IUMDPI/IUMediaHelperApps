@@ -30,10 +30,11 @@ namespace Packager.Utilities.Images
         {
             ProjectCode = settings.ProjectCode;
             ImageDirectory = settings.ImageDirectory;
+            BaseProcessingFolder = settings.ProcessingDirectory;
+
             FileProvider = fileProvider;
             DirectoryProvider = directoryProvider;
             Hasher = hasher;
-            BaseProcessingFolder = settings.ProcessingDirectory;
         }
 
         public async Task<List<AbstractFile>> ImportMediaImages(string barcode, CancellationToken cancellationToken)

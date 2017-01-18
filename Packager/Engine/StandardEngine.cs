@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Common.Models;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
@@ -96,13 +97,17 @@ namespace Packager.Engine
 
                 HideCancelBanner();
                 TurnOffObjectObservers();
+
                 WriteResultsMessage(groupings, results, cancellationToken);
+                WriteResultsReport(groupings, results, cancellationToken);
+
                 SendSuccessEmail(results);
                 exitCode = GetExitCode(results);
             }
             catch (Exception ex)
             {
                 Observers.LogEngineIssue(ex);
+                WriteResultsReport(ex);
                 exitCode = EngineExitCodes.EngineIssue;
             }
 
@@ -279,6 +284,36 @@ namespace Packager.Engine
             }
 
             Observers.EndSection(sectionKey);
+        }
+
+        private void WriteResultsReport(IEnumerable<IGrouping<string, AbstractFile>> groupings,
+            Dictionary<string, ValidationResult> results, CancellationToken cancellationToken)
+        {
+            var report = new PackagerReport
+            {
+                Timestamp = DateTime.UtcNow,
+                Succeeded = results.All(r=>r.Value.Result),
+                ObjectReports = results.Select(r=>new PackagerObjectReport
+                {
+                    Barcode = r.Key,
+                    Succeeded = r.Value.Result,
+                    Issue = r.Value.Issue,
+                    Timestamp = r.Value.Timestamp
+                }).ToList()
+            };
+
+            report.Save(ProgramSettings.LogDirectoryName);
+        }
+
+        private void WriteResultsReport(Exception e)
+        {
+            var report = new PackagerReport
+            {
+                Succeeded = false,
+                Issue = e.Message,
+                Timestamp = DateTime.UtcNow
+            };
+            report.Save(ProgramSettings.LogDirectoryName);
         }
 
         private void TurnOffObjectObservers()

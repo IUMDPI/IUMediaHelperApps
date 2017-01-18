@@ -27,11 +27,11 @@ namespace Packager.Test.Utilities
         private ILabelImageImporter ImageImporter { get; set; }
 
         private List<string> SourceFiles { get; set; }
-        private string ValidFilename1 => $"{ProjectCode}_{Barcode}_01_label.tif";
-        private string ValidFilename2 => $"{ProjectCode}_{Barcode}_02_label.tif";
-        private string InvalidFilename => $"{ProjectCode}_{Barcode}_01_invalid.tif";
+        private static string ValidFilename1 => $"{ProjectCode}_{Barcode}_01_label.tif";
+        private static string ValidFilename2 => $"{ProjectCode}_{Barcode}_02_label.tif";
+        private static string InvalidFilename => $"{ProjectCode}_{Barcode}_01_invalid.tif";
 
-        private string ExpectedSourceFolder => Path.Combine(ImageDirectory, $"{ProjectCode}_{Barcode}");
+        private static string ExpectedSourceFolder => Path.Combine(ImageDirectory, $"{ProjectCode}_{Barcode}");
 
         [SetUp]
         public void BeforeEach()

@@ -40,6 +40,7 @@
     <Span color="SubHeader" begin="Validating " />
     <Span color="SubHeader" begin="Normalizing " />
     <Span color="SubHeader" begin="Clearing metadata fields" />
+    <Span color="SubHeader" begin="Importing Label Images" />
     <Span color="ResultsSummary" begin="Results Summary:" />
     <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />
@@ -49,7 +50,7 @@
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     
     <Rule color="PathFileOrBarcode">
-      .{4}_\d{14}_\d{1,2}_(access|presInt|presint|pres|prod|mezz)\..{3,4}|.{4}_\d{14}\.xml|.{4}_\d{14}_\d{1,2}_(access|presInt|presint|pres|prod|mezz)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
+      .{4}_\d{14}_\d{1,2}_(access|presInt|presint|pres|prod|mezz|label)\..{3,4}|.{4}_\d{14}\.xml|.{4}_\d{14}_\d{1,2}_(access|presInt|presint|pres|prod|mezz)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">

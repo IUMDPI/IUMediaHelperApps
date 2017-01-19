@@ -20,6 +20,8 @@ using Packager.UserInterface;
 using Packager.Utilities.Configuration;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
+using Packager.Utilities.Reporting;
+using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Engine
@@ -37,7 +39,7 @@ namespace Packager.Engine
         private IConfigurationLogger ConfigurationLogger { get; }
         private ISystemInfoProvider SystemInfoProvider { get; }
         private IEmailSender EmailSender { get; }
-
+        private IReportWriter ReportWriter { get; }
 
         public StandardEngine(
             Dictionary<string, IProcessor> processors, 
@@ -50,6 +52,7 @@ namespace Packager.Engine
             IConfigurationLogger configurationLogger,
             ISystemInfoProvider systemInfoProvider,
             IEmailSender emailSender,
+            IReportWriter reportWriter,
             IObserverCollection observerCollection)
         {
             ViewModel = viewModel;
@@ -63,6 +66,7 @@ namespace Packager.Engine
             EmailSender = emailSender;
             Observers = observerCollection;
             Processors = processors;
+            ReportWriter = reportWriter;
         }
         
         public async Task Start(CancellationToken cancellationToken)
@@ -99,7 +103,7 @@ namespace Packager.Engine
                 TurnOffObjectObservers();
 
                 WriteResultsMessage(groupings, results, cancellationToken);
-                WriteResultsReport(groupings, results, cancellationToken);
+                ReportWriter.WriteResultsReport(results);
 
                 SendSuccessEmail(results);
                 exitCode = GetExitCode(results);
@@ -107,7 +111,7 @@ namespace Packager.Engine
             catch (Exception ex)
             {
                 Observers.LogEngineIssue(ex);
-                WriteResultsReport(ex);
+                ReportWriter.WriteResultsReport(ex);
                 exitCode = EngineExitCodes.EngineIssue;
             }
 
@@ -285,37 +289,7 @@ namespace Packager.Engine
 
             Observers.EndSection(sectionKey);
         }
-
-        private void WriteResultsReport(IEnumerable<IGrouping<string, AbstractFile>> groupings,
-            Dictionary<string, ValidationResult> results, CancellationToken cancellationToken)
-        {
-            var report = new PackagerReport
-            {
-                Timestamp = DateTime.UtcNow,
-                Succeeded = results.All(r=>r.Value.Result),
-                ObjectReports = results.Select(r=>new PackagerObjectReport
-                {
-                    Barcode = r.Key,
-                    Succeeded = r.Value.Result,
-                    Issue = r.Value.Issue,
-                    Timestamp = r.Value.Timestamp
-                }).ToList()
-            };
-
-            report.Save(ProgramSettings.LogDirectoryName);
-        }
-
-        private void WriteResultsReport(Exception e)
-        {
-            var report = new PackagerReport
-            {
-                Succeeded = false,
-                Issue = e.Message,
-                Timestamp = DateTime.UtcNow
-            };
-            report.Save(ProgramSettings.LogDirectoryName);
-        }
-
+        
         private void TurnOffObjectObservers()
         {
             foreach (var observer in Observers.Select(o => o as ObjectNLogObserver).Where(o => o != null))

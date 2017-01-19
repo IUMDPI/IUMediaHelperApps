@@ -169,6 +169,8 @@
     <Compile Include="Utilities\FileSystem\ISuccessFolderCleaner.cs" />
     <Compile Include="Utilities\ProcessRunners\StringOutputBuffer.cs" />
     <Compile Include="Utilities\ProcessRunners\VideoFFMPEGRunner.cs" />
+    <Compile Include="Utilities\Reporting\IReportWriter.cs" />
+    <Compile Include="Utilities\Reporting\ReportWriter.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />

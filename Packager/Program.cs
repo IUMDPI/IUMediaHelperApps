@@ -22,6 +22,7 @@ using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
+using Packager.Utilities.Reporting;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 using Packager.Verifiers;
@@ -133,7 +134,8 @@ namespace Packager
 
             container.RegisterSingleton<IViewModel, ViewModel>();
             container.RegisterSingleton<OutputWindow>();
-            
+            container.RegisterSingleton<IReportWriter, ReportWriter>();
+
             container.Verify();
 
             return container;

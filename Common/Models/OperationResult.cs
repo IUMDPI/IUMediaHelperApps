@@ -13,26 +13,7 @@ namespace Common.Models
         public DateTime Timestamp { get; set; }
         public bool Succeeded { get; set; }
         public string Issue { get; set; }
-
-        public void Save(string folderPath)
-        {
-            try
-            {
-                var filename = Path.Combine(folderPath, $"Packager_{DateTime.Now.Ticks:D19}.xml");
-
-                var serializer = new XmlSerializer(GetType());
-                using (var writer = new StreamWriter(filename))
-                {
-                    serializer.Serialize(writer, this);
-                    writer.Close();
-                }
-            }
-            catch(Exception)
-            {
-                // ignore   
-            }
-        }
-
+        
         public static Task<T> Read<T>(string path) where T:OperationReport
         {
             return Task.Run(() =>

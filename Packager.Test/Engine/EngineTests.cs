@@ -18,6 +18,7 @@ using Packager.UserInterface;
 using Packager.Utilities.Configuration;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
+using Packager.Utilities.Reporting;
 using Packager.Validators;
 
 namespace Packager.Test.Engine
@@ -46,6 +47,8 @@ namespace Packager.Test.Engine
             MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
             MockMpegProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
 
+            ReportWriter = Substitute.For<IReportWriter>();
+
             Observer = Substitute.For<IObserverCollection>();
 
             Grouping1PresFileName = GetPresFileNameForBarCode(BarCode1, MockWavProcessorExtension);
@@ -70,7 +73,7 @@ namespace Packager.Test.Engine
             };
 
             Engine = new StandardEngine(processors, ViewModel, ProgramSettings, ProgramArguments, DirectoryProvider, Validators,
-                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), SystemInfoProvider, EmailSender, Observer);
+                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), SystemInfoProvider, EmailSender, ReportWriter, Observer);
 
             DoCustomSetup();
             await Engine.Start(CancellationToken.None);
@@ -96,6 +99,7 @@ namespace Packager.Test.Engine
         private IViewModel ViewModel { get; set; }
         private ISystemInfoProvider SystemInfoProvider { get; set; }
         private IEmailSender EmailSender { get; set; }
+        private IReportWriter ReportWriter { get; set; }
 
         private string Grouping1PresFileName { get; set; }
         private string Grouping1ProdFileName { get; set; }
@@ -163,6 +167,12 @@ namespace Packager.Test.Engine
             public void ItShouldWriteHelloMessage()
             {
                 Observer.Received().Log(Arg.Is("Starting {0} (version {1})"), Arg.Any<DateTime>(), Arg.Any<Version>());
+            }
+
+            [Test]
+            public void ItShouldCallWriteResultsReportCorrectly()
+            {
+                ReportWriter.Received().WriteResultsReport(Arg.Any<Dictionary<string, ValidationResult>>());
             }
 
             public class WhenSuccessEmailAddressesSpecified : WhenEngineRunsWithoutIssues
@@ -284,6 +294,12 @@ namespace Packager.Test.Engine
             public void ItShouldWriteErrorMessage()
             {
                 Observer.Received().LogEngineIssue(Exception);
+            }
+
+            [Test]
+            public void ItShouldCallReportWriterCorrectly()
+            {
+                ReportWriter.Received().WriteResultsReport(Exception);
             }
 
             public class WhenInteractive : WhenEngineEncountersAnIssue

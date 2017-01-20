@@ -125,6 +125,7 @@
     <Compile Include="Models\MetadataModels\DigitalFileProvenanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ImageImporterTests.cs" />
+    <Compile Include="Utilities\ReportWriterTests.cs" />
     <Compile Include="Utilities\SuccessFolderCleanerTests.cs" />
     <Compile Include="Validators\DirectoryValidatorTests.cs" />
     <Compile Include="Validators\FileValidatorTests.cs" />
@@ -137,6 +138,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{3C6B5BB3-A9C6-401E-9D7F-3473B7C96DEC}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Packager\Packager.csproj">
       <Project>{c29ceacf-32eb-45cf-818f-87590a0efdc0}</Project>
       <Name>Packager</Name>

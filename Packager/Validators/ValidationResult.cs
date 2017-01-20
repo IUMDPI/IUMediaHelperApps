@@ -7,14 +7,14 @@ namespace Packager.Validators
         public ValidationResult(string baseIssue, params object[] args)
             : this(false, string.Format(baseIssue, args))
         {
-            Timestamp = DateTime.UtcNow;
+            Timestamp = DateTime.Now;
         }
 
         private ValidationResult(bool success, string issue)
         {
             Issue = issue;
             Result = success;
-            Timestamp = DateTime.UtcNow;
+            Timestamp = DateTime.Now;
         }
 
         public static ValidationResult Success => new ValidationResult(true, "");

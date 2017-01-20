@@ -22,10 +22,12 @@ namespace Packager.Utilities.Reporting
 
         public void WriteResultsReport(Dictionary<string, ValidationResult> results)
         {
+            var succeeded = results.All(r => r.Value.Result);
             var report = new PackagerReport
             {
-                Timestamp = DateTime.UtcNow,
-                Succeeded = results.All(r => r.Value.Result),
+                Timestamp = DateTime.Now,
+                Succeeded = succeeded,
+                Issue = succeeded ? string.Empty : "Issues occurred while processing one or more objects",
                 ObjectReports = results.Select(r => new PackagerObjectReport
                 {
                     Barcode = r.Key,
@@ -44,7 +46,7 @@ namespace Packager.Utilities.Reporting
             {
                 Succeeded = false,
                 Issue = e.Message,
-                Timestamp = DateTime.UtcNow
+                Timestamp = DateTime.Now
             };
 
             Write(report);

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using Common.Models;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
@@ -21,7 +19,6 @@ using Packager.Utilities.Configuration;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Reporting;
-using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Engine
@@ -72,11 +69,11 @@ namespace Packager.Engine
         public async Task Start(CancellationToken cancellationToken)
         {
             EngineExitCodes exitCode;
-
+            var startTime = DateTime.Now;
             try
             {
-                var results = new Dictionary<string, ValidationResult>();
-                WriteHelloMessage();
+                var results = new Dictionary<string, DurationResult>();
+                WriteHelloMessage(startTime);
 
                 await ConfigurationLogger.Log();
                 ValidateSettings();
@@ -103,7 +100,7 @@ namespace Packager.Engine
                 TurnOffObjectObservers();
 
                 WriteResultsMessage(groupings, results, cancellationToken);
-                ReportWriter.WriteResultsReport(results);
+                ReportWriter.WriteResultsReport(results, startTime);
 
                 SendSuccessEmail(results);
                 exitCode = GetExitCode(results);
@@ -115,7 +112,7 @@ namespace Packager.Engine
                 exitCode = EngineExitCodes.EngineIssue;
             }
 
-            WriteGoodbyeMessage();
+            WriteGoodbyeMessage(startTime);
 
             ExitIfNonInteractive(exitCode);
         }
@@ -130,14 +127,14 @@ namespace Packager.Engine
             SystemInfoProvider.ExitApplication(exitCode);
         }
 
-        private EngineExitCodes GetExitCode(Dictionary<string, ValidationResult> results)
+        private EngineExitCodes GetExitCode(Dictionary<string, DurationResult> results)
         {
             return results.Any(r => r.Value.Result == false) 
                 ? EngineExitCodes.ProcessingIssue
                 : EngineExitCodes.Success; // success
         }
 
-        private void SendSuccessEmail(Dictionary<string, ValidationResult> results)
+        private void SendSuccessEmail(Dictionary<string, DurationResult> results)
         {
             var succeededBarCodes = results.Where(r => r.Value.Result).Select(r=>r.Key).ToArray();
             if (succeededBarCodes.Any() == false)
@@ -213,10 +210,10 @@ namespace Packager.Engine
             return result.ToArray();
         }
 
-        private async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> group, CancellationToken cancellationToken)
+        private async Task<DurationResult> ProcessObject(IGrouping<string, AbstractFile> group, CancellationToken cancellationToken)
         {
             var processor = GetProcessor(group);
-            return await processor.ProcessObject(group, cancellationToken);
+            return await processor.ProcessObject(@group, cancellationToken);
         }
 
         private IProcessor GetProcessor(IEnumerable<AbstractFile> group)
@@ -237,17 +234,18 @@ namespace Packager.Engine
             return Processors[validExtensions.First().Key];
         }
 
-        private void WriteHelloMessage()
+        private void WriteHelloMessage(DateTime startTime)
         {
-            Observers.Log("Starting {0} (version {1})", DateTime.Now, Assembly.GetExecutingAssembly().GetName().Version);
+            Observers.Log("Starting {0} (version {1})", startTime, Assembly.GetExecutingAssembly().GetName().Version);
         }
 
-        private void WriteGoodbyeMessage()
+        private void WriteGoodbyeMessage(DateTime startTime)
         {
-            Observers.Log("Completed {0}", DateTime.Now);
+            var endTime = DateTime.Now;
+            Observers.Log("Completed {0} ({1:hh\\:mm\\:ss})", endTime, endTime - startTime);
         }
         
-        private void WriteResultsMessage(IEnumerable<IGrouping<string, AbstractFile>> groupings, Dictionary<string, ValidationResult> results, CancellationToken cancellationToken)
+        private void WriteResultsMessage(IEnumerable<IGrouping<string, AbstractFile>> groupings, Dictionary<string, DurationResult> results, CancellationToken cancellationToken)
         {
             if (!results.Any())
             {
@@ -273,7 +271,7 @@ namespace Packager.Engine
             Observers.EndSection(section);
         }
 
-        private void LogObjectResults(List<KeyValuePair<string, ValidationResult>> results, string header)
+        private void LogObjectResults(List<KeyValuePair<string, DurationResult>> results, string header)
         {
             if (results.Any() == false)
             {
@@ -284,7 +282,7 @@ namespace Packager.Engine
 
             foreach (var result in results)
             {
-                Observers.Log("  {0}", result.Key);
+                Observers.Log("  {0} ({1:hh\\:mm\\:ss})", result.Key, result.Value.Duration);
             }
 
             Observers.EndSection(sectionKey);

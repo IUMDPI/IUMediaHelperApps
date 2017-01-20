@@ -44,8 +44,8 @@ namespace Packager.Test.Engine
             MockWavProcessor = Substitute.For<IProcessor>();
             MockMpegProcessor = Substitute.For<IProcessor>();
 
-            MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
-            MockMpegProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
+            MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(DurationResult.Success(new DateTime(2017,1,1))));
+            MockMpegProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(DurationResult.Success(new DateTime(2017,1,1))));
 
             ReportWriter = Substitute.For<IReportWriter>();
 
@@ -160,7 +160,7 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldWriteGoodbyeMessage()
             {
-                Observer.Received().Log(Arg.Is("Completed {0}"), Arg.Any<DateTime>());
+                Observer.Received().Log(Arg.Is("Completed {0} ({1:hh\\:mm\\:ss})"), Arg.Any<DateTime>(), Arg.Any<TimeSpan>());
             }
 
             [Test]
@@ -172,7 +172,7 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldCallWriteResultsReportCorrectly()
             {
-                ReportWriter.Received().WriteResultsReport(Arg.Any<Dictionary<string, ValidationResult>>());
+                ReportWriter.Received().WriteResultsReport(Arg.Any<Dictionary<string, DurationResult>>(), Arg.Any<DateTime>());
             }
 
             public class WhenSuccessEmailAddressesSpecified : WhenEngineRunsWithoutIssues
@@ -244,7 +244,7 @@ namespace Packager.Test.Engine
             protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
-                MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(new ValidationResult("issue")));
+                MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(new DurationResult(new DateTime(2017,1,1), "issue")));
             }
 
             public class WhenInteractive : WhenProcessorEncountersAnIssue

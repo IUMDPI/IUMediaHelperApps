@@ -20,12 +20,13 @@ namespace Packager.Utilities.Reporting
             LogDirectoryName = programSettings.LogDirectoryName;
         }
 
-        public void WriteResultsReport(Dictionary<string, ValidationResult> results)
+        public void WriteResultsReport(Dictionary<string, DurationResult> results, DateTime startTime)
         {
             var succeeded = results.All(r => r.Value.Result);
             var report = new PackagerReport
             {
-                Timestamp = DateTime.Now,
+                Timestamp = startTime,
+                Duration = DateTime.Now - startTime,
                 Succeeded = succeeded,
                 Issue = succeeded ? string.Empty : "Issues occurred while processing one or more objects",
                 ObjectReports = results.Select(r => new PackagerObjectReport
@@ -33,7 +34,8 @@ namespace Packager.Utilities.Reporting
                     Barcode = r.Key,
                     Succeeded = r.Value.Result,
                     Issue = r.Value.Issue,
-                    Timestamp = r.Value.Timestamp
+                    Timestamp = r.Value.Timestamp,
+                    Duration = r.Value.Duration
                 }).ToList()
             };
 
@@ -54,7 +56,7 @@ namespace Packager.Utilities.Reporting
 
         private void Write(PackagerReport report)
         {
-            var reportPath = Path.Combine(LogDirectoryName, $"Packager_{DateTime.Now.Ticks:D19}.xml");
+            var reportPath = Path.Combine(LogDirectoryName, $"Packager_{report.Timestamp.Ticks:D19}.xml");
             Exporter.ExportToFile(report, reportPath);
         }
     }

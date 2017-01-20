@@ -87,10 +87,11 @@ namespace Packager.Processors
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken);
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken);
         
-        public virtual async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
+        public virtual async Task<DurationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
         {
+            var startTime = DateTime.Now;
             Barcode = fileModels.Key;
-           
+            
             var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
@@ -155,21 +156,21 @@ namespace Packager.Processors
                 await MoveToSuccessFolder();
 
                 Observers.EndSection(sectionKey, $"Object processed succesfully: {Barcode}");
-                return ValidationResult.Success;
+                return DurationResult.Success(startTime);
             }
             catch (OperationCanceledException e)
             {
                 Observers.LogProcessingIssue(new UserCancelledException(), Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return new ValidationResult(e.GetBaseMessage());
+                return new DurationResult(startTime, e.GetBaseMessage());
             }
             catch (Exception e)
             {
                 Observers.LogProcessingIssue(e, Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return new ValidationResult(e.GetBaseMessage());
+                return new DurationResult(startTime, e.GetBaseMessage());
             }
         }
         

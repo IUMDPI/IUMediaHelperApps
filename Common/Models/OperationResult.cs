@@ -13,7 +13,8 @@ namespace Common.Models
         public DateTime Timestamp { get; set; }
         public bool Succeeded { get; set; }
         public string Issue { get; set; }
-        
+        public TimeSpan Duration { get; set; }
+
         public static Task<T> Read<T>(string path) where T:OperationReport
         {
             return Task.Run(() =>

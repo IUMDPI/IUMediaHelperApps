@@ -20,8 +20,8 @@ namespace Packager.Test.Utilities
        
         private IReportWriter ReportWriter { get; set; }
 
-        private Dictionary<string, ValidationResult> MockPackagerIssueResults { get; set; }
-        private Dictionary<string, ValidationResult> MockPackagerSucceededResults { get; set; }
+        private Dictionary<string, DurationResult> MockPackagerIssueResults { get; set; }
+        private Dictionary<string, DurationResult> MockPackagerSucceededResults { get; set; }
         private Exception Exception { get; set; }
         private PackagerReport Report { get; set; }
         private string ReportPath { get; set; }
@@ -41,16 +41,16 @@ namespace Packager.Test.Utilities
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.LogDirectoryName.Returns("Log Folder");
           
-            MockPackagerIssueResults = new Dictionary<string, ValidationResult>
+            MockPackagerIssueResults = new Dictionary<string, DurationResult>
             {
-                {"1111111111111", new ValidationResult("issue") },
-                {"2222222222222", ValidationResult.Success }
+                {"1111111111111", new DurationResult(new DateTime(2017,1,1),  "issue") },
+                {"2222222222222", DurationResult.Success(new DateTime(2017,1,1)) }
             };
 
-            MockPackagerSucceededResults = new Dictionary<string, ValidationResult>
+            MockPackagerSucceededResults = new Dictionary<string, DurationResult>
             {
-                {"1111111111111", ValidationResult.Success },
-                {"2222222222222", ValidationResult.Success }
+                {"1111111111111", DurationResult.Success(new DateTime(2017,1,1)) },
+                {"2222222222222", DurationResult.Success(new DateTime(2017,1,1)) }
             };
 
             Exception = new Exception("issue");
@@ -61,57 +61,69 @@ namespace Packager.Test.Utilities
         [Test]
         public void ItShouldCallXmlExporterWithCorrectPath()
         {
-            ReportWriter.WriteResultsReport(MockPackagerSucceededResults);
-            Assert.That(ReportPath.StartsWith(Path.Combine(ProgramSettings.LogDirectoryName, "Packager_")));
-            Assert.That(ReportPath.EndsWith(".xml"));
+            var expected = Path.Combine(
+                ProgramSettings.LogDirectoryName,
+                $"Packager_{new DateTime(2017, 1, 1).Ticks:D19}.xml");
+
+            ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017,1,1));
+            Assert.That(ReportPath, Is.EqualTo(expected));
         }
 
         [Test]
         public void TimestampShouldBeSet()
         {
-            ReportWriter.WriteResultsReport(MockPackagerSucceededResults);
-            Assert.That(Report.Timestamp, Is.GreaterThan(new DateTime()));
+            ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017,1,1));
+            Assert.That(Report.Timestamp, Is.EqualTo(new DateTime(2017, 1, 1)));
         }
+
+
+        [Test]
+        public void DurationShouldBeSet()
+        {
+            ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
+            Assert.That(Report.Duration, Is.GreaterThan(new TimeSpan()));
+        }
+
 
         [Test]
         public void IfPackagerIssuesSucceededShouldBeFalse()
         {
-            ReportWriter.WriteResultsReport(MockPackagerIssueResults);
+            ReportWriter.WriteResultsReport(MockPackagerIssueResults, new DateTime(2017, 1, 1));
             Assert.That(Report.Succeeded, Is.EqualTo(false));
         }
 
         [Test]
         public void IfNoPackagerIssuesSucceededShouldBeTrue()
         {
-            ReportWriter.WriteResultsReport(MockPackagerSucceededResults);
+            ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
             Assert.That(Report.Succeeded, Is.EqualTo(true));
         }
 
         [Test]
         public void IfNoPackagerIssuesIssueShouldNotBeSet()
         {
-            ReportWriter.WriteResultsReport(MockPackagerSucceededResults);
+            ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
             Assert.That(Report.Issue, Is.EqualTo(string.Empty));
         }
 
         [Test]
         public void IfNoPackagerIssuesIssueShouldBeSet()
         {
-            ReportWriter.WriteResultsReport(MockPackagerIssueResults);
+            ReportWriter.WriteResultsReport(MockPackagerIssueResults, new DateTime(2017, 1, 1));
             Assert.That(Report.Issue, Is.EqualTo("Issues occurred while processing one or more objects"));
         }
 
         [Test]
         public void ObjectResultsShouldBeCorrectIfIssuesOccur()
         {
-            ReportWriter.WriteResultsReport(MockPackagerIssueResults);
+            ReportWriter.WriteResultsReport(MockPackagerIssueResults, new DateTime(2017, 1, 1));
             AssertObjectReportsOk(MockPackagerIssueResults, Report.ObjectReports);
         }
 
         [Test]
         public void ObjectResultsShouldBeCorrectIfNoIssuesOccur()
         {
-            ReportWriter.WriteResultsReport(MockPackagerSucceededResults);
+            ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
             AssertObjectReportsOk(MockPackagerSucceededResults, Report.ObjectReports);
         }
 
@@ -129,7 +141,7 @@ namespace Packager.Test.Utilities
             Assert.That(Report.Issue, Is.EqualTo(Exception.Message));
         }
 
-        private static void AssertObjectReportsOk(Dictionary<string, ValidationResult> originals,
+        private static void AssertObjectReportsOk(Dictionary<string, DurationResult> originals,
             List<PackagerObjectReport> reports)
         {
             Assert.That(reports.Count, Is.EqualTo(originals.Keys.Count));
@@ -142,6 +154,7 @@ namespace Packager.Test.Utilities
                 Assert.That(report.Timestamp, Is.EqualTo(originals[key].Timestamp));
                 Assert.That(report.Succeeded, Is.EqualTo(originals[key].Result));
                 Assert.That(report.Issue, Is.EqualTo(originals[key].Issue));
+                Assert.That(report.Duration, Is.EqualTo(originals[key].Duration));
             }
         }
 

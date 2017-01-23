@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Common.Exceptions;
 using Packager.Validators;
 
 namespace Packager.Exceptions

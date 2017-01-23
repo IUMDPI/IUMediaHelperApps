@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Packager.Exceptions
+namespace Common.Exceptions
 {
     public abstract class AbstractEngineException : Exception
     {

@@ -16,7 +16,7 @@ namespace Packager.Test.Utilities
     public class BextProcessorClearMetadataTests
     {
         [SetUp]
-        public async void BeforeEach()
+        public void BeforeEach()
         {
             Observers = Substitute.For<IObserverCollection>();
             ProdFileModel = FileModelFactory.GetModel(ProductionFileName);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
+using Common.UserInterface.ViewModels;
 using NLog.Config;
 using Packager.Deserializers;
 using Packager.Engine;
@@ -91,7 +92,6 @@ namespace Packager
             container.RegisterSingleton<ILabelImageImporter, LabelImageImporter>();
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
-            
 
             container.RegisterConditional<IFFMPEGRunner, VideoFFMPEGRunner>(Lifestyle.Singleton, 
                 c=>c.Consumer.ImplementationType == typeof(VideoProcessor));
@@ -125,7 +125,7 @@ namespace Packager
                 {
                     new GeneralNLogObserver(container.GetInstance<IProgramSettings>()),
                     new ObjectNLogObserver(container.GetInstance<IProgramSettings>()),
-                    new ViewModelObserver(container.GetInstance<IViewModel>()),
+                    new ViewModelObserver(container.GetInstance<ILogPanelViewModel>()),
                     new IssueEmailerObserver(
                         container.GetInstance<ProgramSettings>(), 
                         container.GetInstance<ISystemInfoProvider>(), 
@@ -133,6 +133,7 @@ namespace Packager
                 });
 
             container.RegisterSingleton<IViewModel, ViewModel>();
+            container.RegisterSingleton<ILogPanelViewModel, LogPanelViewModel>();
             container.RegisterSingleton<OutputWindow>();
             container.RegisterSingleton<IReportWriter, ReportWriter>();
 

@@ -176,7 +176,7 @@ namespace Packager.Test.Utilities
 
         public class WhenNormalizingOriginals : FFMPEGRunnerTests
         {
-            public override async void BeforeEach()
+            public override void BeforeEach()
             {
                 base.BeforeEach();
 
@@ -373,7 +373,7 @@ namespace Packager.Test.Utilities
 
         public class WhenVerifyingNormalizedVersions : FFMPEGRunnerTests
         {
-            public override async void BeforeEach()
+            public override void BeforeEach()
             {
                 base.BeforeEach();
 

@@ -1,17 +1,17 @@
 ﻿using System;
+using Common.UserInterface.ViewModels;
 using Packager.Exceptions;
-using Packager.UserInterface;
 
 namespace Packager.Observers
 {
     internal class ViewModelObserver : IObserver
     {
-        public ViewModelObserver(IViewModel viewModel)
+        public ViewModelObserver(ILogPanelViewModel viewModel)
         {
             ViewModel = viewModel;
         }
 
-        private IViewModel ViewModel { get; }
+        private ILogPanelViewModel ViewModel { get; }
 
         public void Log(string baseMessage, params object[] elements)
         {

@@ -1,4 +1,6 @@
-﻿namespace Packager.Exceptions
+﻿using Common.Exceptions;
+
+namespace Packager.Exceptions
 {
     public class ResolverException : AbstractEngineException
     {

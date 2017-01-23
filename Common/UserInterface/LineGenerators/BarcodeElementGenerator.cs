@@ -1,18 +1,19 @@
 ﻿using System.Text.RegularExpressions;
+using Common.UserInterface.ViewModels;
 using ICSharpCode.AvalonEdit.Rendering;
 
-namespace Packager.UserInterface
+namespace Common.UserInterface.LineGenerators
 {
     public class BarcodeElementGenerator : VisualLineElementGenerator
     {
         private readonly Regex _barCodeRegEx = new Regex(@"\d{14}");
 
-        public BarcodeElementGenerator(ViewModel viewModel)
+        public BarcodeElementGenerator(ILogPanelViewModel viewModel)
         {
             ViewModel = viewModel;
         }
 
-        private ViewModel ViewModel { get; }
+        private ILogPanelViewModel ViewModel { get; }
 
         public override int GetFirstInterestedOffset(int startOffset)
         {

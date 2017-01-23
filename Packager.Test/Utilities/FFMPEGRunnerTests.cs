@@ -334,7 +334,7 @@ namespace Packager.Test.Utilities
 
             public class WhenThingsGoWrong : WhenNormalizingOriginals
             {
-                public override async void BeforeEach()
+                public override void BeforeEach()
                 {
                     base.BeforeEach();
 

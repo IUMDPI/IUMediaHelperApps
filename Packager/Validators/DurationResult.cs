@@ -18,7 +18,7 @@ namespace Packager.Validators
             Duration = DateTime.Now - startTime;
         }
 
-        public static DurationResult Success(DateTime startTime) =>
+        public new static DurationResult Success(DateTime startTime) =>
             new DurationResult(startTime, true, "");
     }
 }

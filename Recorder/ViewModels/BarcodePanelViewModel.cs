@@ -61,7 +61,9 @@ namespace Recorder.ViewModels
             }
         }
 
-        public async override Task Initialize()
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public override async Task Initialize()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             
         }

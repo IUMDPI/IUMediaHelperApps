@@ -71,7 +71,9 @@ namespace Recorder.ViewModels
             OnPropertyChanged(nameof(IsEnabled));
         }
 
+#pragma warning disable 1998
         public override async Task Initialize()
+#pragma warning restore 1998
         {
         }
 

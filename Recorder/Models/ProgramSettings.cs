@@ -39,8 +39,7 @@ namespace Recorder.Models
             BarcodeScannerIdentifiers = ToArray(settings["BarcodeScannerIdentifiers"]);
             AudioDeviceToMonitor = settings["AudioDeviceToMonitor"];
         }
-
-
+        
         public string ProjectCode { get; }
         public string PathToFFMPEG { get; }
         public string OutputFolder { get; }

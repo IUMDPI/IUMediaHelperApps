@@ -26,13 +26,21 @@ namespace Common.UserInterface.ViewModels
         void InsertLine(string value);
         void LogError(Exception e);
         void ScrollToSection(string sectionKey);
+        void Clear();
     }
 
     public class LogPanelViewModel : ILogPanelViewModel, INotifyPropertyChanged
     {
-        public TextDocument Document { get; }
+        private TextDocument _document;
+
+        public TextDocument Document
+        {
+            get { return _document; }
+            private set { _document = value; OnPropertyChanged(); }
+        }
+
         private bool _autoScroll;
-        
+
         private int TextLength => Document.TextLength;
         private TextArea TextArea { get; set; }
         private TextEditor TextEditor { get; set; }
@@ -117,7 +125,7 @@ namespace Common.UserInterface.ViewModels
             AutoScroll = true;
             TextEditor = textEditor;
             TextArea = textEditor.TextArea;
-            
+
             TextEditor.TextArea.TextView.ElementGenerators.Clear();
             TextArea.TextView.ElementGenerators.Add(new BarcodeElementGenerator(this));
 
@@ -128,7 +136,7 @@ namespace Common.UserInterface.ViewModels
             ((IScrollInfo)TextArea).ScrollOwner.ScrollChanged += ScrollChangedHandler;
 
             Document.PropertyChanged += DocumentPropertyChangedHandler;
-           
+
             FoldManager = FoldingManager.Install(TextArea);
         }
 
@@ -258,6 +266,13 @@ namespace Common.UserInterface.ViewModels
 
             var line = TextEditor.Document.GetLineByOffset(section.StartOffset);
             TextEditor.ScrollTo(line.LineNumber, 0);
+        }
+
+        public void Clear()
+        {
+            _sections.Clear();
+            Document.Text = string.Empty;
+
         }
     }
 }

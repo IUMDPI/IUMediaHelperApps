@@ -71,6 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\DisabledIfEmptyConverter.cs" />
     <Compile Include="Models\ReportEntry.cs" />
     <Compile Include="Utilities\IReportReader.cs" />
     <Compile Include="ViewModel.cs" />

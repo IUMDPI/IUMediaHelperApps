@@ -48,7 +48,9 @@ namespace Reporter
         public ReportEntry SelectedReport
         {
             get { return _selectedEntry; }
-            set { _selectedEntry = value; OnPropertyChanged();
+            set
+            {
+                _selectedEntry = value; OnPropertyChanged();
                 SelectionChanged?.Invoke(value);
             }
         }
@@ -57,7 +59,8 @@ namespace Reporter
 
         public ICommand SelectReportsFolder
         {
-            get {
+            get
+            {
                 return _selectFolderCommand ??
                        (_selectFolderCommand = new AsyncRelayCommand(async action => await SelectFolder()));
             }
@@ -65,7 +68,7 @@ namespace Reporter
 
         private async Task SelectFolder()
         {
-            if (Application.Current.Dispatcher.CheckAccess()==false)
+            if (Application.Current.Dispatcher.CheckAccess() == false)
             {
                 await Application.Current.Dispatcher.InvokeAsync(SelectFolder);
                 return;
@@ -98,10 +101,14 @@ namespace Reporter
 
         public ViewModel(IReportReader reportReader, ILogPanelViewModel logPanelViewModel)
         {
-            Reports = new BindingList<ReportEntry>();
+            Reports = new BindingList<ReportEntry>
+            {
+                RaiseListChangedEvents = true,
+            };
+            Reports.ListChanged += (sender, args) => { OnPropertyChanged(nameof(Reports)); };
             LogPanelViewModel = logPanelViewModel;
             _reportReader = reportReader;
-            SelectionChanged+=SelectionChangedHandler;
+            SelectionChanged += SelectionChangedHandler;
         }
 
         private async void SelectionChangedHandler(ReportEntry entry)
@@ -114,9 +121,9 @@ namespace Reporter
                 LogPanelViewModel.InsertLine($"There are no reports in the {CurrentFolder} folder.\n\nPlease select a different folder.");
                 return;
             }
-            
+
             LogPanelViewModel.BeginSection("Summary", "Results Summary:");
-            
+
             LogPanelViewModel.InsertLine($"Started:   {report.Timestamp:MM/dd/yyyy hh:mm tt}");
             LogPanelViewModel.InsertLine($"Completed: {report.Timestamp.Add(report.Duration):MM/dd/yyyy hh:mm tt}");
             LogPanelViewModel.InsertLine($"Duration:  {report.Duration:hh\\:mm\\:ss}");
@@ -128,7 +135,7 @@ namespace Reporter
 
             LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
             LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");
-            
+
             LogPanelViewModel.EndSection("Summary");
         }
 

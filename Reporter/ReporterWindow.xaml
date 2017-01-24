@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Reporter"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:converters="clr-namespace:Reporter.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="500" Width="625" Loaded="OnLoadedHandler" FontSize="14">
+    <Window.Resources>
+        <converters:DisabledIfEmptyConverter x:Key="DisabledIfEmptyConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -18,7 +22,10 @@
                 <Button HorizontalAlignment="Right" Margin="0,8,8,8" DockPanel.Dock="Right" Width="32" Padding="4" Background="Transparent" BorderBrush="Transparent" Cursor="Hand" Command="{Binding SelectReportsFolder}">
                     <fa:ImageAwesome Icon="FolderOpen"></fa:ImageAwesome>
                 </Button>
-                <ComboBox DockPanel.Dock="Left" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="8" ItemsSource="{Binding Reports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="DisplayName" Padding="8"></ComboBox>
+                <ComboBox 
+                    IsEnabled="{Binding Reports, Converter={StaticResource DisabledIfEmptyConverter}}"
+                    ItemsSource="{Binding Reports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="DisplayName"
+                    DockPanel.Dock="Left" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="8" Padding="8"></ComboBox>
             </DockPanel>
         </Border>
         <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">

@@ -56,7 +56,7 @@ namespace Packager.Utilities.Reporting
 
         private void Write(PackagerReport report)
         {
-            var reportPath = Path.Combine(LogDirectoryName, $"Packager_{report.Timestamp.Ticks:D19}.xml");
+            var reportPath = Path.Combine(LogDirectoryName, $"Packager_{report.Timestamp.Ticks:D19}.report");
             Exporter.ExportToFile(report, reportPath);
         }
     }

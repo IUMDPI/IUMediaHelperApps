@@ -5,6 +5,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Common.UserInterface.ViewModels;
+using Reporter.Utilities;
 
 namespace Reporter
 {
@@ -13,5 +15,20 @@ namespace Reporter
     /// </summary>
     public partial class App : Application
     {
+        private void InitializeApplication(object sender, StartupEventArgs e)
+        {
+            var viewModel = new ViewModel(new ReportReader(), new LogPanelViewModel());
+            var reportWindow = new ReporterWindow
+            {
+                DataContext = viewModel
+            };
+
+            reportWindow.Show();
+        }
+
+        private void ApplicationExitHandler(object sender, ExitEventArgs e)
+        {
+            
+        }
     }
 }

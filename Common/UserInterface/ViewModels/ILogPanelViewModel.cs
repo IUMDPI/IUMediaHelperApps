@@ -166,6 +166,11 @@ namespace Common.UserInterface.ViewModels
 
         public void InsertLine(string value)
         {
+            if (value.IsNotSet())
+            {
+                value = "";
+            }
+
             value = value.TrimEnd('\n');
 
             var indent = GetIndents(value);

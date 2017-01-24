@@ -163,5 +163,25 @@ namespace Common.Extensions
         {
             return string.IsNullOrWhiteSpace(value);
         }
+        
+        public static string ToSingularOrPlural<T>(this IEnumerable<T> values, string singular, string plural)
+        {
+            var count = values?.Count() ?? 0;
+            return count.ToSingularOrPlural(singular, plural);
+        }
+
+        public static string ToSingularOrPlural<T, TU>(this Dictionary<T, TU> values, string singular, string plural)
+        {
+            var count = values?.Count ?? 0;
+            return count.ToSingularOrPlural(singular, plural);
+        }
+
+        public static string ToSingularOrPlural(this int value, string singular, string plural)
+        {
+            return value == 1
+                ? $"{value} {singular}"
+                : $"{value} {plural}";
+        }
+
     }
 }

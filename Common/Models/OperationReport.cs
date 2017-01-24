@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
@@ -29,7 +28,6 @@ namespace Common.Models
             get { return _duration.Ticks; }
             set { _duration = new TimeSpan(value);}
         }
-        
 
         public static Task<T> Read<T>(string path) where T:OperationReport
         {
@@ -43,19 +41,5 @@ namespace Common.Models
                 }
             });
         }
-    }
-
-    
-    public class PackagerObjectReport : OperationReport
-    {
-        [XmlAttribute("Barcode")]
-        public string Barcode { get; set; }
-    }
-
-    public class PackagerReport : OperationReport
-    {
-        [XmlArray("Objects")]
-        [XmlArrayItem("Object")]
-        public List<PackagerObjectReport> ObjectReports { get; set; }
     }
 }

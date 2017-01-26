@@ -24,6 +24,7 @@ namespace Reporter.Utilities
                 .Select(filename => new ReportEntry
                 {
                     Filename = filename,
+                    Timestamp = GetTicksFromFilename(filename),
                     DisplayName = GetDisplayNameFromFilename(filename)
                 })
             .ToList();

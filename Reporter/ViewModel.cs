@@ -162,9 +162,7 @@ namespace Reporter
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-
-
+        
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -182,7 +180,7 @@ namespace Reporter
         {
             Reports.Clear();
 
-            var entries = (await _reportReader.GetReports(CurrentFolder).ConfigureAwait(false)).OrderBy(e => e.Filename).ToList();
+            var entries = (await _reportReader.GetReports(CurrentFolder).ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
 
             SetEntries(entries);
         }

@@ -18,6 +18,7 @@ using Common.UserInterface.ViewModels;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Rendering;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Reporter.LineGenerators;
 using Reporter.Models;
 using Reporter.Utilities;
 
@@ -172,7 +173,7 @@ namespace Reporter
 
         public async Task Initialize(TextEditor reportText)
         {
-            LogPanelViewModel.Initialize(reportText, new List<VisualLineElementGenerator>());
+            LogPanelViewModel.Initialize(reportText, new [] {new OpenObjectLogfileGenerator() });
 
             await InitializeReportsList();
         }

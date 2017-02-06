@@ -72,6 +72,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\DisabledIfEmptyConverter.cs" />
+    <Compile Include="LineGenerators\OpenObjectLogFileLinkText.cs" />
+    <Compile Include="LineGenerators\OpenObjectLogfileGenerator.cs" />
     <Compile Include="Models\ReportEntry.cs" />
     <Compile Include="Utilities\IReportReader.cs" />
     <Compile Include="ViewModel.cs" />

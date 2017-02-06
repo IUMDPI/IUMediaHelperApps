@@ -1,10 +1,5 @@
-﻿using System.Reflection;
-using System.Threading;
+﻿using System.Threading;
 using System.Windows;
-using System.Xml;
-using Common.UserInterface.Highlighting;
-using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using Packager.Engine;
 using Packager.Models.SettingsModels;
 
@@ -30,8 +25,6 @@ namespace Packager.UserInterface
             ViewModel = viewModel;
 
             DataContext = viewModel;
-
-            //Highlighting.Configure(OutputText);
         }
 
         private async void OnWindowLoaded(object sender, RoutedEventArgs e)

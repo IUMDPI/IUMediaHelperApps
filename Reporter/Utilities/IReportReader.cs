@@ -7,7 +7,6 @@ using Common.Extensions;
 using Common.Models;
 using Reporter.Models;
 
-
 namespace Reporter.Utilities
 {
     public interface IReportReader

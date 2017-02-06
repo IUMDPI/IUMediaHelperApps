@@ -15,6 +15,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Folding;
+using ICSharpCode.AvalonEdit.Rendering;
 
 namespace Common.UserInterface.ViewModels
 {
@@ -22,7 +23,7 @@ namespace Common.UserInterface.ViewModels
     {
         void BeginSection(string sectionKey, string text);
         void EndSection(string sectionKey, string newTitle = "", bool collapse = false);
-        void Initialize(TextEditor textEditor);
+        void Initialize(TextEditor textEditor, IEnumerable<VisualLineElementGenerator> lineElementGenerators);
         void InsertLine(string value);
         void LogError(Exception e);
         void ScrollToSection(string sectionKey);
@@ -120,15 +121,18 @@ namespace Common.UserInterface.ViewModels
             InsertLine();
         }
 
-        public void Initialize(TextEditor textEditor)
+        public void Initialize(TextEditor textEditor, IEnumerable<VisualLineElementGenerator> lineElementGenerators )
         {
             AutoScroll = true;
             TextEditor = textEditor;
             TextArea = textEditor.TextArea;
 
             TextEditor.TextArea.TextView.ElementGenerators.Clear();
-            TextArea.TextView.ElementGenerators.Add(new BarcodeElementGenerator(this));
-
+            foreach (var lineGenerator in lineElementGenerators)
+            {
+                TextArea.TextView.ElementGenerators.Add(lineGenerator);
+            }
+            
             TextArea.SelectionCornerRadius = 0;
             TextArea.SelectionBorder = new Pen(SystemColors.HighlightBrush, 1);
             TextArea.SelectionBrush = SystemColors.HighlightBrush;

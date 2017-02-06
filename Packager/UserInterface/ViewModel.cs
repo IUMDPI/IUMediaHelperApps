@@ -5,6 +5,7 @@ using System.Threading;
 using Common.UserInterface.Commands;
 using Common.UserInterface.ViewModels;
 using Packager.Annotations;
+using Packager.UserInterface.LineGenerators;
 
 namespace Packager.UserInterface
 {
@@ -72,7 +73,7 @@ namespace Packager.UserInterface
 
         public void Initialize(OutputWindow outputWindow, string projectCode)
         {
-            LogPanelViewModel.Initialize(outputWindow.OutputText);
+            LogPanelViewModel.Initialize(outputWindow.OutputText, new []{new BarcodeElementGenerator(LogPanelViewModel)});
             Title = $"{projectCode.ToUpperInvariant()} Media Packager";
         }
 

@@ -57,8 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserInterface\Commands\AsyncRelayCommand.cs" />
     <Compile Include="UserInterface\Commands\RelayCommand.cs" />
-    <Compile Include="UserInterface\LineGenerators\BarcodeElementGenerator.cs" />
-    <Compile Include="UserInterface\LineGenerators\BarCodeLinkText.cs" />
+    <Compile Include="UserInterface\LineGenerators\AbstractBarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\ViewModels\ILogPanelViewModel.cs" />
     <Compile Include="UserInterface\ViewModels\SectionModel.cs" />
   </ItemGroup>

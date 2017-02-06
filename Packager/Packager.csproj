@@ -146,6 +146,8 @@
     <Compile Include="Providers\IMediaInfoProvider.cs" />
     <Compile Include="Providers\MediaInfoProvider.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
+    <Compile Include="UserInterface\LineGenerators\BarCodeLinkText.cs" />
+    <Compile Include="UserInterface\LineGenerators\BarcodeSectionLineGenerator.cs" />
     <Compile Include="UserInterface\CancelPanel.xaml.cs">
       <DependentUpon>CancelPanel.xaml</DependentUpon>
     </Compile>

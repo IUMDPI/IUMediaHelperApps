@@ -4,7 +4,7 @@ using System.Windows.Media.TextFormatting;
 using Common.UserInterface.ViewModels;
 using ICSharpCode.AvalonEdit.Rendering;
 
-namespace Common.UserInterface.LineGenerators
+namespace Packager.UserInterface.LineGenerators
 {
     public class BarCodeLinkText : VisualLineText
     {

@@ -57,17 +57,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserInterface\Commands\AsyncRelayCommand.cs" />
     <Compile Include="UserInterface\Commands\RelayCommand.cs" />
-    <Compile Include="UserInterface\Highlighting\Highlighting.cs" />
+    <Compile Include="UserInterface\HighlightingRules\HighlightingConfiguration.cs" />
     <Compile Include="UserInterface\LineGenerators\AbstractBarcodeElementGenerator.cs" />
     <Compile Include="UserInterface\ViewModels\ILogPanelViewModel.cs" />
+    <Compile Include="UserInterface\ViewModels\LogPanelViewModel.cs" />
     <Compile Include="UserInterface\ViewModels\SectionModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="UserInterface\Highlighting\HighlightRules.xsd">
+    <None Include="UserInterface\HighlightingRules\HighlightRules.xsd">
       <SubType>Designer</SubType>
     </None>
-    <EmbeddedResource Include="UserInterface\Highlighting\HighlightRules.xshd">
+    <EmbeddedResource Include="UserInterface\HighlightingRules\HighlightRules.xshd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

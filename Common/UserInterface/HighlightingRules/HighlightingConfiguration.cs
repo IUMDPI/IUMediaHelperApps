@@ -4,14 +4,14 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 
-namespace Common.UserInterface.Highlighting
+namespace Common.UserInterface.HighlightingRules
 {
-    public static class Highlighting
+    public static class Configuration
     {
-        public static void Configure(TextEditor textEditor)
+        public static void ApplyRules(TextEditor textEditor)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            using (var s = assembly.GetManifestResourceStream("Common.UserInterface.Highlighting.HighlightRules.xshd"))
+            using (var s = assembly.GetManifestResourceStream("Common.UserInterface.HighlightingRules.HighlightRules.xshd"))
             {
                 if (s == null)
                 {

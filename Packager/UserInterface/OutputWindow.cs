@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows;
 using System.Xml;
+using Common.UserInterface.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using Packager.Engine;
@@ -30,16 +31,7 @@ namespace Packager.UserInterface
 
             DataContext = viewModel;
 
-            var assembly = Assembly.GetExecutingAssembly();
-            using (var s = assembly.GetManifestResourceStream("Packager.UserInterface.HighlightRules.xshd"))
-            {
-                using (var reader = new XmlTextReader(s))
-                {
-                    OutputText.SyntaxHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
-                }
-            }
-
-            
+            //Highlighting.Configure(OutputText);
         }
 
         private async void OnWindowLoaded(object sender, RoutedEventArgs e)

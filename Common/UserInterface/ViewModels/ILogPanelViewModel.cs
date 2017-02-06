@@ -10,7 +10,6 @@ using System.Windows.Media;
 using Common.Annotations;
 using Common.Exceptions;
 using Common.Extensions;
-using Common.UserInterface.LineGenerators;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
@@ -123,6 +122,8 @@ namespace Common.UserInterface.ViewModels
 
         public void Initialize(TextEditor textEditor, IEnumerable<VisualLineElementGenerator> lineElementGenerators )
         {
+            Highlighting.Highlighting.Configure(textEditor);
+
             AutoScroll = true;
             TextEditor = textEditor;
             TextArea = textEditor.TextArea;

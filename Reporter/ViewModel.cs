@@ -156,7 +156,7 @@ namespace Reporter
                 if (result.Succeeded == false)
                 {
                     LogPanelViewModel.InsertLine("");
-                    LogPanelViewModel.InsertLine($"Issue: {result.Issue}");
+                    LogPanelViewModel.InsertLine($"ERROR: {result.Issue}");
                 }
             }
 

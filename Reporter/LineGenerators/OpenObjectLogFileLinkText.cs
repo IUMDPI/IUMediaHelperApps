@@ -10,10 +10,12 @@ namespace Reporter.LineGenerators
 {
     public class OpenObjectLogFileLinkText : VisualLineText
     {
+        private string ReportFolder { get; }
         private string Barcode { get; }
         
-        public OpenObjectLogFileLinkText(string barcode, VisualLine parentVisualLine) : base(parentVisualLine, barcode.Length)
+        public OpenObjectLogFileLinkText(string reportFolder, string barcode, VisualLine parentVisualLine) : base(parentVisualLine, barcode.Length)
         {
+            ReportFolder = reportFolder;
             Barcode = barcode;
         }
 
@@ -46,13 +48,12 @@ namespace Reporter.LineGenerators
                 return;
             }
 
-            var logFolder = Properties.Settings.Default.ReportFolder;
-            if (!Directory.Exists(logFolder))
+            if (!Directory.Exists(ReportFolder))
             {
                 return;
             }
 
-            foreach (var logFile in Directory.GetFiles(logFolder, $"*{Barcode}.log"))
+            foreach (var logFile in Directory.GetFiles(ReportFolder, $"*{Barcode}.log"))
             {
                 OpenLogFile(editorPath, logFile);
             }

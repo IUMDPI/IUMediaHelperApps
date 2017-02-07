@@ -14,7 +14,7 @@ namespace Reporter
         private void InitializeApplication(object sender, StartupEventArgs e)
         {
             var settings = new ProgramSettings(ConfigurationManager.AppSettings);
-            var viewModel = new ViewModel(settings, new ReportReader(), new LogPanelViewModel());
+            var viewModel = new ViewModel(settings, new ReportReader(settings), new LogPanelViewModel());
             var reportWindow = new ReporterWindow
             {
                 DataContext = viewModel

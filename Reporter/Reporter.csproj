@@ -78,6 +78,7 @@
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Models\ReportEntry.cs" />
     <Compile Include="Utilities\IReportReader.cs" />
+    <Compile Include="Utilities\ReportReader.cs" />
     <Compile Include="ViewModel.cs" />
     <Page Include="ReporterWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

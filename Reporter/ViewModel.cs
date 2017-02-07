@@ -112,7 +112,7 @@ namespace Reporter
         {
             LogPanelViewModel.Clear();
 
-            var report = await _reportReader.GetReport<PackagerReport>(ProgramSettings.ReportFolder, entry);
+            var report = await _reportReader.GetReport<PackagerReport>(entry);
             if (report == null)
             {
                 LogPanelViewModel.InsertLine($"There are no reports in the {ProgramSettings.ReportFolder} folder.\n\nPlease select a different folder.");
@@ -168,7 +168,7 @@ namespace Reporter
 
         public async Task Initialize(TextEditor reportText)
         {
-            LogPanelViewModel.Initialize(reportText, new [] {new OpenObjectLogfileGenerator() });
+            LogPanelViewModel.Initialize(reportText, new [] {new OpenObjectLogfileGenerator(ProgramSettings) });
 
             await InitializeReportsList();
         }
@@ -177,7 +177,7 @@ namespace Reporter
         {
             Reports.Clear();
 
-            var entries = (await _reportReader.GetReports(ProgramSettings.ReportFolder).ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
+            var entries = (await _reportReader.GetReports().ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
 
             SetEntries(entries);
         }

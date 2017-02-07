@@ -7,7 +7,7 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:converters="clr-namespace:Reporter.Converters"
         mc:Ignorable="d"
-        Title="Reporter" Height="600" Width="625" Loaded="OnLoadedHandler" FontSize="14" WindowStyle="SingleBorderWindow">
+        Title="{Binding WindowTitle}" Height="600" Width="625" Loaded="OnLoadedHandler" FontSize="14" WindowStyle="SingleBorderWindow">
     <Window.Resources>
         <converters:DisabledIfEmptyConverter x:Key="DisabledIfEmptyConverter" />
     </Window.Resources>

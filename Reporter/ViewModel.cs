@@ -20,24 +20,23 @@ namespace Reporter
 {
     public class ViewModel : INotifyPropertyChanged
     {
+        private ProgramSettings ProgramSettings { get; }
+
         private delegate void SelectionChangedDelegate(ReportEntry entry);
 
         private event SelectionChangedDelegate SelectionChanged;
 
         private readonly IReportReader _reportReader;
         private ReportEntry _selectedEntry;
+        private string _windowTitle;
+
+        public string WindowTitle
+        {
+            get { return _windowTitle;}
+            set { _windowTitle = value; OnPropertyChanged(); }
+        }
 
         private ICommand _selectFolderCommand;
-
-        private string CurrentFolder
-        {
-            get { return Properties.Settings.Default.ReportFolder; }
-            set
-            {
-                Properties.Settings.Default.ReportFolder = value;
-                Properties.Settings.Default.Save();
-            }
-        }
 
         public BindingList<ReportEntry> Reports { get; }
 
@@ -74,10 +73,10 @@ namespace Reporter
             {
                 Title = "Select reports folder",
                 IsFolderPicker = true,
-                InitialDirectory = CurrentFolder,
+                InitialDirectory = ProgramSettings.ReportFolder,
                 AddToMostRecentlyUsedList = false,
                 AllowNonFileSystemItems = false,
-                DefaultDirectory = CurrentFolder,
+                DefaultDirectory = ProgramSettings.ReportFolder,
                 EnsureFileExists = true,
                 EnsurePathExists = true,
                 EnsureReadOnly = false,
@@ -91,12 +90,14 @@ namespace Reporter
                 return;
             }
 
-            CurrentFolder = dialog.FileName;
+            ProgramSettings.ReportFolder = dialog.FileName;
             await InitializeReportsList();
         }
 
-        public ViewModel(IReportReader reportReader, ILogPanelViewModel logPanelViewModel)
+        public ViewModel(ProgramSettings programSettings, IReportReader reportReader, ILogPanelViewModel logPanelViewModel)
         {
+            ProgramSettings = programSettings;
+            WindowTitle = $"{programSettings.ProjectCode} Reporter";
             Reports = new BindingList<ReportEntry>
             {
                 RaiseListChangedEvents = true,
@@ -111,10 +112,10 @@ namespace Reporter
         {
             LogPanelViewModel.Clear();
 
-            var report = await _reportReader.GetReport<PackagerReport>(CurrentFolder, entry);
+            var report = await _reportReader.GetReport<PackagerReport>(ProgramSettings.ReportFolder, entry);
             if (report == null)
             {
-                LogPanelViewModel.InsertLine($"There are no reports in the {CurrentFolder} folder.\n\nPlease select a different folder.");
+                LogPanelViewModel.InsertLine($"There are no reports in the {ProgramSettings.ReportFolder} folder.\n\nPlease select a different folder.");
                 return;
             }
 
@@ -176,7 +177,7 @@ namespace Reporter
         {
             Reports.Clear();
 
-            var entries = (await _reportReader.GetReports(CurrentFolder).ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
+            var entries = (await _reportReader.GetReports(ProgramSettings.ReportFolder).ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
 
             SetEntries(entries);
         }

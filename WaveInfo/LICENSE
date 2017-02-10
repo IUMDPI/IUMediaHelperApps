@@ -1,8 +1,8 @@
            
-            INDIANA UNIVERSITY MEDIA HELPER APPLICATIONS
+            INDIANA UNIVERSITY MEDIA HELPER APPLICATIONS: WAVEINFO
                   
-A collection of utilities to aid in the digitization of Indiana 
-University's media holdings.
+Command-line utility to display embedded metadata properties in 
+.WAV files.
 
 Copyright (C) 2014-2017, The Trustees of Indiana University.
 

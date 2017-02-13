@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="MainWindow" Width="525" SizeToContent="Height" WindowStyle="None" Margin="0" Padding="0"
+        Title="MainWindow" Width="625" SizeToContent="Height" WindowStyle="None" Margin="0" Padding="0"
         WindowStartupLocation="CenterScreen" FontSize="16" BorderThickness="1" 
         BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Background="White" AllowsTransparency="True">
     <Window.Resources>
@@ -232,7 +232,7 @@
 
         <Border  Margin="0,20,0,0" BorderThickness="0,1,0,0">
             <DockPanel Margin="8,12,4,12">
-                <xctk:DropDownButton DockPanel.Dock="Left" Width="100" Content="Advanced" Padding="8">
+                <xctk:DropDownButton DockPanel.Dock="Left" Content="Advanced" HorizontalContentAlignment="Center" Padding="8">
                     <xctk:DropDownButton.DropDownContent>
                         <StackPanel>
                             <Label HorizontalAlignment="Left" Style="{StaticResource AdvancedMenuEntry}">

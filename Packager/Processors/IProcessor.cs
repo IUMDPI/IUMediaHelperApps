@@ -8,6 +8,6 @@ namespace Packager.Processors
 {
     public interface IProcessor
     {
-        Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken);
+        Task<DurationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken);
     }
 }

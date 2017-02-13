@@ -5,10 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="MainWindow" Width="525" SizeToContent="Height" WindowStyle="None" Margin="0" Padding="0"
+        Title="MainWindow" Width="625" SizeToContent="Height" WindowStyle="None" Margin="0" Padding="0"
         WindowStartupLocation="CenterScreen" FontSize="16" BorderThickness="1" 
         BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Background="White" AllowsTransparency="True">
     <Window.Resources>
+        <Storyboard x:Key="Flash" Completed="FlashingCompleted">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                             From="1.0" To="0.1"
+                                             Duration="0:0:0.25"
+                                             AutoReverse="True"
+                                             RepeatBehavior="0:0:1" />
+        </Storyboard>
         <Style TargetType="TextBox">
             <Setter Property="Padding" Value="4,6"></Setter>
             <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
@@ -23,11 +30,11 @@
         <Style TargetType="Label" x:Key="AdvancedMenuEntry">
             <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
             <Setter Property="Margin" Value="0"></Setter>
-            <Setter Property="Padding" Value="8"></Setter>
+            <Setter Property="Padding" Value="8,4"></Setter>
             <Setter Property="FontSize" Value="12"></Setter>
         </Style>
         <Style TargetType="CheckBox">
-            <Setter Property="Margin" Value="4"></Setter>
+            <Setter Property="Margin" Value="0,2"></Setter>
             <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
         </Style>
@@ -52,15 +59,27 @@
         <Style TargetType="DockPanel">
             <Setter Property="Margin" Value="8,16,8,0"></Setter>
         </Style>
+        
+        <Style TargetType="Grid" x:Key="FlashElement" BasedOn="{StaticResource {x:Type Grid}}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding FlashMessage}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard Storyboard="{StaticResource Flash}">
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Window.Resources>
     <StackPanel Margin="0">
         <Border BorderThickness="0,0,0,1" Background="LightSteelBlue" Padding="8,4,8,4">
             <Label DockPanel.Dock="Left" HorizontalAlignment="Left" Foreground="White">Task Scheduler Utility</Label>
         </Border>
-        <Border BorderThickness="0,0,0,1" Background="LightYellow" Padding="8,16,8,16" 
+        <Border BorderThickness="0,0,0,1" Background="LightYellow" Padding="8,16,8,16"  
                 Visibility="{Binding ToggleMessage, Converter={StaticResource BoolToVis}}">
-            <Grid>
+            <Grid Style="{StaticResource FlashElement}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -147,8 +166,8 @@
                     </ToolTip>
                 </Label.ToolTip>
             </Label>
-            <WrapPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
-                <CheckBox MinWidth="95" IsChecked="{Binding MondayChecked}">Monday</CheckBox>
+            <WrapPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top" Margin="0">
+                <CheckBox MinWidth="95" IsChecked="{Binding MondayChecked}" Margin="0">Monday</CheckBox>
                 <CheckBox MinWidth="95" IsChecked="{Binding TuesdayChecked}">Tuesday</CheckBox>
                 <CheckBox MinWidth="95" IsChecked="{Binding WednesdayChecked}">Wednesday</CheckBox>
                 <CheckBox MinWidth="95" IsChecked="{Binding ThursdayChecked}">Thursday</CheckBox>
@@ -171,7 +190,7 @@
                     </ToolTip>
                 </Label.ToolTip>
             </Label>
-            <CheckBox DockPanel.Dock="Left" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding Impersonate}"></CheckBox>
+            <CheckBox DockPanel.Dock="Left" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding Impersonate}" Margin="0" Padding="0"></CheckBox>
         </DockPanel>
 
         <DockPanel Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}">
@@ -189,7 +208,7 @@
                 </Label.ToolTip>
             </Label>
             <TextBox DockPanel.Dock="Right" Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}" 
-                 Text="{Binding Username}" IsReadOnly="True"></TextBox>
+                 Text="{Binding Username}"></TextBox>
         </DockPanel>
 
         <DockPanel Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}" Margin="8,16,8,8">
@@ -213,7 +232,7 @@
 
         <Border  Margin="0,20,0,0" BorderThickness="0,1,0,0">
             <DockPanel Margin="8,12,4,12">
-                <xctk:DropDownButton DockPanel.Dock="Left" Width="100" Content="Advanced" Padding="8">
+                <xctk:DropDownButton DockPanel.Dock="Left" Content="Advanced" HorizontalContentAlignment="Center" Padding="8">
                     <xctk:DropDownButton.DropDownContent>
                         <StackPanel>
                             <Label HorizontalAlignment="Left" Style="{StaticResource AdvancedMenuEntry}">
@@ -222,12 +241,15 @@
                                 </Label.ToolTip>
                                 <Hyperlink Command="{Binding OpenScheduler}">Open Windows Task Scheduler</Hyperlink>
                             </Label>
-                            <Label Style="{StaticResource AdvancedMenuEntry}">
-                                <Label.ToolTip>
-                                    <ToolTip>Open the Windows Local Security Policy Manager.</ToolTip>
-                                </Label.ToolTip>
-                                <Hyperlink Command="{Binding OpenPolicy}">Open Local Security Policy Manager</Hyperlink>
-                            </Label>
+                            <DockPanel Margin="8,4,8,4">
+                                <Image Source="{Binding UacShield}" Height="16" Margin="0,2,0,0" VerticalAlignment="Center"></Image>
+                                <Label Style="{StaticResource AdvancedMenuEntry}" Padding="4,0">
+                                    <Label.ToolTip>
+                                        <ToolTip>Open the Windows Local Security Policy Manager.</ToolTip>
+                                    </Label.ToolTip>
+                                    <Hyperlink Command="{Binding OpenPolicy}">Open Local Security Policy Manager</Hyperlink>
+                                </Label>
+                            </DockPanel>
                             <Label Visibility="{Binding TaskRunning, Converter={StaticResource BoolToVis}}" Style="{StaticResource AdvancedMenuEntry}">
                                 <Label.ToolTip>
                                     <ToolTip>Stop the Packager task from running. This option is only visible if the Packager task is currently running.</ToolTip>
@@ -260,9 +282,14 @@
                     <Button.Content>Exit</Button.Content>
                     <Button.ToolTip>Exit this utility</Button.ToolTip>
                 </Button>
-                <Button DockPanel.Dock="Right" Width="100" Padding="8" HorizontalAlignment="Right" Margin="0,0,8,0"
+                <Button DockPanel.Dock="Right" Padding="8" HorizontalAlignment="Right" Margin="0,0,8,0"
                     Command="{Binding ScheduleTask}" IsDefault="True">
-                    <Button.Content>Schedule</Button.Content>
+                    <Button.Content>
+                        <DockPanel Margin="4,0">
+                            <Image Source="{Binding UacShield}" Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}" Height="16" Margin="0,2,0,0" VerticalAlignment="Center"></Image>
+                            <Label VerticalContentAlignment="Center" VerticalAlignment="Center">Schedule</Label>
+                        </DockPanel>
+                    </Button.Content>
                     <Button.ToolTip>Schedule the Task</Button.ToolTip>
                 </Button>
                 

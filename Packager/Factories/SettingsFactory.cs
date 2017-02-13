@@ -28,7 +28,7 @@ namespace Packager.Factories
                 ErrorDirectoryName = GetStringValue(settings, "ErrorDirectoryName"),
                 SuccessDirectoryName = GetStringValue(settings, "SuccessDirectoryName"),
                 LogDirectoryName = GetStringValue(settings, "LogDirectoryName"),
-
+                ImageDirectory = GetStringValue(settings, "ImageDirectory"),
                 UnitPrefix = GetStringValue(settings, "UnitPrefix"),
                 SmtpServer = GetStringValue(settings, "SmtpServer"),
                 WebServiceUrl = GetStringValue(settings, "WebServiceUrl"),

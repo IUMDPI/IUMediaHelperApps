@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Common.UserInterface.Commands;
 using JetBrains.Annotations;
 using Recorder.Models;
 using Recorder.Utilities;

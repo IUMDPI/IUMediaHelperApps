@@ -1,11 +1,12 @@
 ﻿using System.Security;
+using System.Threading.Tasks;
 
 namespace InteractiveScheduler.Services
 {
     public interface IUserService
     {
         bool CredentialsValid(string username, SecureString password);
-        void GrantBatchPermissions(string username);
+        Task GrantBatchPermissions(string username);
         void OpenSecPol();
     }
 }

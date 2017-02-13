@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Models.SettingsModels;
@@ -15,7 +16,7 @@ namespace Packager.Test.Utilities
     public class SuccessFolderCleanerTests
     {
         [SetUp]
-        public virtual void BeforeEach()
+        public virtual async Task BeforeEach()
         {
             Observers = Substitute.For<IObserverCollection>();
             Interval = 5;
@@ -43,9 +44,9 @@ namespace Packager.Test.Utilities
 
         public class WhenThereIsNothingToClean : SuccessFolderCleanerTests
         {
-            public override async void BeforeEach()
+            public override async Task BeforeEach()
             {
-                base.BeforeEach();
+                await base.BeforeEach();
                 await Cleaner.DoCleaning();
             }
 
@@ -107,9 +108,9 @@ namespace Packager.Test.Utilities
 
         public class WhenThereAreObjectsToClean : SuccessFolderCleanerTests
         {
-            public override async void BeforeEach()
+            public override async Task BeforeEach()
             {
-                base.BeforeEach();
+                await base.BeforeEach();
                 await Cleaner.DoCleaning();
             }
 

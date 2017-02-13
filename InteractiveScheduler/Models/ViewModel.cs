@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Security.Principal;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using InteractiveScheduler.Commands;
+using System.Windows.Media.Imaging;
+using Common.UserInterface.Commands;
+using InteractiveScheduler.ManagedCode;
 using InteractiveScheduler.Services;
 using Microsoft.Win32.TaskScheduler;
 
-namespace InteractiveScheduler
+namespace InteractiveScheduler.Models
 {
     public class ViewModel : INotifyPropertyChanged, IDisposable
     {
@@ -41,6 +41,7 @@ namespace InteractiveScheduler
         private string _messageTitle;
         private bool _taskExists;
         private bool _taskRunning;
+        private bool _flashMessage;
 
         private ICommand _browseForPackagerCommand;
         private ICommand _scheduleTaskCommand;
@@ -56,6 +57,7 @@ namespace InteractiveScheduler
         private ICommand _disableTaskCommand;
         private bool _advancedMenuOpen;
         private ICommand _openPolicyCommand;
+        private BitmapSource _uacShield;
 
         public ViewModel(IFileDialogService fileDialogService, IUserService userService, ITaskScheduler taskScheduler)
         {
@@ -243,6 +245,12 @@ namespace InteractiveScheduler
             get { return _advancedMenuOpen; }
             set { _advancedMenuOpen = value; OnPropertyChanged(); }
         }
+
+        public bool FlashMessage
+        {
+            get { return _flashMessage; }
+            set { _flashMessage = value; OnPropertyChanged(); }
+        }
         
         private void OpenPackagerDialog()
         {
@@ -269,7 +277,7 @@ namespace InteractiveScheduler
             get
             {
                 return _scheduleTaskCommand
-                       ?? (_scheduleTaskCommand = new RelayCommand(param => DoScheduleTask()));
+                       ?? (_scheduleTaskCommand = new AsyncRelayCommand(async param => await DoScheduleTask()));
             }
         }
 
@@ -308,7 +316,19 @@ namespace InteractiveScheduler
             get
             {
                 return _openPolicyCommand ?? (_openPolicyCommand = new RelayCommand(
-                           param => _userService.OpenSecPol()));
+                           param => DoOpenPolicy()));
+            }
+        }
+
+        private void DoOpenPolicy()
+        {
+            try
+            {
+                _userService.OpenSecPol();
+            }
+            catch (Exception e)
+            {
+                ShowMessage("Could not open Local Security Policy editor", e.Message);
             }
         }
 
@@ -351,6 +371,8 @@ namespace InteractiveScheduler
             }
         }
 
+        public BitmapSource UacShield => _uacShield ?? (_uacShield = UserInterfaceHelper.GetUserAccessControlShield());
+
         public bool TaskRunning
         {
             get { return _taskRunning; } 
@@ -374,7 +396,6 @@ namespace InteractiveScheduler
             _taskScheduler.Enable(TaskName, enable);
             ImportFromTask(_taskScheduler.FindExisting());
         }
-
         
         private List<string> GetDialogIssues()
         {
@@ -395,6 +416,11 @@ namespace InteractiveScheduler
                 return issues;
             }
 
+            if (string.IsNullOrWhiteSpace(Username))
+            {
+                issues.Add("Please provide a username or uncheck Impersonate.");
+            }
+
             if (Password == null || Password.Length == 0)
             {
                 issues.Add("Please provide a password or uncheck Impersonate.");
@@ -402,13 +428,13 @@ namespace InteractiveScheduler
 
             if (_userService.CredentialsValid(Username, Password) == false)
             {
-                issues.Add("The provided password is not correct.");
+                issues.Add("Invalid username and/or password.");
             }
 
             return issues;
         }
 
-        private void DoScheduleTask()
+        private async System.Threading.Tasks.Task DoScheduleTask()
         {
             var issues = GetDialogIssues();
             if (issues.Any())
@@ -417,7 +443,7 @@ namespace InteractiveScheduler
                 return;
             }
 
-            if (!GrantLogonAsBatch())
+            if (await TryGrantPermission(Username) == false)
             {
                 return;
             }
@@ -425,21 +451,21 @@ namespace InteractiveScheduler
             TryScheduleTask();
         }
 
-        private bool GrantLogonAsBatch()
+        private async System.Threading.Tasks.Task<bool> TryGrantPermission(string username)
         {
-            if (!Impersonate)
-            {
-                return true;
-            }
-
             try
             {
-                _userService.GrantBatchPermissions(Username);
+                if (!Impersonate)
+                {
+                    return true;
+                }
+
+                await _userService.GrantBatchPermissions(username);
                 return true;
             }
             catch (Exception e)
             {
-                ShowMessage("Could not grant user batch logon permissions", e.Message);
+                ShowMessage("Could not grant user permissions", e.Message);
                 return false;
             }
         }
@@ -474,6 +500,10 @@ namespace InteractiveScheduler
 
         private void ShowMessage(string title, string message)
         {
+            if (ToggleMessage)
+            {
+                FlashMessage = true;
+            }
             MessageTitle = title;
             Message = message;
             ToggleMessage = true;

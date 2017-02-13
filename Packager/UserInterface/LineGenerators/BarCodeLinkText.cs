@@ -1,16 +1,17 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.TextFormatting;
+using Common.UserInterface.ViewModels;
 using ICSharpCode.AvalonEdit.Rendering;
 
-namespace Packager.UserInterface
+namespace Packager.UserInterface.LineGenerators
 {
     public class BarCodeLinkText : VisualLineText
     {
         private string Barcode { get; set; }
-        private ViewModel ViewModel { get; set; }
+        private ILogPanelViewModel ViewModel { get; set; }
 
-        public BarCodeLinkText(string barcode, VisualLine parentVisualLine, ViewModel viewModel) : base(parentVisualLine, barcode.Length)
+        public BarCodeLinkText(string barcode, VisualLine parentVisualLine, ILogPanelViewModel viewModel) : base(parentVisualLine, barcode.Length)
         {
             Barcode = barcode;
             ViewModel = viewModel;
@@ -24,7 +25,7 @@ namespace Packager.UserInterface
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            ViewModel.ScrollToBarcodeSection(Barcode);
+            ViewModel.ScrollToSection(Barcode);
             e.Handled = true;
         }
 

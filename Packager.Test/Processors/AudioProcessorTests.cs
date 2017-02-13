@@ -16,7 +16,6 @@ using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
 using Packager.Utilities.Bext;
-using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Test.Processors
 {
@@ -59,7 +58,7 @@ namespace Packager.Test.Processors
 
             MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor  = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner);
+            Processor  = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor);
             
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
@@ -312,11 +311,43 @@ namespace Packager.Test.Processors
                 }
             }
 
+            public class WhenImportingImages : WhenNothingGoesWrong
+            {
+                public class WhenImagesAreImported : WhenImportingImages
+                {
+                    private AbstractFile Label { get; set; }
+                    private List<AbstractFile> ReceivedModelList { get; set; }
+
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        Label = new TiffImageFile(new UnknownFile($"{ProjectCode}_{Barcode}_01_label.tif"));
+
+                        ImageProcessor.ImportMediaImages(Arg.Any<string>(), Arg.Any<CancellationToken>())
+                            .Returns(new List<AbstractFile> {Label});
+                        
+                        AudioCarrierDataFactory.When(mg => mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
+                       .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
+                    }
+
+                    [Test]
+                    public void ModelListShouldIncludeLabelModel()
+                    {
+                        Assert.That(ReceivedModelList.Count(m=>m.Equals(Label)), Is.EqualTo(1));
+                    }
+                }
+
+                [Test]
+                public void ItShouldCallImageImporterCorrectly()
+                {
+                    ImageProcessor.Received().ImportMediaImages(Barcode, Arg.Is<CancellationToken>(ct => ct != null));
+                }
+            }
+
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private AudioCarrier AudioCarrier { get; set; }
-                private int ExpectedModelCount { get; set; }
-
+               
                 private List<AbstractFile> ReceivedModelList { get; set; }
 
                 protected override void DoCustomSetup()
@@ -330,7 +361,6 @@ namespace Packager.Test.Processors
                         .Returns(AudioCarrier);
 
                     AudioCarrierDataFactory.Generate(null, null, null).ReturnsForAnyArgs(AudioCarrier);
-                    ExpectedModelCount = 3; // pres master + prod master + access master
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenGeneratingXmlManifest
@@ -340,7 +370,6 @@ namespace Packager.Test.Processors
                         base.DoCustomSetup();
 
                         ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
-                        ExpectedModelCount = 4; // pres master, presInt master, prod-master, access master
                     }
 
                     [Test]
@@ -445,9 +474,9 @@ namespace Packager.Test.Processors
 
             public class WhenHashingFiles : WhenNothingGoesWrong
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
 
                     ProcessedModelList = AudioCarrierDataFactory.ReceivedCalls()
                         .First().GetArguments()[2] as List<AbstractFile>;

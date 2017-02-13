@@ -17,12 +17,12 @@
         <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
             <avalonEdit:TextEditor xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                 Name="OutputText"
+                DataContext="{Binding LogPanelViewModel}"
                 Document="{Binding Document}"
                 FontFamily="Consolas" FontSize="10pt"
                 HorizontalScrollBarVisibility="Hidden" 
                 IsReadOnly="True"
-                Padding="10px"
-                Cursor="{Binding Cursor}" />
+                Padding="10px" />
         </Border>
         
     </Grid>

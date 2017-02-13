@@ -1,18 +1,11 @@
 ﻿using System.Text.RegularExpressions;
 using ICSharpCode.AvalonEdit.Rendering;
 
-namespace Packager.UserInterface
+namespace Common.UserInterface.LineGenerators
 {
-    public class BarcodeElementGenerator : VisualLineElementGenerator
+    public abstract class AbstractBarcodeElementGenerator : VisualLineElementGenerator
     {
         private readonly Regex _barCodeRegEx = new Regex(@"\d{14}");
-
-        public BarcodeElementGenerator(ViewModel viewModel)
-        {
-            ViewModel = viewModel;
-        }
-
-        private ViewModel ViewModel { get; }
 
         public override int GetFirstInterestedOffset(int startOffset)
         {
@@ -21,7 +14,7 @@ namespace Packager.UserInterface
             return matchOffset;
         }
 
-        private Match GetMatch(int startOffset, out int matchOffset)
+        protected Match GetMatch(int startOffset, out int matchOffset)
         {
             var endOffset = CurrentContext.VisualLine.LastDocumentLine.EndOffset;
             var relevantText = CurrentContext.GetText(startOffset, endOffset - startOffset);
@@ -43,16 +36,7 @@ namespace Packager.UserInterface
             return m;
         }
 
-        public override VisualLineElement ConstructElement(int offset)
-        {
-            int matchOffset;
-            var match = GetMatch(offset, out matchOffset);
-            if (match.Success == false)
-            {
-                return null;
-            }
+        public abstract override VisualLineElement ConstructElement(int offset);
 
-            return new BarCodeLinkText(match.Value, CurrentContext.VisualLine, ViewModel);
-        }
     }
 }

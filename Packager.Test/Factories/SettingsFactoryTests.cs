@@ -95,7 +95,8 @@ namespace Packager.Test.Factories
                     {"PodAuthorizationFile", "PodAuthorizationFile value"},
                     {"FromEmailAddress", "FromEmailAddress value"},
                     {"IssueNotifyEmailAddresses", "address1,address2,address3"},
-                    {"DeleteProcessedAfterInDays", "8"}
+                    {"DeleteProcessedAfterInDays", "8"},
+                    {"ImageDirectory", "ImageDirectory value" }
                 };
 
                 Result = SettingsFactory.Import(settings);
@@ -130,6 +131,7 @@ namespace Packager.Test.Factories
             [TestCase("WebServiceUrl", "WebServiceUrl")]
             [TestCase("PodAuthFilePath", "PodAuthorizationFile")]
             [TestCase("FromEmailAddress", "FromEmailAddress")]
+            [TestCase("ImageDirectory", "ImageDirectory")]
             public void StringValuesShouldBeSetCorrectly(string propertyName, string dictionaryKey)
             {
                 AssertPropertyEquals(propertyName, $"{dictionaryKey} value");

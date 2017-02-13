@@ -5,9 +5,10 @@ namespace Packager.Validators
         public ValidationResult(string baseIssue, params object[] args)
             : this(false, string.Format(baseIssue, args))
         {
+
         }
 
-        private ValidationResult(bool success, string issue)
+        protected ValidationResult(bool success, string issue)
         {
             Issue = issue;
             Result = success;
@@ -17,5 +18,6 @@ namespace Packager.Validators
 
         public bool Result { get; set; }
         public string Issue { get; set; }
+
     }
 }

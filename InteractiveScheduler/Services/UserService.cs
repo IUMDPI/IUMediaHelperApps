@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
+using System.IO;
+using System.Reflection;
 using System.Security;
+using System.Threading.Tasks;
 using InteractiveScheduler.Extensions;
-using InteractiveScheduler.ManagedCode;
 
 namespace InteractiveScheduler.Services
 {
@@ -22,15 +24,37 @@ namespace InteractiveScheduler.Services
             }
         }
 
-        public void GrantBatchPermissions(string username)
+        public async Task GrantBatchPermissions(string username)
         {
-            var result = LsaUtilities.SetRight(username, "SeBatchLogonRight");
-            if (result != 0)
+            var location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var path = string.IsNullOrWhiteSpace(location)
+                ? "SetLogonAsBatchRight.exe"
+                : Path.Combine(location, "SetLogonAsBatchRight.exe");
+            
+            var startInfo = new ProcessStartInfo(path)
             {
-                throw new Win32Exception(result);
+                Arguments = username,
+                Verb = "runas",
+                UseShellExecute = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+            using (var process = Process.Start(startInfo))
+            {
+                if (process == null)
+                {
+                    return;
+                }
+
+                await process.WaitForExitAsync();
+                if (process.ExitCode != 0)
+                {
+                    throw new Win32Exception(process.ExitCode);    
+                }
             }
         }
-
+        
         public void OpenSecPol()
         {
             var startInfo = new ProcessStartInfo("mmc.exe", "secpol.msc");

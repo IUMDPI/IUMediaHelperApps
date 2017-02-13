@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace Packager.Utilities.Xml
 {
-    internal class XmlExporter : IXmlExporter
+    public class XmlExporter : IXmlExporter
     {
         public void ExportToFile(object o, string path)
         {

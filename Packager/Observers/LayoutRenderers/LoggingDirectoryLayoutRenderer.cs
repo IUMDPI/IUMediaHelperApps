@@ -9,7 +9,10 @@ namespace Packager.Observers.LayoutRenderers
     {
         protected override void Append(StringBuilder builder, LogEventInfo logEvent)
         {
-            builder.Append(logEvent.Properties["LogDirectoryName"]);
+            if (logEvent.Properties.ContainsKey("LogDirectoryName"))
+            {
+                builder.Append(logEvent.Properties["LogDirectoryName"]);
+            }
         }
     }
 }

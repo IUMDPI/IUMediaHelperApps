@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Scheduler")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Indiana University")]
 [assembly: AssemblyProduct("Scheduler")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright ©  2017, The Trustees of Indiana University")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

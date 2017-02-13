@@ -2,13 +2,13 @@
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace InteractiveScheduler.Commands
+namespace Common.UserInterface.Commands
 {
     public class RelayCommand : ICommand
     {
         #region Fields
 
-        private readonly Action<object> _toExecute;
+        protected Action<object> ToExecute { get; }
         private readonly Predicate<object> _canExecute;
 
         #endregion // Fields
@@ -20,7 +20,7 @@ namespace InteractiveScheduler.Commands
             if (toExecute == null)
                 throw new ArgumentNullException(nameof(toExecute));
 
-            _toExecute = toExecute;
+            ToExecute = toExecute;
             _canExecute = canExecute;
         }
         #endregion // Constructors
@@ -39,9 +39,14 @@ namespace InteractiveScheduler.Commands
             remove { CommandManager.RequerySuggested -= value; }
         }
 
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
+
         public virtual void Execute(object parameter)
         {
-            _toExecute(parameter);
+            ToExecute(parameter);
         }
 
         #endregion // ICommand Members

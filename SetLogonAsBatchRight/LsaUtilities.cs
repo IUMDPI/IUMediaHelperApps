@@ -2,9 +2,9 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace InteractiveScheduler.ManagedCode
+namespace SetLogonAsBatchRight
 {
-    public static class LsaUtilities
+    internal static class LsaUtilities
     {
         // Import the LSA functions
 
@@ -80,48 +80,39 @@ namespace InteractiveScheduler.ManagedCode
             public ushort MaximumLength;
             public IntPtr Buffer;
         }
-
-        /// 
-        //Adds a privilege to an account
-
-        /// Name of an account - "domain\account" or only "account"
-        /// Name ofthe privilege
-        /// The windows error code returned by LsaAddAccountRights
+        
         public static int SetRight(string accountName, string privilegeName)
         {
-            var winErrorCode = 0; //contains the last error
-
-            //pointer an size for the SID
             var sid = IntPtr.Zero;
-            var sidSize = 0;
-            //StringBuilder and size for the domain name
-            var domainName = new StringBuilder();
-            var nameSize = 0;
-            //account-type variable for lookup
-            var accountType = 0;
-
-            //get required buffer size
-            LookupAccountName(string.Empty, accountName, sid, ref sidSize, domainName, ref nameSize, ref accountType);
-
-            //allocate buffers
-            domainName = new StringBuilder(nameSize);
-            sid = Marshal.AllocHGlobal(sidSize);
-
-            //lookup the SID for the account
-            var result = LookupAccountName(string.Empty, accountName, sid, ref sidSize, domainName, ref nameSize,
-                ref accountType);
-
-            if (!result)
+            var policyHandle = IntPtr.Zero;
+            try
             {
-                winErrorCode = GetLastError();
-               
-            }
-            else
-            {
+                //pointer an size for the SID
+                var sidSize = 0;
+                //StringBuilder and size for the domain name
+                var domainName = new StringBuilder();
+                var nameSize = 0;
+                //account-type variable for lookup
+                var accountType = 0;
+
+                //get required buffer size
+                LookupAccountName(string.Empty, accountName, sid, ref sidSize, domainName, ref nameSize, ref accountType);
+
+                //allocate buffers
+                domainName = new StringBuilder(nameSize);
+                sid = Marshal.AllocHGlobal(sidSize);
+
+                //lookup the SID for the account
+                if (!LookupAccountName(string.Empty, accountName, sid, ref sidSize, domainName, ref nameSize,
+                    ref accountType))
+                {
+                    return GetLastError();
+                }
+
                 //initialize an empty unicode-string
                 var systemName = new LsaUnicodeString();
                 //combine all policies
-                const uint access = (uint) (
+                const uint access = (uint)(
                     LsaAccessPolicy.PolicyAuditLogAdmin |
                     LsaAccessPolicy.PolicyCreateAccount |
                     LsaAccessPolicy.PolicyCreatePrivilege |
@@ -137,7 +128,6 @@ namespace InteractiveScheduler.ManagedCode
                     LsaAccessPolicy.PolicyViewLocalInformation
                 );
                 //initialize a pointer for the policy handle
-                IntPtr policyHandle;
 
                 //these attributes are not used, but LsaOpenPolicy wants them to exists
                 var objectAttributes = new LsaObjectAttributes
@@ -151,32 +141,41 @@ namespace InteractiveScheduler.ManagedCode
 
                 //get a policy handle
                 var resultPolicy = LsaOpenPolicy(ref systemName, ref objectAttributes, access, out policyHandle);
-                winErrorCode = LsaNtStatusToWinError(resultPolicy);
-
-                if (winErrorCode == 0)
+                var statusResult = LsaNtStatusToWinError(resultPolicy);
+                if (statusResult != 0)
                 {
-                    //Now that we have the SID an the policy,
-                    //we can add rights to the account.
+                    return statusResult;
+                }
+                
+                //Now that we have the SID and the policy,
+                //we can add rights to the account.
 
-                    //initialize an unicode-string for the privilege name
-                    var userRights = new LsaUnicodeString[1];
-                    userRights[0] = new LsaUnicodeString
-                    {
-                        Buffer = Marshal.StringToHGlobalUni(privilegeName),
-                        Length = (ushort) (privilegeName.Length*UnicodeEncoding.CharSize),
-                        MaximumLength = (ushort) ((privilegeName.Length + 1)*UnicodeEncoding.CharSize)
-                    };
+                //initialize an unicode-string for the privilege name
+                var userRights = new LsaUnicodeString[1];
+                userRights[0] = new LsaUnicodeString
+                {
+                    Buffer = Marshal.StringToHGlobalUni(privilegeName),
+                    Length = (ushort)(privilegeName.Length * UnicodeEncoding.CharSize),
+                    MaximumLength = (ushort)((privilegeName.Length + 1) * UnicodeEncoding.CharSize)
+                };
 
-                    //add the right to the account
-                    var res = LsaAddAccountRights(policyHandle, sid, userRights, 1);
-                    winErrorCode = LsaNtStatusToWinError(res);
-
+                //add the right to the account
+                var addResult = LsaAddAccountRights(policyHandle, sid, userRights, 1);
+                return LsaNtStatusToWinError(addResult);
+            }
+            finally
+            {
+                if (policyHandle != IntPtr.Zero)
+                {
                     LsaClose(policyHandle);
                 }
-                FreeSid(sid);
+
+                if (sid != IntPtr.Zero)
+                {
+                    FreeSid(sid);
+                }
             }
 
-            return winErrorCode;
         }
     }
 }

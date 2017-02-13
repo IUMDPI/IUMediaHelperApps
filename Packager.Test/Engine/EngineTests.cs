@@ -18,6 +18,7 @@ using Packager.UserInterface;
 using Packager.Utilities.Configuration;
 using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
+using Packager.Utilities.Reporting;
 using Packager.Validators;
 
 namespace Packager.Test.Engine
@@ -26,7 +27,7 @@ namespace Packager.Test.Engine
     public class EngineTests
     {
         [SetUp]
-        public async void BeforeEach()
+        public async Task BeforeEach()
         {
             SuccessFolderCleaner = Substitute.For<ISuccessFolderCleaner>();
             ViewModel = Substitute.For<IViewModel>();
@@ -43,8 +44,10 @@ namespace Packager.Test.Engine
             MockWavProcessor = Substitute.For<IProcessor>();
             MockMpegProcessor = Substitute.For<IProcessor>();
 
-            MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
-            MockMpegProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(ValidationResult.Success));
+            MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(DurationResult.Success(new DateTime(2017,1,1))));
+            MockMpegProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(DurationResult.Success(new DateTime(2017,1,1))));
+
+            ReportWriter = Substitute.For<IReportWriter>();
 
             Observer = Substitute.For<IObserverCollection>();
 
@@ -70,7 +73,7 @@ namespace Packager.Test.Engine
             };
 
             Engine = new StandardEngine(processors, ViewModel, ProgramSettings, ProgramArguments, DirectoryProvider, Validators,
-                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), SystemInfoProvider, EmailSender, Observer);
+                SuccessFolderCleaner, Substitute.For<IConfigurationLogger>(), SystemInfoProvider, EmailSender, ReportWriter, Observer);
 
             DoCustomSetup();
             await Engine.Start(CancellationToken.None);
@@ -96,6 +99,7 @@ namespace Packager.Test.Engine
         private IViewModel ViewModel { get; set; }
         private ISystemInfoProvider SystemInfoProvider { get; set; }
         private IEmailSender EmailSender { get; set; }
+        private IReportWriter ReportWriter { get; set; }
 
         private string Grouping1PresFileName { get; set; }
         private string Grouping1ProdFileName { get; set; }
@@ -156,13 +160,19 @@ namespace Packager.Test.Engine
             [Test]
             public void ItShouldWriteGoodbyeMessage()
             {
-                Observer.Received().Log(Arg.Is("Completed {0}"), Arg.Any<DateTime>());
+                Observer.Received().Log(Arg.Is("Completed {0} ({1:hh\\:mm\\:ss})"), Arg.Any<DateTime>(), Arg.Any<TimeSpan>());
             }
 
             [Test]
             public void ItShouldWriteHelloMessage()
             {
                 Observer.Received().Log(Arg.Is("Starting {0} (version {1})"), Arg.Any<DateTime>(), Arg.Any<Version>());
+            }
+
+            [Test]
+            public void ItShouldCallWriteResultsReportCorrectly()
+            {
+                ReportWriter.Received().WriteResultsReport(Arg.Any<Dictionary<string, DurationResult>>(), Arg.Any<DateTime>());
             }
 
             public class WhenSuccessEmailAddressesSpecified : WhenEngineRunsWithoutIssues
@@ -234,7 +244,7 @@ namespace Packager.Test.Engine
             protected override void DoCustomSetup()
             {
                 base.DoCustomSetup();
-                MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(new ValidationResult("issue")));
+                MockWavProcessor.ProcessObject(null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(Task.FromResult(new DurationResult(new DateTime(2017,1,1), "issue")));
             }
 
             public class WhenInteractive : WhenProcessorEncountersAnIssue
@@ -284,6 +294,12 @@ namespace Packager.Test.Engine
             public void ItShouldWriteErrorMessage()
             {
                 Observer.Received().LogEngineIssue(Exception);
+            }
+
+            [Test]
+            public void ItShouldCallReportWriterCorrectly()
+            {
+                ReportWriter.Received().WriteResultsReport(Exception);
             }
 
             public class WhenInteractive : WhenEngineEncountersAnIssue

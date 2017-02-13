@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Packager</RootNamespace>
     <AssemblyName>Packager</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -39,25 +39,26 @@
     <StartupObject>Packager.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.AvalonEdit">
-      <HintPath>..\packages\AvalonEdit.5.0.2\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <HintPath>..\packages\AvalonEdit.5.0.3\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="JetBrains.Annotations, Version=10.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.Annotations.10.0.0\lib\net20\JetBrains.Annotations.dll</HintPath>
+    <Reference Include="JetBrains.Annotations, Version=10.2.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.10.2.1\lib\net\JetBrains.Annotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.2.3\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.4.2\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SimpleInjector, Version=3.1.5.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
-      <HintPath>..\packages\SimpleInjector.3.1.5\lib\net45\SimpleInjector.dll</HintPath>
+    <Reference Include="SimpleInjector, Version=3.3.2.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.3.3.2\lib\net45\SimpleInjector.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -110,6 +111,7 @@
     <Compile Include="Models\FileModels\MezzanineFile.cs" />
     <Compile Include="Models\FileModels\ProductionFile.cs" />
     <Compile Include="Models\FileModels\QualityControlFile.cs" />
+    <Compile Include="Models\FileModels\TiffImageFile.cs" />
     <Compile Include="Models\FileModels\UnknownFile.cs" />
     <Compile Include="Models\FileModels\VideoPreservationFile.cs" />
     <Compile Include="Models\FileModels\VideoPreservationIntermediateFile.cs" />
@@ -144,16 +146,17 @@
     <Compile Include="Providers\IMediaInfoProvider.cs" />
     <Compile Include="Providers\MediaInfoProvider.cs" />
     <Compile Include="Providers\PodMetadataProvider.cs" />
-    <Compile Include="UserInterface\BarcodeElementGenerator.cs" />
-    <Compile Include="UserInterface\BarCodeLinkText.cs" />
+    <Compile Include="UserInterface\LineGenerators\BarCodeLinkText.cs" />
+    <Compile Include="UserInterface\LineGenerators\BarcodeSectionLineGenerator.cs" />
     <Compile Include="UserInterface\CancelPanel.xaml.cs">
       <DependentUpon>CancelPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\IViewModel.cs" />
-    <Compile Include="UserInterface\RelayCommand.cs" />
     <Compile Include="Utilities\Bext\BextFields.cs" />
     <Compile Include="Utilities\Configuration\ConfigurationLogger.cs" />
     <Compile Include="Utilities\FileSystem\SuccessFolderCleaner.cs" />
+    <Compile Include="Utilities\Images\LabelImageImporter.cs" />
+    <Compile Include="Utilities\Images\ILabelImageImporter.cs" />
     <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\ArgumentBuilder.cs" />
     <Compile Include="Utilities\ProcessRunners\AudioFFMPEGRunner.cs" />
@@ -167,6 +170,8 @@
     <Compile Include="Utilities\FileSystem\ISuccessFolderCleaner.cs" />
     <Compile Include="Utilities\ProcessRunners\StringOutputBuffer.cs" />
     <Compile Include="Utilities\ProcessRunners\VideoFFMPEGRunner.cs" />
+    <Compile Include="Utilities\Reporting\IReportWriter.cs" />
+    <Compile Include="Utilities\Reporting\ReportWriter.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />
     <Compile Include="Validators\Attributes\PropertyValidationAttribute.cs" />
     <Compile Include="Validators\Attributes\RequiredAttribute.cs" />
@@ -176,7 +181,6 @@
     <Compile Include="Validators\Attributes\ValidateUriAttribute.cs" />
     <Compile Include="Engine\IEngine.cs" />
     <Compile Include="Engine\StandardEngine.cs" />
-    <Compile Include="Exceptions\AbstractEngineException.cs" />
     <Compile Include="Exceptions\EmbeddedMetadataException.cs" />
     <Compile Include="Exceptions\DeserializeValueException.cs" />
     <Compile Include="Exceptions\DetermineProcessorException.cs" />
@@ -253,6 +257,7 @@
     <Compile Include="Utilities\ProcessRunners\ProcessRunner.cs" />
     <Compile Include="Utilities\Xml\XmlExporter.cs" />
     <Compile Include="Validators\DirectoryExistsValidator.cs" />
+    <Compile Include="Validators\DurationResult.cs" />
     <Compile Include="Validators\FileExistsValidator.cs" />
     <Compile Include="Validators\MembersValidator.cs" />
     <Compile Include="Validators\StandardValidatorCollection.cs" />
@@ -323,6 +328,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{3c6b5bb3-a9c6-401e-9d7f-3473b7c96dec}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Common.UserInterface.Commands;
 using Recorder.Models;
 
 namespace Recorder.ViewModels
@@ -70,7 +71,9 @@ namespace Recorder.ViewModels
             OnPropertyChanged(nameof(IsEnabled));
         }
 
+#pragma warning disable 1998
         public override async Task Initialize()
+#pragma warning restore 1998
         {
         }
 

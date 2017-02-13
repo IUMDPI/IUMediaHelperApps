@@ -28,7 +28,7 @@ namespace Packager.Test.Utilities
     public class FFMPEGRunnerTests
     {
         [SetUp]
-        public virtual void BeforeEach()
+        public virtual async Task BeforeEach()
         {
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
@@ -111,9 +111,9 @@ namespace Packager.Test.Utilities
 
             public class WhenProductionWriteBextArgsPresent : WhenInitializing
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -write_bext 1");
                     Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
@@ -127,9 +127,9 @@ namespace Packager.Test.Utilities
 
             public class WhenProductionRiffArgsPresent : WhenInitializing
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -rf64 auto");
                     Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
@@ -143,9 +143,9 @@ namespace Packager.Test.Utilities
 
             public class WhenPassedInProductionArgumentsNull : WhenInitializing
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns((string) null);
                     Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
@@ -159,9 +159,9 @@ namespace Packager.Test.Utilities
 
             public class WhenPassedInProductionArgumentsEmpty : WhenInitializing
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
                     ProgramSettings.FFMPEGAudioProductionArguments.Returns("");
                     Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
                 }
@@ -176,9 +176,9 @@ namespace Packager.Test.Utilities
 
         public class WhenNormalizingOriginals : FFMPEGRunnerTests
         {
-            public override async void BeforeEach()
+            public override async Task BeforeEach()
             {
-                base.BeforeEach();
+                await base.BeforeEach();
 
                 ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
 
@@ -211,7 +211,7 @@ namespace Packager.Test.Utilities
 
             public class WhenThingsGoWell : WhenNormalizingOriginals
             {
-                public override async void BeforeEach()
+                public override async Task BeforeEach()
                 {
                     base.BeforeEach();
 
@@ -334,9 +334,9 @@ namespace Packager.Test.Utilities
 
             public class WhenThingsGoWrong : WhenNormalizingOriginals
             {
-                public override async void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
 
                     Originals = new List<AbstractFile> {PreservationFileModel};
 
@@ -351,7 +351,7 @@ namespace Packager.Test.Utilities
                     });
 
                     var issue =
-                        Assert.Throws<LoggedException>(async () => await Runner.Normalize(PreservationFileModel, null, CancellationToken.None));
+                        Assert.ThrowsAsync<LoggedException>(async () => await Runner.Normalize(PreservationFileModel, null, CancellationToken.None));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
@@ -373,9 +373,9 @@ namespace Packager.Test.Utilities
 
         public class WhenVerifyingNormalizedVersions : FFMPEGRunnerTests
         {
-            public override async void BeforeEach()
+            public override async Task BeforeEach()
             {
-                base.BeforeEach();
+                await base.BeforeEach();
 
                 ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
 
@@ -421,7 +421,7 @@ namespace Packager.Test.Utilities
 
             public class WhenThingsGoWell : WhenVerifyingNormalizedVersions
             {
-                public override async void BeforeEach()
+                public override async Task BeforeEach()
                 {
                     base.BeforeEach();
 
@@ -577,9 +577,9 @@ namespace Packager.Test.Utilities
 
             public class WhenHashesAreNotEqual : WhenVerifyingNormalizedVersions
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
 
                     Originals = new List<AbstractFile> {PreservationFileModel};
 
@@ -592,7 +592,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Verify(Originals, CancellationToken.None));
+                    var issue = Assert.ThrowsAsync<LoggedException>(async () => await Runner.Verify(Originals, CancellationToken.None));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<NormalizeOriginalException>());
                 }
@@ -613,9 +613,9 @@ namespace Packager.Test.Utilities
 
             public class WhenThingsGoWrong : WhenVerifyingNormalizedVersions
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
 
                     Originals = new List<AbstractFile> {PreservationFileModel};
 
@@ -629,7 +629,7 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    var issue = Assert.Throws<LoggedException>(async () => await Runner.Verify(Originals, CancellationToken.None));
+                    var issue = Assert.ThrowsAsync<LoggedException>(async () => await Runner.Verify(Originals, CancellationToken.None));
                     Assert.That(issue, Is.Not.Null);
                     Assert.That(issue.InnerException, Is.TypeOf<FileNotFoundException>());
                 }
@@ -655,9 +655,9 @@ namespace Packager.Test.Utilities
 
             public class WhenGeneratingAccessDerivatives : WhenGeneratingDerivatives
             {
-                public override async void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
                     DerivativeFileModel = new AccessFile(new ProductionFile( MasterFileModel));
 
                     ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
@@ -736,9 +736,9 @@ namespace Packager.Test.Utilities
 
             public class WhenGeneratingProductionDerivatives : WhenGeneratingDerivatives
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
                     DerivativeFileModel = new ProductionFile(MasterFileModel);
                 }
 
@@ -746,9 +746,9 @@ namespace Packager.Test.Utilities
 
                 public class WhenThingsGoWell : WhenGeneratingProductionDerivatives
                 {
-                    public override async void BeforeEach()
+                    public override async Task BeforeEach()
                     {
-                        base.BeforeEach();
+                        await base.BeforeEach();
 
                         ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                         {
@@ -910,9 +910,9 @@ namespace Packager.Test.Utilities
 
             public class WhenThingsGoWrong : WhenGeneratingDerivatives
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
                     DerivativeFileModel = new ProductionFile(MasterFileModel);
                 }
 
@@ -920,9 +920,9 @@ namespace Packager.Test.Utilities
 
                 public class WhenProcessRunnerReturnsFailResult : WhenThingsGoWrong
                 {
-                    public override void BeforeEach()
+                    public override async Task BeforeEach()
                     {
-                        base.BeforeEach();
+                        await base.BeforeEach();
                         ProcessRunnerResult.ExitCode.Returns(-1);
                         ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x => 
                             {
@@ -931,7 +931,7 @@ namespace Packager.Test.Utilities
                             });
 
                         FinalException =
-                            Assert.Throws<LoggedException>(
+                            Assert.ThrowsAsync<LoggedException>(
                                 async () =>
                                     await
                                         Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None));
@@ -948,13 +948,13 @@ namespace Packager.Test.Utilities
 
                 public class WhenExceptionsOccurr : WhenThingsGoWrong
                 {
-                    public override void BeforeEach()
+                    public override async Task BeforeEach()
                     {
-                        base.BeforeEach();
+                        await base.BeforeEach();
                         DerivativeFileModel = new ProductionFile(MasterFileModel);
                         Exception = new Exception("testing");
                         ProcessRunner.WhenForAnyArgs(x => x.Run(null, CancellationToken.None)).Do(x => { throw Exception; });
-                        FinalException = Assert.Throws<LoggedException>(async () => await
+                        FinalException = Assert.ThrowsAsync<LoggedException>(async () => await
                             Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None));
                     }
 

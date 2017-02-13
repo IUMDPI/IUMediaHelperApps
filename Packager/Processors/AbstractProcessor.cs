@@ -15,6 +15,7 @@ using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
+using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
@@ -29,12 +30,16 @@ namespace Packager.Processors
            IFileProvider fileProvider, 
            IHasher hasher, 
            IPodMetadataProvider metadataProvider, 
-           IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter)
+           IObserverCollection observers, 
+           IProgramSettings programSettings, 
+           IXmlExporter xmlExporter, 
+           ILabelImageImporter imageProcessor)
         {
             ProgramSettings = programSettings;
             Observers = observers;
             MetadataProvider = metadataProvider;
             XmlExporter = xmlExporter;
+            LabelImageImporter = imageProcessor;
             BextProcessor = bextProcessor;
             DirectoryProvider = directoryProvider;
             FileProvider = fileProvider;
@@ -58,6 +63,7 @@ namespace Packager.Processors
         protected IObserverCollection Observers { get; }
         private IPodMetadataProvider MetadataProvider { get; }
         private IXmlExporter XmlExporter { get; }
+        private ILabelImageImporter LabelImageImporter { get; }
         private IHasher Hasher { get; }
         private IFileProvider FileProvider { get; }
         private IDirectoryProvider DirectoryProvider { get; }
@@ -81,10 +87,11 @@ namespace Packager.Processors
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken);
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken);
         
-        public virtual async Task<ValidationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
+        public virtual async Task<DurationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
         {
+            var startTime = DateTime.Now;
             Barcode = fileModels.Key;
-           
+            
             var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
@@ -95,7 +102,7 @@ namespace Packager.Processors
 
                 // now move them to processing
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
-
+                
                 // fetch, log, and validate metadata
                 var metadata = await GetMetadata<T>(filesToProcess, cancellationToken);
 
@@ -133,6 +140,11 @@ namespace Packager.Processors
                 processedList = processedList.Concat(
                     await CreateQualityControlFiles(processedList, cancellationToken)).ToList();
 
+                // import label images and add them to list of files to process
+                processedList = processedList
+                    .Concat(await ImportLabelImages(cancellationToken))
+                    .ToList();
+
                 // using the list of files that have been processed
                 // make the xml file
                 processedList.Add(await GenerateXml(metadata, processedList, cancellationToken));
@@ -144,27 +156,27 @@ namespace Packager.Processors
                 await MoveToSuccessFolder();
 
                 Observers.EndSection(sectionKey, $"Object processed succesfully: {Barcode}");
-                return ValidationResult.Success;
+                return DurationResult.Success(startTime);
             }
             catch (OperationCanceledException e)
             {
                 Observers.LogProcessingIssue(new UserCancelledException(), Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return new ValidationResult(e.GetBaseMessage());
+                return new DurationResult(startTime, e.GetBaseMessage());
             }
             catch (Exception e)
             {
                 Observers.LogProcessingIssue(e, Barcode);
                 MoveToErrorFolder();
                 Observers.EndSection(sectionKey);
-                return new ValidationResult(e.GetBaseMessage());
+                return new DurationResult(startTime, e.GetBaseMessage());
             }
         }
         
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
-            foreach (var original in originals)
+            foreach (var original in originals.Where(f=> f is TiffImageFile == false))
             {
                 var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
                 await FFMpegRunner.Normalize(original, metadata, cancellationToken);
@@ -234,6 +246,27 @@ namespace Packager.Processors
 
                 Observers.EndSection(sectionKey, $"{result.Filename} generated successfully");
                 return result;
+            }
+            catch (Exception e)
+            {
+                Observers.EndSection(sectionKey);
+                Observers.LogProcessingIssue(e, Barcode);
+                throw new LoggedException(e);
+            }
+        }
+
+        private async Task<List<AbstractFile>> ImportLabelImages(CancellationToken cancellationToken)
+        {
+            var sectionKey = Observers.BeginSection("Importing Label Images");
+            try
+            {
+                var results = await LabelImageImporter.ImportMediaImages(Barcode, cancellationToken);
+                Observers.Log(results.Any() 
+                    ? string.Join("\n", results.Select(f => $"imported {f.Filename}"))
+                    : "No label images found");
+
+                Observers.EndSection(sectionKey);
+                return results;
             }
             catch (Exception e)
             {

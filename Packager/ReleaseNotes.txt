@@ -65,5 +65,5 @@
 3.2.0.0		8/1/2016	fixing issue that was causing a series of flickering  windows to be shown 
 						at startup.
 3.3.0.0		2/13/2017	Packager will import label images
-
+3.4.0.0		2/13/2017	Fix issue finding image folders
 					

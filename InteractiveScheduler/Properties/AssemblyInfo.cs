@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("InteractiveScheduler")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Indiana University")]
 [assembly: AssemblyProduct("InteractiveScheduler")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright ©  2017, The Trustees of Indiana University")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Models.SettingsModels;
@@ -66,14 +67,14 @@ namespace Packager.Test.Utilities
         }
 
         [Test]
-        public async void ImporterShouldCallDirectoryProviderExistsCorrectly()
+        public async Task ImporterShouldCallDirectoryProviderExistsCorrectly()
         {
             await ImageImporter.ImportMediaImages(Barcode, new CancellationToken());
             DirectoryProvider.Received().DirectoryExists(ExpectedSourceFolder);
         }
 
         [Test]
-        public async void ImporterShouldReturnEmptyListIfFolderMissing()
+        public async Task ImporterShouldReturnEmptyListIfFolderMissing()
         {
             DirectoryProvider.DirectoryExists(ExpectedSourceFolder).Returns(false);
             var result = await ImageImporter.ImportMediaImages(Barcode, new CancellationToken());
@@ -81,14 +82,14 @@ namespace Packager.Test.Utilities
         }
 
         [Test]
-        public async void ImporterShouldCallDirectoryProviderEnumerateFilesCorrectly()
+        public async Task ImporterShouldCallDirectoryProviderEnumerateFilesCorrectly()
         {
             await ImageImporter.ImportMediaImages(Barcode, new CancellationToken());
             DirectoryProvider.Received().EnumerateFiles(ExpectedSourceFolder);
         }
 
         [Test]
-        public async void ImporterShouldReturnEmptyListIfNoFilesPresent()
+        public async Task ImporterShouldReturnEmptyListIfNoFilesPresent()
         {
             DirectoryProvider.EnumerateFiles(ExpectedSourceFolder).Returns(new List<string>());
             var result = await ImageImporter.ImportMediaImages(Barcode, new CancellationToken());
@@ -145,13 +146,13 @@ namespace Packager.Test.Utilities
             var hash2 = "hash2";
             Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(hash1, hash2);
 
-            var exception = Assert.Throws<Exception>(async () => await ImageImporter.ImportMediaImages(Barcode, new CancellationToken()));
+            var exception = Assert.ThrowsAsync<Exception>(async () => await ImageImporter.ImportMediaImages(Barcode, new CancellationToken()));
             Assert.That(exception.Message, Is.EqualTo($"copy hash ({hash2}) is not equal to original hash ({hash1})."));
 
         }
 
         [Test]
-        public async void ImporterShouldReturnCorrectResultsIfNoIssues()
+        public async Task ImporterShouldReturnCorrectResultsIfNoIssues()
         {
             var result = await ImageImporter.ImportMediaImages(Barcode, new CancellationToken());
             Assert.That(result.Count, Is.EqualTo(2));

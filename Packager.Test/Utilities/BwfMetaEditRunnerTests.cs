@@ -18,7 +18,7 @@ namespace Packager.Test.Utilities
     public class BwfMetaEditRunnerTests
     {
         [SetUp]
-        public virtual void BeforeEach()
+        public virtual async Task BeforeEach()
         {
             ProductionFileModel = FileModelFactory.GetModel(ProductionFileName);
             PreservationFileModel = FileModelFactory.GetModel(PreservationFileName);
@@ -59,7 +59,7 @@ namespace Packager.Test.Utilities
 
         public class WhenClearingMetadata : BwfMetaEditRunnerTests
         {
-            public override async void BeforeEach()
+            public override async Task BeforeEach()
             {
                 base.BeforeEach();
 

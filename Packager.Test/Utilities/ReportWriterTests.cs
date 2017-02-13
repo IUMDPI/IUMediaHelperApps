@@ -63,7 +63,7 @@ namespace Packager.Test.Utilities
         {
             var expected = Path.Combine(
                 ProgramSettings.LogDirectoryName,
-                $"Packager_{new DateTime(2017, 1, 1).Ticks:D19}.xml");
+                $"Packager_{new DateTime(2017, 1, 1).Ticks:D19}.report");
 
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017,1,1));
             Assert.That(ReportPath, Is.EqualTo(expected));

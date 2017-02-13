@@ -81,7 +81,7 @@ namespace Packager.Test.Processors
         }
 
         [SetUp]
-        public virtual async void BeforeEach()
+        public virtual async Task BeforeEach()
         {
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.ProjectCode.Returns(ProjectCode);

@@ -27,7 +27,7 @@ namespace Packager.Test.Engine
     public class EngineTests
     {
         [SetUp]
-        public async void BeforeEach()
+        public async Task BeforeEach()
         {
             SuccessFolderCleaner = Substitute.For<ISuccessFolderCleaner>();
             ViewModel = Substitute.For<IViewModel>();

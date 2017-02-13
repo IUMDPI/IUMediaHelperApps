@@ -458,9 +458,9 @@ namespace Packager.Test.Processors
 
             public class WhenHashingFiles : WhenNothingGoesWrong
             {
-                public override void BeforeEach()
+                public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
 
                     ProcessedModelList = VideoCarrierDataFactory.ReceivedCalls()
                         .First().GetArguments()[2] as List<AbstractFile>;

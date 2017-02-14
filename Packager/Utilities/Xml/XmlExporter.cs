@@ -22,5 +22,14 @@ namespace Packager.Utilities.Xml
                 xmlSerializer.Serialize(xmlWriter, o);
             }
         }
+
+        public T ImportFromFile<T>(string path) where T:class
+        {
+            var xmlSerializer = new XmlSerializer(typeof(T));
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                return xmlSerializer.Deserialize(stream) as T;
+            }
+        }
     }
 }

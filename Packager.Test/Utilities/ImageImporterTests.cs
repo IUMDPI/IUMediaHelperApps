@@ -10,6 +10,7 @@ using Packager.Models.SettingsModels;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
+using Packager.Utilities.Xml;
 
 namespace Packager.Test.Utilities
 {
@@ -26,6 +27,7 @@ namespace Packager.Test.Utilities
         private IDirectoryProvider DirectoryProvider { get; set; }
         private IHasher Hasher { get; set; }
         private ILabelImageImporter ImageImporter { get; set; }
+        private IXmlExporter XmlExporter { get; set; }
 
         private List<string> SourceFiles { get; set; }
         private static string ValidFilename1 => $"{ProjectCode}_{Barcode}_01_label.tif";
@@ -53,7 +55,9 @@ namespace Packager.Test.Utilities
             Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>())
                 .Returns(args => $"{Path.GetFileName(args.Arg<string>())} hash");
 
-            ImageImporter = new LabelImageImporter(Settings, FileProvider, DirectoryProvider, Hasher);
+            XmlExporter = Substitute.For<IXmlExporter>();
+
+            ImageImporter = new LabelImageImporter(Settings, FileProvider, DirectoryProvider, Hasher, XmlExporter);
         }
 
         private string GetSourcePath(string filename)

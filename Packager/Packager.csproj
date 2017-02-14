@@ -117,6 +117,7 @@
     <Compile Include="Models\FileModels\VideoPreservationIntermediateFile.cs" />
     <Compile Include="Models\FileModels\XmlFile.cs" />
     <Compile Include="Models\OutputModels\Carrier\AudioCarrier.cs" />
+    <Compile Include="Models\OutputModels\Carrier\RecordCarrier.cs" />
     <Compile Include="Models\OutputModels\Ingest\AudioIngest.cs" />
     <Compile Include="Models\OutputModels\Carrier\VideoCarrier.cs" />
     <Compile Include="Models\OutputModels\Ingest\VideoIngest.cs" />

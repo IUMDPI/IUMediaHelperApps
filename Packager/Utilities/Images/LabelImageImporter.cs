@@ -39,7 +39,7 @@ namespace Packager.Utilities.Images
             // return list of models
 
             // does folder exist?
-            var sourceFolder = Path.Combine(ImageDirectory, $"{ProjectCode}_{barcode}");
+            var sourceFolder = Path.Combine(ImageDirectory, $"{barcode}");
             if (DirectoryProvider.DirectoryExists(sourceFolder) == false)
             {
                 // if not return empty list

@@ -61,7 +61,7 @@ namespace Packager.Utilities.Images
                 throw new FileNotFoundException("expected manifest file to be present", manifestPath);
             }
 
-            var manifest = XmlExporter.ImportFromFile<IU<RecordCarrier>>(manifestPath);
+            var manifest = XmlExporter.ImportFromFile<ImportableManifest<RecordCarrier>>(manifestPath);
             var fileEntries = manifest.Carrier.Parts.Sides.SelectMany(s => s.Files);
             // get .tiff file models
             var imageFiles = fileEntries

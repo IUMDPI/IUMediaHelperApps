@@ -118,6 +118,7 @@
     <Compile Include="Models\FileModels\XmlFile.cs" />
     <Compile Include="Models\OutputModels\Carrier\AudioCarrier.cs" />
     <Compile Include="Models\OutputModels\Carrier\RecordCarrier.cs" />
+    <Compile Include="Models\OutputModels\ExportableManifest.cs" />
     <Compile Include="Models\OutputModels\Ingest\AudioIngest.cs" />
     <Compile Include="Models\OutputModels\Carrier\VideoCarrier.cs" />
     <Compile Include="Models\OutputModels\Ingest\VideoIngest.cs" />
@@ -202,7 +203,7 @@
     <Compile Include="Models\EmailMessageModels\EngineIssueMessage.cs" />
     <Compile Include="Models\SettingsModels\IProgramSettings.cs" />
     <Compile Include="Models\OutputModels\BakingData.cs" />
-    <Compile Include="Models\OutputModels\IU.cs" />
+    <Compile Include="Models\OutputModels\ImportableManifest.cs" />
     <Compile Include="Models\OutputModels\ConfigurationData.cs" />
     <Compile Include="Models\OutputModels\CleaningData.cs" />
     <Compile Include="Models\OutputModels\File.cs" />

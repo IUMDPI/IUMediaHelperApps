@@ -6,14 +6,7 @@ namespace Packager.Models.OutputModels
 {
     [Serializable]
     [XmlRoot(ElementName = "IU")]
-    public class IU
-    {
-        public AbstractCarrierData Carrier { get; set; }
-    }
-
-    [Serializable]
-    [XmlRoot(ElementName = "IU")]
-    public class IU<T> where T: AbstractCarrierData
+    public class ImportableManifest<T> where T: AbstractCarrierData
     {
         public T Carrier { get; set; }
     }

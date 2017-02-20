@@ -6,11 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Models.OutputModels;
+using Packager.Models.OutputModels.Carrier;
 using Packager.Models.SettingsModels;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
 using Packager.Utilities.Xml;
+using File = Packager.Models.OutputModels.File;
 
 namespace Packager.Test.Utilities
 {
@@ -34,7 +37,11 @@ namespace Packager.Test.Utilities
         private static string ValidFilename2 => $"{ProjectCode}_{Barcode}_02_label.tif";
         private static string InvalidFilename => $"{ProjectCode}_{Barcode}_01_invalid.tif";
 
-        private static string ExpectedSourceFolder => Path.Combine(ImageDirectory, $"{ProjectCode}_{Barcode}");
+        private static string ExpectedSourceFolder => Path.Combine(ImageDirectory, Barcode);
+
+        private static string ExpectedDestFolder => Path.Combine(ProcessingDirectory, $"{ProjectCode}_{Barcode}");
+
+        private static string ExpectedManifestFile => Path.Combine(ExpectedSourceFolder, $"{ProjectCode}_{Barcode}.xml");
 
         [SetUp]
         public void BeforeEach()
@@ -49,13 +56,29 @@ namespace Packager.Test.Utilities
             FileProvider = Substitute.For<IFileProvider>();
             DirectoryProvider = Substitute.For<IDirectoryProvider>();
             DirectoryProvider.DirectoryExists(ExpectedSourceFolder).Returns(true);
+            DirectoryProvider.DirectoryExists(ExpectedDestFolder).Returns(true);
             DirectoryProvider.EnumerateFiles(ExpectedSourceFolder).Returns(SourceFiles);
 
             Hasher = Substitute.For<IHasher>();
             Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>())
                 .Returns(args => $"{Path.GetFileName(args.Arg<string>())} hash");
 
+            var carrier = new RecordCarrier
+            {
+                Parts = new PartsData {
+                    Sides = new[] {
+                        new SideData { Files =new List<File> {new File {FileName = ValidFilename1, Checksum = $"{ValidFilename1} hash"}}},
+                        new SideData{ Files =new List<File> {new File {FileName = ValidFilename2, Checksum = $"{ValidFilename2} hash"}}}}
+                }
+            };
+
+            var manifest = new ImportableManifest<RecordCarrier>
+            {
+                Carrier = carrier
+            };
+
             XmlExporter = Substitute.For<IXmlExporter>();
+            XmlExporter.ImportFromFile<ImportableManifest<RecordCarrier>>(ExpectedManifestFile).Returns(manifest);
 
             ImageImporter = new LabelImageImporter(Settings, FileProvider, DirectoryProvider, Hasher, XmlExporter);
         }
@@ -86,29 +109,32 @@ namespace Packager.Test.Utilities
         }
 
         [Test]
-        public async Task ImporterShouldCallDirectoryProviderEnumerateFilesCorrectly()
+        public async Task ImporterShouldCallFileProviderToVerifyManifestExists()
         {
             await ImageImporter.ImportMediaImages(Barcode, new CancellationToken());
-            DirectoryProvider.Received().EnumerateFiles(ExpectedSourceFolder);
+            FileProvider.Received().FileDoesNotExist(ExpectedManifestFile);
         }
 
         [Test]
-        public async Task ImporterShouldReturnEmptyListIfNoFilesPresent()
+        public void ImporterShouldThrowExceptionIfManifestMissing()
         {
-            DirectoryProvider.EnumerateFiles(ExpectedSourceFolder).Returns(new List<string>());
-            var result = await ImageImporter.ImportMediaImages(Barcode, new CancellationToken());
-            Assert.That(result, Is.Empty);
+            FileProvider.FileDoesNotExist(ExpectedManifestFile).Returns(true);
+            var exception = Assert.ThrowsAsync<FileNotFoundException>(
+                async () => await ImageImporter.ImportMediaImages(Barcode, new CancellationToken()));
+            Assert.That(exception, Is.Not.Null);
+            Assert.That(exception.Message, Is.EqualTo("Label image manifest file not present"));
+            Assert.That(exception.FileName, Is.EqualTo(ExpectedManifestFile));
         }
 
         [Test]
-        public void ImporterShouldHashAllEligibleSourceFiles()
+        public void ImporterShouldThrowExceptionIfDestinationFolderInvalid()
         {
-            ImageImporter.ImportMediaImages(Barcode, new CancellationToken()).Wait();
-
-            Hasher.Received(1).Hash(GetSourcePath(ValidFilename1), new CancellationToken());
-            Hasher.Received(1).Hash(GetSourcePath(ValidFilename2), new CancellationToken());
-            Hasher.Received(0).Hash(GetSourcePath(InvalidFilename), new CancellationToken());
-
+            DirectoryProvider.DirectoryExists(ExpectedDestFolder).Returns(false);
+            var exception = Assert.ThrowsAsync<DirectoryNotFoundException>(
+                async () => await ImageImporter.ImportMediaImages(Barcode, new CancellationToken()));
+            Assert.That(exception, Is.Not.Null);
+            Assert.That(exception.Message, Is.EqualTo($"Invalid processing folder: {ExpectedDestFolder}"));
+        
         }
 
         [Test]
@@ -146,12 +172,10 @@ namespace Packager.Test.Utilities
         [Test]
         public void ImporterShouldThrowExceptionIfSourceAndDestHashesNotEqual()
         {
-            var hash1 = "hash1";
-            var hash2 = "hash2";
-            Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(hash1, hash2);
+            Hasher.Hash(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns("hash1", "hash2");
 
             var exception = Assert.ThrowsAsync<Exception>(async () => await ImageImporter.ImportMediaImages(Barcode, new CancellationToken()));
-            Assert.That(exception.Message, Is.EqualTo($"copy hash ({hash2}) is not equal to original hash ({hash1})."));
+            Assert.That(exception.Message, Is.EqualTo($"copy hash (hash1) is not equal to original hash ({ValidFilename1} HASH).").IgnoreCase);
 
         }
 

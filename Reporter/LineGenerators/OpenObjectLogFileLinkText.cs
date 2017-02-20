@@ -43,11 +43,7 @@ namespace Reporter.LineGenerators
         private void OpenLogFiles()
         {
             var editorPath = GetEditorPath();
-            if (!File.Exists(editorPath))
-            {
-                return;
-            }
-
+            
             if (!Directory.Exists(ReportFolder))
             {
                 return;
@@ -61,22 +57,29 @@ namespace Reporter.LineGenerators
 
         private static void OpenLogFile(string editorPath, string logPath)
         {
-            var startInfo = new ProcessStartInfo(editorPath)
+            try
             {
-                Arguments = logPath
-            };
+                var startInfo = new ProcessStartInfo(editorPath)
+                {
+                    Arguments = logPath
+                };
 
-            Process.Start(startInfo);
+                Process.Start(startInfo);
+            }
+            catch
+            {
+                // ignore
+            }
         }
 
-        private string GetEditorPath()
+        private static string GetEditorPath()
         {
-            var notepadPlusPlusPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Notepad++", "Notepad++.exe");
-            var notepadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "Notepad.exe");
+            var notepadPlusPlusPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), 
+                "Notepad++", "Notepad++.exea");
 
             return File.Exists(notepadPlusPlusPath)
                 ? notepadPlusPlusPath
-                : notepadPath;
+                : "Notepad.exe";
         }
     }
 }

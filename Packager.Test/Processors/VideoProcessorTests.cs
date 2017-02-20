@@ -389,7 +389,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallExportToFileCorrectly()
                 {
-                    XmlExporter.Received().ExportToFile(Arg.Is<IU>(iu => iu.Carrier.Equals(VideoCarrier)),
+                    XmlExporter.Received().ExportToFile(Arg.Is<ExportableManifest>(iu => iu.Carrier.Equals(VideoCarrier)),
                         Path.Combine(ExpectedProcessingDirectory, XmlManifestFileName));
                 }
 

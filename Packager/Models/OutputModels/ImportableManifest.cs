@@ -5,10 +5,10 @@ using Packager.Models.OutputModels.Carrier;
 namespace Packager.Models.OutputModels
 {
     [Serializable]
-    public class IU
+    [XmlRoot(ElementName = "IU")]
+    public class ImportableManifest<T> where T: AbstractCarrierData
     {
-        public AbstractCarrierData Carrier { get; set; }
+        public T Carrier { get; set; }
     }
-
     
 }

@@ -66,4 +66,5 @@
 						at startup.
 3.3.0.0		2/13/2017	Packager will import label images
 3.4.0.0		2/13/2017	Fix issue finding image folders
+3.5.0.0		2/20/2017	Use manifest files when importing label images
 					

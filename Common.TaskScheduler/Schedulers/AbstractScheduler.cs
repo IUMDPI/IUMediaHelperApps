@@ -10,13 +10,11 @@ namespace Common.TaskScheduler.Schedulers
 {
     public abstract class AbstractScheduler : ITaskScheduler
     {
-        private string TaskName { get; }
         private string Identifier { get; }
         private string ProductName { get; }
 
-        protected AbstractScheduler(string taskName, string identifier, string productName)
+        protected AbstractScheduler( string identifier, string productName)
         {
-            TaskName = taskName;
             Identifier = identifier;
             ProductName = productName;
         }
@@ -57,7 +55,7 @@ namespace Common.TaskScheduler.Schedulers
             }
         }
 
-        public void ScheduleNonInteractive(string targetPath, string arguments, string username, SecureString password, DateTime startOn, DaysOfTheWeek days)
+        public void ScheduleNonInteractive(string taskName, string targetPath, string arguments, string username, SecureString password, DateTime startOn, DaysOfTheWeek days)
         {
             using (var service = new TaskService())
             {
@@ -68,14 +66,14 @@ namespace Common.TaskScheduler.Schedulers
                     .SetDescription(
                         $"Runs {Path.GetFileName(targetPath)} every {string.Join(",", days)} at {startOn:hh:mm tt}");
 
-                service.RootFolder.RegisterTaskDefinition(TaskName, definition,
+                service.RootFolder.RegisterTaskDefinition(taskName, definition,
                     TaskCreation.CreateOrUpdate, username,
                     password.ToUnsecureString(), TaskLogonType.Password);
 
             }
         }
         
-        public void ScheduleInteractive(string targetPath, string arguments, DateTime startOn, DaysOfTheWeek days)
+        public void ScheduleInteractive(string taskName, string targetPath, string arguments, DateTime startOn, DaysOfTheWeek days)
         {
             using (var service = new TaskService())
             {
@@ -86,7 +84,7 @@ namespace Common.TaskScheduler.Schedulers
                     .SetDescription(
                         $"Runs {Path.GetFileName(targetPath)} every {string.Join(",", days)} at {startOn:hh:mm tt}");
 
-                service.RootFolder.RegisterTaskDefinition(TaskName, definition);
+                service.RootFolder.RegisterTaskDefinition(taskName, definition);
             }
         }
 

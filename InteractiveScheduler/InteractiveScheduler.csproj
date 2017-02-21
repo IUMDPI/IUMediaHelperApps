@@ -100,7 +100,6 @@
     <Compile Include="Models\BooleanResult.cs" />
     <Compile Include="Services\IFileDialogService.cs" />
     <Compile Include="Services\FileDialogService.cs" />
-    <Compile Include="Services\ITaskScheduler.cs" />
     <Compile Include="Services\IUserService.cs" />
     <Compile Include="Services\UserService.cs" />
     <Compile Include="Models\ViewModel.cs" />
@@ -147,6 +146,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common.TaskScheduler\Common.TaskScheduler.csproj">
+      <Project>{a75e3eac-b01f-4d00-b577-7a0355d77cda}</Project>
+      <Name>Common.TaskScheduler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{3c6b5bb3-a9c6-401e-9d7f-3473b7c96dec}</Project>
       <Name>Common</Name>

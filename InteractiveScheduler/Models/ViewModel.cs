@@ -8,6 +8,7 @@ using System.Security.Principal;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Common.TaskScheduler.Schedulers;
 using Common.UserInterface.Commands;
 using InteractiveScheduler.ManagedCode;
 using InteractiveScheduler.Services;
@@ -337,7 +338,7 @@ namespace InteractiveScheduler.Models
             get
             {
                 return _openSchedulerCommand ?? (_openSchedulerCommand = new RelayCommand(
-                           param => _taskScheduler.Open(TaskName)));
+                           param => _taskScheduler.OpenWindowsTaskScheduler()));
             }
         }
 
@@ -474,9 +475,16 @@ namespace InteractiveScheduler.Models
         {
             try
             {
-                var arguments = Impersonate ? "-noninteractive" : null;
-                var password = Impersonate ? Password : null;
-                _taskScheduler.Schedule(TaskName, PackagerPath, arguments, Username, password, StartOn, CalculateDays());
+                if (Impersonate)
+                {
+                    _taskScheduler.ScheduleNonInteractive(TaskName, PackagerPath, "-noninteractive", Username, Password, StartOn,
+                        CalculateDays());
+                }
+                else
+                {
+                    _taskScheduler.ScheduleInteractive(TaskName, PackagerPath, null, StartOn, CalculateDays());
+                }
+
                 ShowMessage("Success!", "Task successfully scheduled!");
                 ImportFromTask(_taskScheduler.FindExisting());
             }

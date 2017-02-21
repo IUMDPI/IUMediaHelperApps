@@ -2,8 +2,11 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security;
 using Common.TaskScheduler.Extensions;
+using Common.TaskScheduler.Models;
 using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Schedulers
@@ -11,12 +14,10 @@ namespace Common.TaskScheduler.Schedulers
     public abstract class AbstractScheduler : ITaskScheduler
     {
         private string Identifier { get; }
-        private string ProductName { get; }
-
-        protected AbstractScheduler( string identifier, string productName)
+        
+        protected AbstractScheduler(string identifier)
         {
             Identifier = identifier;
-            ProductName = productName;
         }
 
         public void Remove(string taskname)
@@ -113,13 +114,7 @@ namespace Common.TaskScheduler.Schedulers
                 return false;
             }
 
-            if (!File.Exists(action.Path))
-            {
-                return false;
-            }
-
-            var info = FileVersionInfo.GetVersionInfo(action.Path);
-            return info.ProductName.ToLowerInvariant().Equals(ProductName);
+            return IsRecognizedAssembly(action.Path);
         }
 
         private bool IsInstanceDefinition(TaskDefinition definition)
@@ -127,11 +122,37 @@ namespace Common.TaskScheduler.Schedulers
             return !string.IsNullOrWhiteSpace(definition.Data)
                    && definition.Data.Equals(Identifier);
         }
-
-
+        
         public void OpenWindowsTaskScheduler()
         {
             Process.Start("taskschd.msc");
         }
+
+        public bool IsRecognizedAssembly(string path)
+        {
+            var assemblyIdentifier = TryGetIdentifierFromAssembly(path);
+            return assemblyIdentifier.ToLowerInvariant().Equals(Identifier);
+        }
+
+        private static string TryGetIdentifierFromAssembly(string path)
+        {
+            try
+            {
+                if (!File.Exists(path))
+                {
+                    return string.Empty;
+                }
+
+                var assembly = Assembly.LoadFrom(path);
+                var attribute = (GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
+                return attribute.Value;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public abstract TaskConfiguration GetDefaultConfiguration();
     }
 }

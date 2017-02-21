@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security;
+using Common.TaskScheduler.Models;
 using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Schedulers
@@ -57,5 +58,9 @@ namespace Common.TaskScheduler.Schedulers
         /// <param name="taskName">The name of the task to enable or disable</param>
         /// <param name="enable">Set to true to enable the task, false to disable</param>
         void Enable(string taskName, bool enable);
+
+        bool IsRecognizedAssembly(string path);
+
+        TaskConfiguration GetDefaultConfiguration();
     }
 }

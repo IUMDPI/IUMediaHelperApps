@@ -49,8 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\TaskDefinitionExtensions.cs" />
+    <Compile Include="Factory\ITaskSchedulerFactory.cs" />
+    <Compile Include="Factory\TaskSchedulerFactory.cs" />
+    <Compile Include="Models\TaskConfiguration.cs" />
     <Compile Include="Schedulers\AbstractScheduler.cs" />
-    <Compile Include="Constants.cs" />
+    <Compile Include="Schedulers\Constants.cs" />
     <Compile Include="Extensions\SecureStringExtensions.cs" />
     <Compile Include="Schedulers\ITaskScheduler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

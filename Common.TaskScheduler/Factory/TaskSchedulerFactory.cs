@@ -12,7 +12,8 @@ namespace Common.TaskScheduler.Factory
         {
             Schedulers = new List<ITaskScheduler>
             {
-                new PackagerScheduler()
+                new PackagerScheduler(),
+                new ReporterScheduler()
             };
         }
 

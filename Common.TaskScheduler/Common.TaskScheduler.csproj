@@ -58,6 +58,7 @@
     <Compile Include="Schedulers\ITaskScheduler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schedulers\PackagerScheduler.cs" />
+    <Compile Include="Schedulers\ReporterScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

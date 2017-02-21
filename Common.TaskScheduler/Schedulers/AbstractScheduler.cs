@@ -99,7 +99,14 @@ namespace Common.TaskScheduler.Schedulers
 
         private bool IsTaskInstance(Task task)
         {
-            return IsInstanceDefinition(task.Definition) || HasInstanceAction(task.Definition);
+            try
+            {
+                return IsInstanceDefinition(task.Definition) || HasInstanceAction(task.Definition);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private bool HasInstanceAction(TaskDefinition definition)
@@ -119,6 +126,7 @@ namespace Common.TaskScheduler.Schedulers
 
         private bool IsInstanceDefinition(TaskDefinition definition)
         {
+
             return !string.IsNullOrWhiteSpace(definition.Data)
                    && definition.Data.Equals(Identifier);
         }
@@ -144,8 +152,11 @@ namespace Common.TaskScheduler.Schedulers
                 }
 
                 var assembly = Assembly.LoadFrom(path);
-                var attribute = (GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
-                return attribute.Value;
+                var attribute = assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0] as GuidAttribute;
+
+                return attribute != null 
+                    ? attribute.Value 
+                    : string.Empty;
             }
             catch
             {

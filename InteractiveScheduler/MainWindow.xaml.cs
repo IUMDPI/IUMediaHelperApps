@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Common.TaskScheduler.Schedulers;
+using Common.TaskScheduler.Factory;
 using InteractiveScheduler.Models;
 using InteractiveScheduler.Services;
 
@@ -23,7 +22,7 @@ namespace InteractiveScheduler
             DataContext = new ViewModel(
                 new FileDialogService(this), 
                 new UserService(),
-                new PackagerScheduler());
+                new TaskSchedulerFactory());
         }
 
         private void MouseDownHandler(object sender, MouseButtonEventArgs e)

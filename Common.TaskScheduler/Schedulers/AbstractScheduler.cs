@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
-using Common.TaskScheduler.Extensions;
-using Common.TaskScheduler.Models;
+using Common.TaskScheduler.Configurations;
 using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Schedulers
@@ -14,7 +13,7 @@ namespace Common.TaskScheduler.Schedulers
     public abstract class AbstractScheduler : ITaskScheduler
     {
         private string Identifier { get; }
-        
+
         protected AbstractScheduler(string identifier)
         {
             Identifier = identifier;
@@ -55,40 +54,7 @@ namespace Common.TaskScheduler.Schedulers
                 task.Enabled = enable;
             }
         }
-
-        public void ScheduleNonInteractive(string taskName, string targetPath, string arguments, string username, SecureString password, DateTime startOn, DaysOfTheWeek days)
-        {
-            using (var service = new TaskService())
-            {
-                var definition = service.NewTask()
-                    .ConfigureBaseDetails(targetPath, arguments)
-                    .ConfigureWeekly(startOn, days)
-                    .AddIdentifier(Identifier)
-                    .SetDescription(
-                        $"Runs {Path.GetFileName(targetPath)} every {string.Join(",", days)} at {startOn:hh:mm tt}");
-
-                service.RootFolder.RegisterTaskDefinition(taskName, definition,
-                    TaskCreation.CreateOrUpdate, username,
-                    password.ToUnsecureString(), TaskLogonType.Password);
-
-            }
-        }
         
-        public void ScheduleInteractive(string taskName, string targetPath, string arguments, DateTime startOn, DaysOfTheWeek days)
-        {
-            using (var service = new TaskService())
-            {
-                var definition = service.NewTask()
-                    .ConfigureBaseDetails(targetPath, arguments)
-                    .ConfigureWeekly(startOn, days)
-                    .AddIdentifier(Identifier)
-                    .SetDescription(
-                        $"Runs {Path.GetFileName(targetPath)} every {string.Join(",", days)} at {startOn:hh:mm tt}");
-
-                service.RootFolder.RegisterTaskDefinition(taskName, definition);
-            }
-        }
-
         public Task FindExisting()
         {
             using (var service = new TaskService())
@@ -130,7 +96,7 @@ namespace Common.TaskScheduler.Schedulers
             return !string.IsNullOrWhiteSpace(definition.Data)
                    && definition.Data.Equals(Identifier);
         }
-        
+
         public void OpenWindowsTaskScheduler()
         {
             Process.Start("taskschd.msc");
@@ -152,10 +118,10 @@ namespace Common.TaskScheduler.Schedulers
                 }
 
                 var assembly = Assembly.LoadFrom(path);
-                var attribute = assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0] as GuidAttribute;
+                var attribute = assembly.GetCustomAttribute<GuidAttribute>();
 
-                return attribute != null 
-                    ? attribute.Value 
+                return attribute != null
+                    ? attribute.Value
                     : string.Empty;
             }
             catch
@@ -164,6 +130,13 @@ namespace Common.TaskScheduler.Schedulers
             }
         }
 
-        public abstract TaskConfiguration GetDefaultConfiguration();
+        public abstract AbstractConfiguration GetDefaultConfiguration();
+
+        
+
+        public Tuple<bool, List<string>> Schedule<T>(T configuration) where T : AbstractConfiguration
+        {
+            return configuration.Schedule(Identifier);
+        }
     }
 }

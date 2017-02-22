@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,7 +52,10 @@
     <Compile Include="Extensions\TaskDefinitionExtensions.cs" />
     <Compile Include="Factory\ITaskSchedulerFactory.cs" />
     <Compile Include="Factory\TaskSchedulerFactory.cs" />
-    <Compile Include="Models\TaskConfiguration.cs" />
+    <Compile Include="Configurations\AbstractConfiguration.cs" />
+    <Compile Include="Configurations\InteractiveDailyConfiguration.cs" />
+    <Compile Include="Configurations\NonInteractiveDailyConfiguration.cs" />
+    <Compile Include="Configurations\StartOnLogonConfiguration.cs" />
     <Compile Include="Schedulers\AbstractScheduler.cs" />
     <Compile Include="Schedulers\Constants.cs" />
     <Compile Include="Extensions\SecureStringExtensions.cs" />

@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Common.TaskScheduler.Configurations;
 using Common.TaskScheduler.Factory;
 using Common.TaskScheduler.Schedulers;
 using Common.UserInterface.Commands;
@@ -26,6 +27,7 @@ namespace InteractiveScheduler.Models
         private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private bool _scheduleDaily;
         private string _taskName;
         private string _packagerPath;
         private DateTime _startOn;
@@ -203,7 +205,16 @@ namespace InteractiveScheduler.Models
             {
                 _impersonate = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowUacShield));
             }
+        }
+
+        public bool ScheduleDaily
+        {
+            get { return _scheduleDaily;}
+            set { _scheduleDaily = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowUacShield)); }
         }
 
         public string Message
@@ -265,6 +276,8 @@ namespace InteractiveScheduler.Models
             get { return _flashMessage; }
             set { _flashMessage = value; OnPropertyChanged(); }
         }
+
+        public bool ShowUacShield => Impersonate && ScheduleDaily;
 
         private void OpenFileBrowserDialog()
         {
@@ -425,52 +438,8 @@ namespace InteractiveScheduler.Models
             ImportFromTask(scheduler.FindExisting());
         }
 
-        private List<string> GetDialogIssues()
-        {
-            var issues = new List<string>();
-
-            if (!_fileDialogService.Exists(PackagerPath))
-            {
-                issues.Add("Please provide a valid packager path.");
-            }
-
-            if (CalculateDays() == 0)
-            {
-                issues.Add("Please select at least one day.");
-            }
-
-            if (!Impersonate)
-            {
-                return issues;
-            }
-
-            if (string.IsNullOrWhiteSpace(Username))
-            {
-                issues.Add("Please provide a username or uncheck Impersonate.");
-            }
-
-            if (Password == null || Password.Length == 0)
-            {
-                issues.Add("Please provide a password or uncheck Impersonate.");
-            }
-
-            if (_userService.CredentialsValid(Username, Password) == false)
-            {
-                issues.Add("Invalid username and/or password.");
-            }
-
-            return issues;
-        }
-
         private async System.Threading.Tasks.Task DoScheduleTask()
         {
-            var issues = GetDialogIssues();
-            if (issues.Any())
-            {
-                ShowMessage("Could not schedule task", issues.First());
-                return;
-            }
-
             if (await TryGrantPermission(Username) == false)
             {
                 return;
@@ -483,7 +452,7 @@ namespace InteractiveScheduler.Models
         {
             try
             {
-                if (!Impersonate)
+                if (!Impersonate || !ScheduleDaily)
                 {
                     return true;
                 }
@@ -503,23 +472,56 @@ namespace InteractiveScheduler.Models
             try
             {
                 var scheduler = GetSchedulerForApplication(PackagerPath);
-                if (Impersonate)
+                var configuration = GetConfiguration();
+                var result = scheduler.Schedule(configuration);
+                if (result.Item1 == false)
                 {
-                    scheduler.ScheduleNonInteractive(TaskName, PackagerPath, "-noninteractive", Username, Password, StartOn,
-                        CalculateDays());
+                    ShowMessage("Could not schedule task", result.Item2.First());
                 }
                 else
                 {
-                    scheduler.ScheduleInteractive(TaskName, PackagerPath, null, StartOn, CalculateDays());
+                    ShowMessage("Success!", "Task successfully scheduled!");
                 }
-
-                ShowMessage("Success!", "Task successfully scheduled!");
+                
                 ImportFromTask(scheduler.FindExisting());
             }
             catch (Exception e)
             {
                 ShowMessage("Could not schedule task", e.Message);
             }
+        }
+
+        private AbstractConfiguration GetConfiguration()
+        {
+            if (ScheduleDaily == false)
+            {
+                return new StartOnLogonConfiguration
+                {
+                    ExecutablePath = PackagerPath,
+                    TaskName = TaskName
+                };
+            }
+
+            if (Impersonate == false)
+            {
+                return new InteractiveDailyConfiguration
+                {
+                    ExecutablePath = PackagerPath,
+                    TaskName = TaskName,
+                    StartOn = StartOn,
+                    Days = CalculateDays()
+                };
+            }
+
+            return new NonInteractiveDailyConfiguration
+            {
+                ExecutablePath = PackagerPath,
+                TaskName = TaskName,
+                StartOn = StartOn,
+                Days = CalculateDays(),
+                Username = Username,
+                Passphrase = Password
+            };
         }
 
         public SecureString Password { private get; set; }
@@ -595,11 +597,20 @@ namespace InteractiveScheduler.Models
 
         private void ImportSchedulerDefaults(ITaskScheduler scheduler)
         {
-            var config = scheduler.GetDefaultConfiguration();
-            SetDaysFromEnum(config.RunOnDays);
-            StartOn = config.StartTime;
+            var config = scheduler.GetDefaultConfiguration() as InteractiveDailyConfiguration;
+
+            if (config == null)
+            {
+                ScheduleDaily = false;
+                return;
+            }
+
+            ScheduleDaily = true;
+            SetDaysFromEnum(config.Days);
+            StartOn = config.StartOn;
             TaskName = config.TaskName;
-            Impersonate = config.RunNonInteractive;
+            
+            Impersonate = config is NonInteractiveDailyConfiguration;
         }
 
         private void ImportFromTask(Task task)

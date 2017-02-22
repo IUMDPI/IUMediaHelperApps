@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:converters="clr-namespace:InteractiveScheduler.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Width="625" SizeToContent="Height" WindowStyle="None" Margin="0" Padding="0"
         WindowStartupLocation="CenterScreen" FontSize="16" BorderThickness="1" 
         BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Background="White" AllowsTransparency="True">
     <Window.Resources>
+        <converters:BooleanInverter x:Key="BooleanInverter" />
         <Storyboard x:Key="Flash" Completed="FlashingCompleted">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
                                              From="1.0" To="0.1"
@@ -34,6 +36,7 @@
             <Setter Property="FontSize" Value="12"></Setter>
         </Style>
         <Style TargetType="CheckBox">
+            <Setter Property="MinWidth" Value="115"></Setter>
             <Setter Property="Margin" Value="0,2"></Setter>
             <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
@@ -119,7 +122,7 @@
 
         <DockPanel>
             <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
-                <Label.Content>Packager Path</Label.Content>
+                <Label.Content>Excecutable</Label.Content>
                 <Label.ToolTip>
                     <ToolTip>
                         <StackPanel>
@@ -135,9 +138,14 @@
             </Button>
             <TextBox DockPanel.Dock="Right" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding PackagerPath}"></TextBox>
         </DockPanel>
-
         <DockPanel>
-            <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
+            <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">Run</Label>
+            <RadioButton GroupName="StartGroup" IsChecked="{Binding ScheduleDaily}" DockPanel.Dock="Left" VerticalContentAlignment="Center" Margin="0,0,24,0" >Daily</RadioButton>
+            <RadioButton GroupName="StartGroup" IsChecked="{Binding ScheduleDaily, Converter={StaticResource BooleanInverter}}" DockPanel.Dock="Left" VerticalContentAlignment="Center" MinWidth="150">When user logs on</RadioButton>
+        </DockPanel>
+        <StackPanel Margin="0" Visibility="{Binding ScheduleDaily, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+           <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
                 <Label.Content>Start Time</Label.Content>
                 <Label.ToolTip>
                     <ToolTip>
@@ -156,7 +164,7 @@
 
         <DockPanel>
             <Label DockPanel.Dock="Left" VerticalContentAlignment="Top" Style="{StaticResource ColumnHeader}">
-                <Label.Content>Run On</Label.Content>
+                <Label.Content>Start Days</Label.Content>
                 <Label.ToolTip>
                     <ToolTip>
                         <StackPanel>
@@ -167,13 +175,13 @@
                 </Label.ToolTip>
             </Label>
             <WrapPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top" Margin="0">
-                <CheckBox MinWidth="95" IsChecked="{Binding MondayChecked}" Margin="0">Monday</CheckBox>
-                <CheckBox MinWidth="95" IsChecked="{Binding TuesdayChecked}">Tuesday</CheckBox>
-                <CheckBox MinWidth="95" IsChecked="{Binding WednesdayChecked}">Wednesday</CheckBox>
-                <CheckBox MinWidth="95" IsChecked="{Binding ThursdayChecked}">Thursday</CheckBox>
-                <CheckBox MinWidth="95" IsChecked="{Binding FridayChecked}">Friday</CheckBox>
-                <CheckBox MinWidth="95" IsChecked="{Binding SaturdayChecked}">Saturday</CheckBox>
-                <CheckBox MinWidth="95" IsChecked="{Binding SundayChecked}">Sunday</CheckBox>
+                <CheckBox IsChecked="{Binding MondayChecked}" Margin="0">Monday</CheckBox>
+                <CheckBox IsChecked="{Binding TuesdayChecked}">Tuesday</CheckBox>
+                <CheckBox IsChecked="{Binding WednesdayChecked}">Wednesday</CheckBox>
+                <CheckBox IsChecked="{Binding ThursdayChecked}">Thursday</CheckBox>
+                <CheckBox IsChecked="{Binding FridayChecked}">Friday</CheckBox>
+                <CheckBox IsChecked="{Binding SaturdayChecked}">Saturday</CheckBox>
+                <CheckBox IsChecked="{Binding SundayChecked}">Sunday</CheckBox>
             </WrapPanel>
         </DockPanel>
 
@@ -229,7 +237,7 @@
                      Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}"
                      VerticalContentAlignment="Center" VerticalAlignment="Center"></PasswordBox>
         </DockPanel>
-
+        </StackPanel>
         <Border  Margin="0,20,0,0" BorderThickness="0,1,0,0">
             <DockPanel Margin="8,12,4,12">
                 <xctk:DropDownButton DockPanel.Dock="Left" Content="Advanced" HorizontalContentAlignment="Center" Padding="8">
@@ -286,7 +294,7 @@
                     Command="{Binding ScheduleTask}" IsDefault="True">
                     <Button.Content>
                         <DockPanel Margin="4,0">
-                            <Image Source="{Binding UacShield}" Visibility="{Binding Impersonate, Converter={StaticResource BoolToVis}}" Height="16" Margin="0,2,0,0" VerticalAlignment="Center"></Image>
+                            <Image Source="{Binding UacShield}" Visibility="{Binding ShowUacShield, Converter={StaticResource BoolToVis}}" Height="16" Margin="0,2,0,0" VerticalAlignment="Center"></Image>
                             <Label VerticalContentAlignment="Center" VerticalAlignment="Center">Schedule</Label>
                         </DockPanel>
                     </Button.Content>

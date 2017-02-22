@@ -1,5 +1,5 @@
 ﻿using System;
-using Common.TaskScheduler.Models;
+using Common.TaskScheduler.Configurations;
 using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Schedulers
@@ -10,19 +10,18 @@ namespace Common.TaskScheduler.Schedulers
         {
         }
 
-        public override TaskConfiguration GetDefaultConfiguration()
+        public override AbstractConfiguration GetDefaultConfiguration()
         {
-            return new TaskConfiguration
+            return new NonInteractiveDailyConfiguration
             {
                 TaskName = "Media Packager",
-                StartTime = DateTime.Now.Date.AddHours(19),
-                RunNonInteractive = true,
-                RunOnDays = DaysOfTheWeek.Monday | 
+                StartOn = DateTime.Now.Date.AddHours(19),
+                Days = DaysOfTheWeek.Monday | 
                             DaysOfTheWeek.Tuesday |
                             DaysOfTheWeek.Wednesday |
                             DaysOfTheWeek.Thursday |
                             DaysOfTheWeek.Friday,
-                RunOnUserLogon = false
+                
             };
         }
     }

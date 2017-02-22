@@ -1,5 +1,5 @@
 ﻿using System;
-using Common.TaskScheduler.Models;
+using Common.TaskScheduler.Configurations;
 
 namespace Common.TaskScheduler.Schedulers
 {
@@ -9,14 +9,11 @@ namespace Common.TaskScheduler.Schedulers
         {
         }
 
-        public override TaskConfiguration GetDefaultConfiguration()
+        public override AbstractConfiguration GetDefaultConfiguration()
         {
-            return new TaskConfiguration
+            return new StartOnLogonConfiguration
             {
-                TaskName = "Media Reporter",
-                RunNonInteractive = false,
-                RunOnUserLogon = true,
-                StartTime = DateTime.Now.Date.AddHours(19),
+                TaskName = "Media Reporter"
             };
         }
     }

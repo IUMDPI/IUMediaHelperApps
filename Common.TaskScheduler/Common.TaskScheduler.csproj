@@ -53,8 +53,8 @@
     <Compile Include="Factory\ITaskSchedulerFactory.cs" />
     <Compile Include="Factory\TaskSchedulerFactory.cs" />
     <Compile Include="Configurations\AbstractConfiguration.cs" />
-    <Compile Include="Configurations\InteractiveDailyConfiguration.cs" />
-    <Compile Include="Configurations\NonInteractiveDailyConfiguration.cs" />
+    <Compile Include="Configurations\DailyConfiguration.cs" />
+    <Compile Include="Configurations\ImpersonateDailyConfiguration.cs" />
     <Compile Include="Configurations\StartOnLogonConfiguration.cs" />
     <Compile Include="Schedulers\AbstractScheduler.cs" />
     <Compile Include="Schedulers\Constants.cs" />

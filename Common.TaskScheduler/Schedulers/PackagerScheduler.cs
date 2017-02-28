@@ -12,9 +12,8 @@ namespace Common.TaskScheduler.Schedulers
 
         public override AbstractConfiguration GetDefaultConfiguration()
         {
-            return new NonInteractiveDailyConfiguration
+            return new ImpersonateDailyConfiguration
             {
-                TaskName = "Media Packager",
                 StartOn = DateTime.Now.Date.AddHours(19),
                 Days = DaysOfTheWeek.Monday | 
                             DaysOfTheWeek.Tuesday |
@@ -24,5 +23,13 @@ namespace Common.TaskScheduler.Schedulers
                 
             };
         }
+
+        protected override AbstractConfiguration Import(Task task)
+        {
+            return new ImpersonateDailyConfiguration().Import(task) 
+                ?? new DailyConfiguration().Import(task);
+        }
+
+       
     }
 }

@@ -55,19 +55,24 @@ namespace Common.TaskScheduler.Schedulers
             }
         }
         
-        public Task FindExisting()
+        public IEnumerable<AbstractConfiguration> FindExisting()
         {
             using (var service = new TaskService())
             {
-                return service.RootFolder.AllTasks.FirstOrDefault(IsTaskInstance);
+                return service.RootFolder.Tasks
+                    .Where(IsTaskInstance)
+                    .Select(Import);
             }
         }
+
+        protected abstract AbstractConfiguration Import(Task task);
 
         private bool IsTaskInstance(Task task)
         {
             try
             {
-                return IsInstanceDefinition(task.Definition) || HasInstanceAction(task.Definition);
+                return task.Definition!=null 
+                    && (IsInstanceDefinition(task.Definition) || HasInstanceAction(task.Definition));
             }
             catch
             {
@@ -82,12 +87,7 @@ namespace Common.TaskScheduler.Schedulers
 
         private bool IsActionInstance(ExecAction action)
         {
-            if (action == null)
-            {
-                return false;
-            }
-
-            return IsRecognizedAssembly(action.Path);
+            return action != null && IsRecognizedAssembly(action.Path);
         }
 
         private bool IsInstanceDefinition(TaskDefinition definition)
@@ -132,9 +132,7 @@ namespace Common.TaskScheduler.Schedulers
 
         public abstract AbstractConfiguration GetDefaultConfiguration();
 
-        
-
-        public Tuple<bool, List<string>> Schedule<T>(T configuration) where T : AbstractConfiguration
+                public Tuple<bool, List<string>> Schedule<T>(T configuration) where T : AbstractConfiguration
         {
             return configuration.Schedule(Identifier);
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common.TaskScheduler.Configurations;
 using Common.TaskScheduler.Schedulers;
 
 namespace Common.TaskScheduler.Factory
@@ -25,6 +26,11 @@ namespace Common.TaskScheduler.Factory
         public ITaskScheduler GetDefaultScheduler()
         {
             return Schedulers.First();
+        }
+
+        public List<AbstractConfiguration> GetExistingTasks()
+        {
+            return Schedulers.SelectMany(s => s.FindExisting()).ToList();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.DirectoryServices;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -27,6 +26,8 @@ namespace InteractiveScheduler.Models
         private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public BindingList<AbstractOperation> Operations { get;  }
+
         private bool _scheduleDaily;
         private string _taskName;
         private string _packagerPath;
@@ -47,6 +48,10 @@ namespace InteractiveScheduler.Models
         private bool _taskExists;
         private bool _taskRunning;
         private bool _flashMessage;
+        private bool _nameReadOnly;
+        private int _delayInMinutes;
+
+        private AbstractOperation _currentOperation;
 
         private ICommand _browseForApplicationCommand;
         private ICommand _scheduleTaskCommand;
@@ -71,21 +76,22 @@ namespace InteractiveScheduler.Models
             _taskSchedulerFactory = taskSchedulerFactory;
 
             Username = WindowsIdentity.GetCurrent().Name;
-
+            Operations = new BindingList<AbstractOperation>();
+           
             DoInitialConfiguration();
         }
 
         private void DoInitialConfiguration()
         {
-            var packagerPath = _fileDialogService.Exists(DefaultPackagerPath)
-                ? DefaultPackagerPath
-                : string.Empty;
+            InitializeAvailableOperations();
+            if (Operations.Count == 1)
+            {
+                CurrentOperation = Operations.First();
+                return;
+            }
 
-            var scheduler = GetSchedulerForApplication(packagerPath);
-
-            PackagerPath = packagerPath;
-            ImportSchedulerDefaults(scheduler);
-            ImportFromTask(scheduler.FindExisting());
+            var firstEditOperation = Operations.First(o => o is EditExistingOperation);
+            CurrentOperation = firstEditOperation;
         }
 
         public string TaskName
@@ -106,6 +112,14 @@ namespace InteractiveScheduler.Models
                 _packagerPath = value;
                 OnPropertyChanged();
             }
+        }
+
+        public int DelayInMinutes
+        {
+            get { return _delayInMinutes; }
+            set {
+                _delayInMinutes = value;
+                OnPropertyChanged(); }
         }
 
         public DateTime StartOn
@@ -198,6 +212,12 @@ namespace InteractiveScheduler.Models
             }
         }
 
+        public bool NameReadOnly
+        {
+            get { return _nameReadOnly; }
+            set { _nameReadOnly = value; OnPropertyChanged(); }
+        }
+
         public bool Impersonate
         {
             get { return _impersonate; }
@@ -247,6 +267,16 @@ namespace InteractiveScheduler.Models
             }
         }
 
+        public AbstractOperation CurrentOperation
+        {
+            get { return _currentOperation; }
+            set {
+                _currentOperation = value;
+                Import(value);
+                OnPropertyChanged();
+            }
+        }
+
         public bool TaskEnabled
         {
             get { return _taskEnabled; }
@@ -289,14 +319,20 @@ namespace InteractiveScheduler.Models
             }
 
             PackagerPath = result;
+            if (string.IsNullOrWhiteSpace(TaskName))
+            {
+                TaskName = FileVersionInfo.GetVersionInfo(result).ProductName;
+            }
+
             var newScheduler = _taskSchedulerFactory.GetForApplication(result);
             if (newScheduler == null || newScheduler == currentScheduler)
             {
                 return;
             }
 
-            ImportSchedulerDefaults(newScheduler);
-            ImportFromTask(newScheduler.FindExisting());
+            var configuration = newScheduler.GetDefaultConfiguration();
+            configuration.ExecutablePath = result;
+            Import(configuration);
         }
 
         public ICommand BrowseForPackager
@@ -421,21 +457,24 @@ namespace InteractiveScheduler.Models
         {
             var scheduler = GetSchedulerForApplication(PackagerPath);
             scheduler.Remove(TaskName);
-            ImportFromTask(scheduler.FindExisting());
+            InitializeAvailableOperations();
+            CurrentOperation = Operations.First();
         }
 
         private void DoStopTask()
         {
             var scheduler = GetSchedulerForApplication(PackagerPath);
             scheduler.Stop(TaskName);
-            ImportFromTask(scheduler.FindExisting());
+            InitializeAvailableOperations();
+            SetCurrentOperationByTaskName(TaskName);
         }
 
         private void DoEnableTask(bool enable)
         {
             var scheduler = GetSchedulerForApplication(PackagerPath);
             scheduler.Enable(TaskName, enable);
-            ImportFromTask(scheduler.FindExisting());
+            InitializeAvailableOperations();
+            SetCurrentOperationByTaskName(TaskName);
         }
 
         private async System.Threading.Tasks.Task DoScheduleTask()
@@ -446,6 +485,8 @@ namespace InteractiveScheduler.Models
             }
 
             TryScheduleTask();
+            InitializeAvailableOperations();
+            SetCurrentOperationByTaskName(TaskName);
         }
 
         private async System.Threading.Tasks.Task<bool> TryGrantPermission(string username)
@@ -482,13 +523,22 @@ namespace InteractiveScheduler.Models
                 {
                     ShowMessage("Success!", "Task successfully scheduled!");
                 }
-                
-                ImportFromTask(scheduler.FindExisting());
             }
             catch (Exception e)
             {
                 ShowMessage("Could not schedule task", e.Message);
             }
+        }
+
+        private void SetCurrentOperationByTaskName(string name)
+        {
+            var operation = Operations.FirstOrDefault(o => o.Value.TaskName.Equals(name));
+            if (operation == null)
+            {
+                return;
+            }
+
+            CurrentOperation = operation;
         }
 
         private AbstractConfiguration GetConfiguration()
@@ -498,13 +548,15 @@ namespace InteractiveScheduler.Models
                 return new StartOnLogonConfiguration
                 {
                     ExecutablePath = PackagerPath,
-                    TaskName = TaskName
+                    TaskName = TaskName,
+                    Username = Username,
+                    Delay = new TimeSpan(0, DelayInMinutes,0)
                 };
             }
 
             if (Impersonate == false)
             {
-                return new InteractiveDailyConfiguration
+                return new DailyConfiguration
                 {
                     ExecutablePath = PackagerPath,
                     TaskName = TaskName,
@@ -513,7 +565,7 @@ namespace InteractiveScheduler.Models
                 };
             }
 
-            return new NonInteractiveDailyConfiguration
+            return new ImpersonateDailyConfiguration
             {
                 ExecutablePath = PackagerPath,
                 TaskName = TaskName,
@@ -595,50 +647,85 @@ namespace InteractiveScheduler.Models
                 : _taskSchedulerFactory.GetDefaultScheduler();
         }
 
-        private void ImportSchedulerDefaults(ITaskScheduler scheduler)
+        private void InitializeAvailableOperations()
         {
-            var config = scheduler.GetDefaultConfiguration() as InteractiveDailyConfiguration;
-
-            if (config == null)
+            if (!Application.Current.Dispatcher.CheckAccess())
             {
-                ScheduleDaily = false;
+                Application.Current.Dispatcher.Invoke(InitializeAvailableOperations);
+                return;
+            }
+
+            Operations.Clear();
+            Operations.Add(new AddNewOperation(_taskSchedulerFactory
+                .GetDefaultScheduler().GetDefaultConfiguration()));
+            foreach (var configuration in _taskSchedulerFactory.GetExistingTasks())
+            {
+                Operations.Add(new EditExistingOperation(configuration));
+            }
+        }
+
+        private void Import(AbstractOperation operation)
+        {
+            if (operation?.Value == null)
+            {
+                return;
+            }
+
+            Import(operation.Value);
+
+            TaskName = operation is EditExistingOperation 
+                ? operation.Value.TaskName 
+                : string.Empty;
+        }
+
+        private void Import(AbstractConfiguration configuration)
+        {
+            TaskExists = configuration.Exists;
+            TaskRunning = configuration.Running;
+            TaskDisabled = !configuration.Enabled;
+            TaskEnabled = configuration.Enabled;
+            
+            AdvancedMenuOpen = false;
+            PackagerPath = configuration.ExecutablePath;
+            
+            Import(configuration as DailyConfiguration);
+            Import(configuration as ImpersonateDailyConfiguration);
+            Import(configuration as StartOnLogonConfiguration);
+        }
+
+        private void Import(DailyConfiguration configuration)
+        {
+            if (configuration == null)
+            {
                 return;
             }
 
             ScheduleDaily = true;
-            SetDaysFromEnum(config.Days);
-            StartOn = config.StartOn;
-            TaskName = config.TaskName;
-            
-            Impersonate = config is NonInteractiveDailyConfiguration;
+            Impersonate = false;
+            StartOn = configuration.StartOn;
+            SetDaysFromEnum(configuration.Days);
         }
 
-        private void ImportFromTask(Task task)
+        private void Import(ImpersonateDailyConfiguration configuration)
         {
-            if (task == null)
+            if (configuration == null)
             {
-                TaskExists = false;
-                TaskDisabled = false;
-                TaskEnabled = false;
-                TaskRunning = false;
                 return;
             }
 
-            TaskExists = true;
-            TaskName = task.Name;
-            TaskRunning = task.State == TaskState.Running;
-            TaskDisabled = task.Enabled == false;
-            TaskEnabled = task.Enabled;
-            AdvancedMenuOpen = false;
+            Impersonate = true;
+        }
 
-            Impersonate = task.Definition.Principal.LogonType == TaskLogonType.Password;
-
-            var trigger = task.Definition.Triggers.FirstOrDefault(tr => tr.TriggerType == TaskTriggerType.Weekly) as WeeklyTrigger;
-            if (trigger != null)
+        private void Import(StartOnLogonConfiguration configuration)
+        {
+            if (configuration == null)
             {
-                StartOn = trigger.StartBoundary;
-                SetDaysFromEnum(trigger.DaysOfWeek);
+                return;
             }
+
+            DelayInMinutes = configuration.Delay.Minutes;
+            Username = configuration.Username;
+            ScheduleDaily = false;
         }
 
         private void SetDaysFromEnum(DaysOfTheWeek value)

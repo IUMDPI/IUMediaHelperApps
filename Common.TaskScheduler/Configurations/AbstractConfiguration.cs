@@ -12,6 +12,30 @@ namespace Common.TaskScheduler.Configurations
         public string TaskName { get; set; }
         public string ExecutablePath { get; set; }
         public string Arguments { get; set; }
+        public bool Running { get; }
+        public bool Enabled { get; }
+        public bool Exists { get; }
+        
+        public abstract AbstractConfiguration Import(Task task);
+        
+        protected AbstractConfiguration(Task task)
+        {
+            TaskName = task.Name;
+            ExecutablePath = task.Definition.GetExecutablePath();
+            Arguments = task.Definition.GetExecutableArguments();
+            Running = task.State == TaskState.Running;
+            Enabled = task.Enabled;
+            Exists = true;
+        }
+
+        protected AbstractConfiguration()
+        {
+            TaskName = string.Empty;
+            ExecutablePath = string.Empty;
+            Running = false;
+            Enabled = false;
+            Exists = false;
+        }
 
         protected virtual List<string> Verify()
         {

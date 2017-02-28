@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Security.Principal;
 using Common.TaskScheduler.Configurations;
+using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Schedulers
 {
@@ -13,8 +15,14 @@ namespace Common.TaskScheduler.Schedulers
         {
             return new StartOnLogonConfiguration
             {
-                TaskName = "Media Reporter"
+                Username = WindowsIdentity.GetCurrent().Name,
+                Delay = new TimeSpan(0,2,0)
             };
+        }
+
+        protected override AbstractConfiguration Import(Task task)
+        {
+            return new StartOnLogonConfiguration().Import(task);
         }
     }
 }

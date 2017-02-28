@@ -7,8 +7,14 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Configurations
 {
-    public class NonInteractiveDailyConfiguration : InteractiveDailyConfiguration
+    public class ImpersonateDailyConfiguration : DailyConfiguration
     {
+        public ImpersonateDailyConfiguration() { }
+
+        private ImpersonateDailyConfiguration(Task task) : base(task)
+        {
+        }
+
         public string Username { get; set; }
         public SecureString Passphrase { get; set; }
 
@@ -17,12 +23,12 @@ namespace Common.TaskScheduler.Configurations
             var issues = base.Verify();
             if (string.IsNullOrWhiteSpace(Username))
             {
-                issues.Add("Please provide a username or uncheck Impersonate.");
+                issues.Add("Please provide a username.");
             }
 
             if (Passphrase == null || Passphrase.Length == 0)
             {
-                issues.Add("Please provide a password or uncheck Impersonate.");
+                issues.Add("Please provide a password.");
             }
 
             if (ValidateCredentials(Username, Passphrase) == false)
@@ -52,6 +58,13 @@ namespace Common.TaskScheduler.Configurations
                     TaskCreation.CreateOrUpdate, Username,
                     Passphrase.ToUnsecureString(), TaskLogonType.Password);
             return new Tuple<bool, List<string>>(true, new List<string>());
+        }
+
+        public override AbstractConfiguration Import(Task task)
+        {
+            return task.Definition?.Principal?.LogonType == TaskLogonType.Password 
+                ? new ImpersonateDailyConfiguration(task)
+                : null;
         }
     }
 }

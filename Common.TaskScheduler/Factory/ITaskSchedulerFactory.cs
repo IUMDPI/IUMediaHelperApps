@@ -1,4 +1,7 @@
-﻿using Common.TaskScheduler.Schedulers;
+﻿using System.Collections.Generic;
+using Common.TaskScheduler.Configurations;
+using Common.TaskScheduler.Schedulers;
+using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Factory
 {
@@ -6,5 +9,6 @@ namespace Common.TaskScheduler.Factory
     {
         ITaskScheduler GetForApplication(string path);
         ITaskScheduler GetDefaultScheduler();
+        List<AbstractConfiguration> GetExistingTasks();
     }
 }

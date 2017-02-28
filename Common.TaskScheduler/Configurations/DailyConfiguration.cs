@@ -5,8 +5,20 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Configurations
 {
-    public class InteractiveDailyConfiguration:AbstractConfiguration
+    public class DailyConfiguration:AbstractConfiguration
     {
+        protected DailyConfiguration(Task task) : base(task)
+        {
+            var trigger = task.Definition.GetWeeeklyTrigger();
+            if (trigger != null)
+            {
+                Days = trigger.DaysOfWeek;
+                StartOn = trigger.StartBoundary;
+            }
+        }
+
+        public DailyConfiguration(){}
+
         public DateTime StartOn { get; set; }
         public DaysOfTheWeek Days { get; set; }
 
@@ -25,6 +37,14 @@ namespace Common.TaskScheduler.Configurations
         {
             return base.ConfigureDefinition(definition)
                 .ConfigureWeekly(StartOn, Days);
+        }
+
+        public override AbstractConfiguration Import(Task task)
+        {
+            var trigger = task.Definition.GetWeeeklyTrigger();
+            return trigger != null 
+                ? new DailyConfiguration(task)
+                : null;
         }
     }
 }

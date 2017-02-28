@@ -1,15 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Win32.TaskScheduler;
 
 namespace Common.TaskScheduler.Extensions
 {
     public static class TaskDefinitionExtensions
     {
+        public static string GetExecutablePath(this TaskDefinition definition)
+        {
+            return definition.GetExecutableAction()?.Path;
+        }
+
+        public static string GetExecutableArguments(this TaskDefinition definition)
+        {
+            return definition.GetExecutableAction()?.Arguments;
+        }
+
+        private static ExecAction GetExecutableAction(this TaskDefinition definition)
+        {
+            return definition?.Actions.FirstOrDefault(a => a is ExecAction) as ExecAction;
+        }
+
+        public static WeeklyTrigger GetWeeeklyTrigger(this TaskDefinition definition)
+        {
+            return definition?.Triggers.FirstOrDefault(t=> t is WeeklyTrigger) as WeeklyTrigger;
+        }
+
+        public static LogonTrigger GetLogonTrigger(this TaskDefinition definition)
+        {
+            return definition?.Triggers.FirstOrDefault(t => t is LogonTrigger) as LogonTrigger;
+        }
+
         public static TaskDefinition ConfigureBaseDetails(this TaskDefinition definition, string targetPath, string arguments)
         {
             definition.Settings.Hidden = false;
@@ -32,6 +54,13 @@ namespace Common.TaskScheduler.Extensions
             };
             definition.Triggers.Add(trigger);
             
+            return definition;
+        }
+
+        public static TaskDefinition ConfigureForUserLogon(this TaskDefinition definition, string username, TimeSpan delay)
+        {
+            var trigger = new LogonTrigger {UserId = username, Delay = delay};
+            definition.Triggers.Add(trigger);
             return definition;
         }
 

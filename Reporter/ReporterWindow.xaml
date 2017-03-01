@@ -19,10 +19,15 @@
         <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1,1,1,0" Background="LightYellow">
             <DockPanel>
                 <Label DockPanel.Dock="Left" VerticalAlignment="Center" Margin="8,8,0,8">Report: </Label>
-                <Button HorizontalAlignment="Right" Margin="0,8,8,8" DockPanel.Dock="Right" Width="32" Padding="4" Background="Transparent" BorderBrush="Transparent" Cursor="Hand" Command="{Binding SelectReportsFolder}">
+                <Button HorizontalAlignment="Right" Margin="0,8,8,8" DockPanel.Dock="Right" Width="32" Padding="4" Background="Transparent" BorderBrush="Transparent" Cursor="Hand" Command="{Binding RefreshReportsList}">
+                    <Button.ToolTip>Refresh the logs list</Button.ToolTip>
+                    <fa:ImageAwesome Icon="Refresh"></fa:ImageAwesome>
+                </Button>
+                <Button HorizontalAlignment="Right" Margin="0,8,0,8" DockPanel.Dock="Right" Width="32" Padding="4" Background="Transparent" BorderBrush="Transparent" Cursor="Hand" Command="{Binding SelectReportsFolder}">
                     <Button.ToolTip>Select logs folder</Button.ToolTip>
                     <fa:ImageAwesome Icon="FolderOpen"></fa:ImageAwesome>
                 </Button>
+                
                 <ComboBox 
                     IsEnabled="{Binding Reports, Converter={StaticResource DisabledIfEmptyConverter}}"
                     ItemsSource="{Binding Reports}" SelectedItem="{Binding SelectedReport}" DisplayMemberPath="DisplayName"
@@ -37,7 +42,8 @@
                 FontFamily="Consolas" FontSize="10pt"
                 HorizontalScrollBarVisibility="Hidden" 
                 IsReadOnly="True"
-                Padding="10px" />
+                Padding="10px"
+                WordWrap="True"/>
         </Border>
 
     </Grid>

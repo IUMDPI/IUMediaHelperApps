@@ -67,29 +67,13 @@ namespace Reporter.Utilities
                 ViewModel.InsertLine("This report could not be read.");
                 return;
             }
-
-           
+            
             ViewModel.BeginSection("Summary", "Results Summary:");
             ViewModel.InsertLine($"Task Name: {entry.TaskName}");
             ViewModel.InsertLine($"Timestamp: {new DateTime(entry.Timestamp):MM/dd/yyyy hh:mm tt}");
             ViewModel.InsertLine("");
-            ViewModel.InsertLine(GetIssueLines(entry.Contents));
+            ViewModel.InsertLine(entry.Contents);
             ViewModel.EndSection("Summary");
-        }
-
-        private static string GetIssueLines(string issue)
-        {
-            if (string.IsNullOrWhiteSpace(issue))
-            {
-                return "";
-            }
-
-            var charCount = 0;
-            var lines = issue.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
-                            .GroupBy(w => (charCount += w.Length + 1) / 60)
-                            .Select(g => string.Join(" ", g));
-
-            return string.Join("\n", lines.ToArray());
         }
     }
 }

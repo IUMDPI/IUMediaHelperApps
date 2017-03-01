@@ -37,6 +37,7 @@ namespace Reporter
         }
 
         private ICommand _selectFolderCommand;
+        private ICommand _refreshReportsCommand;
 
         public BindingList<AbstractReportEntry> Reports { get; }
 
@@ -58,6 +59,15 @@ namespace Reporter
             {
                 return _selectFolderCommand ??
                        (_selectFolderCommand = new AsyncRelayCommand(async action => await SelectFolder()));
+            }
+        }
+
+        public ICommand RefreshReportsList
+        {
+            get
+            {
+                return _refreshReportsCommand ??
+                       (_refreshReportsCommand = new AsyncRelayCommand(async action => await InitializeReportsList()));
             }
         }
 
@@ -156,6 +166,12 @@ namespace Reporter
 
         private async Task InitializeReportsList()
         {
+            if (Application.Current.Dispatcher.CheckAccess() == false)
+            {
+                await Application.Current.Dispatcher.InvokeAsync(async () => await InitializeReportsList());
+                return;
+            }
+
             Reports.Clear();
 
             var entries = (await GetReports().ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();

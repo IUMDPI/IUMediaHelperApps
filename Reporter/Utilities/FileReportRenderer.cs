@@ -55,7 +55,7 @@ namespace Reporter.Utilities
             return $"Packager Session: {new DateTime(ticks):MM/dd/yyyy hh:mm tt}";
         }
 
-        private async Task<OperationReport> GetReport(AbstractReportEntry reportEntry)
+        private async Task<AbstractOperationReport> GetReport(AbstractReportEntry reportEntry)
         {
             var convertedEntry = reportEntry as FileReportEntry;
             if (convertedEntry == null)
@@ -64,7 +64,7 @@ namespace Reporter.Utilities
             }
 
             return await Task.Run(() =>
-                OperationReport.Read<PackagerReport>(
+                AbstractOperationReport.Read<PackagerReport>(
                     Path.Combine(FolderPath, convertedEntry.Filename)));
         }
 

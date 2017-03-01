@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -176,6 +177,8 @@ namespace Reporter
 
         private async Task InitializeReportsList()
         {
+            var started = DateTime.Now;
+
             if (Application.Current.Dispatcher.CheckAccess() == false)
             {
                 await Application.Current.Dispatcher.InvokeAsync(async () => await InitializeReportsList());
@@ -189,7 +192,10 @@ namespace Reporter
 
             SetEntries(entries);
 
-            await Task.Delay(1000).ContinueWith(action =>
+            var elapsed = DateTime.Now.Subtract(started);
+            var remaining = (int)(2000 - elapsed.TotalMilliseconds);
+            if (remaining < 0) remaining = 0;
+            await Task.Delay(remaining).ContinueWith(action =>
             {
                 Initializing = false;
             });

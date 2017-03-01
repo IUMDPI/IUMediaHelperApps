@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Models;
 using Common.TaskScheduler.Schedulers;
 using Common.UserInterface.ViewModels;
 using Reporter.Models;
@@ -12,6 +11,13 @@ namespace Reporter.Utilities
 {
     public class TaskSchedulerRenderer:IReportRenderer
     {
+        private ILogPanelViewModel ViewModel { get; }
+
+        public TaskSchedulerRenderer(ILogPanelViewModel viewModel)
+        {
+            ViewModel = viewModel;
+        }
+
         public async Task<List<AbstractReportEntry>> GetReports()
         {
             var results = new List<AbstractReportEntry>();
@@ -53,22 +59,22 @@ namespace Reporter.Utilities
             return report is TaskSchedulerEntry;
         }
         
-        public async Task Render(AbstractReportEntry reportEntry, ILogPanelViewModel viewModel)
+        public async Task Render(AbstractReportEntry reportEntry)
         {
             var entry = reportEntry as TaskSchedulerEntry;
             if (entry == null)
             {
-                viewModel.InsertLine("This report could not be read.");
+                ViewModel.InsertLine("This report could not be read.");
                 return;
             }
 
            
-            viewModel.BeginSection("Summary", "Results Summary:");
-            viewModel.InsertLine($"Task Name: {entry.TaskName}");
-            viewModel.InsertLine($"Timestamp: {new DateTime(entry.Timestamp):MM/dd/yyyy hh:mm tt}");
-            viewModel.InsertLine("");
-            viewModel.InsertLine(GetIssueLines(entry.Contents));
-            viewModel.EndSection("Summary");
+            ViewModel.BeginSection("Summary", "Results Summary:");
+            ViewModel.InsertLine($"Task Name: {entry.TaskName}");
+            ViewModel.InsertLine($"Timestamp: {new DateTime(entry.Timestamp):MM/dd/yyyy hh:mm tt}");
+            ViewModel.InsertLine("");
+            ViewModel.InsertLine(GetIssueLines(entry.Contents));
+            ViewModel.EndSection("Summary");
         }
 
         private static string GetIssueLines(string issue)

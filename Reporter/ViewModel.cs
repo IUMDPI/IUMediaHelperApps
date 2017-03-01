@@ -125,7 +125,7 @@ namespace Reporter
                 return;
             }
 
-            await reader.Render(entry, LogPanelViewModel);
+            await reader.Render(entry);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -14,15 +14,16 @@ namespace Reporter
     {
         private void InitializeApplication(object sender, StartupEventArgs e)
         {
+            var logPanelViewModel = new LogPanelViewModel();
             var settings = new ProgramSettings(ConfigurationManager.AppSettings);
             var reportReaders = new List<IReportRenderer>()
             {
-                new FileReportRenderer(settings),
-                new TaskSchedulerRenderer()
+                new FileReportRenderer(settings, logPanelViewModel),
+                new TaskSchedulerRenderer(logPanelViewModel)
             };
 
             
-            var viewModel = new ViewModel(settings, reportReaders, new LogPanelViewModel());
+            var viewModel = new ViewModel(settings, reportReaders, logPanelViewModel);
             var reportWindow = new ReporterWindow
             {
                 DataContext = viewModel

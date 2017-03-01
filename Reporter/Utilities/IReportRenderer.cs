@@ -9,7 +9,7 @@ namespace Reporter.Utilities
     public interface IReportRenderer
     {
         Task<List<AbstractReportEntry>> GetReports();
-        Task Render(AbstractReportEntry reportEntry, ILogPanelViewModel viewModel);
+        Task Render(AbstractReportEntry reportEntry);
         bool CanRender(AbstractReportEntry report);
     }
 }

@@ -13,10 +13,13 @@ namespace Reporter.Utilities
     public class FileReportRenderer : IReportRenderer
     {
         private ProgramSettings ProgramSettings { get; }
+        private ILogPanelViewModel ViewModel { get; }
         private string FolderPath => ProgramSettings.ReportFolder;
-        public FileReportRenderer(ProgramSettings programSettings)
+
+        public FileReportRenderer(ProgramSettings programSettings, ILogPanelViewModel viewModel)
         {
             ProgramSettings = programSettings;
+            ViewModel = viewModel;
         }
 
         public async Task<List<AbstractReportEntry>> GetReports()
@@ -73,50 +76,50 @@ namespace Reporter.Utilities
             return report is FileReportEntry;
         }
 
-        public async Task Render(AbstractReportEntry entry, ILogPanelViewModel viewModel)
+        public async Task Render(AbstractReportEntry entry)
         {
            
             var report = await GetReport(entry) as PackagerReport;
             if (report == null)
             {
-                viewModel.InsertLine($"There are no reports in the {ProgramSettings.ReportFolder} folder.\n\nPlease select a different folder.");
+                ViewModel.InsertLine($"There are no reports in the {ProgramSettings.ReportFolder} folder.\n\nPlease select a different folder.");
                 return;
             }
-            viewModel.BeginSection("Summary", "Results Summary:");
-            viewModel.InsertLine($"Started:   {report.Timestamp:MM/dd/yyyy hh:mm tt}");
-            viewModel.InsertLine($"Completed: {report.Timestamp.Add(report.Duration):MM/dd/yyyy hh:mm tt}");
-            viewModel.InsertLine($"Duration:  {report.Duration:hh\\:mm\\:ss}");
-            viewModel.InsertLine("");
-            viewModel.InsertLine($"Found {report.ObjectReports.Count.ToSingularOrPlural("object", "objects")} to process.");
+            ViewModel.BeginSection("Summary", "Results Summary:");
+            ViewModel.InsertLine($"Started:   {report.Timestamp:MM/dd/yyyy hh:mm tt}");
+            ViewModel.InsertLine($"Completed: {report.Timestamp.Add(report.Duration):MM/dd/yyyy hh:mm tt}");
+            ViewModel.InsertLine($"Duration:  {report.Duration:hh\\:mm\\:ss}");
+            ViewModel.InsertLine("");
+            ViewModel.InsertLine($"Found {report.ObjectReports.Count.ToSingularOrPlural("object", "objects")} to process.");
 
             var inError = report.ObjectReports.Where(r => r.Succeeded == false).ToList();
             var success = report.ObjectReports.Where(r => r.Succeeded).ToList();
 
-            LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:", viewModel);
-            LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:", viewModel);
-            viewModel.EndSection("Summary");
+            LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
+            LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");
+            ViewModel.EndSection("Summary");
         }
 
-        private static void LogObjectResults(List<PackagerObjectReport> results, string header, ILogPanelViewModel viewModel)
+        private void LogObjectResults(List<PackagerObjectReport> results, string header)
         {
             if (results.Any() == false)
             {
                 return;
             }
 
-            viewModel.BeginSection(header, header);
+            ViewModel.BeginSection(header, header);
 
             foreach (var result in results)
             {
-                viewModel.InsertLine($"{result.Barcode} ({result.Duration:hh\\:mm\\:ss})");
+                ViewModel.InsertLine($"{result.Barcode} ({result.Duration:hh\\:mm\\:ss})");
                 if (result.Succeeded == false)
                 {
-                    viewModel.InsertLine("");
-                    viewModel.InsertLine($"ERROR: {result.Issue}");
+                    ViewModel.InsertLine("");
+                    ViewModel.InsertLine($"ERROR: {result.Issue}");
                 }
             }
 
-            viewModel.EndSection(header, header);
+            ViewModel.EndSection(header, header);
         }
     }
 }

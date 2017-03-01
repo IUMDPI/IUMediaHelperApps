@@ -27,9 +27,13 @@ namespace Common.UserInterface.Commands
 
         #region ICommand Members
 
-        [DebuggerStepThrough]
+        
         public virtual bool CanExecute(object parameter)
         {
+            if (parameter != null)
+            {
+                var test = 0;
+            }
             return _canExecute?.Invoke(parameter) ?? true;
         }
 

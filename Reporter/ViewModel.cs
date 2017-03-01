@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -29,11 +30,18 @@ namespace Reporter
         private readonly List<IReportRenderer> _reportReaders;
         private AbstractReportEntry _selectedEntry;
         private string _windowTitle;
+        private bool _initializing;
 
         public string WindowTitle
         {
             get { return _windowTitle;}
             set { _windowTitle = value; OnPropertyChanged(); }
+        }
+
+        public bool Initializing
+        {
+            get { return _initializing;}
+            set { _initializing = value; OnPropertyChanged(); }
         }
 
         private ICommand _selectFolderCommand;
@@ -58,7 +66,8 @@ namespace Reporter
             get
             {
                 return _selectFolderCommand ??
-                       (_selectFolderCommand = new AsyncRelayCommand(async action => await SelectFolder()));
+                       (_selectFolderCommand = new AsyncRelayCommand(
+                           async action => await SelectFolder()));
             }
         }
 
@@ -67,7 +76,8 @@ namespace Reporter
             get
             {
                 return _refreshReportsCommand ??
-                       (_refreshReportsCommand = new AsyncRelayCommand(async action => await InitializeReportsList()));
+                       (_refreshReportsCommand = new AsyncRelayCommand(
+                           async action => await InitializeReportsList()));
             }
         }
 
@@ -172,11 +182,17 @@ namespace Reporter
                 return;
             }
 
+            Initializing = true;
             Reports.Clear();
 
             var entries = (await GetReports().ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
 
             SetEntries(entries);
+
+            await Task.Delay(1000).ContinueWith(action =>
+            {
+                Initializing = false;
+            });
         }
 
         private void SetEntries(List<AbstractReportEntry> entries)

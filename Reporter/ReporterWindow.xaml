@@ -10,11 +10,13 @@
         Title="{Binding WindowTitle}" Height="600" Width="625" Loaded="OnLoadedHandler" FontSize="14" WindowStyle="SingleBorderWindow">
     <Window.Resources>
         <converters:DisabledIfEmptyConverter x:Key="DisabledIfEmptyConverter" />
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1,1,1,0" Background="LightYellow">
             <DockPanel>
@@ -45,7 +47,12 @@
                 Padding="10px"
                 WordWrap="True"/>
         </Border>
-
+        <Label Grid.Row="2" Padding="10,8" Background="LightGray" BorderBrush="LightGray" BorderThickness="1" Visibility="{Binding Initializing, Converter={StaticResource BoolToVis}}">
+            <StackPanel Orientation="Horizontal" >
+                <fa:FontAwesome Margin="0,0,4,0" Icon="Spinner" Spin="True" VerticalAlignment="Center"></fa:FontAwesome>
+                <TextBlock VerticalAlignment="Center">Generating logs list - please wait...</TextBlock>
+            </StackPanel>
+        </Label>
     </Grid>
 </Window>
 

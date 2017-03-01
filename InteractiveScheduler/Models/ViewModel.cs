@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -104,7 +105,7 @@ namespace InteractiveScheduler.Models
             }
         }
 
-        public string PackagerPath
+        public string ExecutablePath
         {
             get { return _packagerPath; }
             set
@@ -311,14 +312,19 @@ namespace InteractiveScheduler.Models
 
         private void OpenFileBrowserDialog()
         {
-            var currentScheduler = _taskSchedulerFactory.GetForApplication(PackagerPath);
-            var result = _fileDialogService.OpenDialog(DefaultPackagerPath);
+            var currentScheduler = _taskSchedulerFactory.GetForApplication(ExecutablePath);
+
+            var path = string.IsNullOrWhiteSpace(ExecutablePath)
+                ? DefaultPackagerPath
+                : ExecutablePath;
+
+            var result = _fileDialogService.OpenDialog(path);
             if (string.IsNullOrWhiteSpace(result))
             {
                 return;
             }
 
-            PackagerPath = result;
+            ExecutablePath = result;
             if (string.IsNullOrWhiteSpace(TaskName))
             {
                 TaskName = FileVersionInfo.GetVersionInfo(result).ProductName;
@@ -455,7 +461,7 @@ namespace InteractiveScheduler.Models
 
         private void DoRemoveTask()
         {
-            var scheduler = GetSchedulerForApplication(PackagerPath);
+            var scheduler = GetSchedulerForApplication(ExecutablePath);
             scheduler.Remove(TaskName);
             InitializeAvailableOperations();
             CurrentOperation = Operations.First();
@@ -463,7 +469,7 @@ namespace InteractiveScheduler.Models
 
         private void DoStopTask()
         {
-            var scheduler = GetSchedulerForApplication(PackagerPath);
+            var scheduler = GetSchedulerForApplication(ExecutablePath);
             scheduler.Stop(TaskName);
             InitializeAvailableOperations();
             SetCurrentOperationByTaskName(TaskName);
@@ -471,7 +477,7 @@ namespace InteractiveScheduler.Models
 
         private void DoEnableTask(bool enable)
         {
-            var scheduler = GetSchedulerForApplication(PackagerPath);
+            var scheduler = GetSchedulerForApplication(ExecutablePath);
             scheduler.Enable(TaskName, enable);
             InitializeAvailableOperations();
             SetCurrentOperationByTaskName(TaskName);
@@ -484,7 +490,11 @@ namespace InteractiveScheduler.Models
                 return;
             }
 
-            TryScheduleTask();
+            if (TryScheduleTask() == false)
+            {
+                return;
+            }
+
             InitializeAvailableOperations();
             SetCurrentOperationByTaskName(TaskName);
         }
@@ -508,11 +518,11 @@ namespace InteractiveScheduler.Models
             }
         }
 
-        private void TryScheduleTask()
+        private bool TryScheduleTask()
         {
             try
             {
-                var scheduler = GetSchedulerForApplication(PackagerPath);
+                var scheduler = GetSchedulerForApplication(ExecutablePath);
                 var configuration = GetConfiguration();
                 var result = scheduler.Schedule(configuration);
                 if (result.Item1 == false)
@@ -523,10 +533,12 @@ namespace InteractiveScheduler.Models
                 {
                     ShowMessage("Success!", "Task successfully scheduled!");
                 }
+                return result.Item1;
             }
             catch (Exception e)
             {
                 ShowMessage("Could not schedule task", e.Message);
+                return false;
             }
         }
 
@@ -547,7 +559,7 @@ namespace InteractiveScheduler.Models
             {
                 return new StartOnLogonConfiguration
                 {
-                    ExecutablePath = PackagerPath,
+                    ExecutablePath = ExecutablePath,
                     TaskName = TaskName,
                     Username = Username,
                     Delay = new TimeSpan(0, DelayInMinutes,0)
@@ -558,7 +570,7 @@ namespace InteractiveScheduler.Models
             {
                 return new DailyConfiguration
                 {
-                    ExecutablePath = PackagerPath,
+                    ExecutablePath = ExecutablePath,
                     TaskName = TaskName,
                     StartOn = StartOn,
                     Days = CalculateDays()
@@ -567,7 +579,7 @@ namespace InteractiveScheduler.Models
 
             return new ImpersonateDailyConfiguration
             {
-                ExecutablePath = PackagerPath,
+                ExecutablePath = ExecutablePath,
                 TaskName = TaskName,
                 StartOn = StartOn,
                 Days = CalculateDays(),
@@ -686,7 +698,7 @@ namespace InteractiveScheduler.Models
             TaskEnabled = configuration.Enabled;
             
             AdvancedMenuOpen = false;
-            PackagerPath = configuration.ExecutablePath;
+            ExecutablePath = configuration.ExecutablePath;
             
             Import(configuration as DailyConfiguration);
             Import(configuration as ImpersonateDailyConfiguration);

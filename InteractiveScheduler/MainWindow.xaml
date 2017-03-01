@@ -107,7 +107,9 @@
                     </Label.ToolTip>
                     <Hyperlink Command="{Binding HideMessage}" FontSize="10" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrush}}">X</Hyperlink>
                 </Label>
-                <Label Margin="0" Padding="0,4,0,0" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Content="{Binding Message, FallbackValue='Test Message Text'}"></Label>
+                <Label Margin="0" Padding="0,4,0,0"  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Left">
+                    <TextBox BorderThickness="0" BorderBrush="Transparent" Margin="0" Padding="0" Background="Transparent" TextWrapping="WrapWithOverflow" Text="{Binding Message, FallbackValue='Test Message Text'}"></TextBox>
+                </Label>
 
             </Grid>
 
@@ -124,7 +126,7 @@
                     </ToolTip>
                 </Label.ToolTip>
             </Label>
-            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding Operations}" SelectedValue="{Binding CurrentOperation}" DisplayMemberPath="Name"></ComboBox>
+            <ComboBox DockPanel.Dock="Right" Padding="8" ItemsSource="{Binding Operations}" SelectedValue="{Binding CurrentOperation}" DisplayMemberPath="Name"></ComboBox>
         </DockPanel>
         <DockPanel>
             <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">
@@ -158,7 +160,7 @@
                 <Button.Content>...</Button.Content>
                 <Button.ToolTip>Open a file-browser dialog to locate the Packager</Button.ToolTip>
             </Button>
-            <TextBox DockPanel.Dock="Right" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding PackagerPath}"></TextBox>
+            <TextBox DockPanel.Dock="Right" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding ExecutablePath}"></TextBox>
         </DockPanel>
         <DockPanel>
             <Label DockPanel.Dock="Left" Style="{StaticResource ColumnHeader}">Run</Label>

@@ -54,10 +54,10 @@ namespace Packager.Utilities.Reporting
             Write(report);
         }
 
-        private void Write(PackagerReport report)
+        private void Write(PackagerReport operationReport)
         {
-            var reportPath = Path.Combine(LogDirectoryName, $"Packager_{report.Timestamp.Ticks:D19}.report");
-            Exporter.ExportToFile(report, reportPath);
+            var reportPath = Path.Combine(LogDirectoryName, $"Packager_{operationReport.Timestamp.Ticks:D19}.operationReport");
+            Exporter.ExportToFile(operationReport, reportPath);
         }
     }
 }

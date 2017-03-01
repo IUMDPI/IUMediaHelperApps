@@ -15,11 +15,17 @@ namespace Common.TaskScheduler.Schedulers
         AbstractConfiguration;
 
         /// <summary>
-        /// Find an existing task scheduler instance.
+        /// Returns a list of existing configurations that are compatible with this scheduler
         /// </summary>
         /// <returns></returns>
-        IEnumerable<AbstractConfiguration> FindExisting();
-        
+        IEnumerable<AbstractConfiguration> GetExistingConfigurations();
+
+        /// <summary>
+        /// Returns a list of existing scheduled tasks that are compatible with this scheduler
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<Task> GetExistingScheduledTasks();
+
         /// <summary>
         /// Remove an existing task scheduler instance.
         /// </summary>

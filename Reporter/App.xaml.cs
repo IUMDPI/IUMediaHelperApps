@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Windows;
 using Common.UserInterface.ViewModels;
 using Reporter.Models;
@@ -14,7 +15,14 @@ namespace Reporter
         private void InitializeApplication(object sender, StartupEventArgs e)
         {
             var settings = new ProgramSettings(ConfigurationManager.AppSettings);
-            var viewModel = new ViewModel(settings, new ReportReader(settings), new LogPanelViewModel());
+            var reportReaders = new List<IReportRenderer>()
+            {
+                new FileReportRenderer(settings),
+                new TaskSchedulerRenderer()
+            };
+
+            
+            var viewModel = new ViewModel(settings, reportReaders, new LogPanelViewModel());
             var reportWindow = new ReporterWindow
             {
                 DataContext = viewModel

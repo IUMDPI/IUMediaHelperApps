@@ -30,7 +30,7 @@ namespace Common.TaskScheduler.Factory
 
         public List<AbstractConfiguration> GetExistingTasks()
         {
-            return Schedulers.SelectMany(s => s.FindExisting()).ToList();
+            return Schedulers.SelectMany(s => s.GetExistingConfigurations()).ToList();
         }
     }
 }

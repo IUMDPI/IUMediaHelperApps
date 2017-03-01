@@ -11,7 +11,7 @@ namespace Reporter.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var list = value as BindingList<ReportEntry>;
+            var list = value as BindingList<AbstractReportEntry>;
             if (list == null)
             {
                 return false;

@@ -92,8 +92,7 @@ namespace Recorder.Utilities
             {
                 Directory.CreateDirectory(ObjectModel.WorkingFolderPath);
             }
-
-
+            
             ResetObservers();
             var part = GetNewPart();
 
@@ -133,7 +132,7 @@ namespace Recorder.Utilities
 
         private bool FourChannelsSpecified()
         {
-            return ObjectModel.Channels > 2;
+            return ObjectModel.SelectedChannelsAndStreams.Is4Channels;
         }
 
         private bool UsingDeckLink()

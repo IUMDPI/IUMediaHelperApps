@@ -50,11 +50,10 @@
         <Label Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="6,0" Padding="0" Foreground="DarkRed" Visibility="{Binding Touched, Converter={StaticResource BooleanToVisibilityConverter}}">
             <TextBlock Text="{Binding FilenameIssue, FallbackValue='issue'}" />
         </Label>
-        <Label Grid.Column="0" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">Channels</Label>
+        <Label Grid.Column="0" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">Channels &amp; Streams</Label>
         <ComboBox Grid.Column="1" Grid.Row="5" Margin="6" Padding="6" VerticalAlignment="Center" VerticalContentAlignment="Center" 
-                ItemsSource="{Binding PossibleChannels}"
-                DisplayMemberPath="Item1"
-                SelectedValuePath="Item2"
-                SelectedValue="{Binding ExpectedChannels}"/>
+                ItemsSource="{Binding PossibleChannelsAndStreams}"
+                DisplayMemberPath="DisplayName"
+                SelectedItem="{Binding ExpectedChannelsAndStreams}"/>
     </Grid>
 </UserControl>

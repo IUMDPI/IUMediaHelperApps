@@ -48,15 +48,15 @@ namespace Recorder.ViewModels
 
         public List<Tuple<string, string>> FileUses => ObjectModel.FileUses;
 
-        public List<Tuple<string, int>> PossibleChannels => ObjectModel.PossibleChannels;
+        public List<ChannelsAndStreams> PossibleChannelsAndStreams => ObjectModel.PossibleChannelsAndStreams;
 
-        public int ExpectedChannels
+        public ChannelsAndStreams ExpectedChannelsAndStreams
         {
-            get { return ObjectModel.Channels; }
+            get { return ObjectModel.SelectedChannelsAndStreams; }
             set
             {
-                FlagTouched(ObjectModel.Channels, value);
-                ObjectModel.Channels = value;
+                FlagTouched(ObjectModel.SelectedChannelsAndStreams, value);
+                ObjectModel.SelectedChannelsAndStreams = value;
                 OnPropertyChanged();
             }
         }

@@ -42,7 +42,7 @@ namespace Recorder.ViewModels
             }
         }
 
-        public string FilenameIssue => ObjectModel.FilePartsValid().IsValid == false
+        public string FilenameIssue => ObjectModel.FilePartsValid().IsValid == false && Touched
             ? ObjectModel.FilePartsValid().ErrorContent.ToString()
             : string.Empty;
 

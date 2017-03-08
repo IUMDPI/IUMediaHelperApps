@@ -48,9 +48,9 @@ namespace Recorder.ViewModels
 
         public List<Tuple<string, string>> FileUses => ObjectModel.FileUses;
 
-        public List<ChannelsAndStreams> PossibleChannelsAndStreams => ObjectModel.PossibleChannelsAndStreams;
+        public List<AudioChannelsAndStreams> PossibleChannelsAndStreams => ObjectModel.PossibleChannelsAndStreams;
 
-        public ChannelsAndStreams ExpectedChannelsAndStreams
+        public AudioChannelsAndStreams ExpectedChannelsAndStreams
         {
             get { return ObjectModel.SelectedChannelsAndStreams; }
             set

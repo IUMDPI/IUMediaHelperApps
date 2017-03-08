@@ -153,7 +153,7 @@
     <Compile Include="Handlers\DroppedFramesHandler.cs" />
     <Compile Include="Handlers\DuplicateFrameHandler.cs" />
     <Compile Include="Handlers\OutputLogHandler.cs" />
-    <Compile Include="Models\ChannelsAndStreams.cs" />
+    <Compile Include="Models\AudioChannelsAndStreams.cs" />
     <Compile Include="Models\ObjectModel.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Handlers\TimestampReceivedHandler.cs" />

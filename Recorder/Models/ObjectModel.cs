@@ -20,19 +20,19 @@ namespace Recorder.Models
                 new Tuple<string, string>("Mezzanine", "mezz")
             };
 
-            PossibleChannelsAndStreams = new List<ChannelsAndStreams>
+            PossibleChannelsAndStreams = new List<AudioChannelsAndStreams>
             {
-                new ChannelsAndStreams
+                new AudioChannelsAndStreams
                 {
-                    Channels = 2, Streams = 1, Id = 1, DisplayName = "2 channels, 1 Stereo Stream"
+                    Channels = 2, Streams = 1, Id = 1, DisplayName = "2 audio channels (1 stereo stream)"
                 },
-                new ChannelsAndStreams
+                new AudioChannelsAndStreams
                 {
-                    Channels = 2, Streams = 2, Id = 1, DisplayName = "2 channels, 2 Mono Streams"
+                    Channels = 2, Streams = 2, Id = 1, DisplayName = "2 audio channels (2 mono streams)"
                 },
-                new ChannelsAndStreams
+                new AudioChannelsAndStreams
                 {
-                    Channels = 4, Streams = 4, Id = 1, DisplayName = "4 channels, 4 Mono Streams"
+                    Channels = 4, Streams = 4, Id = 1, DisplayName = "4 audio channels (4 mono streams)"
                 }
             };
             
@@ -48,7 +48,7 @@ namespace Recorder.Models
         public string ProjectCode => Settings.ProjectCode;
         public string FileUse { get; set; }
 
-        public ChannelsAndStreams SelectedChannelsAndStreams { get; set; }
+        public AudioChannelsAndStreams SelectedChannelsAndStreams { get; set; }
 
         public string Filename => FilePartsValid().IsValid
             ? string.Format($"{ProjectCode}_{Barcode}_{Part:d2}_{FileUse}.mkv")
@@ -61,7 +61,7 @@ namespace Recorder.Models
         public string OutputFile => Path.Combine(OutputFolder, Filename);
 
         public string ExistingPartsMask => $"{ProjectCode}_{Barcode}_part_*.mkv";
-        public List<ChannelsAndStreams> PossibleChannelsAndStreams { get; private set; }
+        public List<AudioChannelsAndStreams> PossibleChannelsAndStreams { get; private set; }
         
         public ValidationResult FilePartsValid()
         {

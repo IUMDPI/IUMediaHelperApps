@@ -126,8 +126,10 @@
     <Compile Include="Models\MetadataModels\DigitalFileProvenanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ImageImporterTests.cs" />
+    <Compile Include="Utilities\PlaceHolderGenerators\AudioPlaceHolderGeneratorTests.cs" />
     <Compile Include="Utilities\ReportWriterTests.cs" />
     <Compile Include="Utilities\SuccessFolderCleanerTests.cs" />
+    <Compile Include="Utilities\PlaceHolderGenerators\VideoPlaceHolderGeneratorTests.cs" />
     <Compile Include="Validators\DirectoryValidatorTests.cs" />
     <Compile Include="Validators\FileValidatorTests.cs" />
     <Compile Include="Validators\HasMembersValidatorTests.cs" />

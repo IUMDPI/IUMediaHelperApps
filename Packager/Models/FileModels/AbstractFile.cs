@@ -51,6 +51,7 @@ namespace Packager.Models.FileModels
         public string BarCode { get; protected set; }
         public string Extension { get; protected set; }
         public string Filename { get; protected set; }
+        public bool PlaceHolder { get; protected set; }
         
         public string GetFolderName()
         {

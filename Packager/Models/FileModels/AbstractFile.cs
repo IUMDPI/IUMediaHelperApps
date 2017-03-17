@@ -22,7 +22,7 @@ namespace Packager.Models.FileModels
             FileUse = fileUse;
             FullFileUse = fullFileUse;
             Filename = NormalizeFilename();
-            PlaceHolder = original.PlaceHolder;
+            IsPlaceHolder = original.IsPlaceHolder;
             OriginalFileName = IsSameAs(original)
                 ? original.OriginalFileName
                 : Filename;
@@ -51,7 +51,7 @@ namespace Packager.Models.FileModels
         public string BarCode { get; protected set; }
         public string Extension { get; protected set; }
         public string Filename { get; protected set; }
-        public bool PlaceHolder { get; protected set; }
+        public bool IsPlaceHolder { get; protected set; }
         
         public string GetFolderName()
         {

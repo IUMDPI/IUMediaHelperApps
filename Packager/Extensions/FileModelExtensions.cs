@@ -50,5 +50,10 @@ namespace Packager.Extensions
         {
             return model is AccessFile;
         }
+
+        public static IEnumerable<AbstractFile> NonPlaceHolderFiles(this IEnumerable<AbstractFile> fileModels)
+        {
+            return fileModels.Where(fm=> !fm.IsPlaceHolder);
+        }
     }
 }

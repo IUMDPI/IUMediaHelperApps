@@ -381,6 +381,18 @@ namespace Packager.Test.Processors
                             Hasher.DidNotReceive().Hash(fileModel, Arg.Any<CancellationToken>());
                         }
                     }
+
+                    [Test]
+                    public void ItShouldNotAttemptToCopyPlaceHolderFiles()
+                    {
+                        foreach (var fileModel in PlaceHolders)
+                        {
+                            FileProvider.DidNotReceive().CopyFileAsync(
+                                Path.Combine(ExpectedProcessingDirectory, fileModel.Filename),
+                                Arg.Any<string>(),
+                                Arg.Any<CancellationToken>());
+                        }
+                    }
                 }
 
                 [Test]

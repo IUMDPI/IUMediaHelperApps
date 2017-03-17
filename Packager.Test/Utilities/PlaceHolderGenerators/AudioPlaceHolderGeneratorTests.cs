@@ -108,7 +108,7 @@ namespace Packager.Test.Utilities.PlaceHolderGenerators
             };
             var placeHolderGenerator = new AudioPlaceHolderGenerator();
             var results = placeHolderGenerator.GetPlaceHoldersToAdd(incompleteSequence);
-            Assert.That(results.Any(f=>!f.PlaceHolder), Is.False);
+            Assert.That(results.Any(f=>!f.IsPlaceHolder), Is.False);
         }
 
     }

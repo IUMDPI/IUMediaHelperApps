@@ -22,7 +22,7 @@ namespace Packager.Test.Models.FileModels
         [Test]
         public void PlaceHolderFlagShouldBeSet()
         {
-            Assert.That(PlaceHolderModel.PlaceHolder, Is.True);        
+            Assert.That(PlaceHolderModel.IsPlaceHolder, Is.True);        
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace Packager.Test.Models.FileModels
         [Test]
         public void PlaceHolderFlagShouldBeSetOnDerivedModel()
         {
-            Assert.That(DerivedModel.PlaceHolder, Is.True);
+            Assert.That(DerivedModel.IsPlaceHolder, Is.True);
         }
     }
 }

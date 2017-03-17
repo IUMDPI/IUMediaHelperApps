@@ -373,6 +373,14 @@ namespace Packager.Test.Processors
                         }
                     }
 
+                    [Test]
+                    public void ItShouldNotHashPlaceHolderFiles()
+                    {
+                        foreach (var fileModel in PlaceHolders)
+                        {
+                            Hasher.DidNotReceive().Hash(fileModel, Arg.Any<CancellationToken>());
+                        }
+                    }
                 }
 
                 [Test]

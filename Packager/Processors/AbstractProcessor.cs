@@ -432,7 +432,8 @@ namespace Packager.Processors
         
         private async Task AssignChecksumValues(IEnumerable<AbstractFile> models, CancellationToken cancellationToken)
         {
-            foreach (var model in models)
+            // hash every model, but place holders
+            foreach (var model in models.Where(m=>!m.PlaceHolder))
             {
                 model.Checksum = await Hasher.Hash(model, cancellationToken);
                 Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);

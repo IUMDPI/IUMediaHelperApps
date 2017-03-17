@@ -345,6 +345,74 @@ namespace Packager.Test.Processors
                 }
             }
 
+            public class WhenAddingPlaceHolders : WhenNothingGoesWrong
+            {
+                public class WhenNoPlaceHoldersAreNeeded : WhenAddingPlaceHolders
+                {
+                    public void ItShouldLogThatNoPlaceHoldersAreNeeded()
+                    {
+                        Observers.Received().Log("No place-holders to add");
+                    }
+                }
+
+                public class WhenPlaceHoldersAreNeeded : WhenAddingPlaceHolders
+                {
+
+                    private readonly List<AbstractFile> _placeHolders = new List<AbstractFile>
+                    {
+                        new AudioPreservationFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
+                        new ProductionFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
+                        new AccessFile(new PlaceHolderFile(ProjectCode, Barcode, 3))
+                    };
+
+                    private List<AbstractFile> ReceivedModelList { get; set; }
+
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+
+                        PlaceHolderGenerator.GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>())
+                            .Returns(_placeHolders);
+
+                        AudioCarrierDataFactory.When(
+                                mg =>
+                                    mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(),
+                                        Arg.Any<List<AbstractFile>>()))
+                            .Do(x => {
+                                ReceivedModelList = x.Arg<List<AbstractFile>>();
+                            });
+                    }
+
+                    [Test]
+                    public void ItShouldLogAllPlaceHolderEntries()
+                    {
+                        foreach (var fileModel in _placeHolders)
+                        {
+                            Observers.Received().Log("Adding place-holder: {0}", fileModel.Filename);
+                        }
+                    }
+
+                    [Test]
+                    public void ModelListShouldIncludeAddedPlaceHolderModels()
+                    {
+                        foreach (var fileModel in _placeHolders)
+                        {
+                            Assert.That(ReceivedModelList.Contains(fileModel), Is.True,
+                                $"Model list should include place-holder {fileModel.Filename}");
+                        }
+                    }
+
+                    [Test]
+                    public void ItShouldNotHashPlaceHolderFiles()
+                    {
+                        foreach (var fileModel in _placeHolders)
+                        {
+                            Hasher.DidNotReceive().Hash(fileModel, Arg.Any<CancellationToken>());
+                        }
+                    }
+                }
+            }
+
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private AudioCarrier AudioCarrier { get; set; }

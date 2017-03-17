@@ -21,7 +21,6 @@ namespace Packager.Test.Utilities.PlaceHolderGenerators
         private AudioPreservationFile Sequence3PresFile { get; set; }
         private ProductionFile Sequence3ProdFile { get; set; }
         private AccessFile Sequence1AccessFile { get; set; }
-
         private TiffImageFile Sequence1TiffFile { get; set; }
         private TiffImageFile Sequence2TiffFile { get; set; }
         private TiffImageFile Sequence3TiffFile { get; set; }
@@ -97,6 +96,19 @@ namespace Packager.Test.Utilities.PlaceHolderGenerators
             var placeHolderGenerator = new AudioPlaceHolderGenerator();
             var resultFileNames = placeHolderGenerator.GetPlaceHoldersToAdd(incompleteSequence).Select(f=>f.Filename);
             Assert.That(resultFileNames, Is.EquivalentTo(expectedFileNames));
+        }
+
+        [Test]
+        public void PlaceHoldersShouldHavePlaceHolderFlagSet()
+        {
+            var incompleteSequence = new List<AbstractFile>
+            {
+                Sequence1PresFile, Sequence1ProdFile, Sequence1AccessFile,  Sequence1TiffFile, // complete sequence
+                Sequence2TiffFile, Sequence3TiffFile // add 2 fully incomplete sequences
+            };
+            var placeHolderGenerator = new AudioPlaceHolderGenerator();
+            var results = placeHolderGenerator.GetPlaceHoldersToAdd(incompleteSequence);
+            Assert.That(results.Any(f=>!f.PlaceHolder), Is.False);
         }
 
     }

@@ -99,6 +99,7 @@
     <Compile Include="Models\EmbeddedMetadataTests\EmbeddedVideoPreservationMetadataTests.cs" />
     <Compile Include="Models\FileModels\FileModelTests.cs" />
     <Compile Include="Models\FileModels\GeneralFileModelTests.cs" />
+    <Compile Include="Models\FileModels\PlaceHolderFileModelTests.cs" />
     <Compile Include="Models\FileModels\QualityControlFileModelTests.cs" />
     <Compile Include="Models\FileModels\UnknownFileModelTests.cs" />
     <Compile Include="Models\FileModels\XmlFileModelTests.cs" />

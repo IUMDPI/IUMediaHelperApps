@@ -59,7 +59,7 @@ namespace Packager.Test.Processors
 
             MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, FFProbeRunner,ImageProcessor);
+            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, FFProbeRunner,ImageProcessor, PlaceHolderGenerator);
 
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
@@ -320,6 +320,73 @@ namespace Packager.Test.Processors
                 {
                     ImageProcessor.Received().ImportMediaImages(Barcode, Arg.Is<CancellationToken>(ct => ct != null));
                 }
+            }
+
+            public class WhenAddingPlaceHolders : WhenNothingGoesWrong
+            {
+                public class WhenNoPlaceHoldersAreNeeded : WhenAddingPlaceHolders
+                {
+                    public void ItShouldLogThatNoPlaceHoldersAreNeeded()
+                    {
+                        Observers.Received().Log("No place-holders to add");
+                    }
+                }
+
+                public class WhenPlaceHoldersAreNeeded : WhenAddingPlaceHolders
+                {
+
+                    private List<AbstractFile> PlaceHolders = new List<AbstractFile>
+                    {
+                        new VideoPreservationFile(new PlaceHolderFile(ProjectCode, Barcode,3)),
+                        new MezzanineFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
+                        new AccessFile(new PlaceHolderFile(ProjectCode, Barcode, 3))
+                    };
+
+                    private List<AbstractFile> ReceivedModelList { get; set; }
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+
+                        PlaceHolderGenerator.GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>())
+                            .Returns(PlaceHolders);
+
+                        VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
+                       .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
+                    }
+
+                    [Test]
+                    public void ItShouldLogAllPlaceHolderEntries()
+                    {
+                        foreach (var fileModel in PlaceHolders)
+                        {
+                            Observers.Received().Log("Adding place-holder: {0}", fileModel.Filename);
+                        }
+                    }
+
+                    [Test]
+                    public void ModelListShouldIncludeAddedPlaceHolderModels()
+                    {
+                        foreach (var fileModel in PlaceHolders)
+                        {
+                            Assert.That(ReceivedModelList.Contains(fileModel), Is.True, 
+                                $"Model list should include place-holder {fileModel.Filename}");
+                        }
+                    }
+
+                }
+
+                [Test]
+                public void ItShouldCallPlaceHolderGenerator()
+                {
+                    PlaceHolderGenerator.Received().GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>());
+                }
+
+                [Test]
+                public void ItShouldWriteSectionHeader()
+                {
+                    Observers.Received().BeginSection("Adding place-holder entries");
+                }
+
             }
 
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong

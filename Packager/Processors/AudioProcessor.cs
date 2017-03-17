@@ -15,6 +15,7 @@ using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
+using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 
@@ -34,7 +35,8 @@ namespace Packager.Processors
             ICarrierDataFactory<AudioPodMetadata> carrierDataFactory, 
             IEmbeddedMetadataFactory<AudioPodMetadata> embeddedMetadataFactory, 
             IFFMPEGRunner ffMpegRunner, 
-            ILabelImageImporter imageProcessor) : base(
+            ILabelImageImporter imageProcessor,
+            IPlaceHolderGenerator placHolderGenerator) : base(
                 bextProcessor, 
                 directoryProvider, 
                 fileProvider, 
@@ -43,7 +45,8 @@ namespace Packager.Processors
                 observers, 
                 programSettings, 
                 xmlExporter,
-                imageProcessor)
+                imageProcessor,
+                placHolderGenerator)
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;

@@ -99,5 +99,18 @@ namespace Packager.Test.Utilities.PlaceHolderGenerators
             Assert.That(resultFileNames, Is.EquivalentTo(expectedFileNames));
         }
 
+
+        [Test]
+        public void PlaceHoldersShouldHavePlaceHolderFlagSet()
+        {
+            var incompleteSequence = new List<AbstractFile>
+            {
+                Sequence1PresFile, Sequence1MezzFile, Sequence1AccessFile,  Sequence1TiffFile, // complete sequence
+                Sequence2TiffFile, Sequence3TiffFile // add 2 fully incomplete sequences
+            };
+            var placeHolderGenerator = new VideoPlaceHolderGenerator();
+            var results = placeHolderGenerator.GetPlaceHoldersToAdd(incompleteSequence);
+            Assert.That(results.Any(f => !f.PlaceHolder), Is.False);
+        }
     }
 }

@@ -13,6 +13,7 @@ using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
+using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 
@@ -20,15 +21,31 @@ namespace Packager.Processors
 {
     public class VideoProcessor : AbstractProcessor<VideoPodMetadata>
     {
-        /*public VideoProcessor(IDependencyProvider dependencyProvider) : base(dependencyProvider)
-        {
-            EmbeddedMetadataFactory = dependencyProvider.VideoMetadataFactory;
-            FFMpegRunner = dependencyProvider.VideoFFMPEGRunner;
-            FFProbeRunner = dependencyProvider.FFProbeRunner;
-            CarrierDataFactory = dependencyProvider.VideoCarrierDataFactory;
-        }*/
-
-        public VideoProcessor(IBextProcessor bextProcessor, IDirectoryProvider directoryProvider, IFileProvider fileProvider, IHasher hasher, IPodMetadataProvider metadataProvider, IObserverCollection observers, IProgramSettings programSettings, IXmlExporter xmlExporter, ICarrierDataFactory<VideoPodMetadata> carrierDataFactory, IEmbeddedMetadataFactory<VideoPodMetadata> embeddedMetadataFactory, IFFMPEGRunner ffMpegRunner, IFFProbeRunner ffProbeRunner, ILabelImageImporter imageProcessor) : base(bextProcessor, directoryProvider, fileProvider, hasher, metadataProvider, observers, programSettings, xmlExporter, imageProcessor)
+        public VideoProcessor(
+            IBextProcessor bextProcessor, 
+            IDirectoryProvider directoryProvider, 
+            IFileProvider fileProvider, 
+            IHasher hasher, 
+            IPodMetadataProvider metadataProvider, 
+            IObserverCollection observers, 
+            IProgramSettings programSettings, 
+            IXmlExporter xmlExporter, 
+            ICarrierDataFactory<VideoPodMetadata> carrierDataFactory, 
+            IEmbeddedMetadataFactory<VideoPodMetadata> embeddedMetadataFactory, 
+            IFFMPEGRunner ffMpegRunner, 
+            IFFProbeRunner ffProbeRunner, 
+            ILabelImageImporter imageProcessor, 
+            IPlaceHolderGenerator placeHolderGenerator) : base(
+                bextProcessor, 
+                directoryProvider, 
+                fileProvider, 
+                hasher, 
+                metadataProvider, 
+                observers, 
+                programSettings, 
+                xmlExporter, 
+                imageProcessor, 
+                placeHolderGenerator)
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;

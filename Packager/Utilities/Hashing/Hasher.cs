@@ -15,11 +15,6 @@ namespace Packager.Utilities.Hashing
             BaseProcessingFolder = programSettings.ProcessingDirectory;
         }
 
-     /*   public Hasher(string baseProcessingFolder)
-        {
-            BaseProcessingFolder = baseProcessingFolder;
-        }*/
-
         private string BaseProcessingFolder { get; }
 
         public async Task<string> Hash(AbstractFile model, CancellationToken cancellationToken)

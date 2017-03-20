@@ -75,11 +75,12 @@ namespace Reporter.LineGenerators
         private static string GetEditorPath()
         {
             var notepadPlusPlusPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), 
-                "Notepad++", "Notepad++.exea");
+                "Notepad++", "Notepad++.exe");
 
+            var notepadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), "notepad.exe");
             return File.Exists(notepadPlusPlusPath)
                 ? notepadPlusPlusPath
-                : "Notepad.exe";
+                : notepadPath;
         }
     }
 }

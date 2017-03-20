@@ -24,7 +24,7 @@ namespace Reporter.Utilities
 
         public async Task<List<AbstractReportEntry>> GetReports()
         {
-            var results = (await Task.Run(() => Directory.EnumerateFiles(FolderPath, "Packager_*.report")))
+            var results = (await Task.Run(() => Directory.EnumerateFiles(FolderPath, "Packager_*.operationReport")))
                 .Select(filename => new FileReportEntry
                 {
                     Filename = filename,

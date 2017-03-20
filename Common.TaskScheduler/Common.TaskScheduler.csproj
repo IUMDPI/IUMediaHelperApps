@@ -65,6 +65,8 @@
     <Compile Include="Schedulers\ReporterScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LICENSE" />
+    <None Include="NOTICE" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

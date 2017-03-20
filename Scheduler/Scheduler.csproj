@@ -65,6 +65,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="LICENSE" />
+    <None Include="NOTICE" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

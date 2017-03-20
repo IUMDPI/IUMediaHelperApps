@@ -64,6 +64,8 @@
     <Compile Include="UserInterface\ViewModels\SectionModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LICENSE" />
+    <None Include="NOTICE" />
     <None Include="packages.config" />
     <None Include="UserInterface\HighlightingRules\HighlightRules.xsd">
       <SubType>Designer</SubType>

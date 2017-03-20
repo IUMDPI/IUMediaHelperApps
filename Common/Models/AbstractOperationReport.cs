@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace Common.Models
 {
-    public abstract class OperationReport
+    public abstract class AbstractOperationReport
     {
         private TimeSpan _duration;
 
@@ -29,7 +29,7 @@ namespace Common.Models
             set { _duration = new TimeSpan(value);}
         }
 
-        public static Task<T> Read<T>(string path) where T:OperationReport
+        public static Task<T> Read<T>(string path) where T:AbstractOperationReport
         {
             return Task.Run(() =>
             {

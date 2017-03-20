@@ -92,8 +92,7 @@ namespace Recorder.Utilities
             {
                 Directory.CreateDirectory(ObjectModel.WorkingFolderPath);
             }
-
-
+            
             ResetObservers();
             var part = GetNewPart();
 
@@ -119,21 +118,24 @@ namespace Recorder.Utilities
 
         private string GetBlackMagicArguments()
         {
-            return UsingDeckLink() && FourChannelsSpecified() 
+            return UsingDeckLink() && ObjectModel.SelectedChannelsAndStreams.Is4Channels 
                 ? "-bm_channels 8" 
                 : string.Empty;
         }
 
         private string GetFilterArguments()
         {
-            return FourChannelsSpecified()
-                ? "-filter_complex channelsplit=channel_layout=15" // 15 = first four channels
-                : string.Empty;
-        }
-
-        private bool FourChannelsSpecified()
-        {
-            return ObjectModel.Channels > 2;
+            switch (ObjectModel.SelectedChannelsAndStreams.Streams)
+            {
+                case 1:
+                    return string.Empty;
+                case 2:
+                    return "-filter_complex channelsplit"; // default layout is 2 mono channels
+                case 4:
+                    return "-filter_complex channelsplit=channel_layout=15"; // 15 = first four channels
+                default:
+                    throw new Exception("invalid stream count. Currently only 1,2, and 4 are supported");
+            }
         }
 
         private bool UsingDeckLink()

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -22,13 +24,14 @@ namespace Reporter
     {
         private ProgramSettings ProgramSettings { get; }
 
-        private delegate void SelectionChangedDelegate(ReportEntry entry);
+        private delegate void SelectionChangedDelegate(AbstractReportEntry entry);
 
         private event SelectionChangedDelegate SelectionChanged;
 
-        private readonly IReportReader _reportReader;
-        private ReportEntry _selectedEntry;
+        private readonly List<IReportRenderer> _reportReaders;
+        private AbstractReportEntry _selectedEntry;
         private string _windowTitle;
+        private bool _initializing;
 
         public string WindowTitle
         {
@@ -36,11 +39,18 @@ namespace Reporter
             set { _windowTitle = value; OnPropertyChanged(); }
         }
 
+        public bool Initializing
+        {
+            get { return _initializing;}
+            set { _initializing = value; OnPropertyChanged(); }
+        }
+
         private ICommand _selectFolderCommand;
+        private ICommand _refreshReportsCommand;
 
-        public BindingList<ReportEntry> Reports { get; }
+        public BindingList<AbstractReportEntry> Reports { get; }
 
-        public ReportEntry SelectedReport
+        public AbstractReportEntry SelectedReport
         {
             get { return _selectedEntry; }
             set
@@ -57,7 +67,18 @@ namespace Reporter
             get
             {
                 return _selectFolderCommand ??
-                       (_selectFolderCommand = new AsyncRelayCommand(async action => await SelectFolder()));
+                       (_selectFolderCommand = new AsyncRelayCommand(
+                           async action => await SelectFolder()));
+            }
+        }
+
+        public ICommand RefreshReportsList
+        {
+            get
+            {
+                return _refreshReportsCommand ??
+                       (_refreshReportsCommand = new AsyncRelayCommand(
+                           async action => await InitializeReportsList()));
             }
         }
 
@@ -94,68 +115,38 @@ namespace Reporter
             await InitializeReportsList();
         }
 
-        public ViewModel(ProgramSettings programSettings, IReportReader reportReader, ILogPanelViewModel logPanelViewModel)
+        public ViewModel(ProgramSettings programSettings, List<IReportRenderer> reportReaders, ILogPanelViewModel logPanelViewModel)
         {
             ProgramSettings = programSettings;
             WindowTitle = $"{programSettings.ProjectCode} Reporter";
-            Reports = new BindingList<ReportEntry>
+            Reports = new BindingList<AbstractReportEntry>
             {
-                RaiseListChangedEvents = true,
+                RaiseListChangedEvents = true
             };
             Reports.ListChanged += (sender, args) => { OnPropertyChanged(nameof(Reports)); };
             LogPanelViewModel = logPanelViewModel;
-            _reportReader = reportReader;
+            _reportReaders = reportReaders;
             SelectionChanged += SelectionChangedHandler;
         }
 
-        private async void SelectionChangedHandler(ReportEntry entry)
+        private IReportRenderer GetReaderForReport(AbstractReportEntry report)
+        {
+            return _reportReaders.SingleOrDefault(r => r.CanRender(report));
+        }
+
+        private async void SelectionChangedHandler(
+            AbstractReportEntry entry)
         {
             LogPanelViewModel.Clear();
 
-            var report = await _reportReader.GetReport<PackagerReport>(entry);
-            if (report == null)
+            var reader = GetReaderForReport(entry);
+            if (reader == null)
             {
-                LogPanelViewModel.InsertLine($"There are no reports in the {ProgramSettings.ReportFolder} folder.\n\nPlease select a different folder.");
+                LogPanelViewModel.InsertLine($"This operationReport cannot be opened.\n\nPlease try a different operationReport.");
                 return;
             }
 
-            LogPanelViewModel.BeginSection("Summary", "Results Summary:");
-
-            LogPanelViewModel.InsertLine($"Started:   {report.Timestamp:MM/dd/yyyy hh:mm tt}");
-            LogPanelViewModel.InsertLine($"Completed: {report.Timestamp.Add(report.Duration):MM/dd/yyyy hh:mm tt}");
-            LogPanelViewModel.InsertLine($"Duration:  {report.Duration:hh\\:mm\\:ss}");
-            LogPanelViewModel.InsertLine("");
-            LogPanelViewModel.InsertLine($"Found {report.ObjectReports.Count.ToSingularOrPlural("object", "objects")} to process.");
-
-            var inError = report.ObjectReports.Where(r => r.Succeeded == false).ToList();
-            var success = report.ObjectReports.Where(r => r.Succeeded).ToList();
-
-            LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
-            LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");
-
-            LogPanelViewModel.EndSection("Summary");
-        }
-
-        private void LogObjectResults(List<PackagerObjectReport> results, string header)
-        {
-            if (results.Any() == false)
-            {
-                return;
-            }
-
-            LogPanelViewModel.BeginSection(header, header);
-
-            foreach (var result in results)
-            {
-                LogPanelViewModel.InsertLine($"{result.Barcode} ({result.Duration:hh\\:mm\\:ss})");
-                if (result.Succeeded == false)
-                {
-                    LogPanelViewModel.InsertLine("");
-                    LogPanelViewModel.InsertLine($"ERROR: {result.Issue}");
-                }
-            }
-
-            LogPanelViewModel.EndSection(header, header);
+            await reader.Render(entry);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -173,16 +164,44 @@ namespace Reporter
             await InitializeReportsList();
         }
 
-        private async Task InitializeReportsList()
+        private async Task<List<AbstractReportEntry>> GetReports()
         {
-            Reports.Clear();
+            var results = new List<AbstractReportEntry>();
+            foreach (var reader in _reportReaders)
+            {
+                results.AddRange(await reader.GetReports());
+            }
 
-            var entries = (await _reportReader.GetReports().ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
-
-            SetEntries(entries);
+            return results;
         }
 
-        private void SetEntries(List<ReportEntry> entries)
+        private async Task InitializeReportsList()
+        {
+            var started = DateTime.Now;
+
+            if (Application.Current.Dispatcher.CheckAccess() == false)
+            {
+                await Application.Current.Dispatcher.InvokeAsync(async () => await InitializeReportsList());
+                return;
+            }
+
+            Initializing = true;
+            Reports.Clear();
+
+            var entries = (await GetReports().ConfigureAwait(false)).OrderByDescending(e => e.Timestamp).ToList();
+
+            SetEntries(entries);
+
+            var elapsed = DateTime.Now.Subtract(started);
+            var remaining = (int)(2000 - elapsed.TotalMilliseconds);
+            if (remaining < 0) remaining = 0;
+            await Task.Delay(remaining).ContinueWith(action =>
+            {
+                Initializing = false;
+            });
+        }
+
+        private void SetEntries(List<AbstractReportEntry> entries)
         {
             Application.Current.Dispatcher.InvokeAsync(() =>
             {

@@ -10,7 +10,6 @@ namespace Packager.Test.Models.FileModelTests
         private string ExpectedFullFileUse { get; set; }
         private string ExpectedExtension { get; set; }
         private string ExpectedToFileName { get; set; }
-
         private string ExpectedSameFileName { get; set; }
         private int ExpectedPrecedenceValue { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace Common.Models
 {
-    public class PackagerObjectReport : OperationReport
+    public class PackagerObjectReport : AbstractOperationReport
     {
         [XmlAttribute("Barcode")]
         public string Barcode { get; set; }

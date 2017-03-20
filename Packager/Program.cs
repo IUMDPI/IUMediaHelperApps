@@ -22,6 +22,7 @@ using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
+using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Reporting;
 using Packager.Utilities.Xml;
@@ -98,6 +99,12 @@ namespace Packager
 
             container.RegisterConditional<IFFMPEGRunner, AudioFFMPEGRunner>(Lifestyle.Singleton,
                 c => c.Consumer.ImplementationType == typeof(AudioProcessor) || c.Consumer.ImplementationType == typeof(ConfigurationLogger));
+
+            container.RegisterConditional<IPlaceHolderGenerator, AudioPlaceHolderGenerator>(Lifestyle.Singleton, 
+                c=>c.Consumer.ImplementationType == typeof(AudioProcessor));
+
+            container.RegisterConditional<IPlaceHolderGenerator, VideoPlaceHolderGenerator>(Lifestyle.Singleton,
+                c => c.Consumer.ImplementationType == typeof(VideoProcessor));
 
             container.RegisterSingleton( ()=> new Dictionary<string, IProcessor>
             {

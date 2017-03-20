@@ -153,6 +153,7 @@
     <Compile Include="Handlers\DroppedFramesHandler.cs" />
     <Compile Include="Handlers\DuplicateFrameHandler.cs" />
     <Compile Include="Handlers\OutputLogHandler.cs" />
+    <Compile Include="Models\AudioChannelsAndStreams.cs" />
     <Compile Include="Models\ObjectModel.cs" />
     <Compile Include="Models\ProgramSettings.cs" />
     <Compile Include="Handlers\TimestampReceivedHandler.cs" />
@@ -259,6 +260,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="LICENSE" />
+    <None Include="NOTICE" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

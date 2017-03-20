@@ -16,6 +16,7 @@ using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
 using Packager.Utilities.Bext;
+using Packager.Utilities.PlaceHolderGenerators;
 
 namespace Packager.Test.Processors
 {
@@ -58,7 +59,7 @@ namespace Packager.Test.Processors
 
             MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor  = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor);
+            Processor  = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor, PlaceHolderGenerator);
             
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
@@ -341,6 +342,86 @@ namespace Packager.Test.Processors
                 public void ItShouldCallImageImporterCorrectly()
                 {
                     ImageProcessor.Received().ImportMediaImages(Barcode, Arg.Is<CancellationToken>(ct => ct != null));
+                }
+            }
+
+            public class WhenAddingPlaceHolders : WhenNothingGoesWrong
+            {
+                public class WhenNoPlaceHoldersAreNeeded : WhenAddingPlaceHolders
+                {
+                    public void ItShouldLogThatNoPlaceHoldersAreNeeded()
+                    {
+                        Observers.Received().Log("No place-holders to add");
+                    }
+                }
+
+                public class WhenPlaceHoldersAreNeeded : WhenAddingPlaceHolders
+                {
+
+                    private readonly List<AbstractFile> _placeHolders = new List<AbstractFile>
+                    {
+                        new AudioPreservationFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
+                        new ProductionFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
+                        new AccessFile(new PlaceHolderFile(ProjectCode, Barcode, 3))
+                    };
+
+                    private List<AbstractFile> ReceivedModelList { get; set; }
+
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+
+                        PlaceHolderGenerator.GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>())
+                            .Returns(_placeHolders);
+
+                        AudioCarrierDataFactory.When(
+                                mg =>
+                                    mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(),
+                                        Arg.Any<List<AbstractFile>>()))
+                            .Do(x => {
+                                ReceivedModelList = x.Arg<List<AbstractFile>>();
+                            });
+                    }
+
+                    [Test]
+                    public void ItShouldLogAllPlaceHolderEntries()
+                    {
+                        foreach (var fileModel in _placeHolders)
+                        {
+                            Observers.Received().Log("Adding place-holder: {0}", fileModel.Filename);
+                        }
+                    }
+
+                    [Test]
+                    public void ModelListShouldIncludeAddedPlaceHolderModels()
+                    {
+                        foreach (var fileModel in _placeHolders)
+                        {
+                            Assert.That(ReceivedModelList.Contains(fileModel), Is.True,
+                                $"Model list should include place-holder {fileModel.Filename}");
+                        }
+                    }
+
+                    [Test]
+                    public void ItShouldNotHashPlaceHolderFiles()
+                    {
+                        foreach (var fileModel in _placeHolders)
+                        {
+                            Hasher.DidNotReceive().Hash(fileModel, Arg.Any<CancellationToken>());
+                        }
+                    }
+
+                    [Test]
+                    public void ItShouldNotAttemptToCopyPlaceHolderFiles()
+                    {
+                        foreach (var fileModel in _placeHolders)
+                        {
+                            FileProvider.DidNotReceive().CopyFileAsync(
+                                Path.Combine(ExpectedProcessingDirectory, fileModel.Filename),
+                                Arg.Any<string>(), 
+                                Arg.Any<CancellationToken>());
+                        }
+                    }
                 }
             }
 

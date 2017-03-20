@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -8,6 +9,9 @@ using System.Security.Principal;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Common.TaskScheduler.Configurations;
+using Common.TaskScheduler.Factory;
+using Common.TaskScheduler.Schedulers;
 using Common.UserInterface.Commands;
 using InteractiveScheduler.ManagedCode;
 using InteractiveScheduler.Services;
@@ -20,9 +24,12 @@ namespace InteractiveScheduler.Models
         private const string DefaultPackagerPath = @"c:\dependencies\packager\packager.exe";
         private readonly IFileDialogService _fileDialogService;
         private readonly IUserService _userService;
-        private readonly ITaskScheduler _taskScheduler;
+        private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public BindingList<AbstractOperation> Operations { get;  }
+
+        private bool _scheduleDaily;
         private string _taskName;
         private string _packagerPath;
         private DateTime _startOn;
@@ -42,13 +49,17 @@ namespace InteractiveScheduler.Models
         private bool _taskExists;
         private bool _taskRunning;
         private bool _flashMessage;
+        private bool _nameReadOnly;
+        private int _delayInMinutes;
 
-        private ICommand _browseForPackagerCommand;
+        private AbstractOperation _currentOperation;
+
+        private ICommand _browseForApplicationCommand;
         private ICommand _scheduleTaskCommand;
         private ICommand _hideMessageCommand;
         private ICommand _closeWindowCommand;
         private ICommand _removeTaskCommand;
-       
+
         private ICommand _stopTaskCommand;
         private ICommand _openSchedulerCommand;
         private bool _taskEnabled;
@@ -59,17 +70,29 @@ namespace InteractiveScheduler.Models
         private ICommand _openPolicyCommand;
         private BitmapSource _uacShield;
 
-        public ViewModel(IFileDialogService fileDialogService, IUserService userService, ITaskScheduler taskScheduler)
+        public ViewModel(IFileDialogService fileDialogService, IUserService userService, ITaskSchedulerFactory taskSchedulerFactory)
         {
             _fileDialogService = fileDialogService;
             _userService = userService;
-            _taskScheduler = taskScheduler;
-            
-            Username = WindowsIdentity.GetCurrent().Name;
+            _taskSchedulerFactory = taskSchedulerFactory;
 
-            var packagerPath = fileDialogService.Exists(DefaultPackagerPath) ? DefaultPackagerPath : string.Empty;
-            SetDefaults(packagerPath);
-            ImportFromTask(_taskScheduler.FindExisting());
+            Username = WindowsIdentity.GetCurrent().Name;
+            Operations = new BindingList<AbstractOperation>();
+           
+            DoInitialConfiguration();
+        }
+
+        private void DoInitialConfiguration()
+        {
+            InitializeAvailableOperations();
+            if (Operations.Count == 1)
+            {
+                CurrentOperation = Operations.First();
+                return;
+            }
+
+            var firstEditOperation = Operations.First(o => o is EditExistingOperation);
+            CurrentOperation = firstEditOperation;
         }
 
         public string TaskName
@@ -82,7 +105,7 @@ namespace InteractiveScheduler.Models
             }
         }
 
-        public string PackagerPath
+        public string ExecutablePath
         {
             get { return _packagerPath; }
             set
@@ -90,6 +113,14 @@ namespace InteractiveScheduler.Models
                 _packagerPath = value;
                 OnPropertyChanged();
             }
+        }
+
+        public int DelayInMinutes
+        {
+            get { return _delayInMinutes; }
+            set {
+                _delayInMinutes = value;
+                OnPropertyChanged(); }
         }
 
         public DateTime StartOn
@@ -182,6 +213,12 @@ namespace InteractiveScheduler.Models
             }
         }
 
+        public bool NameReadOnly
+        {
+            get { return _nameReadOnly; }
+            set { _nameReadOnly = value; OnPropertyChanged(); }
+        }
+
         public bool Impersonate
         {
             get { return _impersonate; }
@@ -189,7 +226,16 @@ namespace InteractiveScheduler.Models
             {
                 _impersonate = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowUacShield));
             }
+        }
+
+        public bool ScheduleDaily
+        {
+            get { return _scheduleDaily;}
+            set { _scheduleDaily = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowUacShield)); }
         }
 
         public string Message
@@ -218,6 +264,16 @@ namespace InteractiveScheduler.Models
             set
             {
                 _showMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public AbstractOperation CurrentOperation
+        {
+            get { return _currentOperation; }
+            set {
+                _currentOperation = value;
+                Import(value);
                 OnPropertyChanged();
             }
         }
@@ -251,24 +307,46 @@ namespace InteractiveScheduler.Models
             get { return _flashMessage; }
             set { _flashMessage = value; OnPropertyChanged(); }
         }
-        
-        private void OpenPackagerDialog()
+
+        public bool ShowUacShield => Impersonate && ScheduleDaily;
+
+        private void OpenFileBrowserDialog()
         {
-            var result = _fileDialogService.OpenDialog(DefaultPackagerPath);
+            var currentScheduler = _taskSchedulerFactory.GetForApplication(ExecutablePath);
+
+            var path = string.IsNullOrWhiteSpace(ExecutablePath)
+                ? DefaultPackagerPath
+                : ExecutablePath;
+
+            var result = _fileDialogService.OpenDialog(path);
             if (string.IsNullOrWhiteSpace(result))
             {
                 return;
             }
 
-            PackagerPath = result;
+            ExecutablePath = result;
+            if (string.IsNullOrWhiteSpace(TaskName))
+            {
+                TaskName = FileVersionInfo.GetVersionInfo(result).ProductName;
+            }
+
+            var newScheduler = _taskSchedulerFactory.GetForApplication(result);
+            if (newScheduler == null || newScheduler == currentScheduler)
+            {
+                return;
+            }
+
+            var configuration = newScheduler.GetDefaultConfiguration();
+            configuration.ExecutablePath = result;
+            Import(configuration);
         }
 
         public ICommand BrowseForPackager
         {
             get
             {
-                return _browseForPackagerCommand
-                       ?? (_browseForPackagerCommand = new RelayCommand(param => OpenPackagerDialog()));
+                return _browseForApplicationCommand
+                       ?? (_browseForApplicationCommand = new RelayCommand(param => OpenFileBrowserDialog()));
             }
         }
 
@@ -337,7 +415,9 @@ namespace InteractiveScheduler.Models
             get
             {
                 return _openSchedulerCommand ?? (_openSchedulerCommand = new RelayCommand(
-                           param => _taskScheduler.Open(TaskName)));
+                           param => _taskSchedulerFactory
+                                .GetDefaultScheduler()
+                                .OpenWindowsTaskScheduler()));
             }
         }
 
@@ -375,87 +455,55 @@ namespace InteractiveScheduler.Models
 
         public bool TaskRunning
         {
-            get { return _taskRunning; } 
+            get { return _taskRunning; }
             set { _taskRunning = value; OnPropertyChanged(); }
         }
 
         private void DoRemoveTask()
         {
-            _taskScheduler.Remove(TaskName);
-            ImportFromTask(_taskScheduler.FindExisting());
+            var scheduler = GetSchedulerForApplication(ExecutablePath);
+            scheduler.Remove(TaskName);
+            InitializeAvailableOperations();
+            CurrentOperation = Operations.First();
         }
 
         private void DoStopTask()
         {
-            _taskScheduler.Stop(TaskName);
-            ImportFromTask(_taskScheduler.FindExisting());
+            var scheduler = GetSchedulerForApplication(ExecutablePath);
+            scheduler.Stop(TaskName);
+            InitializeAvailableOperations();
+            SetCurrentOperationByTaskName(TaskName);
         }
 
         private void DoEnableTask(bool enable)
         {
-            _taskScheduler.Enable(TaskName, enable);
-            ImportFromTask(_taskScheduler.FindExisting());
-        }
-        
-        private List<string> GetDialogIssues()
-        {
-            var issues = new List<string>();
-
-            if (!_fileDialogService.Exists(PackagerPath))
-            {
-                issues.Add("Please provide a valid packager path.");
-            }
-
-            if (CalculateDays() == 0)
-            {
-                issues.Add("Please select at least one day.");
-            }
-
-            if (!Impersonate)
-            {
-                return issues;
-            }
-
-            if (string.IsNullOrWhiteSpace(Username))
-            {
-                issues.Add("Please provide a username or uncheck Impersonate.");
-            }
-
-            if (Password == null || Password.Length == 0)
-            {
-                issues.Add("Please provide a password or uncheck Impersonate.");
-            }
-
-            if (_userService.CredentialsValid(Username, Password) == false)
-            {
-                issues.Add("Invalid username and/or password.");
-            }
-
-            return issues;
+            var scheduler = GetSchedulerForApplication(ExecutablePath);
+            scheduler.Enable(TaskName, enable);
+            InitializeAvailableOperations();
+            SetCurrentOperationByTaskName(TaskName);
         }
 
         private async System.Threading.Tasks.Task DoScheduleTask()
         {
-            var issues = GetDialogIssues();
-            if (issues.Any())
-            {
-                ShowMessage("Could not schedule task", issues.First());
-                return;
-            }
-
             if (await TryGrantPermission(Username) == false)
             {
                 return;
             }
 
-            TryScheduleTask();
+            if (TryScheduleTask() == false)
+            {
+                return;
+            }
+
+            InitializeAvailableOperations();
+            SetCurrentOperationByTaskName(TaskName);
         }
 
         private async System.Threading.Tasks.Task<bool> TryGrantPermission(string username)
         {
             try
             {
-                if (!Impersonate)
+                if (!Impersonate || !ScheduleDaily)
                 {
                     return true;
                 }
@@ -470,20 +518,74 @@ namespace InteractiveScheduler.Models
             }
         }
 
-        private void TryScheduleTask()
+        private bool TryScheduleTask()
         {
             try
             {
-                var arguments = Impersonate ? "-noninteractive" : null;
-                var password = Impersonate ? Password : null;
-                _taskScheduler.Schedule(TaskName, PackagerPath, arguments, Username, password, StartOn, CalculateDays());
-                ShowMessage("Success!", "Task successfully scheduled!");
-                ImportFromTask(_taskScheduler.FindExisting());
+                var scheduler = GetSchedulerForApplication(ExecutablePath);
+                var configuration = GetConfiguration();
+                var result = scheduler.Schedule(configuration);
+                if (result.Item1 == false)
+                {
+                    ShowMessage("Could not schedule task", result.Item2.First());
+                }
+                else
+                {
+                    ShowMessage("Success!", "Task successfully scheduled!");
+                }
+                return result.Item1;
             }
             catch (Exception e)
             {
                 ShowMessage("Could not schedule task", e.Message);
+                return false;
             }
+        }
+
+        private void SetCurrentOperationByTaskName(string name)
+        {
+            var operation = Operations.FirstOrDefault(o => o.Value.TaskName.Equals(name));
+            if (operation == null)
+            {
+                return;
+            }
+
+            CurrentOperation = operation;
+        }
+
+        private AbstractConfiguration GetConfiguration()
+        {
+            if (ScheduleDaily == false)
+            {
+                return new StartOnLogonConfiguration
+                {
+                    ExecutablePath = ExecutablePath,
+                    TaskName = TaskName,
+                    Username = Username,
+                    Delay = new TimeSpan(0, DelayInMinutes,0)
+                };
+            }
+
+            if (Impersonate == false)
+            {
+                return new DailyConfiguration
+                {
+                    ExecutablePath = ExecutablePath,
+                    TaskName = TaskName,
+                    StartOn = StartOn,
+                    Days = CalculateDays()
+                };
+            }
+
+            return new ImpersonateDailyConfiguration
+            {
+                ExecutablePath = ExecutablePath,
+                TaskName = TaskName,
+                StartOn = StartOn,
+                Days = CalculateDays(),
+                Username = Username,
+                Passphrase = Password
+            };
         }
 
         public SecureString Password { private get; set; }
@@ -550,53 +652,103 @@ namespace InteractiveScheduler.Models
             return result;
         }
 
-        private void SetDefaults(string packagerPath)
+        private ITaskScheduler GetSchedulerForApplication(string path)
         {
-            MondayChecked = true;
-            TuesdayChecked = true;
-            WednesdayChecked = true;
-            ThursdayChecked = true;
-            FridayChecked = true;
-            SaturdayChecked = false;
-            SundayChecked = false;
-            StartOn = DateTime.Now.Date.AddHours(19);
-            TaskName = "Media Packager";
-            PackagerPath = packagerPath;
-            Impersonate = false;
+            return _taskSchedulerFactory.GetForApplication(path) != null
+                ? _taskSchedulerFactory.GetForApplication(path)
+                : _taskSchedulerFactory.GetDefaultScheduler();
         }
 
-        private void ImportFromTask(Task task)
+        private void InitializeAvailableOperations()
         {
-            if (task == null)
+            if (!Application.Current.Dispatcher.CheckAccess())
             {
-                TaskExists = false;
-                TaskDisabled = false;
-                TaskEnabled = false;
-                TaskRunning = false;
+                Application.Current.Dispatcher.Invoke(InitializeAvailableOperations);
                 return;
             }
 
-            TaskExists = true;
-            TaskName = task.Name;
-            TaskRunning = task.State == TaskState.Running;
-            TaskDisabled = task.Enabled == false;
-            TaskEnabled = task.Enabled;
-            AdvancedMenuOpen = false;
-
-            Impersonate = task.Definition.Principal.LogonType == TaskLogonType.Password;
-
-            var trigger = task.Definition.Triggers.FirstOrDefault(tr => tr.TriggerType == TaskTriggerType.Weekly) as WeeklyTrigger;
-            if (trigger != null)
+            Operations.Clear();
+            Operations.Add(new AddNewOperation(_taskSchedulerFactory
+                .GetDefaultScheduler().GetDefaultConfiguration()));
+            foreach (var configuration in _taskSchedulerFactory.GetExistingTasks())
             {
-                StartOn = trigger.StartBoundary;
-                MondayChecked = DayChecked(trigger.DaysOfWeek, DaysOfTheWeek.Monday);
-                TuesdayChecked = DayChecked(trigger.DaysOfWeek, DaysOfTheWeek.Tuesday);
-                WednesdayChecked = DayChecked(trigger.DaysOfWeek, DaysOfTheWeek.Wednesday);
-                ThursdayChecked = DayChecked(trigger.DaysOfWeek, DaysOfTheWeek.Thursday);
-                FridayChecked = DayChecked(trigger.DaysOfWeek, DaysOfTheWeek.Friday);
-                SaturdayChecked = DayChecked(trigger.DaysOfWeek, DaysOfTheWeek.Saturday);
-                SundayChecked = DayChecked(trigger.DaysOfWeek, DaysOfTheWeek.Sunday);
+                Operations.Add(new EditExistingOperation(configuration));
             }
+        }
+
+        private void Import(AbstractOperation operation)
+        {
+            if (operation?.Value == null)
+            {
+                return;
+            }
+
+            Import(operation.Value);
+
+            TaskName = operation is EditExistingOperation 
+                ? operation.Value.TaskName 
+                : string.Empty;
+        }
+
+        private void Import(AbstractConfiguration configuration)
+        {
+            TaskExists = configuration.Exists;
+            TaskRunning = configuration.Running;
+            TaskDisabled = !configuration.Enabled;
+            TaskEnabled = configuration.Enabled;
+            
+            AdvancedMenuOpen = false;
+            ExecutablePath = configuration.ExecutablePath;
+            
+            Import(configuration as DailyConfiguration);
+            Import(configuration as ImpersonateDailyConfiguration);
+            Import(configuration as StartOnLogonConfiguration);
+        }
+
+        private void Import(DailyConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                return;
+            }
+
+            ScheduleDaily = true;
+            Impersonate = false;
+            StartOn = configuration.StartOn;
+            SetDaysFromEnum(configuration.Days);
+        }
+
+        private void Import(ImpersonateDailyConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                return;
+            }
+
+            Impersonate = true;
+        }
+
+        private void Import(StartOnLogonConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                return;
+            }
+
+            DelayInMinutes = configuration.Delay.Minutes;
+            Username = configuration.Username;
+            ScheduleDaily = false;
+        }
+
+        private void SetDaysFromEnum(DaysOfTheWeek value)
+        {
+            MondayChecked = DayChecked(value, DaysOfTheWeek.Monday);
+            TuesdayChecked = DayChecked(value, DaysOfTheWeek.Tuesday);
+            WednesdayChecked = DayChecked(value, DaysOfTheWeek.Wednesday);
+            ThursdayChecked = DayChecked(value, DaysOfTheWeek.Thursday);
+            FridayChecked = DayChecked(value, DaysOfTheWeek.Friday);
+            SaturdayChecked = DayChecked(value, DaysOfTheWeek.Saturday);
+            SundayChecked = DayChecked(value, DaysOfTheWeek.Sunday);
         }
 
         private static bool DayChecked(DaysOfTheWeek value, DaysOfTheWeek dayValue)

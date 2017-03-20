@@ -23,7 +23,7 @@ namespace Packager.Test.Utilities
         private Dictionary<string, DurationResult> MockPackagerIssueResults { get; set; }
         private Dictionary<string, DurationResult> MockPackagerSucceededResults { get; set; }
         private Exception Exception { get; set; }
-        private PackagerReport Report { get; set; }
+        private PackagerReport OperationReport { get; set; }
         private string ReportPath { get; set; }
 
         [SetUp]
@@ -34,7 +34,7 @@ namespace Packager.Test.Utilities
             XmlExporter.When(action => action.ExportToFile(Arg.Any<PackagerReport>(), Arg.Any<string>()))
                     .Do(call =>
                 {
-                    Report = call.Arg<PackagerReport>();
+                    OperationReport = call.Arg<PackagerReport>();
                     ReportPath = call.Arg<string>();
                 });
 
@@ -63,7 +63,7 @@ namespace Packager.Test.Utilities
         {
             var expected = Path.Combine(
                 ProgramSettings.LogDirectoryName,
-                $"Packager_{new DateTime(2017, 1, 1).Ticks:D19}.report");
+                $"Packager_{new DateTime(2017, 1, 1).Ticks:D19}.operationReport");
 
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017,1,1));
             Assert.That(ReportPath, Is.EqualTo(expected));
@@ -73,7 +73,7 @@ namespace Packager.Test.Utilities
         public void TimestampShouldBeSet()
         {
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017,1,1));
-            Assert.That(Report.Timestamp, Is.EqualTo(new DateTime(2017, 1, 1)));
+            Assert.That(OperationReport.Timestamp, Is.EqualTo(new DateTime(2017, 1, 1)));
         }
 
 
@@ -81,7 +81,7 @@ namespace Packager.Test.Utilities
         public void DurationShouldBeSet()
         {
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
-            Assert.That(Report.Duration, Is.GreaterThan(new TimeSpan()));
+            Assert.That(OperationReport.Duration, Is.GreaterThan(new TimeSpan()));
         }
 
 
@@ -89,56 +89,56 @@ namespace Packager.Test.Utilities
         public void IfPackagerIssuesSucceededShouldBeFalse()
         {
             ReportWriter.WriteResultsReport(MockPackagerIssueResults, new DateTime(2017, 1, 1));
-            Assert.That(Report.Succeeded, Is.EqualTo(false));
+            Assert.That(OperationReport.Succeeded, Is.EqualTo(false));
         }
 
         [Test]
         public void IfNoPackagerIssuesSucceededShouldBeTrue()
         {
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
-            Assert.That(Report.Succeeded, Is.EqualTo(true));
+            Assert.That(OperationReport.Succeeded, Is.EqualTo(true));
         }
 
         [Test]
         public void IfNoPackagerIssuesIssueShouldNotBeSet()
         {
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
-            Assert.That(Report.Issue, Is.EqualTo(string.Empty));
+            Assert.That(OperationReport.Issue, Is.EqualTo(string.Empty));
         }
 
         [Test]
         public void IfNoPackagerIssuesIssueShouldBeSet()
         {
             ReportWriter.WriteResultsReport(MockPackagerIssueResults, new DateTime(2017, 1, 1));
-            Assert.That(Report.Issue, Is.EqualTo("Issues occurred while processing one or more objects"));
+            Assert.That(OperationReport.Issue, Is.EqualTo("Issues occurred while processing one or more objects"));
         }
 
         [Test]
         public void ObjectResultsShouldBeCorrectIfIssuesOccur()
         {
             ReportWriter.WriteResultsReport(MockPackagerIssueResults, new DateTime(2017, 1, 1));
-            AssertObjectReportsOk(MockPackagerIssueResults, Report.ObjectReports);
+            AssertObjectReportsOk(MockPackagerIssueResults, OperationReport.ObjectReports);
         }
 
         [Test]
         public void ObjectResultsShouldBeCorrectIfNoIssuesOccur()
         {
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
-            AssertObjectReportsOk(MockPackagerSucceededResults, Report.ObjectReports);
+            AssertObjectReportsOk(MockPackagerSucceededResults, OperationReport.ObjectReports);
         }
 
         [Test]
         public void SucceededShouldBeFalseWhenWritingExceptionReport()
         {
             ReportWriter.WriteResultsReport(Exception);
-            Assert.That(Report.Succeeded, Is.False);
+            Assert.That(OperationReport.Succeeded, Is.False);
         }
 
         [Test]
         public void IssueShouldBeCorrectWhenWritingExceptionReport()
         {
             ReportWriter.WriteResultsReport(Exception);
-            Assert.That(Report.Issue, Is.EqualTo(Exception.Message));
+            Assert.That(OperationReport.Issue, Is.EqualTo(Exception.Message));
         }
 
         private static void AssertObjectReportsOk(Dictionary<string, DurationResult> originals,

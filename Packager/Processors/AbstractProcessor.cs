@@ -16,37 +16,39 @@ using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
+using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
 
 namespace Packager.Processors
 {
-    public abstract class AbstractProcessor<T> : IProcessor where T: AbstractPodMetadata, new()
+    public abstract class AbstractProcessor<T> : IProcessor where T : AbstractPodMetadata, new()
     {
-       protected AbstractProcessor(
-           IBextProcessor bextProcessor, 
-           IDirectoryProvider directoryProvider, 
-           IFileProvider fileProvider, 
-           IHasher hasher, 
-           IPodMetadataProvider metadataProvider, 
-           IObserverCollection observers, 
-           IProgramSettings programSettings, 
-           IXmlExporter xmlExporter, 
-           ILabelImageImporter imageProcessor)
+        protected AbstractProcessor(
+           IBextProcessor bextProcessor,
+           IDirectoryProvider directoryProvider,
+           IFileProvider fileProvider,
+           IHasher hasher,
+           IPodMetadataProvider metadataProvider,
+           IObserverCollection observers,
+           IProgramSettings programSettings,
+           IXmlExporter xmlExporter,
+           ILabelImageImporter imageProcessor, IPlaceHolderGenerator placeHolderGenerator)
         {
             ProgramSettings = programSettings;
             Observers = observers;
             MetadataProvider = metadataProvider;
             XmlExporter = xmlExporter;
             LabelImageImporter = imageProcessor;
+            PlaceHolderGenerator = placeHolderGenerator;
             BextProcessor = bextProcessor;
             DirectoryProvider = directoryProvider;
             FileProvider = fileProvider;
             Hasher = hasher;
 
             ProjectCode = programSettings.ProjectCode;
-            
+
             InputDirectory = programSettings.InputDirectory;
             RootDropBoxDirectory = programSettings.DropBoxDirectoryName;
             RootProcessingDirectory = programSettings.ProcessingDirectory;
@@ -58,12 +60,13 @@ namespace Packager.Processors
         private string ProjectCode { get; }
 
         protected abstract string OriginalsDirectory { get; }
-        
+
         private IProgramSettings ProgramSettings { get; }
         protected IObserverCollection Observers { get; }
         private IPodMetadataProvider MetadataProvider { get; }
         private IXmlExporter XmlExporter { get; }
         private ILabelImageImporter LabelImageImporter { get; }
+        private IPlaceHolderGenerator PlaceHolderGenerator { get; }
         private IHasher Hasher { get; }
         private IFileProvider FileProvider { get; }
         private IDirectoryProvider DirectoryProvider { get; }
@@ -83,15 +86,15 @@ namespace Packager.Processors
         protected abstract IFFMPEGRunner FFMpegRunner { get; }
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
         protected abstract AbstractFile CreateProdOrMezzModel(AbstractFile master);
-        protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models); 
+        protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models);
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken);
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken);
-        
+
         public virtual async Task<DurationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
         {
             var startTime = DateTime.Now;
             Barcode = fileModels.Key;
-            
+
             var sectionKey = Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode);
             try
             {
@@ -102,7 +105,7 @@ namespace Packager.Processors
 
                 // now move them to processing
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
-                
+
                 // fetch, log, and validate metadata
                 var metadata = await GetMetadata<T>(filesToProcess, cancellationToken);
 
@@ -145,6 +148,11 @@ namespace Packager.Processors
                     .Concat(await ImportLabelImages(cancellationToken))
                     .ToList();
 
+                // add place-holder file entries
+                processedList = processedList
+                    .Concat(GetPlaceHoldersToAdd(processedList))
+                    .ToList();
+
                 // using the list of files that have been processed
                 // make the xml file
                 processedList.Add(await GenerateXml(metadata, processedList, cancellationToken));
@@ -173,16 +181,16 @@ namespace Packager.Processors
                 return new DurationResult(startTime, e.GetBaseMessage());
             }
         }
-        
+
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
-            foreach (var original in originals.Where(f=> f is TiffImageFile == false))
+            foreach (var original in originals.Where(f => f is TiffImageFile == false))
             {
                 var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
                 await FFMpegRunner.Normalize(original, metadata, cancellationToken);
             }
         }
-        
+
         private async Task<List<AbstractFile>> CreateProdOrMezzDerivatives(List<AbstractFile> models, T podMetadata, CancellationToken cancellationToken)
         {
             var results = new List<AbstractFile>();
@@ -238,7 +246,7 @@ namespace Packager.Processors
             {
                 await AssignChecksumValues(filesToProcess, cancellationToken);
 
-                var wrapper = new ExportableManifest {Carrier = CarrierDataFactory.Generate(metadata, ProgramSettings.DigitizingEntity, filesToProcess)};
+                var wrapper = new ExportableManifest { Carrier = CarrierDataFactory.Generate(metadata, ProgramSettings.DigitizingEntity, filesToProcess) };
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
 
                 result.Checksum = await Hasher.Hash(result, cancellationToken);
@@ -261,7 +269,7 @@ namespace Packager.Processors
             try
             {
                 var results = await LabelImageImporter.ImportMediaImages(Barcode, cancellationToken);
-                Observers.Log(results.Any() 
+                Observers.Log(results.Any()
                     ? string.Join("\n", results.Select(f => $"imported {f.Filename}"))
                     : "No label images found");
 
@@ -310,7 +318,12 @@ namespace Packager.Processors
 
                 DirectoryProvider.CreateDirectory(DropBoxDirectory);
 
-                foreach (var fileName in fileList.Select(fileModel => fileModel.Filename).OrderBy(f => f))
+                var toCopy = fileList
+                    .NonPlaceHolderFiles()
+                    .Select(fileModel => fileModel.Filename)
+                    .OrderBy(f => f);
+
+                foreach (var fileName in toCopy)
                 {
                     Observers.Log("copying {0} to {1}", fileName, DropBoxDirectory);
                     await FileProvider.CopyFileAsync(
@@ -403,7 +416,7 @@ namespace Packager.Processors
             {
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode, cancellationToken);
-                
+
                 // log metadata
                 MetadataProvider.Log(metadata);
 
@@ -421,14 +434,46 @@ namespace Packager.Processors
                 throw new LoggedException(e);
             }
         }
-        
+
         private async Task AssignChecksumValues(IEnumerable<AbstractFile> models, CancellationToken cancellationToken)
         {
-            foreach (var model in models)
+            // hash every model, but place holders
+            foreach (var model in models.NonPlaceHolderFiles())
             {
                 model.Checksum = await Hasher.Hash(model, cancellationToken);
                 Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
             }
+        }
+
+        private IEnumerable<AbstractFile> GetPlaceHoldersToAdd(List<AbstractFile> processedList)
+        {
+            var sectionKey = Observers.BeginSection("Adding place-holder entries");
+            try
+            {
+                var toAdd = PlaceHolderGenerator.GetPlaceHoldersToAdd(processedList);
+                if (toAdd.Any() == false)
+                {
+                    Observers.Log("No place-holders to add");
+                }
+                else
+                {
+                    foreach (var entry in toAdd)
+                    {
+                        Observers.Log("Adding place-holder: {0}", entry.Filename);
+                    }
+                }
+
+                Observers.EndSection(sectionKey);
+                return toAdd;
+
+            }
+            catch (Exception e)
+            {
+                Observers.LogProcessingIssue(e, Barcode);
+                Observers.EndSection(sectionKey);
+                throw new LoggedException(e);
+            }
+
         }
     }
 }

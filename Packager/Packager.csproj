@@ -109,6 +109,7 @@
     <Compile Include="Models\FileModels\InfoFile.cs" />
     <Compile Include="Models\FileModels\MediaInfo.cs" />
     <Compile Include="Models\FileModels\MezzanineFile.cs" />
+    <Compile Include="Models\FileModels\PlaceHolderFile.cs" />
     <Compile Include="Models\FileModels\ProductionFile.cs" />
     <Compile Include="Models\FileModels\QualityControlFile.cs" />
     <Compile Include="Models\FileModels\TiffImageFile.cs" />
@@ -159,6 +160,10 @@
     <Compile Include="Utilities\FileSystem\SuccessFolderCleaner.cs" />
     <Compile Include="Utilities\Images\LabelImageImporter.cs" />
     <Compile Include="Utilities\Images\ILabelImageImporter.cs" />
+    <Compile Include="Utilities\PlaceHolderGenerators\AbstractPlaceHolderGenerator.cs" />
+    <Compile Include="Utilities\PlaceHolderGenerators\AudioPlaceHolderGenerator.cs" />
+    <Compile Include="Utilities\PlaceHolderGenerators\IPlaceHolderGenerator.cs" />
+    <Compile Include="Utilities\PlaceHolderGenerators\VideoPlaceHolderGenerator.cs" />
     <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\ArgumentBuilder.cs" />
     <Compile Include="Utilities\ProcessRunners\AudioFFMPEGRunner.cs" />
@@ -288,6 +293,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="LICENSE" />
+    <None Include="NOTICE" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

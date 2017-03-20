@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace Common.Models
 {
-    public class PackagerReport : OperationReport
+    public class PackagerReport : AbstractOperationReport
     {
         [XmlArray("Objects")]
         [XmlArrayItem("Object")]

@@ -3,9 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Recorder.Controls"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             xmlns:recorder="clr-namespace:Recorder"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              Visibility="{Binding Visibility}">
@@ -47,14 +45,13 @@
 
         <Label Grid.Row="3" Grid.Column="0" Margin="0,0,12,0" HorizontalAlignment="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">Filename</Label>
         <TextBox Grid.Row="3" Grid.Column="1" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Margin="6" Padding="6" Text="{Binding Filename, FallbackValue='value', Mode=OneWay}" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Arrow" />
-        <Label Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="6,0" Padding="0" Foreground="DarkRed" Visibility="{Binding Touched, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Label Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="6,0" Padding="0" Foreground="DarkRed" Visibility="{Binding FilenameIssue, Converter={StaticResource EmptyToVisibilityConverter}}">
             <TextBlock Text="{Binding FilenameIssue, FallbackValue='issue'}" />
         </Label>
-        <Label Grid.Column="0" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">Channels</Label>
+        <Label Grid.Column="0" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">Audio</Label>
         <ComboBox Grid.Column="1" Grid.Row="5" Margin="6" Padding="6" VerticalAlignment="Center" VerticalContentAlignment="Center" 
-                ItemsSource="{Binding PossibleChannels}"
-                DisplayMemberPath="Item1"
-                SelectedValuePath="Item2"
-                SelectedValue="{Binding ExpectedChannels}"/>
+                ItemsSource="{Binding PossibleChannelsAndStreams}"
+                DisplayMemberPath="DisplayName"
+                SelectedItem="{Binding ExpectedChannelsAndStreams}"/>
     </Grid>
 </UserControl>

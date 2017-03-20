@@ -20,13 +20,23 @@ namespace Recorder.Models
                 new Tuple<string, string>("Mezzanine", "mezz")
             };
 
-            PossibleChannels = new List<Tuple<string, int>>
+            PossibleChannelsAndStreams = new List<AudioChannelsAndStreams>
             {
-                new Tuple<string, int>("2 channels", 2),
-                new Tuple<string, int>("4 channels", 4)
+                new AudioChannelsAndStreams
+                {
+                    Channels = 2, Streams = 1, Id = 1, DisplayName = "2 audio channels (1 stereo stream)"
+                },
+                new AudioChannelsAndStreams
+                {
+                    Channels = 2, Streams = 2, Id = 1, DisplayName = "2 audio channels (2 mono streams)"
+                },
+                new AudioChannelsAndStreams
+                {
+                    Channels = 4, Streams = 4, Id = 1, DisplayName = "4 audio channels (4 mono streams)"
+                }
             };
-
-            Channels = 2;
+            
+            SelectedChannelsAndStreams = PossibleChannelsAndStreams.First();
         }
         
         public List<Tuple<string, string>> FileUses { get; private set; }
@@ -38,7 +48,7 @@ namespace Recorder.Models
         public string ProjectCode => Settings.ProjectCode;
         public string FileUse { get; set; }
 
-        public int Channels { get; set; }
+        public AudioChannelsAndStreams SelectedChannelsAndStreams { get; set; }
 
         public string Filename => FilePartsValid().IsValid
             ? string.Format($"{ProjectCode}_{Barcode}_{Part:d2}_{FileUse}.mkv")
@@ -51,8 +61,8 @@ namespace Recorder.Models
         public string OutputFile => Path.Combine(OutputFolder, Filename);
 
         public string ExistingPartsMask => $"{ProjectCode}_{Barcode}_part_*.mkv";
-        public List<Tuple<string, int>> PossibleChannels { get; set; }
-
+        public List<AudioChannelsAndStreams> PossibleChannelsAndStreams { get; private set; }
+        
         public ValidationResult FilePartsValid()
         {
             if (BarcodeValid() == false)

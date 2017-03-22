@@ -256,7 +256,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Content Include="extract audio channels.bat">
+    <Content Include="Scripts\extract audio channels.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="LICENSE" />
@@ -267,6 +267,8 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="Scripts\betacam fix.bat" />
+    <None Include="Scripts\umatic fix.bat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

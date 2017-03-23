@@ -267,8 +267,11 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Scripts\betacam fix.bat" />
+    <None Include="Scripts\betacam_fix.bat" />
     <None Include="Scripts\extract stereo to mono.bat" />
+    <None Include="Scripts\Internal\betacam_fix_internal.bat" />
+    <None Include="Scripts\Internal\umatic_fix_internal.bat" />
+    <None Include="Scripts\Shared\common.bat" />
     <None Include="Scripts\umatic_fix.bat" />
   </ItemGroup>
   <ItemGroup>

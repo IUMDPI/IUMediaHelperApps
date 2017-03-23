@@ -268,7 +268,8 @@
     </None>
     <AppDesigner Include="Properties\" />
     <None Include="Scripts\betacam fix.bat" />
-    <None Include="Scripts\umatic fix.bat" />
+    <None Include="Scripts\extract stereo to mono.bat" />
+    <None Include="Scripts\umatic_fix.bat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

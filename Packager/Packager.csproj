@@ -93,6 +93,7 @@
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\ImportableFactory.cs" />
+    <Compile Include="Factories\IPlaceHolderFactory.cs" />
     <Compile Include="Factories\SettingsFactory.cs" />
     <Compile Include="Models\EmailMessageModels\SuccessEmailMessage.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
@@ -130,6 +131,11 @@
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Models\OutputModels\Ingest\Device.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\AbstractPlaceHolderConfiguration.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\DynamicPlaceholderConfiguration.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\PresIntAudioPlaceHolderConfiguration.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\StandardAudioPlaceHolderConfiguration.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\StandardVideoPlaceHolderConfiguration.cs" />
     <Compile Include="Models\PodMetadataModels\AbstractDigitalFile.cs" />
     <Compile Include="Models\PodMetadataModels\AbstractPodMetadata.cs" />
     <Compile Include="Models\PodMetadataModels\Device.cs" />
@@ -162,6 +168,7 @@
     <Compile Include="Utilities\Images\ILabelImageImporter.cs" />
     <Compile Include="Utilities\PlaceHolderGenerators\AbstractPlaceHolderGenerator.cs" />
     <Compile Include="Utilities\PlaceHolderGenerators\AudioPlaceHolderGenerator.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\IPlaceHolderConfiguration.cs" />
     <Compile Include="Utilities\PlaceHolderGenerators\IPlaceHolderGenerator.cs" />
     <Compile Include="Utilities\PlaceHolderGenerators\VideoPlaceHolderGenerator.cs" />
     <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />

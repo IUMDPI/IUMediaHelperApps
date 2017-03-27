@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Common.Models;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 
@@ -7,6 +8,12 @@ namespace Packager.Factories
 {
     public static class FileModelFactory
     {
+        public enum UsageApplications
+        {
+            Audio,
+            Video
+        }
+
         private static readonly Dictionary<ResolverKey, Func<AbstractFile, AbstractFile>> Resolvers =
             new Dictionary<ResolverKey, Func<AbstractFile, AbstractFile>>
             {
@@ -20,14 +27,38 @@ namespace Packager.Factories
                 {TiffImageKey, GetTiffImageModel }
             };
 
-        private static ResolverKey AudioPresKey => new ResolverKey(".wav", "pres");
-        private static ResolverKey AudioPresIntKey => new ResolverKey(".wav", "presint");
-        private static ResolverKey VideoPresKey => new ResolverKey(".mkv", "pres");
-        private static ResolverKey VideoPresIntKey => new ResolverKey(".mkv", "presint");
-        private static ResolverKey AudioProdKey => new ResolverKey(".wav", "prod");
-        private static ResolverKey VideoMezzKey => new ResolverKey(".mov", "mezz");
-        private static ResolverKey AccessKey => new ResolverKey(".mp4", "access");
-        private static ResolverKey TiffImageKey => new ResolverKey(".tif","label");
+        private static readonly Dictionary<FileUsages, Func<AbstractFile, AbstractFile>> AudioUsageResolvers = new Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>
+        {
+            {FileUsages.PreservationMaster, GetAudioPresModel },
+            {FileUsages.PreservationMaster, GetAudioPresIntModel },
+            {FileUsages.ProductionMaster, GetProdModel },
+            {FileUsages.AccessFile, GetAccessModel },
+            {FileUsages.LabelImageFile, GetTiffImageModel }
+        };
+
+        private static readonly Dictionary<FileUsages, Func<AbstractFile, AbstractFile>> VideoUsageResolvers = new Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>
+        {
+            {FileUsages.PreservationMaster, GetVideoPresModel },
+            {FileUsages.PreservationMaster, GetVideoPresIntModel },
+            {FileUsages.ProductionMaster, GetMezzModel },
+            {FileUsages.AccessFile, GetAccessModel },
+            {FileUsages.LabelImageFile, GetTiffImageModel }
+        };
+
+        private static readonly Dictionary<UsageApplications, Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>> UsageResolversForApplication = new Dictionary<UsageApplications, Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>>
+        {
+            {UsageApplications.Audio, AudioUsageResolvers },
+            {UsageApplications.Video, VideoUsageResolvers }
+        };
+
+        private static ResolverKey AudioPresKey => new ResolverKey(".wav", FileUsages.PreservationMaster);
+        private static ResolverKey AudioPresIntKey => new ResolverKey(".wav", FileUsages.PreservationIntermediateMaster);
+        private static ResolverKey VideoPresKey => new ResolverKey(".mkv", FileUsages.PreservationMaster);
+        private static ResolverKey VideoPresIntKey => new ResolverKey(".mkv", FileUsages.PreservationIntermediateMaster);
+        private static ResolverKey AudioProdKey => new ResolverKey(".wav", FileUsages.ProductionMaster);
+        private static ResolverKey VideoMezzKey => new ResolverKey(".mov", FileUsages.MezzanineFile);
+        private static ResolverKey AccessKey => new ResolverKey(".mp4", FileUsages.AccessFile);
+        private static ResolverKey TiffImageKey => new ResolverKey(".tif", FileUsages.LabelImageFile);
 
         private static AbstractFile GetMezzModel(AbstractFile arg)
         {
@@ -81,39 +112,55 @@ namespace Packager.Factories
                 : rawModel;
         }
 
+        public static AbstractFile ConvertTo(AbstractFile originalModel, FileUsages newUsage, UsageApplications usageApplication)
+        {
+            if (!UsageResolversForApplication.ContainsKey(usageApplication))
+            {
+                throw new ArgumentException($@"Invalid usage application: {usageApplication}", nameof(usageApplication));
+            }
+
+            var resolvers = UsageResolversForApplication[usageApplication];
+            if (!resolvers.ContainsKey(newUsage))
+            {
+                throw new ArgumentException($@"The usage {newUsage} is not a valid usage for {usageApplication}", nameof(newUsage));
+            }
+
+            return resolvers[newUsage](originalModel);
+        }
+
         private struct ResolverKey
         {
             private string Extension { get; }
-            private string FileUse { get; }
+            private FileUsages FileUsage { get; }
 
-            public ResolverKey(string extension, string fileUse)
+            public ResolverKey(string extension, FileUsages fileUsage)
             {
                 Extension = extension.ToDefaultIfEmpty().ToLowerInvariant();
-                FileUse = fileUse.ToDefaultIfEmpty().ToLowerInvariant();
+                FileUsage = fileUsage;
             }
 
             public ResolverKey(AbstractFile model)
             {
                 Extension = model.Extension.ToDefaultIfEmpty().ToLowerInvariant();
-                FileUse = model.FileUse.ToDefaultIfEmpty().ToLowerInvariant();
+                FileUsage = model.FileUsage;
             }
 
             public override bool Equals(object obj)
             {
-                return obj is ResolverKey && Equals((ResolverKey) obj);
+                return obj is ResolverKey && Equals((ResolverKey)obj);
             }
 
             private bool Equals(ResolverKey other)
             {
-                return string.Equals(Extension, other.Extension) 
-                    && string.Equals(FileUse, other.FileUse);
+                return string.Equals(Extension, other.Extension)
+                    && FileUsage == other.FileUsage;
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    return ((Extension?.GetHashCode() ?? 0)*397) ^ (FileUse?.GetHashCode() ?? 0);
+                    return ((Extension?.GetHashCode() ?? 0) * 397) ^ (FileUsage?.GetHashCode() ?? 0);
                 }
             }
         }

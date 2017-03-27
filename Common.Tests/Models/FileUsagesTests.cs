@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Common.Models;
+﻿using Common.Models;
 using NUnit.Framework;
 
 namespace Common.Tests.Models
@@ -18,7 +13,9 @@ namespace Common.Tests.Models
             new object[] {FileUsages.ProductionMaster, "prod", "Production Master"},
             new object[] {FileUsages.MezzanineFile, "mezz", "Mezzanine File"},
             new object[] {FileUsages.AccessFile, "access", "Access File"},
-            new object[] {FileUsages.LabelImageFile, "label", "Label Image File"}
+            new object[] {FileUsages.LabelImageFile, "label", "Label Image File"},
+            new object[] {FileUsages.UnknownFile, "", "Raw object file"},
+            new object[] {FileUsages.XmlFile, "", "Xml File"}
         };
 
         private static object[] _getUsageCases =
@@ -28,7 +25,10 @@ namespace Common.Tests.Models
             new object[] {"prod", FileUsages.ProductionMaster},
             new object[] {"mezz", FileUsages.MezzanineFile},
             new object[] {"access", FileUsages.AccessFile},
-            new object[] { "label", FileUsages.LabelImageFile }
+            new object[] { "label", FileUsages.LabelImageFile },
+            new object[] {string.Empty, FileUsages.UnknownFile},
+            new object[] {null, FileUsages.UnknownFile},
+            new object[] {"some other value", FileUsages.UnknownFile}
         };
 
         [Test, TestCaseSource(nameof(_usagesCorrectCases))]

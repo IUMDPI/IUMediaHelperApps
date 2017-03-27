@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Common.Models
 {
     public class FileUsages
     {
-        protected FileUsages(string fileUse, string fullFileUse)
+        private FileUsages(string fileUse, string fullFileUse)
         {
             FileUse = fileUse;
             FullFileUse = fullFileUse;
@@ -19,22 +21,20 @@ namespace Common.Models
         public static readonly FileUsages MezzanineFile = new FileUsages("mezz", "Mezzanine File");
         public static readonly FileUsages AccessFile = new FileUsages("access", "Access File");
         public static readonly FileUsages LabelImageFile = new FileUsages("label", "Label Image File");
+        public static readonly FileUsages XmlFile = new FileUsages("", "Xml File");
+        public static readonly FileUsages UnknownFile = new FileUsages("", "Raw object file");
 
-        private static Dictionary<string , FileUsages> AllUsages = new Dictionary<string, FileUsages>
+        private static readonly List<FileUsages> AllImportableUsages = new List< FileUsages>
         {
-            { PreservationMaster.FileUse.ToLowerInvariant(), PreservationMaster},
-            { PreservationIntermediateMaster.FileUse.ToLowerInvariant(), PreservationIntermediateMaster },
-            {ProductionMaster.FileUse.ToLowerInvariant(), ProductionMaster },
-            {MezzanineFile.FileUse.ToLowerInvariant(), MezzanineFile },
-            {AccessFile.FileUse.ToLowerInvariant(), AccessFile },
-            {LabelImageFile.FileUse.ToLowerInvariant(), LabelImageFile }
+            PreservationMaster, PreservationIntermediateMaster, ProductionMaster, MezzanineFile, AccessFile, LabelImageFile
         };
 
         public static FileUsages GetUsage(string fileUse)
         {
-            return AllUsages.ContainsKey(fileUse.ToLowerInvariant()) 
-                ? AllUsages[fileUse.ToLowerInvariant()] 
-                : null;
+            var usage = AllImportableUsages.SingleOrDefault(
+                    u => u.FileUse.Equals(fileUse, StringComparison.InvariantCultureIgnoreCase));
+
+            return usage ?? UnknownFile;
         }
     }
 }

@@ -8,7 +8,7 @@
         public string IntermediateFileName { get; }
 
         public QualityControlFile(AbstractFile original) : 
-            base(original, original.FileUse, original.FullFileUse, ExtensionValue)
+            base(original, original.FileUsage, ExtensionValue)
         {
             Filename = $"{original.Filename}{ExtensionValue}";
             IntermediateFileName = $"{original.Filename}{IntermediateExtensionValue}";

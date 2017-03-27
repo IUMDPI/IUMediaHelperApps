@@ -1,4 +1,5 @@
-﻿using Packager.Extensions;
+﻿using Common.Models;
+using Packager.Extensions;
 
 namespace Packager.Models.FileModels
 {
@@ -10,8 +11,7 @@ namespace Packager.Models.FileModels
             BarCode = barCode;
             Extension = ".xml";
             Filename = $"{ProjectCode}_{BarCode}{Extension}";
-            FullFileUse = "";
-            FileUse = "";
+            FileUsage = FileUsages.XmlFile;
         }
 
         public override int Precedence => 5;

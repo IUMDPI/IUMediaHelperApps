@@ -4,7 +4,7 @@
     {
         private const string ExtensionValue = ".info";
 
-        public InfoFile(AbstractFile original) : base(original, original.FileUse, original.FullFileUse, ExtensionValue)
+        public InfoFile(AbstractFile original) : base(original, original.FileUsage, ExtensionValue)
         {
         }
 

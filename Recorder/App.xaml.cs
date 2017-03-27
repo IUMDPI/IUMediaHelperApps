@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Windows;
 using System.Windows.Threading;
+using Common.Models;
 using Recorder.Dialogs;
 using Recorder.Exceptions;
 using Recorder.Models;
@@ -30,7 +31,7 @@ namespace Recorder
             var objectModel = new ObjectModel(programSettings)
             {
                 Part = 1,
-                FileUse = "pres"
+                FileUse = FileUsages.PreservationMaster
             };
 
             _viewModel = new UserControlsViewModel(programSettings, objectModel);

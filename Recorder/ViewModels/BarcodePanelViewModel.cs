@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Common.Models;
 using Common.UserInterface.Commands;
 using Recorder.Models;
 
@@ -16,7 +16,7 @@ namespace Recorder.ViewModels
         {
             ProjectCode = projectCode;
             Part = 1;
-            FileUse = FileUses.First().Item2;
+            FileUsage = FileUsages.First();
             Touched = false;
             ActionButton = new ActionButtonModel
             {
@@ -31,7 +31,7 @@ namespace Recorder.ViewModels
 
         public string Filename => ObjectModel.Filename;
 
-        public string FileUse
+        public FileUsages FileUsage
         {
             get { return ObjectModel.FileUse; }
             set
@@ -46,7 +46,7 @@ namespace Recorder.ViewModels
             ? ObjectModel.FilePartsValid().ErrorContent.ToString()
             : string.Empty;
 
-        public List<Tuple<string, string>> FileUses => ObjectModel.FileUses;
+        public List<FileUsages> FileUsages => ObjectModel.FileUsages;
 
         public List<AudioChannelsAndStreams> PossibleChannelsAndStreams => ObjectModel.PossibleChannelsAndStreams;
 

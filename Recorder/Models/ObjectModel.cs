@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
+using Common.Models;
 
 namespace Recorder.Models
 {
@@ -13,11 +14,11 @@ namespace Recorder.Models
         {
             Settings = settings;
 
-            FileUses = new List<Tuple<string, string>>
+            FileUsages = new List<FileUsages>
             {
-                new Tuple<string, string>("Preservation", "pres"),
-                new Tuple<string, string>("Preservation-Intermediate", "presInt"),
-                new Tuple<string, string>("Mezzanine", "mezz")
+                Common.Models.FileUsages.PreservationMaster,
+                Common.Models.FileUsages.PreservationIntermediateMaster,
+                Common.Models.FileUsages.MezzanineFile
             };
 
             PossibleChannelsAndStreams = new List<AudioChannelsAndStreams>
@@ -39,19 +40,19 @@ namespace Recorder.Models
             SelectedChannelsAndStreams = PossibleChannelsAndStreams.First();
         }
         
-        public List<Tuple<string, string>> FileUses { get; private set; }
+        public List<FileUsages> FileUsages { get; private set; }
 
         private readonly Regex _barcodeExpression = new Regex(@"^\d{14,14}$");
         protected ProgramSettings Settings { get; }
         public string Barcode { get; set; }
         public int Part { get; set; }
         public string ProjectCode => Settings.ProjectCode;
-        public string FileUse { get; set; }
+        public FileUsages FileUse { get; set; }
 
         public AudioChannelsAndStreams SelectedChannelsAndStreams { get; set; }
 
         public string Filename => FilePartsValid().IsValid
-            ? string.Format($"{ProjectCode}_{Barcode}_{Part:d2}_{FileUse}.mkv")
+            ? string.Format($"{ProjectCode}_{Barcode}_{Part:d2}_{FileUse.FileUse}.mkv")
             : string.Empty;
 
         public string WorkingFolderName => FilePartsValid().IsValid ? $"{ProjectCode}_{Barcode}":"";
@@ -95,7 +96,7 @@ namespace Recorder.Models
 
         private bool FileUseValid()
         {
-            return string.IsNullOrWhiteSpace(FileUse) == false;
+            return FileUse !=null;
         }
 
         public bool PartsPresent()

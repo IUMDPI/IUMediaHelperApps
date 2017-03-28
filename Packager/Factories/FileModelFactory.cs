@@ -27,30 +27,6 @@ namespace Packager.Factories
                 {TiffImageKey, GetTiffImageModel }
             };
 
-        private static readonly Dictionary<FileUsages, Func<AbstractFile, AbstractFile>> AudioUsageResolvers = new Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>
-        {
-            {FileUsages.PreservationMaster, GetAudioPresModel },
-            {FileUsages.PreservationIntermediateMaster, GetAudioPresIntModel },
-            {FileUsages.ProductionMaster, GetProdModel },
-            {FileUsages.AccessFile, GetAccessModel },
-            {FileUsages.LabelImageFile, GetTiffImageModel }
-        };
-
-        private static readonly Dictionary<FileUsages, Func<AbstractFile, AbstractFile>> VideoUsageResolvers = new Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>
-        {
-            {FileUsages.PreservationMaster, GetVideoPresModel },
-            {FileUsages.PreservationIntermediateMaster, GetVideoPresIntModel },
-            {FileUsages.MezzanineFile, GetMezzModel },
-            {FileUsages.AccessFile, GetAccessModel },
-            {FileUsages.LabelImageFile, GetTiffImageModel }
-        };
-
-        private static readonly Dictionary<UsageApplications, Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>> UsageResolversForApplication = new Dictionary<UsageApplications, Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>>
-        {
-            {UsageApplications.Audio, AudioUsageResolvers },
-            {UsageApplications.Video, VideoUsageResolvers }
-        };
-
         private static ResolverKey AudioPresKey => new ResolverKey(".wav", FileUsages.PreservationMaster);
         private static ResolverKey AudioPresIntKey => new ResolverKey(".wav", FileUsages.PreservationIntermediateMaster);
         private static ResolverKey VideoPresKey => new ResolverKey(".mkv", FileUsages.PreservationMaster);
@@ -112,22 +88,7 @@ namespace Packager.Factories
                 : rawModel;
         }
 
-        public static AbstractFile ConvertTo(AbstractFile originalModel, FileUsages newUsage, UsageApplications usageApplication)
-        {
-            if (!UsageResolversForApplication.ContainsKey(usageApplication))
-            {
-                throw new ArgumentException($@"Invalid usage application: {usageApplication}", nameof(usageApplication));
-            }
-
-            var resolvers = UsageResolversForApplication[usageApplication];
-            if (!resolvers.ContainsKey(newUsage))
-            {
-                throw new ArgumentException($@"The usage {newUsage} is not a valid usage for {usageApplication}", nameof(newUsage));
-            }
-
-            return resolvers[newUsage](originalModel);
-        }
-
+      
         private struct ResolverKey
         {
             private string Extension { get; }

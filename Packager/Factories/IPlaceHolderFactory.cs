@@ -14,6 +14,9 @@ namespace Packager.Factories
 
     public class PlaceHolderFactory : IPlaceHolderFactory
     {
+
+
+
         private readonly Dictionary<string, IPlaceHolderConfiguration> _knownConfigurations = new Dictionary<string, IPlaceHolderConfiguration>
         {
             // standard audio
@@ -73,18 +76,16 @@ namespace Packager.Factories
                 requiredUsages.Add(fileModel.FileUsage);
             }
 
-            var application = GetUsageApplication(firstSequence);
-
-            return new DynamicPlaceholderConfiguration(requiredUsages.ToList(), application);
+            return IsAudioPipeline(fileModels)
+                ? (IPlaceHolderConfiguration) new DynamicAudioPlaceholderConfiguration(requiredUsages.ToList())
+                : new DynamicVideoPlaceholderConfiguration(requiredUsages.ToList());
         }
 
-        private FileModelFactory.UsageApplications GetUsageApplication(List<AbstractFile> fileModels)
+        private static bool IsAudioPipeline(IEnumerable<AbstractFile> fileModels)
         {
             var presOrPresIntModel = fileModels.GetPreservationOrIntermediateModel();
             return presOrPresIntModel is AudioPreservationFile ||
-                   presOrPresIntModel is AudioPreservationIntermediateFile
-                ? FileModelFactory.UsageApplications.Audio
-                : FileModelFactory.UsageApplications.Video;
+                   presOrPresIntModel is AudioPreservationIntermediateFile;
         }
     }
 }

@@ -2,19 +2,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Models;
 using Packager.Extensions;
-using Packager.Factories;
 using Packager.Models.FileModels;
 
 namespace Packager.Models.PlaceHolderConfigurations
 {
     public abstract class AbstractPlaceHolderConfiguration : IPlaceHolderConfiguration
     {
-        private FileModelFactory.UsageApplications Application { get; }
-        private List<FileUsages> RequiredUsages { get; }
+        
+        protected List<FileUsages> RequiredUsages { get; }
 
-        protected AbstractPlaceHolderConfiguration(List<FileUsages> requiredUsages, FileModelFactory.UsageApplications application)
+        protected AbstractPlaceHolderConfiguration(List<FileUsages> requiredUsages)
         {
-            Application = application;
             RequiredUsages = requiredUsages;
         }
 
@@ -40,8 +38,7 @@ namespace Packager.Models.PlaceHolderConfigurations
         private IEnumerable<AbstractFile> GetPlaceHolders(string projectCode, string barcode, int sequence)
         {
             var template = new PlaceHolderFile(projectCode, barcode, sequence);
-            return RequiredUsages.Select(usage => GetPlaceHolder(template, usage))
-                .ToList();
+            return GetPlaceHolders(template);
         }
 
         private List<int> GetSequencesRequiringPlaceHolders(IEnumerable<AbstractFile> fileModels)
@@ -70,9 +67,6 @@ namespace Packager.Models.PlaceHolderConfigurations
             return firstPresFile?.BarCode;
         }
 
-        private AbstractFile GetPlaceHolder(PlaceHolderFile template, FileUsages usage)
-        {
-            return FileModelFactory.ConvertTo(template, usage, Application);
-        }
+        protected abstract List<AbstractFile> GetPlaceHolders(PlaceHolderFile template);
     }
 }

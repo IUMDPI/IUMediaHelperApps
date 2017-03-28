@@ -108,7 +108,7 @@
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\OutputModels\CarrierModelTests.cs" />
     <Compile Include="Models\OutputModels\IngestModelTests.cs" />
-    <Compile Include="Models\PlaceHolderConfigurations\DynamicPlaceHolderConfigurationTests.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\DynamicAudioPlaceHolderConfigurationTests.cs" />
     <Compile Include="Models\PlaceHolderConfigurations\PlaceHolderConfigurationTestsBase.cs" />
     <Compile Include="Models\PlaceHolderConfigurations\PresIntAudioPlaceHolderConfigurationTests.cs" />
     <Compile Include="Models\PlaceHolderConfigurations\StandardAudioPlaceHolderConfigurationTests.cs" />

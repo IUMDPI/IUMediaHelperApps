@@ -108,6 +108,11 @@
     <Compile Include="Models\MetadataModels\PlaybackSpeedTests.cs" />
     <Compile Include="Models\OutputModels\CarrierModelTests.cs" />
     <Compile Include="Models\OutputModels\IngestModelTests.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\DynamicPlaceHolderConfigurationTests.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\PlaceHolderConfigurationTestsBase.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\PresIntAudioPlaceHolderConfigurationTests.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\StandardAudioPlaceHolderConfigurationTests.cs" />
+    <Compile Include="Models\PlaceHolderConfigurations\StandardVideoPlaceHolderConfigurationTests.cs" />
     <Compile Include="Models\ProgramArgumentsModels\ProgramArgumentsModelsTests.cs" />
     <Compile Include="Models\SettingsModelsTests\ProgramSettingsTests.cs" />
     <Compile Include="PodMetadataProviderTests.cs" />

@@ -30,7 +30,7 @@ namespace Packager.Factories
         private static readonly Dictionary<FileUsages, Func<AbstractFile, AbstractFile>> AudioUsageResolvers = new Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>
         {
             {FileUsages.PreservationMaster, GetAudioPresModel },
-            {FileUsages.PreservationMaster, GetAudioPresIntModel },
+            {FileUsages.PreservationIntermediateMaster, GetAudioPresIntModel },
             {FileUsages.ProductionMaster, GetProdModel },
             {FileUsages.AccessFile, GetAccessModel },
             {FileUsages.LabelImageFile, GetTiffImageModel }
@@ -39,8 +39,8 @@ namespace Packager.Factories
         private static readonly Dictionary<FileUsages, Func<AbstractFile, AbstractFile>> VideoUsageResolvers = new Dictionary<FileUsages, Func<AbstractFile, AbstractFile>>
         {
             {FileUsages.PreservationMaster, GetVideoPresModel },
-            {FileUsages.PreservationMaster, GetVideoPresIntModel },
-            {FileUsages.ProductionMaster, GetMezzModel },
+            {FileUsages.PreservationIntermediateMaster, GetVideoPresIntModel },
+            {FileUsages.MezzanineFile, GetMezzModel },
             {FileUsages.AccessFile, GetAccessModel },
             {FileUsages.LabelImageFile, GetTiffImageModel }
         };

@@ -387,7 +387,7 @@ namespace Packager.Test.Processors
                     {
                         foreach (var fileModel in _placeHolders)
                         {
-                            Observers.Received().Log("Adding place-holder: {0}", fileModel.Filename);
+                            Observers.Received().Log("Adding placeholder: {0}", fileModel.Filename);
                         }
                     }
 

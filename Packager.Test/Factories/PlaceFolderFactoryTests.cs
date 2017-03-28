@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using NSubstitute;
-using NUnit.Framework.Internal;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.FileModels;
@@ -55,7 +50,7 @@ namespace Packager.Test.Factories
         public void FactoryShouldLogIfFormatUnknown()
         {
             Factory.GetPlaceHoldersToAdd("undefined format", FileList);
-            Observers.Received().Log("No place-holder configuration found for format {0}", "undefined format");
+            Observers.Received().Log("No placeholder configuration found for format {0}", "undefined format");
         }
     }
 }

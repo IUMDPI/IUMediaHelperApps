@@ -359,7 +359,7 @@ namespace Packager.Test.Processors
                     {
                         foreach (var fileModel in PlaceHolders)
                         {
-                            Observers.Received().Log("Adding place-holder: {0}", fileModel.Filename);
+                            Observers.Received().Log("Adding placeholder: {0}", fileModel.Filename);
                         }
                     }
 
@@ -404,7 +404,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldWriteSectionHeader()
                 {
-                    Observers.Received().BeginSection("Adding place-holder entries");
+                    Observers.Received().BeginSection("Adding Placeholder Entries");
                 }
 
             }

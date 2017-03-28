@@ -16,7 +16,6 @@ using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
-using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
@@ -34,14 +33,14 @@ namespace Packager.Processors
            IObserverCollection observers,
            IProgramSettings programSettings,
            IXmlExporter xmlExporter,
-           ILabelImageImporter imageProcessor, IPlaceHolderGenerator placeHolderGenerator)
+           ILabelImageImporter imageProcessor, IPlaceHolderFactory placeHolderFactory)
         {
             ProgramSettings = programSettings;
             Observers = observers;
             MetadataProvider = metadataProvider;
             XmlExporter = xmlExporter;
             LabelImageImporter = imageProcessor;
-            PlaceHolderGenerator = placeHolderGenerator;
+            PlaceHolderFactory = placeHolderFactory;
             BextProcessor = bextProcessor;
             DirectoryProvider = directoryProvider;
             FileProvider = fileProvider;
@@ -66,7 +65,7 @@ namespace Packager.Processors
         private IPodMetadataProvider MetadataProvider { get; }
         private IXmlExporter XmlExporter { get; }
         private ILabelImageImporter LabelImageImporter { get; }
-        private IPlaceHolderGenerator PlaceHolderGenerator { get; }
+        private IPlaceHolderFactory PlaceHolderFactory { get; }
         private IHasher Hasher { get; }
         private IFileProvider FileProvider { get; }
         private IDirectoryProvider DirectoryProvider { get; }
@@ -150,7 +149,7 @@ namespace Packager.Processors
 
                 // add place-holder file entries
                 processedList = processedList
-                    .Concat(GetPlaceHoldersToAdd(processedList))
+                    .Concat(GetPlaceHoldersToAdd(metadata.Format, processedList))
                     .ToList();
 
                 // using the list of files that have been processed
@@ -445,12 +444,12 @@ namespace Packager.Processors
             }
         }
 
-        private IEnumerable<AbstractFile> GetPlaceHoldersToAdd(List<AbstractFile> processedList)
+        private IEnumerable<AbstractFile> GetPlaceHoldersToAdd(string format, List<AbstractFile> processedList)
         {
             var sectionKey = Observers.BeginSection("Adding place-holder entries");
             try
             {
-                var toAdd = PlaceHolderGenerator.GetPlaceHoldersToAdd(processedList);
+                var toAdd = PlaceHolderFactory.GetPlaceHoldersToAdd(format, processedList);
                 if (toAdd.Any() == false)
                 {
                     Observers.Log("No place-holders to add");

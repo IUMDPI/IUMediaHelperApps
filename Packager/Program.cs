@@ -8,6 +8,7 @@ using NLog.Config;
 using Packager.Deserializers;
 using Packager.Engine;
 using Packager.Factories;
+using Packager.Models.PlaceHolderConfigurations;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.ProgramArgumentsModels;
 using Packager.Models.SettingsModels;
@@ -22,7 +23,6 @@ using Packager.Utilities.Email;
 using Packager.Utilities.FileSystem;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
-using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Reporting;
 using Packager.Utilities.Xml;
@@ -56,17 +56,17 @@ namespace Packager
             }
             catch (Exception e)
             {
-               // todo: log
+                // todo: log
             }
         }
 
         private static Container Bootstrap(string[] arguments)
         {
             var container = new Container();
-            
+
             container.RegisterSingleton<IEngine, StandardEngine>();
 
-            container.RegisterSingleton (()=>SettingsFactory.Import(ConfigurationManager.AppSettings));
+            container.RegisterSingleton(() => SettingsFactory.Import(ConfigurationManager.AppSettings));
             container.RegisterSingleton<IProgramArguments>(new ProgramArguments(arguments));
             container.RegisterSingleton<IHasher, Hasher>();
             container.RegisterSingleton<IXmlExporter, XmlExporter>();
@@ -94,32 +94,52 @@ namespace Packager
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
 
-            container.RegisterConditional<IFFMPEGRunner, VideoFFMPEGRunner>(Lifestyle.Singleton, 
-                c=>c.Consumer.ImplementationType == typeof(VideoProcessor));
+            container.RegisterConditional<IFFMPEGRunner, VideoFFMPEGRunner>(Lifestyle.Singleton,
+                c => c.Consumer.ImplementationType == typeof(VideoProcessor));
 
             container.RegisterConditional<IFFMPEGRunner, AudioFFMPEGRunner>(Lifestyle.Singleton,
                 c => c.Consumer.ImplementationType == typeof(AudioProcessor) || c.Consumer.ImplementationType == typeof(ConfigurationLogger));
 
-            container.RegisterConditional<IPlaceHolderGenerator, AudioPlaceHolderGenerator>(Lifestyle.Singleton, 
-                c=>c.Consumer.ImplementationType == typeof(AudioProcessor));
-
-            container.RegisterConditional<IPlaceHolderGenerator, VideoPlaceHolderGenerator>(Lifestyle.Singleton,
-                c => c.Consumer.ImplementationType == typeof(VideoProcessor));
-
-            container.RegisterSingleton( ()=> new Dictionary<string, IProcessor>
+            container.RegisterSingleton(() => new Dictionary<string, IProcessor>
             {
                 {".wav", container.GetInstance<AbstractProcessor<AudioPodMetadata>>()},
                 {".mkv", container.GetInstance<AbstractProcessor<VideoPodMetadata>>()}
             });
 
-            container.RegisterSingleton(()=>new CancellationTokenSource());
+            container.RegisterSingleton<IPlaceHolderFactory, PlaceHolderFactory>();
 
-            container.RegisterSingleton(()=>GetRestClient(
-                container.GetInstance<IProgramSettings>(), 
-                container.GetInstance<IFileProvider>(), 
-                container.GetInstance<IImportableFactory>())) ;
+            container.RegisterSingleton(() => new Dictionary<string, IPlaceHolderConfiguration>
+            {
+                // standard audio
+                { "audiocassette", new StandardAudioPlaceHolderConfiguration() },
+                {"open reel audio tape", new StandardAudioPlaceHolderConfiguration() },
+                {"lp", new StandardAudioPlaceHolderConfiguration() },
+                {"cd-r", new StandardAudioPlaceHolderConfiguration() },
+                {"45", new StandardAudioPlaceHolderConfiguration() },
+                // pres-int audio
+                { "lacquer disc", new PresIntAudioPlaceHolderConfiguration()},
+                {"78", new PresIntAudioPlaceHolderConfiguration() },
+                // standard video
+                { "vhs", new StandardVideoPlaceHolderConfiguration()},
+                {"betacam:anamorphic", new StandardVideoPlaceHolderConfiguration() },
+                {"dat", new StandardVideoPlaceHolderConfiguration() },
+                {"1-inch open reel video tape", new StandardVideoPlaceHolderConfiguration() },
+                {"8mm video", new StandardVideoPlaceHolderConfiguration() },
+                {"betacam", new StandardVideoPlaceHolderConfiguration() },
+                {"8mm video:quadaudio", new StandardVideoPlaceHolderConfiguration() },
+                {"u-matic", new StandardAudioPlaceHolderConfiguration() },
+                {"betamax", new StandardVideoPlaceHolderConfiguration() },
 
-            container.RegisterSingleton<IValidatorCollection>(()=> new StandardValidatorCollection
+            });
+
+            container.RegisterSingleton(() => new CancellationTokenSource());
+
+            container.RegisterSingleton(() => GetRestClient(
+                container.GetInstance<IProgramSettings>(),
+                container.GetInstance<IFileProvider>(),
+                container.GetInstance<IImportableFactory>()));
+
+            container.RegisterSingleton<IValidatorCollection>(() => new StandardValidatorCollection
             {
                 new ValueRequiredValidator(),
                 new DirectoryExistsValidator(container.GetInstance<IDirectoryProvider>()),
@@ -127,15 +147,15 @@ namespace Packager
                 new UriValidator(),
                 new MembersValidator()
             });
-            
-            container.RegisterSingleton<IObserverCollection>(()=>new ObserverCollection()
+
+            container.RegisterSingleton<IObserverCollection>(() => new ObserverCollection()
                 {
                     new GeneralNLogObserver(container.GetInstance<IProgramSettings>()),
                     new ObjectNLogObserver(container.GetInstance<IProgramSettings>()),
                     new ViewModelObserver(container.GetInstance<ILogPanelViewModel>()),
                     new IssueEmailerObserver(
-                        container.GetInstance<ProgramSettings>(), 
-                        container.GetInstance<ISystemInfoProvider>(), 
+                        container.GetInstance<ProgramSettings>(),
+                        container.GetInstance<ISystemInfoProvider>(),
                         container.GetInstance<IEmailSender>())
                 });
 
@@ -147,7 +167,7 @@ namespace Packager
             container.Verify();
 
             return container;
-            
+
         }
 
         private static IRestClient GetRestClient(IProgramSettings programSettings, IFileProvider fileProvider,

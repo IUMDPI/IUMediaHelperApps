@@ -13,7 +13,6 @@ using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
-using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 
@@ -35,7 +34,7 @@ namespace Packager.Processors
             IFFMPEGRunner ffMpegRunner, 
             IFFProbeRunner ffProbeRunner, 
             ILabelImageImporter imageProcessor, 
-            IPlaceHolderGenerator placeHolderGenerator) : base(
+            IPlaceHolderFactory placeHolderFactory) : base(
                 bextProcessor, 
                 directoryProvider, 
                 fileProvider, 
@@ -45,7 +44,7 @@ namespace Packager.Processors
                 programSettings, 
                 xmlExporter, 
                 imageProcessor, 
-                placeHolderGenerator)
+                placeHolderFactory)
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;

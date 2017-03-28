@@ -17,7 +17,6 @@ using Packager.Providers;
 using Packager.Utilities.Bext;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
-using Packager.Utilities.PlaceHolderGenerators;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
 using Packager.Validators;
@@ -50,7 +49,7 @@ namespace Packager.Test.Processors
         protected IFFMPEGRunner FFMPEGRunner { get; set; }
         protected IFFProbeRunner FFProbeRunner { get; set; }
         protected ILabelImageImporter ImageProcessor { get; set; }
-        protected IPlaceHolderGenerator PlaceHolderGenerator { get; set; }
+        protected IPlaceHolderFactory PlaceHolderFactory { get; set; }
 
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
@@ -127,8 +126,8 @@ namespace Packager.Test.Processors
             ImageProcessor.ImportMediaImages(Arg.Any<string>(), Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(new List<AbstractFile>()));
 
-            PlaceHolderGenerator = Substitute.For<IPlaceHolderGenerator>();
-            PlaceHolderGenerator.GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>())
+            PlaceHolderFactory = Substitute.For<IPlaceHolderFactory>();
+            PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
                 .Returns(new List<AbstractFile>());
 
             DoCustomSetup();

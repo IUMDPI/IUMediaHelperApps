@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Common.Models;
 using Packager.Extensions;
-using Packager.Factories;
 using Packager.Models.FileModels;
 
 namespace Packager.Models.PlaceHolderConfigurations

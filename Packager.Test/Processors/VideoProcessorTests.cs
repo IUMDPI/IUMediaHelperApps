@@ -59,7 +59,7 @@ namespace Packager.Test.Processors
 
             MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, FFProbeRunner,ImageProcessor, PlaceHolderGenerator);
+            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, FFProbeRunner,ImageProcessor, PlaceHolderFactory);
 
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
@@ -347,7 +347,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        PlaceHolderGenerator.GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>())
+                        PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
                             .Returns(PlaceHolders);
 
                         VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
@@ -398,7 +398,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallPlaceHolderGenerator()
                 {
-                    PlaceHolderGenerator.Received().GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>());
+                    PlaceHolderFactory.Received().GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>());
                 }
 
                 [Test]

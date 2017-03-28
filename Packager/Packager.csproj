@@ -307,12 +307,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="UserInterface\HighlightRules.xshd">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <None Include="UserInterface\HighlightRules.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

@@ -446,19 +446,19 @@ namespace Packager.Processors
 
         private IEnumerable<AbstractFile> GetPlaceHoldersToAdd(string format, List<AbstractFile> processedList)
         {
-            var sectionKey = Observers.BeginSection("Adding place-holder entries");
+            var sectionKey = Observers.BeginSection("Adding Placeholder Entries");
             try
             {
                 var toAdd = PlaceHolderFactory.GetPlaceHoldersToAdd(format, processedList);
                 if (toAdd.Any() == false)
                 {
-                    Observers.Log("No place-holders to add");
+                    Observers.Log("No placeholders to add");
                 }
                 else
                 {
                     foreach (var entry in toAdd)
                     {
-                        Observers.Log("Adding place-holder: {0}", entry.Filename);
+                        Observers.Log("Adding placeholder: {0}", entry.Filename);
                     }
                 }
 

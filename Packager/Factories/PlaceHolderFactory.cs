@@ -20,7 +20,7 @@ namespace Packager.Factories
         {
             if (!_knownConfigurations.ContainsKey(format.ToLowerInvariant()))
             {
-                _observers.Log("No place-holder configuration found for format {0}", format);
+                _observers.Log("No placeholder configuration found for format {0}", format);
                 return new List<AbstractFile>();
             }
 

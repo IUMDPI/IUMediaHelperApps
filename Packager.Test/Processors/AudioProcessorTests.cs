@@ -16,7 +16,6 @@ using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
 using Packager.Utilities.Bext;
-using Packager.Utilities.PlaceHolderGenerators;
 
 namespace Packager.Test.Processors
 {
@@ -59,7 +58,7 @@ namespace Packager.Test.Processors
 
             MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor  = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor, PlaceHolderGenerator);
+            Processor  = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor, PlaceHolderFactory);
             
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
@@ -371,7 +370,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        PlaceHolderGenerator.GetPlaceHoldersToAdd(Arg.Any<List<AbstractFile>>())
+                        PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
                             .Returns(_placeHolders);
 
                         AudioCarrierDataFactory.When(
@@ -388,7 +387,7 @@ namespace Packager.Test.Processors
                     {
                         foreach (var fileModel in _placeHolders)
                         {
-                            Observers.Received().Log("Adding place-holder: {0}", fileModel.Filename);
+                            Observers.Received().Log("Adding placeholder: {0}", fileModel.Filename);
                         }
                     }
 

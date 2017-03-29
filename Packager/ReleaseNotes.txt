@@ -69,4 +69,5 @@
 3.5.0.0		2/20/2017	Use manifest files when importing label images
 3.6.0.0		3/20/2017	Insert place-holder nodes in xml manifest in cases
 						with "orphan" label images in side/file nodes
+3.7.0.0		3/29/2017	Link place-holder configurations to formats
 					

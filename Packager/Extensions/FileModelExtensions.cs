@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Packager.Models.FileModels;
 
@@ -54,6 +55,11 @@ namespace Packager.Extensions
         public static IEnumerable<AbstractFile> NonPlaceHolderFiles(this IEnumerable<AbstractFile> fileModels)
         {
             return fileModels.Where(fm=> !fm.IsPlaceHolder);
+        }
+
+        public static T ConvertTo<T>(this AbstractFile fileModel) where T : AbstractFile
+        {
+            return Activator.CreateInstance(typeof(T), fileModel) as T;
         }
     }
 }

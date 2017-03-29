@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Packager.Models.FileModels;
 
-namespace Packager.Utilities.PlaceHolderGenerators
+namespace Packager.Models.PlaceHolderConfigurations
 {
-    public interface IPlaceHolderGenerator
+    public interface IPlaceHolderConfiguration
     {
         List<AbstractFile> GetPlaceHoldersToAdd(List<AbstractFile> fileModels);
     }

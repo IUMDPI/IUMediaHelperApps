@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using Common.Models;
 using Packager.Extensions;
 
 namespace Packager.Models.FileModels
@@ -13,14 +14,13 @@ namespace Packager.Models.FileModels
         {
         }
 
-        protected AbstractFile(AbstractFile original, string fileUse, string fullFileUse, string extension)
+        protected AbstractFile(AbstractFile original, FileUsages fileUsage, string extension)
         {
             BarCode = original.BarCode;
             SequenceIndicator = original.SequenceIndicator;
             ProjectCode = original.ProjectCode;
             Extension = extension;
-            FileUse = fileUse;
-            FullFileUse = fullFileUse;
+            FileUsage = fileUsage;
             Filename = NormalizeFilename();
             IsPlaceHolder = original.IsPlaceHolder;
             OriginalFileName = IsSameAs(original)
@@ -45,8 +45,9 @@ namespace Packager.Models.FileModels
 
         public int SequenceIndicator { get; protected set; }
 
-        public string FileUse { get; protected set; }
-        public string FullFileUse { get; protected set; }
+        public string FileUse => FileUsage.FileUse;
+        public FileUsages FileUsage { get; protected set; }
+        public string FullFileUse => FileUsage.FullFileUse;
         public string Checksum { get; set; }
         public string BarCode { get; protected set; }
         public string Extension { get; protected set; }

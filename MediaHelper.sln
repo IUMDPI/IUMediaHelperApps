@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reporter", "Reporter\Report
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.TaskScheduler", "Common.TaskScheduler\Common.TaskScheduler.csproj", "{A75E3EAC-B01F-4D00-B577-7A0355D77CDA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tests", "Common.Tests\Common.Tests.csproj", "{E4F274E8-D774-4226-9591-898EE186CEC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{A75E3EAC-B01F-4D00-B577-7A0355D77CDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A75E3EAC-B01F-4D00-B577-7A0355D77CDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A75E3EAC-B01F-4D00-B577-7A0355D77CDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4F274E8-D774-4226-9591-898EE186CEC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4F274E8-D774-4226-9591-898EE186CEC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4F274E8-D774-4226-9591-898EE186CEC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4F274E8-D774-4226-9591-898EE186CEC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -105,5 +111,6 @@ Global
 		{FD737CE4-6FD8-4EF9-88F4-3105F499190D} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 		{F2E38B68-6CF1-4659-A377-DC78FFFBB302} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
 		{9CC9665F-FFD5-45DD-893C-550D48E15384} = {AE3B0A62-0256-4802-915D-FC5CABDD7A97}
+		{E4F274E8-D774-4226-9591-898EE186CEC5} = {031C313B-FF3F-458D-82B4-667AAF2B5FF8}
 	EndGlobalSection
 EndGlobal

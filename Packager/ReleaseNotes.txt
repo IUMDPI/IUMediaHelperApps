@@ -70,4 +70,5 @@
 3.6.0.0		3/20/2017	Insert place-holder nodes in xml manifest in cases
 						with "orphan" label images in side/file nodes
 3.7.0.0		3/29/2017	Link place-holder configurations to formats
+3.8.0.0		4/10/2017	Flag 4-stream audio betamax files in manifest xml
 					

@@ -25,14 +25,15 @@ namespace Packager.Test.Models.OutputModels.CarrierModelTests
             [TestCase("Identifier", 1)]
             [TestCase("Barcode", 2)]
             [TestCase("PhysicalCondition", 3)]
-            [TestCase("Parts", 4)]
-            [TestCase("RecordingStandard", 5)]
-            [TestCase("ImageFormat", 6)]
-            [TestCase("Definition", 7)]
-            [TestCase("Preview", 8)]
-            [TestCase("Comments", 9)]
-            [TestCase("Cleaning", 10)]
-            [TestCase("Baking", 11)]
+            [TestCase("Configuration", 4)]
+            [TestCase("Parts", 5)]
+            [TestCase("RecordingStandard", 6)]
+            [TestCase("ImageFormat", 7)]
+            [TestCase("Definition", 8)]
+            [TestCase("Preview", 9)]
+            [TestCase("Comments", 10)]
+            [TestCase("Cleaning", 11)]
+            [TestCase("Baking", 12)]
             public void FieldsShouldHaveCorrectOrderAttributes(string field, int order)
             {
                 var info = typeof (VideoCarrier).GetProperty(field);

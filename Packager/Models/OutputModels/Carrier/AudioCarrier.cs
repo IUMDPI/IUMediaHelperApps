@@ -19,7 +19,7 @@ namespace Packager.Models.OutputModels.Carrier
         public PhysicalConditionData PhysicalCondition { get; set; }
 
         [XmlElement(Order = 4)]
-        public ConfigurationData Configuration { get; set; }
+        public AudioConfigurationData Configuration { get; set; }
 
         [XmlElement(Order = 5)]
         public string Brand { get; set; }

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -16,7 +18,9 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; }
 
-        public AbstractCarrierData Generate(AudioPodMetadata metadata, string digitizingEntity, List<AbstractFile> filesToProcess)
+#pragma warning disable 1998
+        public async Task<AbstractCarrierData> Generate(AudioPodMetadata metadata, string digitizingEntity, List<AbstractFile> filesToProcess, CancellationToken cancellationToken)
+#pragma warning restore 1998
         {
             var result = new AudioCarrier
             {
@@ -30,7 +34,7 @@ namespace Packager.Factories
                 Cleaning = new CleaningData {Date = metadata.CleaningDate?.ToString("yyyy-MM-dd"), Comment = metadata.CleaningComment},
                 Repaired = metadata.Repaired,
                 Parts = GeneratePartsData(metadata, digitizingEntity, filesToProcess),
-                Configuration = new ConfigurationData
+                Configuration = new AudioConfigurationData
                 {
                     Track = metadata.TrackConfiguration,
                     SoundField = metadata.SoundField,

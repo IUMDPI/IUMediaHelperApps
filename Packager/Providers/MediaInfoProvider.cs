@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.SettingsModels;
 using Packager.Utilities.ProcessRunners;
@@ -23,12 +24,12 @@ namespace Packager.Providers
 
         private static int GetAudioStreamCount(XContainer element)
         {
-            return element.Descendants("stream").Count(d => d.Attribute("codec_type").Value.Equals("audio"));
+            return element.Descendants("stream").Count(d => d.Attribute("codec_type").AttributeEquals("audio"));
         }
 
         private static int GetVideoStreamCount(XContainer element)
         {
-            return element.Descendants("stream").Count(d => d.Attribute("codec_type").Value.Equals("video"));
+            return element.Descendants("stream").Count(d => d.Attribute("codec_type").AttributeEquals("video"));
         }
 
         public async Task<MediaInfo> GetMediaInfo(AbstractFile target, CancellationToken cancellationToken)
@@ -43,7 +44,7 @@ namespace Packager.Providers
             };
         }
 
-        private XElement GetXElement(InfoFile target)
+        private XElement GetXElement(AbstractFile target)
         {
             var targetPath = Path.Combine(BaseProcessingDirectory, target.GetFolderName(), target.Filename);
             var document = XDocument.Load(targetPath);

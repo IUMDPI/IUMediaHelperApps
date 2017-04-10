@@ -31,7 +31,7 @@ namespace Packager.Test.Processors
         protected override void DoCustomSetup()
         {
             FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
-                .Returns(x => Task.FromResult((AbstractFile) new AccessFile(x.Arg<AbstractFile>())));
+                .Returns(x => Task.FromResult((AbstractFile)new AccessFile(x.Arg<AbstractFile>())));
             FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(),
                 Arg.Any<AbstractEmbeddedMetadata>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
@@ -51,15 +51,15 @@ namespace Packager.Test.Processors
             ProdAbstractFile = FileModelFactory.GetModel(ProductionFileName);
             AccessAbstractFile = FileModelFactory.GetModel(AccessFileName);
 
-            ModelList = new List<AbstractFile> {PresAbstractFile};
+            ModelList = new List<AbstractFile> { PresAbstractFile };
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new VideoPodMetadata {Barcode = Barcode, Unit = "Unit value"};
+            Metadata = new VideoPodMetadata { Barcode = Barcode, Unit = "Unit value" };
 
             MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, FFProbeRunner,ImageProcessor, PlaceHolderFactory);
+            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, FFProbeRunner, ImageProcessor, PlaceHolderFactory);
 
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
@@ -150,7 +150,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                            ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                         }
 
                         [Test]
@@ -168,7 +168,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFile> {PresAbstractFile, ProdAbstractFile};
+                            ModelList = new List<AbstractFile> { PresAbstractFile, ProdAbstractFile };
                         }
 
                         [Test]
@@ -260,7 +260,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                         ExpectedMasterModel = PresIntAbstractFile;
                     }
                 }
@@ -270,7 +270,7 @@ namespace Packager.Test.Processors
                 {
                     VideoMetadataFactory.Received().Generate(
                         Arg.Any<List<AbstractFile>>(),
-                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), 
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()),
                         Arg.Any<VideoPodMetadata>());
                 }
 
@@ -304,7 +304,7 @@ namespace Packager.Test.Processors
                         ImageProcessor.ImportMediaImages(Arg.Any<string>(), Arg.Any<CancellationToken>())
                             .Returns(new List<AbstractFile> { Label });
 
-                        VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
+                        VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>()))
                        .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
                     }
 
@@ -350,7 +350,7 @@ namespace Packager.Test.Processors
                         PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
                             .Returns(PlaceHolders);
 
-                        VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
+                        VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>()))
                        .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
                     }
 
@@ -368,7 +368,7 @@ namespace Packager.Test.Processors
                     {
                         foreach (var fileModel in PlaceHolders)
                         {
-                            Assert.That(ReceivedModelList.Contains(fileModel), Is.True, 
+                            Assert.That(ReceivedModelList.Contains(fileModel), Is.True,
                                 $"Model list should include place-holder {fileModel.Filename}");
                         }
                     }
@@ -421,9 +421,9 @@ namespace Packager.Test.Processors
 
                     VideoCarrier = new VideoCarrier();
                     VideoCarrierDataFactory.When(
-                        mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
+                        mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>()))
                         .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
-                    VideoCarrierDataFactory.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
+                    VideoCarrierDataFactory.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>())
                         .Returns(VideoCarrier);
                 }
 
@@ -433,7 +433,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                     }
 
                     [Test]
@@ -443,7 +443,7 @@ namespace Packager.Test.Processors
                             Arg.Any<VideoPodMetadata>(),
                             Arg.Any<string>(),
                             Arg.Is<List<AbstractFile>>(
-                                l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
+                                l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null), Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -524,7 +524,7 @@ namespace Packager.Test.Processors
                     VideoCarrierDataFactory.Received().Generate(
                         Arg.Any<VideoPodMetadata>(),
                         Arg.Any<string>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
@@ -539,7 +539,7 @@ namespace Packager.Test.Processors
                 public void ItShouldPassCorrectDigitizingEntityToFactory()
                 {
                     VideoCarrierDataFactory.Received()
-                        .Generate(Arg.Any<VideoPodMetadata>(), DigitizingEntity, Arg.Any<List<AbstractFile>>());
+                        .Generate(Arg.Any<VideoPodMetadata>(), DigitizingEntity, Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>());
                 }
             }
 
@@ -641,7 +641,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                         ExpectedFiles = 7;
                         // prod master, pres master, presInt master, access, xml manifest, pres qc file, pres int qc file
                     }

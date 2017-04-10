@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
+using Packager.Providers;
 
 namespace Packager.Test.Factories
 {
     [TestFixture]
     public class VideoCarrierDataFactoryTests
     {
-        protected virtual void SetUpMetadata()
+        protected virtual void SetupMetadata()
         {
             PodMetadata = new VideoPodMetadata
             {
@@ -30,8 +33,17 @@ namespace Packager.Test.Factories
 
         }
 
+        protected virtual void SetupMediaInfoProvider()
+        {
+
+            MediaInfoProvider = Substitute.For<IMediaInfoProvider>();
+            MediaInfoProvider.GetMediaInfo(PreservationSide1FileModel, Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult(new MediaInfo()));
+
+        }
+
         [SetUp]
-        public void BeforeEach()
+        public async Task BeforeEach()
         {
             ProcessingDirectory = "test folder";
 
@@ -39,7 +51,8 @@ namespace Packager.Test.Factories
             MezzSide1FileModel = FileModelFactory.GetModel(MezzSide1FileName);
             AccessSide1FileModel = FileModelFactory.GetModel(AccessSide1FileName);
 
-            SetUpMetadata();
+            SetupMetadata();
+            SetupMediaInfoProvider();
            
             SideDataFactory = Substitute.For<ISideDataFactory>();
 
@@ -50,8 +63,8 @@ namespace Packager.Test.Factories
                 AccessSide1FileModel
             };
 
-            var generator = new VideoCarrierDataFactory(SideDataFactory);
-            Result = generator.Generate(PodMetadata, DigitizingEntity, FilesToProcess) as VideoCarrier;
+            var generator = new VideoCarrierDataFactory(SideDataFactory, MediaInfoProvider);
+            Result = await generator.Generate(PodMetadata, DigitizingEntity, FilesToProcess, CancellationToken.None) as VideoCarrier;
         }
 
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.mkv";
@@ -69,13 +82,15 @@ namespace Packager.Test.Factories
         private ISideDataFactory SideDataFactory { get; set; }
         private VideoCarrier Result { get; set; }
 
+        private IMediaInfoProvider MediaInfoProvider { get; set; }
+
         public class WhenSettingBasicProperties : VideoCarrierDataFactoryTests
         {
             public class WhenCallNumberNotSet : WhenSettingBasicProperties
             {
-                protected override void SetUpMetadata()
+                protected override void SetupMetadata()
                 {
-                    base.SetUpMetadata();
+                    base.SetupMetadata();
                     PodMetadata.CallNumber = "";
                 }
 
@@ -106,9 +121,7 @@ namespace Packager.Test.Factories
             {
                 Assert.That(Result.CarrierType, Is.EqualTo("Video"));
             }
-
-           
-
+            
             [Test]
             public void ItShouldSetDefinitionCorrectly()
             {
@@ -209,6 +222,74 @@ namespace Packager.Test.Factories
             public void ItShouldSetPartsDataObjectCorrectly()
             {
                 Assert.That(Result.Parts, Is.Not.Null);
+            }
+        }
+
+        public class WhenSettingConfiguration : VideoCarrierDataFactoryTests
+        {
+            [Test]
+            public void ConfigurationShouldNotBeNull()
+            {
+                Assert.That(Result.Configuration, Is.Not.Null);
+            }
+
+            [Test]
+            public virtual void DigitialFileConfigurationVarientShouldBeSetCorrectly()
+            {
+                Assert.That(Result.Configuration.DigitalFileConfigurationVariant, Is.EqualTo(string.Empty));
+            }
+
+            [Test]
+            public virtual void IsShouldCallMediaInfoProviderCorrectly()
+            {
+                MediaInfoProvider.DidNotReceive()
+                       .GetMediaInfo(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>());
+            }
+
+            public class WhenFormatIsNotBetamax : WhenSettingConfiguration
+            {
+            }
+
+            public class WhenFormatIsBetamax : WhenSettingConfiguration
+            {
+                protected override void SetupMetadata()
+                {
+                    base.SetupMetadata();
+                    PodMetadata.Format = "betamax";
+                }
+
+                [Test]
+                public override void IsShouldCallMediaInfoProviderCorrectly()
+                {
+                    MediaInfoProvider.Received()
+                        .GetMediaInfo(PreservationSide1FileModel, Arg.Any<CancellationToken>());
+                }
+
+                public class WhenPresObjectHasGreaterThanTwoAudioStreams : WhenFormatIsBetamax
+                {
+                    protected override void SetupMediaInfoProvider()
+                    {
+                        base.SetupMediaInfoProvider();
+                        MediaInfoProvider.GetMediaInfo(PreservationSide1FileModel, Arg.Any<CancellationToken>())
+                            .Returns(Task.FromResult(new MediaInfo {AudioStreams = 4}));
+                    }
+                    
+                    [Test]
+                    public override void DigitialFileConfigurationVarientShouldBeSetCorrectly()
+                    {
+                        Assert.That(Result.Configuration.DigitalFileConfigurationVariant, Is.EqualTo("Anamorphic"));
+                    }
+                }
+
+                public class WhenPresObjectHasLessThanFourAudioStreams : WhenFormatIsBetamax
+                {
+                    protected override void SetupMediaInfoProvider()
+                    {
+                        base.SetupMediaInfoProvider();
+                        MediaInfoProvider.GetMediaInfo(PreservationSide1FileModel, Arg.Any<CancellationToken>())
+                            .Returns(Task.FromResult(new MediaInfo {AudioStreams = 2}));
+                    }
+                }
             }
         }
     }

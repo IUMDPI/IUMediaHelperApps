@@ -245,7 +245,10 @@ namespace Packager.Processors
             {
                 await AssignChecksumValues(filesToProcess, cancellationToken);
 
-                var wrapper = new ExportableManifest { Carrier = CarrierDataFactory.Generate(metadata, ProgramSettings.DigitizingEntity, filesToProcess) };
+                var wrapper = new ExportableManifest
+                {
+                    Carrier = await CarrierDataFactory.Generate(metadata, ProgramSettings.DigitizingEntity, filesToProcess, cancellationToken)
+                };
                 XmlExporter.ExportToFile(wrapper, Path.Combine(ProcessingDirectory, result.Filename));
 
                 result.Checksum = await Hasher.Hash(result, cancellationToken);

@@ -277,7 +277,7 @@ namespace Packager.Test.Factories
                     [Test]
                     public override void DigitialFileConfigurationVarientShouldBeSetCorrectly()
                     {
-                        Assert.That(Result.Configuration.DigitalFileConfigurationVariant, Is.EqualTo("Anamorphic"));
+                        Assert.That(Result.Configuration.DigitalFileConfigurationVariant, Is.EqualTo("4StreamAudio"));
                     }
                 }
 

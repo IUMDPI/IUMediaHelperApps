@@ -49,7 +49,7 @@ namespace Packager.Factories
 
         private async Task<VideoConfigurationData> GetConfiguration(string format, AbstractFile model, CancellationToken cancellationToken)
         {
-            if (format.IsNotSet() || !format.Equals("betamax"))
+            if (format.IsNotSet() || !format.Equals("betamax", StringComparison.InvariantCultureIgnoreCase))
             {
                 return new VideoConfigurationData
                 {
@@ -60,7 +60,7 @@ namespace Packager.Factories
             var mediaInfo =await MediaInfoProvider.GetMediaInfo(model, cancellationToken);
 
             var variant = mediaInfo.AudioStreams > 2
-                ? "Anamorphic"
+                ? "4StreamAudio"
                 : string.Empty;
 
             return new VideoConfigurationData

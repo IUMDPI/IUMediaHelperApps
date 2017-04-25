@@ -24,10 +24,18 @@ namespace Common.Models
         public static readonly FileUsages XmlFile = new FileUsages("", "Xml File");
         public static readonly FileUsages UnknownFile = new FileUsages("", "Raw object file");
         public static readonly FileUsages PreservationToneReference = new FileUsages("presRef", "Preservation Master Tone Reference File");
+        public static readonly FileUsages PreservationIntermediateToneReference = new FileUsages("intRef", "Preservation Master - Intermediate Tone Reference File");
 
         private static readonly List<FileUsages> AllImportableUsages = new List< FileUsages>
         {
-            PreservationMaster, PreservationIntermediateMaster, ProductionMaster, MezzanineFile, AccessFile, LabelImageFile
+            PreservationMaster,
+            PreservationIntermediateMaster,
+            PreservationToneReference,
+            PreservationIntermediateToneReference,
+            ProductionMaster,
+            MezzanineFile,
+            AccessFile,
+            LabelImageFile
         };
 
         public static FileUsages GetUsage(string fileUse)

@@ -106,12 +106,11 @@ namespace Packager.Providers
                 .Select(p => FileModelFactory.GetModel(p.Filename))
                 .Select(m => m.Filename).ToList();
 
-            var presentMasters = filesToProcess
-                .Where(m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
+            var presentFiles = filesToProcess
                 .Select(m => m.Filename).ToList();
 
             results.AddRange(
-                expectedMasters.Except(presentMasters)
+                expectedMasters.Except(presentFiles)
                     .Select(f => new ValidationResult("No original master present for {0}", f)));
             return results;
         }

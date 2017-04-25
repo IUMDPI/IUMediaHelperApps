@@ -109,6 +109,7 @@
     <Compile Include="Models\FileModels\AudioPreservationFile.cs" />
     <Compile Include="Models\FileModels\AudioPreservationIntermediateFile.cs" />
     <Compile Include="Factories\FileModelFactory.cs" />
+    <Compile Include="Models\FileModels\AudioPreservationToneReferenceFile.cs" />
     <Compile Include="Models\FileModels\InfoFile.cs" />
     <Compile Include="Models\FileModels\MediaInfo.cs" />
     <Compile Include="Models\FileModels\MezzanineFile.cs" />

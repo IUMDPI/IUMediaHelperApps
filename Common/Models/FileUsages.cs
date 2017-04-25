@@ -23,6 +23,7 @@ namespace Common.Models
         public static readonly FileUsages LabelImageFile = new FileUsages("label", "Label Image File");
         public static readonly FileUsages XmlFile = new FileUsages("", "Xml File");
         public static readonly FileUsages UnknownFile = new FileUsages("", "Raw object file");
+        public static readonly FileUsages PreservationToneReference = new FileUsages("presRef", "Preservation Master Tone Reference File");
 
         private static readonly List<FileUsages> AllImportableUsages = new List< FileUsages>
         {

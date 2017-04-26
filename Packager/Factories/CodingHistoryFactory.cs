@@ -25,7 +25,9 @@ namespace Packager.Factories
         private readonly Dictionary<string, ICodingHistoryGenerator> _generators =
             new Dictionary<string, ICodingHistoryGenerator>
             {
-                { "open reel audio tape", new OpenReelCodingHistoryGenerator()} 
+                { "open reel audio tape", new OpenReelCodingHistoryGenerator()},
+                { "lacquer disc", new LacquerOrCylinderCodingHistoryGenerator()},
+                {"cylinder", new LacquerOrCylinderCodingHistoryGenerator() } 
             };
 
 

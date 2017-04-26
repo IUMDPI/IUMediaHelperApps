@@ -90,6 +90,7 @@
     <Compile Include="Extensions\XElmentExtensions.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\AudioCarrierDataFactory.cs" />
+    <Compile Include="Factories\CodingHistoryFactory.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />

@@ -116,9 +116,12 @@ namespace Packager
                 {"lp", new StandardAudioPlaceHolderConfiguration() },
                 {"cd-r", new StandardAudioPlaceHolderConfiguration() },
                 {"45", new StandardAudioPlaceHolderConfiguration() },
+                
                 // pres-int audio
                 { "lacquer disc", new PresIntAudioPlaceHolderConfiguration()},
-                {"78", new PresIntAudioPlaceHolderConfiguration() },
+                { "cylinder", new PresIntAudioPlaceHolderConfiguration()},
+                { "78", new PresIntAudioPlaceHolderConfiguration() },
+                
                 // standard video
                 { "vhs", new StandardVideoPlaceHolderConfiguration()},
                 {"betacam:anamorphic", new StandardVideoPlaceHolderConfiguration() },

@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Packager.Exceptions;
-using Packager.Extensions;
 using Packager.Factories;
-using Packager.Validators.Attributes;
 
 namespace Packager.Models.PodMetadataModels
 {
     public class AudioPodMetadata : AbstractPodMetadata
     {
-        private const string LacquerDiscFormatIdentifier = "lacquer disc";
-        private const string OpenReelFormatIdentifier = "open reel audio tape";
-
         public string Brand { get; set; }
         public string DirectionsRecorded { get; set; }
-        //public string PlaybackSpeed { get; set; }
+     
         public string TrackConfiguration { get; set; }
-        [Required]
         public string SoundField { get; set; }
         public string TapeThickness { get; set; }
         public string TapeBase { get; set; }

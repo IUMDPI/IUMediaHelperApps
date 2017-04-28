@@ -12,8 +12,8 @@ namespace Packager.Factories.CodingHistory
     {
         protected const string AnalogueFormat = "ANALOGUE";
         protected const string DigitalFormat = "DIGITAL";
-        protected const string MonoSoundField = "mono";
-        protected const string StereoSoundField = "stereo";
+        protected const string MonoSoundField = "Mono";
+        protected const string StereoSoundField = "Stereo";
 
         protected const string CodingHistoryLine1Format = "A={0},M={1},T={2},\r\n";
         protected const string CodingHistoryLine2Format = "A=PCM,F=96000,W=24,M={0},T={1};A/D,\r\n";

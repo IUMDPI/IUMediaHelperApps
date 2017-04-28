@@ -18,7 +18,7 @@ namespace Packager.Factories
             DigitizingEntity = programSettings.DigitizingEntity;
         }
 
-        protected string DigitizingEntity { get; }
+        private string DigitizingEntity { get; }
 
         public AbstractEmbeddedMetadata Generate(IEnumerable<AbstractFile> models, AbstractFile target, T metadata)
         {

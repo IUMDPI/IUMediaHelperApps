@@ -91,10 +91,8 @@
     <Compile Include="Factories\CodingHistory\AbstractCodingHistoryGenerator.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\AudioCarrierDataFactory.cs" />
-    <Compile Include="Factories\CodingHistory\CodingHistoryFactory.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
-    <Compile Include="Factories\CodingHistory\ICodingHistoryFactory.cs" />
     <Compile Include="Factories\CodingHistory\ICodingHistoryGenerator.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\ImportableFactory.cs" />

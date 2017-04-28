@@ -8,6 +8,7 @@ using NLog.Config;
 using Packager.Deserializers;
 using Packager.Engine;
 using Packager.Factories;
+using Packager.Factories.CodingHistory;
 using Packager.Models.PlaceHolderConfigurations;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.ProgramArgumentsModels;
@@ -93,7 +94,7 @@ namespace Packager
             container.RegisterSingleton<ILabelImageImporter, LabelImageImporter>();
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
-
+        
             container.RegisterConditional<IFFMPEGRunner, VideoFFMPEGRunner>(Lifestyle.Singleton,
                 c => c.Consumer.ImplementationType == typeof(VideoProcessor));
 
@@ -134,6 +135,13 @@ namespace Packager
                 {"betamax", new StandardVideoPlaceHolderConfiguration() },
 
             });
+
+            container.RegisterSingleton(() => new Dictionary<string, ICodingHistoryGenerator>
+            {
+                { "open reel audio tape", new OpenReelCodingHistoryGenerator() },
+                { "lacquer disc", new LacquerOrCylinderCodingHistoryGenerator()},
+                { "cylinder", new LacquerOrCylinderCodingHistoryGenerator() }}
+            );
 
             container.RegisterSingleton(() => new CancellationTokenSource());
 

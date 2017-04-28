@@ -85,6 +85,9 @@
     <Compile Include="Factories\AudioCarrierDataFactoryTests.cs" />
     <Compile Include="Factories\AudioIngestFactoryTests.cs" />
     <Compile Include="Factories\AudioSideDataFactoryTests.cs" />
+    <Compile Include="Factories\CodingHistory\CodingHistoryGeneratorTestsBase.cs" />
+    <Compile Include="Factories\CodingHistory\LacquerOrCylinderCodingHistoryGeneratorTests.cs" />
+    <Compile Include="Factories\CodingHistory\OpenReelCodingHistoryGeneratorTests.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactoryTests.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactoryTests.cs" />
     <Compile Include="Factories\PlaceFolderFactoryTests.cs" />

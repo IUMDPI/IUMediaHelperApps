@@ -100,9 +100,9 @@ namespace Packager.Factories
         private struct ResolverKey
         {
             private string Extension { get; }
-            private FileUsages FileUsage { get; }
+            private IFileUsage FileUsage { get; }
 
-            public ResolverKey(string extension, FileUsages fileUsage)
+            public ResolverKey(string extension, IFileUsage fileUsage)
             {
                 Extension = extension.ToDefaultIfEmpty().ToLowerInvariant();
                 FileUsage = fileUsage;

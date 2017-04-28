@@ -14,7 +14,7 @@ namespace Packager.Models.FileModels
         {
         }
 
-        protected AbstractFile(AbstractFile original, FileUsages fileUsage, string extension)
+        protected AbstractFile(AbstractFile original, IFileUsage fileUsage, string extension)
         {
             BarCode = original.BarCode;
             SequenceIndicator = original.SequenceIndicator;
@@ -46,7 +46,7 @@ namespace Packager.Models.FileModels
         public int SequenceIndicator { get; protected set; }
 
         public string FileUse => FileUsage.FileUse;
-        public FileUsages FileUsage { get; protected set; }
+        public IFileUsage FileUsage { get; protected set; }
         public string FullFileUse => FileUsage.FullFileUse;
         public string Checksum { get; set; }
         public string BarCode { get; protected set; }

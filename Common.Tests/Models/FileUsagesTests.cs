@@ -14,7 +14,7 @@ namespace Common.Tests.Models
             new object[] {FileUsages.MezzanineFile, "mezz", "Mezzanine File"},
             new object[] {FileUsages.AccessFile, "access", "Access File"},
             new object[] {FileUsages.LabelImageFile, "label", "Label Image File"},
-            new object[] {FileUsages.UnknownFile, "", "Raw object file"},
+            new object[] {new UnknownFileUsage("", "Raw object file"), "", "Raw object file"},
             new object[] {FileUsages.XmlFile, "", "Xml File"}
         };
 
@@ -26,13 +26,13 @@ namespace Common.Tests.Models
             new object[] {"mezz", FileUsages.MezzanineFile},
             new object[] {"access", FileUsages.AccessFile},
             new object[] { "label", FileUsages.LabelImageFile },
-            new object[] {string.Empty, FileUsages.UnknownFile},
-            new object[] {null, FileUsages.UnknownFile},
-            new object[] {"some other value", FileUsages.UnknownFile}
+            new object[] {string.Empty, new UnknownFileUsage("", "Raw object file")},
+            new object[] {null, new UnknownFileUsage("", "Raw object file")},
+            new object[] {"some other value", new UnknownFileUsage("", "Raw object file") }
         };
 
         [Test, TestCaseSource(nameof(_usagesCorrectCases))]
-        public void UsagesShouldBeCorrect(FileUsages usage, string expectedFileUse, string expectedFullFileUse)
+        public void UsagesShouldBeCorrect(IFileUsage usage, string expectedFileUse, string expectedFullFileUse)
         {
             Assert.That(usage.FileUse, Is.EqualTo(expectedFileUse), 
                 $"File use should be {expectedFileUse}");
@@ -41,7 +41,7 @@ namespace Common.Tests.Models
         }
 
         [Test, TestCaseSource(nameof(_getUsageCases))]
-        public void GetUsageShouldReturnCorrectResult(string fileUse, FileUsages expected)
+        public void GetUsageShouldReturnCorrectResult(string fileUse, IFileUsage expected)
         {
             var result = FileUsages.GetUsage(fileUse);
             Assert.That(result, Is.EqualTo(expected), $"{fileUse} should produce {expected.FullFileUse} file usage object");

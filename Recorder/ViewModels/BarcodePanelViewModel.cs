@@ -31,7 +31,7 @@ namespace Recorder.ViewModels
 
         public string Filename => ObjectModel.Filename;
 
-        public FileUsages FileUsage
+        public IFileUsage FileUsage
         {
             get { return ObjectModel.FileUse; }
             set
@@ -46,7 +46,7 @@ namespace Recorder.ViewModels
             ? ObjectModel.FilePartsValid().ErrorContent.ToString()
             : string.Empty;
 
-        public List<FileUsages> FileUsages => ObjectModel.FileUsages;
+        public List<IFileUsage> FileUsages => ObjectModel.FileUsages;
 
         public List<AudioChannelsAndStreams> PossibleChannelsAndStreams => ObjectModel.PossibleChannelsAndStreams;
 

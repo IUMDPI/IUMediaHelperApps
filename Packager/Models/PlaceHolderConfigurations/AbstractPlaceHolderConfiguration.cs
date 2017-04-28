@@ -9,9 +9,9 @@ namespace Packager.Models.PlaceHolderConfigurations
     public abstract class AbstractPlaceHolderConfiguration : IPlaceHolderConfiguration
     {
         
-        protected List<FileUsages> RequiredUsages { get; }
+        protected List<IFileUsage> RequiredUsages { get; }
 
-        protected AbstractPlaceHolderConfiguration(List<FileUsages> requiredUsages)
+        protected AbstractPlaceHolderConfiguration(List<IFileUsage> requiredUsages)
         {
             RequiredUsages = requiredUsages;
         }

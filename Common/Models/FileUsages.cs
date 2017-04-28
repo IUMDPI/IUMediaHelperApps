@@ -10,9 +10,9 @@ namespace Common.Models
         string FullFileUse { get; }
     }
 
-    public class FileUsages : IFileUsage
+    public class FileUsage : IFileUsage
     {
-        private FileUsages(string fileUse, string fullFileUse)
+        internal FileUsage(string fileUse, string fullFileUse)
         {
             FileUse = fileUse;
             FullFileUse = fullFileUse;
@@ -20,20 +20,33 @@ namespace Common.Models
 
         public string FileUse { get; }
         public string FullFileUse { get; }
+    }
 
-        public static readonly FileUsages PreservationMaster = new FileUsages("pres", "Preservation Master");
-        public static readonly FileUsages PreservationIntermediateMaster = new FileUsages("presInt", "Preservation Master - Intermediate");
-        public static readonly FileUsages ProductionMaster = new FileUsages("prod", "Production Master");
-        public static readonly FileUsages MezzanineFile = new FileUsages("mezz", "Mezzanine File");
-        public static readonly FileUsages AccessFile = new FileUsages("access", "Access File");
-        public static readonly FileUsages LabelImageFile = new FileUsages("label", "Label Image File");
-        public static readonly FileUsages XmlFile = new FileUsages("", "Xml File");
-        public static readonly FileUsages PreservationToneReference = new FileUsages("presRef", "Preservation Master Tone Reference File");
-        public static readonly FileUsages PreservationIntermediateToneReference = new FileUsages("intRef",
+    public class UnknownFileUsage: IFileUsage
+    {
+        public UnknownFileUsage(string fileUse, string fullFileUse)
+        {
+            FileUse = fileUse;
+            FullFileUse = fullFileUse;
+        }
+        public string FileUse { get; }
+        public string FullFileUse { get; }
+    }
+
+    public class FileUsages
+    {
+        public static readonly IFileUsage PreservationMaster = new FileUsage("pres", "Preservation Master");
+        public static readonly IFileUsage PreservationIntermediateMaster = new FileUsage("presInt", "Preservation Master - Intermediate");
+        public static readonly IFileUsage ProductionMaster = new FileUsage("prod", "Production Master");
+        public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File");
+        public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File");
+        public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File");
+        public static readonly IFileUsage XmlFile = new FileUsage("", "Xml File");
+        public static readonly IFileUsage PreservationToneReference = new FileUsage("presRef", "Preservation Master Tone Reference File");
+        public static readonly IFileUsage PreservationIntermediateToneReference = new FileUsage("intRef",
             "Preservation Master - Intermediate Tone Reference File");
-        public static readonly FileUsages UnknownFile = new FileUsages("", "Raw object file");
-
-        private static readonly List<FileUsages> AllImportableUsages = new List<FileUsages>
+       
+        private static readonly List<IFileUsage> AllImportableUsages = new List<IFileUsage>
         {
             PreservationMaster,
             PreservationIntermediateMaster,
@@ -45,12 +58,12 @@ namespace Common.Models
             LabelImageFile
         };
 
-        public static FileUsages GetUsage(string fileUse)
+        public static IFileUsage GetUsage(string fileUse)
         {
             var usage = AllImportableUsages.SingleOrDefault(
                     u => u.FileUse.Equals(fileUse, StringComparison.InvariantCultureIgnoreCase));
 
-            return usage ?? UnknownFile;
+            return usage ??new UnknownFileUsage(fileUse, "Raw object file");
         }
     }
 }

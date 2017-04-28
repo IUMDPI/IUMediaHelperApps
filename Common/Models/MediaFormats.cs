@@ -4,9 +4,15 @@ using System.Linq;
 
 namespace Common.Models
 {
-    public class Formats
+    public interface IMediaFormat
     {
-        private Formats(string key, string properName)
+        string Key { get; }
+        string ProperName { get; }
+    }
+
+    public class MediaFormats:IMediaFormat
+    {
+        private MediaFormats(string key, string properName)
         {
             Key = key;
             ProperName = properName;
@@ -15,26 +21,26 @@ namespace Common.Models
         public string Key { get; }
         public string ProperName { get; }
 
-        public static Formats AudioCassette = new Formats("audiocassette", "Audio Cassette");
-        public static Formats OpenReelAudioTape = new Formats("open reel audio tape", "Open Reel Audio Tape");
-        public static Formats Lp = new Formats("lp", "Lp");
-        public static Formats Cdr = new Formats("cd-r", "CD Rom");
-        public static Formats FortyFive = new Formats("45", "45");
-        public static Formats LacquerDisc = new Formats("lacquer disc", "Lacquer Disc");
-        public static Formats Cylinder = new Formats("cylinder", "Cylinder");
-        public static Formats SeventyEight = new Formats("78", "78");
-        public static Formats Vhs = new Formats("vhs", "VHS");
-        public static Formats Betacam = new Formats("betacam", "Betacam");
-        public static Formats BetacamAnamorphic = new Formats("betacam:Anamorphic", "Betacam: Anamorphic");
-        public static Formats Dat = new Formats("dat", "DAT");
-        public static Formats OneInchOpenReelVideoTape = new Formats("1-inch open reel video tape", "1-inch Open Reel Video Tape");
-        public static Formats EightMillimeterVideo = new Formats("8mm video", "8mm Video");
-        public static Formats EightMillimeterVideoQuadaudio = new Formats("8mm video:quadaudio", "8mm Video: Quadaudio");
-        public static Formats Umatic = new Formats("u-matic", "U-matic");
-        public static Formats Betamax = new Formats("betamax", "Betamax");
-        public static Formats UnknownFormat = new Formats("", "Unknown/Unsupported Format");
+        public static MediaFormats AudioCassette = new MediaFormats("audiocassette", "Audio Cassette");
+        public static MediaFormats OpenReelAudioTape = new MediaFormats("open reel audio tape", "Open Reel Audio Tape");
+        public static MediaFormats Lp = new MediaFormats("lp", "Lp");
+        public static MediaFormats Cdr = new MediaFormats("cd-r", "CD Rom");
+        public static MediaFormats FortyFive = new MediaFormats("45", "45");
+        public static MediaFormats LacquerDisc = new MediaFormats("lacquer disc", "Lacquer Disc");
+        public static MediaFormats Cylinder = new MediaFormats("cylinder", "Cylinder");
+        public static MediaFormats SeventyEight = new MediaFormats("78", "78");
+        public static MediaFormats Vhs = new MediaFormats("vhs", "VHS");
+        public static MediaFormats Betacam = new MediaFormats("betacam", "Betacam");
+        public static MediaFormats BetacamAnamorphic = new MediaFormats("betacam:Anamorphic", "Betacam: Anamorphic");
+        public static MediaFormats Dat = new MediaFormats("dat", "DAT");
+        public static MediaFormats OneInchOpenReelVideoTape = new MediaFormats("1-inch open reel video tape", "1-inch Open Reel Video Tape");
+        public static MediaFormats EightMillimeterVideo = new MediaFormats("8mm video", "8mm Video");
+        public static MediaFormats EightMillimeterVideoQuadaudio = new MediaFormats("8mm video:quadaudio", "8mm Video: Quadaudio");
+        public static MediaFormats Umatic = new MediaFormats("u-matic", "U-matic");
+        public static MediaFormats Betamax = new MediaFormats("betamax", "Betamax");
+        public static MediaFormats UnknownMediaFormat = new MediaFormats("", "Unknown Format");
 
-        private static readonly List<Formats> AllSupportedFormats = new List<Formats>
+        private static readonly List<MediaFormats> AllKnownFormats = new List<MediaFormats>
         {
             AudioCassette,
             OpenReelAudioTape,
@@ -55,12 +61,12 @@ namespace Common.Models
             Betamax
         };
 
-        public static Formats GetFormat(string key)
+        public static MediaFormats GetFormat(string key)
         {
-            var format = AllSupportedFormats.SingleOrDefault(
+            var format = AllKnownFormats.SingleOrDefault(
                 f => f.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase));
 
-            return format ?? UnknownFormat;
+            return format ?? UnknownMediaFormat;
         }
 
     }

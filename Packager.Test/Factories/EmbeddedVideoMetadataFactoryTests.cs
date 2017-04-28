@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
@@ -28,7 +29,7 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
             {
                 Unit = Unit,
                 CallNumber = CallNumber,
-                Format = "Record",
+                Format = MediaFormats.Betamax,
                 Title = Title,
                 Iarl = Iarl,
                 Bext = Bext,

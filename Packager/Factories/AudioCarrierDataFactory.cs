@@ -26,7 +26,7 @@ namespace Packager.Factories
             {
                 Barcode = metadata.Barcode,
                 Brand = metadata.Brand,
-                CarrierType = metadata.Format,
+                CarrierType = metadata.Format.ProperName,
                 DirectionsRecorded = metadata.DirectionsRecorded,
                 Identifier = metadata.CallNumber.ToDefaultIfEmpty("Unknown"),
                 Thickness = metadata.TapeThickness,

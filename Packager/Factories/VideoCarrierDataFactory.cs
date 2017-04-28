@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -47,9 +48,9 @@ namespace Packager.Factories
             };
         }
 
-        private async Task<VideoConfigurationData> GetConfiguration(string format, AbstractFile model, CancellationToken cancellationToken)
+        private async Task<VideoConfigurationData> GetConfiguration(IMediaFormat format, AbstractFile model, CancellationToken cancellationToken)
         {
-            if (format.IsNotSet() || !format.Equals("betamax", StringComparison.InvariantCultureIgnoreCase))
+            if (format != MediaFormats.Betamax)
             {
                 return new VideoConfigurationData
                 {

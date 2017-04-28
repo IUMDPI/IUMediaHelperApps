@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Models;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Factories.CodingHistory;
@@ -16,7 +17,7 @@ namespace Packager.Test.Factories.CodingHistory
 
             Metadata = new AudioPodMetadata
             {
-                Format = "Open Reel Audio Tape",
+                Format = MediaFormats.OpenReelAudioTape
             };
 
             Generator = new OpenReelCodingHistoryGenerator();

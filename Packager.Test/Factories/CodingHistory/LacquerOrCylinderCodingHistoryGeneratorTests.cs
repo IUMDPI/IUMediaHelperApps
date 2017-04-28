@@ -1,4 +1,5 @@
 using System;
+using Common.Models;
 using NUnit.Framework;
 using Packager.Extensions;
 using Packager.Factories.CodingHistory;
@@ -55,7 +56,7 @@ namespace Packager.Test.Factories.CodingHistory
 
             Metadata = new AudioPodMetadata
             {
-                Format = "Cylinder"
+                Format = MediaFormats.Cylinder
             };
 
             Generator = new LacquerOrCylinderCodingHistoryGenerator();

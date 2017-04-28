@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
@@ -347,7 +348,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
+                        PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<IMediaFormat>(), Arg.Any<List<AbstractFile>>())
                             .Returns(PlaceHolders);
 
                         VideoCarrierDataFactory.When(mg => mg.Generate(Arg.Any<VideoPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>()))
@@ -398,7 +399,7 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ItShouldCallPlaceHolderGenerator()
                 {
-                    PlaceHolderFactory.Received().GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>());
+                    PlaceHolderFactory.Received().GetPlaceHoldersToAdd(Arg.Any<IMediaFormat>(), Arg.Any<List<AbstractFile>>());
                 }
 
                 [Test]

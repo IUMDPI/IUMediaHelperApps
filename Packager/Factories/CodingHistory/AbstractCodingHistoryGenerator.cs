@@ -44,7 +44,7 @@ namespace Packager.Factories.CodingHistory
             var parts = GenerateDevicePartsArray(provenance.PlayerDevices);
 
             parts.Add(DetermineSpeedUsed(provenance));
-            parts.Add(metadata.Format);
+            parts.Add(metadata.Format.ProperName);
 
             return string.Join(";", parts.Where(p => p.IsSet()));
         }

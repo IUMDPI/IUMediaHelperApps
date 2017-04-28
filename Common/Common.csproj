@@ -52,6 +52,7 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Models\AbstractOperationReport.cs" />
     <Compile Include="Models\FileUsages.cs" />
+    <Compile Include="Models\MediaFormats.cs" />
     <Compile Include="Models\PackagerReport.cs" />
     <Compile Include="Models\PackagerObjectReport.cs" />
     <Compile Include="Properties\Annotations.cs" />

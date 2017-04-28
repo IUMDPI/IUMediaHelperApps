@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
@@ -447,7 +448,7 @@ namespace Packager.Processors
             }
         }
 
-        private IEnumerable<AbstractFile> GetPlaceHoldersToAdd(string format, List<AbstractFile> processedList)
+        private IEnumerable<AbstractFile> GetPlaceHoldersToAdd(IMediaFormat format, List<AbstractFile> processedList)
         {
             var sectionKey = Observers.BeginSection("Adding Placeholder Entries");
             try

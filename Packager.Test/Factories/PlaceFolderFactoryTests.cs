@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
@@ -12,7 +13,7 @@ namespace Packager.Test.Factories
     public class PlaceFolderFactoryTests
     {
         private IPlaceHolderConfiguration Configuration { get; set; }
-        private Dictionary<string, IPlaceHolderConfiguration> ConfigurationDictionary { get; set; }
+        private Dictionary<IMediaFormat, IPlaceHolderConfiguration> ConfigurationDictionary { get; set; }
         private PlaceHolderFactory Factory { get; set; }
         private IObserverCollection Observers { get; set; }
         private List<AbstractFile> FileList { get; set; }
@@ -22,35 +23,33 @@ namespace Packager.Test.Factories
         {
             Configuration = Substitute.For<IPlaceHolderConfiguration>();
             Configuration.GetPlaceHoldersToAdd(null).ReturnsForAnyArgs(new List<AbstractFile>());
-            ConfigurationDictionary = new Dictionary<string, IPlaceHolderConfiguration>
+            ConfigurationDictionary = new Dictionary<IMediaFormat, IPlaceHolderConfiguration>
             {
-                {"format",  Configuration }
+                {MediaFormats.Betacam,  Configuration }
             };
             Observers = Substitute.For<IObserverCollection>();
             Factory = new PlaceHolderFactory(ConfigurationDictionary, Observers);
         }
 
-        [TestCase("format")]
-        [TestCase("Format")]
-        [TestCase("FORMAT")]
-        public void FactoryShouldUseConfigurationIfDefinedForFormat(string format)
+        [Test]
+        public void FactoryShouldUseConfigurationIfDefinedForFormat()
         {
-            Factory.GetPlaceHoldersToAdd(format, FileList);
+            Factory.GetPlaceHoldersToAdd(MediaFormats.Betacam, FileList);
             Configuration.Received().GetPlaceHoldersToAdd(FileList);
         }
 
         [Test]
         public void FactoryShouldReturnEmptyListIfFormatNotDefined()
         {
-            var result = Factory.GetPlaceHoldersToAdd("undefined format", FileList);
+            var result = Factory.GetPlaceHoldersToAdd(MediaFormats.UnknownMediaFormat, FileList);
             Assert.That(result, Is.Empty);
         }
 
         [Test]
         public void FactoryShouldLogIfFormatUnknown()
         {
-            Factory.GetPlaceHoldersToAdd("undefined format", FileList);
-            Observers.Received().Log("No placeholder configuration found for format {0}", "undefined format");
+            Factory.GetPlaceHoldersToAdd(MediaFormats.UnknownMediaFormat, FileList);
+            Observers.Received().Log("No placeholder configuration found for format {0}", MediaFormats.UnknownMediaFormat.ProperName);
         }
     }
 }

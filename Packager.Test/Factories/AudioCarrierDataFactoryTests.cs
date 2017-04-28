@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
@@ -23,7 +24,7 @@ namespace Packager.Test.Factories
                 BakingDate = new DateTime(2015, 05, 01),
                 CleaningDate = new DateTime(2015, 05, 01),
                 CleaningComment = "Cleaning comment",
-                Format = "CD-R",
+                Format = MediaFormats.Cdr,
                 DirectionsRecorded = "1",
                 CallNumber = "Call number",
                 SoundField = "Mono",
@@ -114,7 +115,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetCarrierTypeCorrectly()
             {
-                Assert.That(Result.CarrierType, Is.EqualTo(PodMetadata.Format));
+                Assert.That(Result.CarrierType, Is.EqualTo(PodMetadata.Format.ProperName));
             }
 
             [Test]

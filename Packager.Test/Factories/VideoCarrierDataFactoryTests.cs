@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
@@ -23,7 +24,7 @@ namespace Packager.Test.Factories
                 BakingDate = new DateTime(2015, 05, 01),
                 CleaningDate = new DateTime(2015, 05, 01),
                 CleaningComment = "Cleaning comment",
-                Format = "CD-R",
+                Format = MediaFormats.Cdr,
                 CallNumber = "Call number",
                 Repaired = "Yes",
                 RecordingStandard = "recording standard",
@@ -255,7 +256,7 @@ namespace Packager.Test.Factories
                 protected override void SetupMetadata()
                 {
                     base.SetupMetadata();
-                    PodMetadata.Format = "betamax";
+                    PodMetadata.Format = MediaFormats.Betamax;
                 }
 
                 [Test]

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Common.Models;
 using Packager.Exceptions;
 using Packager.Factories.CodingHistory;
 using Packager.Models.EmbeddedMetadataModels;
@@ -11,10 +12,10 @@ namespace Packager.Factories
 {
     public class EmbeddedAudioMetadataFactory : AbstractEmbeddedMetadataFactory<AudioPodMetadata>
     {
-        private Dictionary<string, ICodingHistoryGenerator> CodingHistoryGenerators { get; }
+        private Dictionary<IMediaFormat, ICodingHistoryGenerator> CodingHistoryGenerators { get; }
 
         public EmbeddedAudioMetadataFactory(IProgramSettings programSettings, 
-            Dictionary<string, ICodingHistoryGenerator> codingHistoryGenerators ) : base(programSettings)
+            Dictionary<IMediaFormat, ICodingHistoryGenerator> codingHistoryGenerators ) : base(programSettings)
         {
             CodingHistoryGenerators = codingHistoryGenerators;
         }
@@ -50,14 +51,13 @@ namespace Packager.Factories
 
         private string GenerateCodingHistory(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
         {
-            var formatKey = metadata.Format.ToLowerInvariant();
-            if (!CodingHistoryGenerators.ContainsKey(formatKey))
+            if (!CodingHistoryGenerators.ContainsKey(metadata.Format))
             {
                 throw new EmbeddedMetadataException(
                     $"No coding history generator defined for {metadata.Format}");
             }
 
-            return CodingHistoryGenerators[formatKey].Generate(metadata, provenance, model);
+            return CodingHistoryGenerators[metadata.Format].Generate(metadata, provenance, model);
         }
     }
 }

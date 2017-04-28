@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
@@ -23,9 +24,9 @@ namespace Packager.Test.Factories
             ProgramSettings = Substitute.For<IProgramSettings>();
             ProgramSettings.DigitizingEntity.Returns(DigitizingEntity);
             Provenance = GetFileProvenance();
-            CodingHistoryGenerators = new Dictionary<string, ICodingHistoryGenerator>
+            CodingHistoryGenerators = new Dictionary<IMediaFormat, ICodingHistoryGenerator>
             {
-                {"open reel audio tape", CodingHistoryGenerator }
+                {MediaFormats.OpenReelAudioTape, CodingHistoryGenerator }
             };
            
             Model = FileModelFactory.GetModel(PreservationFileName);
@@ -34,7 +35,7 @@ namespace Packager.Test.Factories
             {
                 Unit = Unit,
                 CallNumber = CallNumber,
-                Format = "Open Reel Audio Tape",
+                Format = MediaFormats.OpenReelAudioTape,
                 Title = Title,
                 SoundField = "Mono",
                 PlaybackSpeed = "7.5 ips",
@@ -67,7 +68,7 @@ namespace Packager.Test.Factories
         private const string Bext = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use:";
 
         private IProgramSettings ProgramSettings { get; set; }
-        private Dictionary<string, ICodingHistoryGenerator> CodingHistoryGenerators { get; set; }
+        private Dictionary<IMediaFormat, ICodingHistoryGenerator> CodingHistoryGenerators { get; set; }
        
         private AbstractFile Model { get; set; }
         private DigitalAudioFile Provenance { get; set; }
@@ -148,7 +149,7 @@ namespace Packager.Test.Factories
         [Test]
         public void ItShouldThrowExceptionIfFormatNotSupported()
         {
-            Metadata.Format = "unknown format";
+            Metadata.Format = MediaFormats.UnknownMediaFormat;
             var exception = Assert.Throws<EmbeddedMetadataException>(() => Factory.Generate(Instances, Model, Metadata));
             Assert.That(exception.Message, Is.EqualTo($"No coding history generator defined for {Metadata.Format}"));
         }

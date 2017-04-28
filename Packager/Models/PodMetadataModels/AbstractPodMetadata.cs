@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
+using Common.Models;
 using Packager.Extensions;
 using Packager.Factories;
 using Packager.Validators.Attributes;
@@ -11,7 +12,7 @@ namespace Packager.Models.PodMetadataModels
     public abstract class AbstractPodMetadata : IImportable
     {
         [Required]
-        public string Format { get; set; }
+        public IMediaFormat Format { get; set; }
         public string CallNumber { get; set; }
         public string Title { get; set; }
         [Required]
@@ -43,7 +44,7 @@ namespace Packager.Models.PodMetadataModels
             Message = factory.ToStringValue(element, "message");
 
             Comments = factory.ToStringValue(element, "data/comments");
-            Format = factory.ToStringValue(element, "data/format");
+            Format = MediaFormats.GetFormat(factory.ToStringValue(element, "data/format"));
             CallNumber = factory.ToStringValue(element, "data/call_number");
             Title = factory.ToStringValue(element, "data/title");
             Unit = factory.ToStringValue(element, "data/unit");

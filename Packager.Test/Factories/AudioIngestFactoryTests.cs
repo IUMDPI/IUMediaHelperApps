@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common.Models;
 using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Factories;
@@ -94,7 +95,7 @@ namespace Packager.Test.Factories
 
                 PodMetadata = new AudioPodMetadata
                 {
-                    Format = "CD-R",
+                    Format = MediaFormats.Cdr,
                     FileProvenances = new List<AbstractDigitalFile> {Provenance}
                 };
 

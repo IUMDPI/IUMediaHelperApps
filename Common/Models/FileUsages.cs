@@ -4,7 +4,13 @@ using System.Linq;
 
 namespace Common.Models
 {
-    public class FileUsages
+    public interface IFileUsage
+    {
+        string FileUse { get; }
+        string FullFileUse { get; }
+    }
+
+    public class FileUsages : IFileUsage
     {
         private FileUsages(string fileUse, string fullFileUse)
         {
@@ -22,11 +28,12 @@ namespace Common.Models
         public static readonly FileUsages AccessFile = new FileUsages("access", "Access File");
         public static readonly FileUsages LabelImageFile = new FileUsages("label", "Label Image File");
         public static readonly FileUsages XmlFile = new FileUsages("", "Xml File");
-        public static readonly FileUsages UnknownFile = new FileUsages("", "Raw object file");
         public static readonly FileUsages PreservationToneReference = new FileUsages("presRef", "Preservation Master Tone Reference File");
-        public static readonly FileUsages PreservationIntermediateToneReference = new FileUsages("intRef", "Preservation Master - Intermediate Tone Reference File");
+        public static readonly FileUsages PreservationIntermediateToneReference = new FileUsages("intRef",
+            "Preservation Master - Intermediate Tone Reference File");
+        public static readonly FileUsages UnknownFile = new FileUsages("", "Raw object file");
 
-        private static readonly List<FileUsages> AllImportableUsages = new List< FileUsages>
+        private static readonly List<FileUsages> AllImportableUsages = new List<FileUsages>
         {
             PreservationMaster,
             PreservationIntermediateMaster,

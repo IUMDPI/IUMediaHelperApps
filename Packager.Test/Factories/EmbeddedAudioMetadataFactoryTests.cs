@@ -149,7 +149,7 @@ namespace Packager.Test.Factories
         [Test]
         public void ItShouldThrowExceptionIfFormatNotSupported()
         {
-            Metadata.Format = MediaFormats.UnknownMediaFormat;
+            Metadata.Format = new UnknownMediaFormat("unknown format");
             var exception = Assert.Throws<EmbeddedMetadataException>(() => Factory.Generate(Instances, Model, Metadata));
             Assert.That(exception.Message, Is.EqualTo($"No coding history generator defined for {Metadata.Format}"));
         }

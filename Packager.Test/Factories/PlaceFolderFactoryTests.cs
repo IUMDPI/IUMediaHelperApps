@@ -41,15 +41,16 @@ namespace Packager.Test.Factories
         [Test]
         public void FactoryShouldReturnEmptyListIfFormatNotDefined()
         {
-            var result = Factory.GetPlaceHoldersToAdd(MediaFormats.UnknownMediaFormat, FileList);
+            var result = Factory.GetPlaceHoldersToAdd(new UnknownMediaFormat("unknown format"), FileList);
             Assert.That(result, Is.Empty);
         }
 
         [Test]
         public void FactoryShouldLogIfFormatUnknown()
         {
-            Factory.GetPlaceHoldersToAdd(MediaFormats.UnknownMediaFormat, FileList);
-            Observers.Received().Log("No placeholder configuration found for format {0}", MediaFormats.UnknownMediaFormat.ProperName);
+            var unknownFormat = new UnknownMediaFormat("unknown format");
+            Factory.GetPlaceHoldersToAdd(unknownFormat, FileList);
+            Observers.Received().Log("No placeholder configuration found for format {0}", unknownFormat.ProperName);
         }
     }
 }

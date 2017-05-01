@@ -9,7 +9,5 @@ namespace Packager.Models.FileModels
         public TiffImageFile(AbstractFile original) : base(original, FileUsages.LabelImageFile, ExtensionValue)
         {
         }
-
-        public override int Precedence => 6;
     }
 }

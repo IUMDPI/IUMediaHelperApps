@@ -28,8 +28,6 @@ namespace Packager.Models.FileModels
                 : Filename;
         }
 
-        public abstract int Precedence { get; }
-
         public string OriginalFileName { get; protected set; }
 
         public string ProjectCode

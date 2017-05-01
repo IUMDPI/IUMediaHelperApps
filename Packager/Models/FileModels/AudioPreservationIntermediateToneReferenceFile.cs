@@ -11,6 +11,6 @@ namespace Packager.Models.FileModels
         {
         }
 
-        public override int Precedence => 3; //todo: figure out proper value
+        //todo: figure out proper value
     }
 }

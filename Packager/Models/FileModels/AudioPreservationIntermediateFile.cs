@@ -7,7 +7,5 @@ namespace Packager.Models.FileModels
         public AudioPreservationIntermediateFile(AbstractFile original) : base(original, ExtensionValue)
         {
         }
-
-        public override int Precedence => 2;
     }
 }

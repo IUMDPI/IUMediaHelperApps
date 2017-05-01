@@ -14,8 +14,6 @@ namespace Packager.Models.FileModels
             FileUsage = FileUsages.XmlFile;
         }
 
-        public override int Precedence => 5;
-
         public override bool IsValid()
         {
             return ProjectCode.IsSet() && BarCode.IsSet();

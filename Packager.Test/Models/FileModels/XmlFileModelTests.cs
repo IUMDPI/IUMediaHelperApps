@@ -25,13 +25,5 @@ namespace Packager.Test.Models.FileModels
             var model = new XmlFile(projectCode, barCode);
             Assert.That(model.Filename, Is.EqualTo(expected));
         }
-
-        [Test]
-        public void PrecedenceShouldBeCorrect()
-        {
-            var model = new XmlFile("mdpi", "4890764553278906");
-            Assert.That(model.Precedence, Is.EqualTo(5));
-        }
-
     }
 }

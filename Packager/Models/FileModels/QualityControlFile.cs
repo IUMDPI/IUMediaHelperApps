@@ -1,4 +1,6 @@
-﻿namespace Packager.Models.FileModels
+﻿using Common.Models;
+
+namespace Packager.Models.FileModels
 {
     public class QualityControlFile : AbstractFile
     {
@@ -8,7 +10,7 @@
         public string IntermediateFileName { get; }
 
         public QualityControlFile(AbstractFile original) : 
-            base(original, original.FileUsage, ExtensionValue)
+            base(original, FileUsages.QualityControlFile, ExtensionValue)
         {
             Filename = $"{original.Filename}{ExtensionValue}";
             IntermediateFileName = $"{original.Filename}{IntermediateExtensionValue}";

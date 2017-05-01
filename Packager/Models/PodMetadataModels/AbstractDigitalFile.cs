@@ -22,7 +22,8 @@ namespace Packager.Models.PodMetadataModels
         public List<Device> SignalChain { get; set; }
         [Required]
         public string Filename { get; set; }
-        public string Bext { get; set; }
+        [Required]
+        public string BextFile { get; set; }
 
         [HasMembers]
         public IEnumerable<Device> PlayerDevices
@@ -78,7 +79,7 @@ namespace Packager.Models.PodMetadataModels
             Comment = factory.ToStringValue(element, "comment");
             CreatedBy = factory.ToStringValue(element, "created_by");
             SignalChain = factory.ToObjectList<Device>(element.Element("signal_chain"), "device");
-            Bext = factory.ToStringValue(element, "digital_file_bext");
+            BextFile = factory.ToStringValue(element, "digital_file_bext");
         }
     }
 }

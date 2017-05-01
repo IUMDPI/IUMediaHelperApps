@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Common.Models;
+using NUnit.Framework;
 using Packager.Factories;
 using Packager.Models.FileModels;
 
@@ -18,7 +19,7 @@ namespace Packager.Test.Factories
             Assert.That(result.ProjectCode, Is.EqualTo("MDPI"));
             Assert.That(result.BarCode, Is.EqualTo("4890764553278906"));
             Assert.That(result.SequenceIndicator, Is.EqualTo(1));
-            Assert.That(result.FileUse, Is.EqualTo("pres"));
+            Assert.That(result.FileUsage, Is.EqualTo(FileUsages.PreservationMaster));
             Assert.That(result.Extension, Is.EqualTo(".wav"));
         }
 
@@ -31,7 +32,7 @@ namespace Packager.Test.Factories
             Assert.That(result.ProjectCode, Is.EqualTo("MDPI"));
             Assert.That(result.BarCode, Is.EqualTo("4890764553278906"));
             Assert.That(result.SequenceIndicator, Is.EqualTo(1));
-            Assert.That(result.FileUse, Is.EqualTo("presInt"));
+            Assert.That(result.FileUsage, Is.EqualTo(FileUsages.PreservationIntermediateMaster));
             Assert.That(result.Extension, Is.EqualTo(".wav"));
         }
 
@@ -44,7 +45,7 @@ namespace Packager.Test.Factories
             Assert.That(result.ProjectCode, Is.EqualTo("MDPI"));
             Assert.That(result.BarCode, Is.EqualTo("4890764553278906"));
             Assert.That(result.SequenceIndicator, Is.EqualTo(1));
-            Assert.That(result.FileUse, Is.EqualTo("pres"));
+            Assert.That(result.FileUsage, Is.EqualTo(FileUsages.PreservationMaster));
             Assert.That(result.Extension, Is.EqualTo(".mkv"));
         }
 
@@ -57,7 +58,7 @@ namespace Packager.Test.Factories
             Assert.That(result.ProjectCode, Is.EqualTo("MDPI"));
             Assert.That(result.BarCode, Is.EqualTo("4890764553278906"));
             Assert.That(result.SequenceIndicator, Is.EqualTo(1));
-            Assert.That(result.FileUse, Is.EqualTo("presInt"));
+            Assert.That(result.FileUsage, Is.EqualTo(FileUsages.PreservationIntermediateMaster));
             Assert.That(result.Extension, Is.EqualTo(".mkv"));
         }
 
@@ -70,7 +71,7 @@ namespace Packager.Test.Factories
             Assert.That(result.ProjectCode, Is.EqualTo("MDPI"));
             Assert.That(result.BarCode, Is.EqualTo("4890764553278906"));
             Assert.That(result.SequenceIndicator, Is.EqualTo(1));
-            Assert.That(result.FileUse, Is.EqualTo("mezz"));
+            Assert.That(result.FileUsage, Is.EqualTo(FileUsages.MezzanineFile));
             Assert.That(result.Extension, Is.EqualTo(".mov"));
         }
 
@@ -83,7 +84,7 @@ namespace Packager.Test.Factories
             Assert.That(result.ProjectCode, Is.EqualTo("MDPI"));
             Assert.That(result.BarCode, Is.EqualTo("4890764553278906"));
             Assert.That(result.SequenceIndicator, Is.EqualTo(1));
-            Assert.That(result.FileUse, Is.EqualTo("prod"));
+            Assert.That(result.FileUsage, Is.EqualTo(FileUsages.ProductionMaster));
             Assert.That(result.Extension, Is.EqualTo(".wav"));
         }
 
@@ -96,7 +97,7 @@ namespace Packager.Test.Factories
             Assert.That(result.ProjectCode, Is.EqualTo("MDPI"));
             Assert.That(result.BarCode, Is.EqualTo("4890764553278906"));
             Assert.That(result.SequenceIndicator, Is.EqualTo(1));
-            Assert.That(result.FileUse, Is.EqualTo("access"));
+            Assert.That(result.FileUsage, Is.EqualTo(FileUsages.AccessFile));
             Assert.That(result.Extension, Is.EqualTo(".mp4"));
         }
 

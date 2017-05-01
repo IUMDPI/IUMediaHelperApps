@@ -16,7 +16,7 @@ namespace Packager.Test.Models.FileModels
         public void IsValidShouldReturnTrueIfBarCodeAndProjectCodeOk(string projectCode, string barCode, bool expected)
         {
             var model = new XmlFile(projectCode, barCode);
-            Assert.That(model.IsValid(), Is.EqualTo(expected));
+            Assert.That(model.IsImportable(), Is.EqualTo(expected));
         }
 
         [TestCase("mdpi", "4890764553278906", "MDPI_4890764553278906.xml")]

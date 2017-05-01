@@ -82,5 +82,10 @@ namespace Common.Models
 
             return usage ??new UnknownFileUsage(fileUse, "Raw object file");
         }
+
+        public static bool IsImportable(IFileUsage usage)
+        {
+            return AllImportableUsages.Contains(usage);
+        }
     }
 }

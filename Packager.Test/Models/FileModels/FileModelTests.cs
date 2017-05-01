@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Common.Models;
+using NUnit.Framework;
 using Packager.Models.FileModels;
 
 namespace Packager.Test.Models.FileModelTests
@@ -6,8 +7,7 @@ namespace Packager.Test.Models.FileModelTests
     [TestFixture]
     public abstract class AbstractObjectFileModelTests
     {
-        private string ExpectedFileUse { get; set; }
-        private string ExpectedFullFileUse { get; set; }
+        private IFileUsage ExpectedFileUsage { get; set; }
         private string ExpectedExtension { get; set; }
         private string ExpectedToFileName { get; set; }
         private string ExpectedSameFileName { get; set; }
@@ -34,8 +34,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "pres";
-                ExpectedFullFileUse = "Preservation Master";
+                ExpectedFileUsage = FileUsages.PreservationMaster;
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_pres.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_pres.wav";
@@ -49,8 +48,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "pres";
-                ExpectedFullFileUse = "Preservation Master";
+                ExpectedFileUsage = FileUsages.PreservationMaster;
                 ExpectedExtension = ".mkv";
                 ExpectedToFileName = "MDPI_4890764553278906_01_pres.mkv";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_pres.mkv";
@@ -64,8 +62,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "presInt";
-                ExpectedFullFileUse = "Preservation Master - Intermediate";
+                ExpectedFileUsage = FileUsages.PreservationIntermediateMaster;
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_presInt.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_presInt.wav";
@@ -79,8 +76,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "presInt";
-                ExpectedFullFileUse = "Preservation Master - Intermediate";
+                ExpectedFileUsage = FileUsages.PreservationIntermediateMaster;
                 ExpectedExtension = ".mkv";
                 ExpectedToFileName = "MDPI_4890764553278906_01_presInt.mkv";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_presInt.mkv";
@@ -94,8 +90,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "prod";
-                ExpectedFullFileUse = "Production Master";
+                ExpectedFileUsage = FileUsages.ProductionMaster;
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_prod.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_prod.wav";
@@ -109,8 +104,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "mezz";
-                ExpectedFullFileUse = "Mezzanine File";
+                ExpectedFileUsage = FileUsages.MezzanineFile;
                 ExpectedExtension = ".mov";
                 ExpectedToFileName = "MDPI_4890764553278906_01_mezz.mov";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_mezz.mov";
@@ -124,8 +118,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "access";
-                ExpectedFullFileUse = "Access File";
+                ExpectedFileUsage = FileUsages.AccessFile;
                 ExpectedExtension = ".mp4";
                 ExpectedToFileName = "MDPI_4890764553278906_01_access.mp4";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_access.mp4";
@@ -139,8 +132,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "presRef";
-                ExpectedFullFileUse = "Preservation Master Tone Reference File";
+                ExpectedFileUsage = FileUsages.PreservationIntermediateToneReference;
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_presRef.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_presRef.wav";
@@ -154,8 +146,7 @@ namespace Packager.Test.Models.FileModelTests
             [SetUp]
             public void BeforeEach()
             {
-                ExpectedFileUse = "intRef";
-                ExpectedFullFileUse = "Preservation Master - Intermediate Tone Reference File";
+                ExpectedFileUsage = FileUsages.PreservationIntermediateToneReference;
                 ExpectedExtension = ".wav";
                 ExpectedToFileName = "MDPI_4890764553278906_01_intRef.wav";
                 ExpectedSameFileName = "mdpi_4890764553278906_1_intRef.wav";
@@ -179,13 +170,7 @@ namespace Packager.Test.Models.FileModelTests
         [Test]
         public void FileUseShouldBeCorrect()
         {
-            Assert.That(Instance.FileUse, Is.EqualTo(ExpectedFileUse));
-        }
-
-        [Test]
-        public void FullFileUseShouldBeCorrect()
-        {
-            Assert.That(Instance.FullFileUse, Is.EqualTo(ExpectedFullFileUse));
+            Assert.That(Instance.FileUsage.GetType(), Is.EqualTo(ExpectedFileUsage.GetType()));
         }
 
         [Test]
@@ -204,7 +189,7 @@ namespace Packager.Test.Models.FileModelTests
         [Test]
         public void IsValidShouldReturnTrue()
         {
-            Assert.That(Instance.IsValid(), Is.True);
+            Assert.That(Instance.IsImportable(), Is.True);
         }
 
         [Test]

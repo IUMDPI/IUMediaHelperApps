@@ -29,7 +29,7 @@ namespace Packager.Models.FileModels
                 .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public override bool IsValid()
+        public override bool IsImportable()
         {
             return false;
         }

@@ -76,7 +76,7 @@ namespace Packager.Utilities.Images
             var labelFiles = fileEntries
                 .Select(entry => CreateFileAndAssignHash(entry, sourceFolder))
                 .Where(f => f is TiffImageFile)
-                .Where(f=>f.IsValid())
+                .Where(f=>f.IsImportable())
                 .ToList();
             
             // copy files to processing folder and verify each file

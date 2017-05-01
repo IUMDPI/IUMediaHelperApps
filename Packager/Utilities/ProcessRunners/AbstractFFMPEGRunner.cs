@@ -188,10 +188,10 @@ namespace Packager.Utilities.ProcessRunners
 
         private void LogAlreadyExists(AbstractFile target)
         {
-            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
-            Observers.Log("{0} already exists. Will not generate derivative", target.FullFileUse);
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FileUsage.FullFileUse, target.Filename);
+            Observers.Log("{0} already exists. Will not generate derivative", target.FileUsage.FullFileUse);
             Observers.EndSection(sectionKey,
-                $"Generate {target.FullFileUse} skipped - already exists: {target.Filename}");
+                $"Generate {target.FileUsage.FullFileUse} skipped - already exists: {target.Filename}");
         }
 
         private bool TargetAlreadyExists(AbstractFile target)
@@ -209,7 +209,7 @@ namespace Packager.Utilities.ProcessRunners
         protected async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
             ArgumentBuilder arguments, CancellationToken cancellationToken, List<string> notes)
         {
-            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FullFileUse, target.Filename);
+            var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FileUsage.FullFileUse, target.Filename);
             try
             {
                 if (notes.Any())
@@ -238,7 +238,7 @@ namespace Packager.Utilities.ProcessRunners
 
                 await RunProgram(completeArguments, cancellationToken);
 
-                Observers.EndSection(sectionKey, $"{target.FullFileUse} generated successfully: {target.Filename}");
+                Observers.EndSection(sectionKey, $"{target.FileUsage.FullFileUse} generated successfully: {target.Filename}");
                 return target;
             }
             catch (Exception e)

@@ -470,7 +470,7 @@ namespace Packager.Test.Processors
                         m is QualityControlFile &&
                         m.ProjectCode.Equals(master.ProjectCode) &&
                         m.BarCode.Equals(master.BarCode) &&
-                        m.FileUse.Equals(master.FileUse) &&
+                        m.FileUsage.GetType() == master.FileUsage.GetType() &&
                         m.SequenceIndicator.Equals(master.SequenceIndicator)) as QualityControlFile;
                 }
 

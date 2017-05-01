@@ -12,7 +12,7 @@ namespace Packager.Test.Models.FileModels
         public void IsValidShouldAlwaysReturnFalse()
         {
             var model = new UnknownFile(GoodFileName);
-            Assert.That(model.IsValid(), Is.False);
+            Assert.That(model.IsImportable(), Is.False);
         }
     }
 }

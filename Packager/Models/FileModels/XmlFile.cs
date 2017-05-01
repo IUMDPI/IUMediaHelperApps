@@ -14,7 +14,7 @@ namespace Packager.Models.FileModels
             FileUsage = FileUsages.XmlFile;
         }
 
-        public override bool IsValid()
+        public override bool IsImportable()
         {
             return ProjectCode.IsSet() && BarCode.IsSet();
         }

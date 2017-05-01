@@ -35,7 +35,7 @@ namespace Common.Models
 
         public string FileUse { get; }
         public string FullFileUse { get; }
-        public int Precedence => 7;
+        public int Precedence => 8;
     }
 
     public class UnknownFileUsage: IFileUsage
@@ -58,9 +58,9 @@ namespace Common.Models
         public static readonly IFileUsage PreservationIntermediateToneReference = new FileUsage("intRef",
             "Preservation Master - Intermediate Tone Reference File",3);
         public static readonly IFileUsage ProductionMaster = new FileUsage("prod", "Production Master",4);
-        public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File",4);
-        public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File",5);
-        public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File",6);
+        public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File",5);
+        public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File",6);
+        public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File",7);
         public static readonly IFileUsage XmlFile = new FileUsage("", "Xml File",100);
         
         private static readonly List<IFileUsage> AllImportableUsages = new List<IFileUsage>

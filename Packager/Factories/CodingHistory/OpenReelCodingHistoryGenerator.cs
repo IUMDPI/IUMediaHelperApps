@@ -22,7 +22,7 @@ namespace Packager.Factories.CodingHistory
 
         protected override string GenerateLine3(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
         {
-            return string.Format(CodingHistoryLine3Format, MonoSoundField);
+            return string.Format(CodingHistoryLine3Format, metadata.SoundField);
         }
 
         private static void AssertSoundFieldSpecifiedInMetadata(string soundField)

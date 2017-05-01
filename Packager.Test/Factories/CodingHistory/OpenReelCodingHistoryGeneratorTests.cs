@@ -62,8 +62,7 @@ namespace Packager.Test.Factories.CodingHistory
             new object[] {ProdModel, null, "Stereo", "" },
             new object[] {ProdModel, "", "Stereo", "" },
         };
-
-    
+        
         [Test, TestCaseSource(nameof(_line1Cases))]
         public void Line1ShouldBeCorrect(AbstractFile model, string speed, string soundField, string expectedSpeedText)
         {
@@ -99,7 +98,7 @@ namespace Packager.Test.Factories.CodingHistory
             var result = Generator.Generate(Metadata, Provenance, model);
             var parts = result.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-            var expected = "A=PCM,F=96000,W=24,M=Mono,T=Lynx AES16;DIO"; 
+            var expected = $"A=PCM,F=96000,W=24,M={Metadata.SoundField},T=Lynx AES16;DIO"; 
             Assert.That(parts[2], Is.EqualTo(expected));
         }
 

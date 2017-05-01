@@ -15,7 +15,10 @@ namespace Common.Tests.Models
             new object[] {FileUsages.AccessFile, "access", "Access File"},
             new object[] {FileUsages.LabelImageFile, "label", "Label Image File"},
             new object[] {new UnknownFileUsage("", "Raw object file"), "", "Raw object file"},
-            new object[] {FileUsages.XmlFile, "", "Xml File"}
+            new object[] {FileUsages.XmlFile, "", "Xml File"},
+            new object[] {FileUsages.PreservationToneReference, "presRef", "Preservation Master Tone Reference File" },
+            new object[] {FileUsages.PreservationIntermediateToneReference, "intRef", "Preservation Master - Intermediate Tone Reference File" }
+
         };
 
         private static object[] _getUsageCases =
@@ -25,10 +28,12 @@ namespace Common.Tests.Models
             new object[] {"prod", FileUsages.ProductionMaster},
             new object[] {"mezz", FileUsages.MezzanineFile},
             new object[] {"access", FileUsages.AccessFile},
-            new object[] { "label", FileUsages.LabelImageFile },
-            new object[] {string.Empty, new UnknownFileUsage("", "Raw object file")},
-            new object[] {null, new UnknownFileUsage("", "Raw object file")},
-            new object[] {"some other value", new UnknownFileUsage("", "Raw object file") }
+            new object[] {"label", FileUsages.LabelImageFile },
+            new object[] {"presRef", FileUsages.PreservationToneReference},
+            new object[] {"intRef", FileUsages.PreservationIntermediateToneReference},
+            new object[] {string.Empty, new UnknownFileUsage(string.Empty, "Raw object file")},
+            new object[] {null, new UnknownFileUsage(null, "Raw object file")},
+            new object[] {"some other value", new UnknownFileUsage("some other value", "Raw object file") }
         };
 
         [Test, TestCaseSource(nameof(_usagesCorrectCases))]
@@ -44,7 +49,19 @@ namespace Common.Tests.Models
         public void GetUsageShouldReturnCorrectResult(string fileUse, IFileUsage expected)
         {
             var result = FileUsages.GetUsage(fileUse);
-            Assert.That(result, Is.EqualTo(expected), $"{fileUse} should produce {expected.FullFileUse} file usage object");
+            var description = $"{fileUse} should produce {expected.FullFileUse} file usage object";
+
+            if (expected is UnknownFileUsage)
+            {
+                Assert.That(result is UnknownFileUsage, description);
+                Assert.That(result.FileUse, Is.EqualTo(fileUse));
+                Assert.That(result.FullFileUse, Is.EqualTo("Raw object file"));
+            }
+            else
+            {
+                Assert.That(result, Is.EqualTo(expected), description);
+            }
+            
         } 
     }
 }

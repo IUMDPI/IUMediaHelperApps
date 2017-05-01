@@ -10,12 +10,10 @@ namespace Packager.Models.FileModels
         public string IntermediateFileName { get; }
 
         public QualityControlFile(AbstractFile original) : 
-            base(original, FileUsages.QualityControlFile, ExtensionValue)
+            base(original, new QualityControlFileUsage(original.FileUsage), ExtensionValue)
         {
             Filename = $"{original.Filename}{ExtensionValue}";
             IntermediateFileName = $"{original.Filename}{IntermediateExtensionValue}";
         }
-
-        public override int Precedence => 7;
     }
 }

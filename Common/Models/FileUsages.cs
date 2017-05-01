@@ -25,6 +25,19 @@ namespace Common.Models
         public int Precedence { get; }
     }
 
+    public class QualityControlFileUsage : IFileUsage
+    {
+        public QualityControlFileUsage(IFileUsage originalUsage)
+        {
+            FileUse = originalUsage.FileUse;
+            FullFileUse = originalUsage.FullFileUse;
+        }
+
+        public string FileUse { get; }
+        public string FullFileUse { get; }
+        public int Precedence => 7;
+    }
+
     public class UnknownFileUsage: IFileUsage
     {
         public UnknownFileUsage(string fileUse, string fullFileUse)
@@ -48,7 +61,6 @@ namespace Common.Models
         public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File",4);
         public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File",5);
         public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File",6);
-        public static readonly IFileUsage QualityControlFile = new FileUsage("", "Quality Control File", 7);
         public static readonly IFileUsage XmlFile = new FileUsage("", "Xml File",100);
         
         private static readonly List<IFileUsage> AllImportableUsages = new List<IFileUsage>

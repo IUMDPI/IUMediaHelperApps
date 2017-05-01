@@ -16,7 +16,7 @@ namespace Common.Tests.Models
             new object[] {FileUsages.MezzanineFile, "mezz", "Mezzanine File", 4},
             new object[] {FileUsages.AccessFile, "access", "Access File", 5},
             new object[] {FileUsages.LabelImageFile, "label", "Label Image File", 6},
-            new object[] {FileUsages.QualityControlFile, "", "Quality Control File", 7},
+            new object[] {new QualityControlFileUsage(FileUsages.PreservationMaster), FileUsages.PreservationMaster.FileUse, FileUsages.PreservationMaster.FullFileUse, 7},
             new object[] {new UnknownFileUsage("", "Raw object file"), "", "Raw object file", 100},
             new object[] {FileUsages.XmlFile, "", "Xml File", 100},
         };

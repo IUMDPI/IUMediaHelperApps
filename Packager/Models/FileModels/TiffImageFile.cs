@@ -10,6 +10,6 @@ namespace Packager.Models.FileModels
         {
         }
 
-        public override int Precedence => 4;
+        public override int Precedence => 6;
     }
 }

@@ -14,6 +14,6 @@
             IntermediateFileName = $"{original.Filename}{IntermediateExtensionValue}";
         }
 
-        public override int Precedence => 4;
+        public override int Precedence => 7;
     }
 }

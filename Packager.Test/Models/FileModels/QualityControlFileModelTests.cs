@@ -30,7 +30,7 @@ namespace Packager.Test.Models.FileModels
         [Test]
         public void PrecedenceShouldBeCorrect()
         {
-            Assert.That(Model.Precedence, Is.EqualTo(4));
+            Assert.That(Model.Precedence, Is.EqualTo(7));
         }
 
         [Test]

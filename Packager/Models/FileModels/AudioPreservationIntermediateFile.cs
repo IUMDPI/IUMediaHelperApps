@@ -8,6 +8,6 @@ namespace Packager.Models.FileModels
         {
         }
 
-        public override int Precedence => 1;
+        public override int Precedence => 2;
     }
 }

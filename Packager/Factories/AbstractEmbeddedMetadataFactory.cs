@@ -28,6 +28,11 @@ namespace Packager.Factories
 
         protected abstract AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, T metadata, string digitizingEntity);
         
+        protected string GenerateDescription(AbstractPodMetadata metadata, AbstractFile model)
+        {
+            return $"{metadata.Bext} {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.Filename)}";
+        }
+
         protected static string GetDateString(DateTime? date, string format, string defaultValue)
         {
             return date.HasValue == false ? defaultValue : date.Value.ToString(format);

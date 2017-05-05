@@ -31,12 +31,14 @@ namespace Packager.Factories
         protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
             AudioPodMetadata metadata, string digitizingEntity)
         {
+            var description = GenerateDescription(metadata, model);
+
             return new EmbeddedAudioMetadata
             {
                 Originator = digitizingEntity,
                 OriginatorReference = Path.GetFileNameWithoutExtension(model.Filename),
-                Description = provenance.BextFile,
-                ICMT = provenance.BextFile,
+                Description = description,
+                ICMT = description,
                 IARL = metadata.Iarl,
                 OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                 OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),

@@ -50,7 +50,6 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         private const string Title = "Test title";
         private const string Iarl = "Indiana University-Bloomington. Office of University Archives and Records Management";
         private const string Bext = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use:";
-        private const string BextFile = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use: Preservation Master. MDPI_4890764553278906_01_pres";
 
         private string FilenameToUseForTesting { get; set; }
         private AbstractFile ModelToUseForTesting { get; set; }
@@ -74,8 +73,7 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
                 CreatedBy = "Created by",
                 DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
                 Filename = filename,
-                SignalChain = GetSignalChain(),
-                BextFile = BextFile
+                SignalChain = GetSignalChain()
             };
         }
 
@@ -112,7 +110,7 @@ namespace Packager.Test.Factories.EmbeddedVideoMetadataFactoryTests
         [Test]
         public void DescriptionShouldBeCorrect()
         {
-            Assert.That(Result.Description, Is.EqualTo(BextFile));
+            Assert.That(Result.Description, Is.EqualTo($"{Bext} {ModelToUseForTesting.FullFileUse}. {Path.GetFileNameWithoutExtension(ModelToUseForTesting.Filename)}"));
         }
 
         [Test]

@@ -15,16 +15,17 @@ namespace Packager.Factories
         protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, VideoPodMetadata metadata, string digitizingEntity)
         {
             return model.IsMezzanineVersion()
-                ? GetForUse<EmbeddedVideoMezzanineMetadata>(provenance, metadata, digitizingEntity)
-                : GetForUse<EmbeddedVideoPreservationMetadata>(provenance, metadata, digitizingEntity);
+                ? GetForUse<EmbeddedVideoMezzanineMetadata>(model, provenance, metadata, digitizingEntity)
+                : GetForUse<EmbeddedVideoPreservationMetadata>(model, provenance, metadata, digitizingEntity);
         }
-        
-        private AbstractEmbeddedMetadata GetForUse<T>(AbstractDigitalFile provenance,
+
+
+        private AbstractEmbeddedMetadata GetForUse<T>(AbstractFile model, AbstractDigitalFile provenance,
             AbstractPodMetadata metadata, string digitizingEntity) where T : AbstractEmbeddedVideoMetadata, new()
         {
             return new T
             {
-                Description = provenance.BextFile,
+                Description = GenerateDescription(metadata, model),
                 Title = metadata.Title,
                 MasteredDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                 Comment = $"File created by {digitizingEntity}"

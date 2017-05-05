@@ -55,7 +55,8 @@ namespace Packager.Test.Factories
                 CreatedBy = "Created by",
                 DateDigitized = new DateTime(2015, 8, 1, 1, 2, 3),
                 Filename = PreservationFileName,
-                SpeedUsed = "7.5 ips"
+                SpeedUsed = "7.5 ips",
+                BextFile = BextFile
             };
         }
 
@@ -66,7 +67,7 @@ namespace Packager.Test.Factories
         private const string Title = "Test title";
         private const string Iarl = "Indiana University-Bloomington. Office of University Archives and Records Management";
         private const string Bext = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use:";
-
+        private const string BextFile = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use: Preservation Master. MDPI_4890764553278906_01_pres";
         private IProgramSettings ProgramSettings { get; set; }
         private Dictionary<IMediaFormat, ICodingHistoryGenerator> CodingHistoryGenerators { get; set; }
        
@@ -131,12 +132,10 @@ namespace Packager.Test.Factories
         [Test]
         public void IcmtAndDescriptionShouldBeCorrect()
         {
-            var expected =
-                $"{Bext} {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(Model.Filename)}";
-
+          
             var result = Factory.Generate(Instances, Model, Metadata) as EmbeddedAudioMetadata;
-            Assert.That(result.ICMT, Is.EqualTo(expected));
-            Assert.That(result.Description, Is.EqualTo(expected));
+            Assert.That(result.ICMT, Is.EqualTo(BextFile));
+            Assert.That(result.Description, Is.EqualTo(BextFile));
         }
 
         [Test]

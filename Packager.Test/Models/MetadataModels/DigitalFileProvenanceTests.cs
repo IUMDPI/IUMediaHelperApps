@@ -137,7 +137,7 @@ namespace Packager.Test.Models.MetadataModels.DigitalFileTests
             [Test]
             public void ItShouldSetBextCorrectly()
             {
-                Assert.That(Instance.Bext, Is.EqualTo("digital file bext value"));
+                Assert.That(Instance.BextFile, Is.EqualTo("digital file bext value"));
             }
 
             [Test]

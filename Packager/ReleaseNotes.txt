@@ -71,4 +71,8 @@
 						with "orphan" label images in side/file nodes
 3.7.0.0		3/29/2017	Link place-holder configurations to formats
 3.8.0.0		4/10/2017	Flag 4-stream audio betamax files in manifest xml
+4.0.0.0		5/4/2017	Add support for cylinder objects
+						Add specific coding-history generators for open-reel, 
+						cylinder, and lacquer disc formats
+						Use file_bext field from POD when embedding description fields
 					

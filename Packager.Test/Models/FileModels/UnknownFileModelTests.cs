@@ -12,14 +12,7 @@ namespace Packager.Test.Models.FileModels
         public void IsValidShouldAlwaysReturnFalse()
         {
             var model = new UnknownFile(GoodFileName);
-            Assert.That(model.IsValid(), Is.False);
-        }
-
-        [Test]
-        public void PrecedenceShouldBeCorrect()
-        {
-            var model = new UnknownFile(GoodFileName);
-            Assert.That(model.Precedence, Is.EqualTo(6));
+            Assert.That(model.IsImportable(), Is.False);
         }
     }
 }

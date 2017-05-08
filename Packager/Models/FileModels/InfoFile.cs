@@ -7,7 +7,5 @@
         public InfoFile(AbstractFile original) : base(original, original.FileUsage, ExtensionValue)
         {
         }
-
-        public override int Precedence => 10;
     }
 }

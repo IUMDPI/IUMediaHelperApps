@@ -7,18 +7,14 @@ using Packager.Models.FileModels;
 namespace Packager.Factories
 {
     public static class FileModelFactory
-    {
-        public enum UsageApplications
-        {
-            Audio,
-            Video
-        }
-
+    { 
         private static readonly Dictionary<ResolverKey, Func<AbstractFile, AbstractFile>> Resolvers =
             new Dictionary<ResolverKey, Func<AbstractFile, AbstractFile>>
             {
                 {AudioPresKey, GetAudioPresModel},
                 {AudioPresIntKey, GetAudioPresIntModel},
+                {AudioPresToneRefKey, GetAudioPresToneRefModel},
+                {AudioPresIntToneRefKey, GetAudioPresIntToneRefModel},
                 {AudioProdKey, GetProdModel},
                 {VideoPresKey, GetVideoPresModel},
                 {VideoPresIntKey, GetVideoPresIntModel},
@@ -29,6 +25,8 @@ namespace Packager.Factories
 
         private static ResolverKey AudioPresKey => new ResolverKey(".wav", FileUsages.PreservationMaster);
         private static ResolverKey AudioPresIntKey => new ResolverKey(".wav", FileUsages.PreservationIntermediateMaster);
+        private static ResolverKey AudioPresToneRefKey => new ResolverKey(".wav", FileUsages.PreservationToneReference);
+        private static ResolverKey AudioPresIntToneRefKey => new ResolverKey(".wav", FileUsages.PreservationIntermediateToneReference);
         private static ResolverKey VideoPresKey => new ResolverKey(".mkv", FileUsages.PreservationMaster);
         private static ResolverKey VideoPresIntKey => new ResolverKey(".mkv", FileUsages.PreservationIntermediateMaster);
         private static ResolverKey AudioProdKey => new ResolverKey(".wav", FileUsages.ProductionMaster);
@@ -65,6 +63,16 @@ namespace Packager.Factories
         {
             return new AudioPreservationFile(arg);
         }
+        
+        private static AbstractFile GetAudioPresIntToneRefModel(AbstractFile model)
+        {
+            return new AudioPreservationIntermediateToneReferenceFile(model);
+        }
+
+        private static AbstractFile GetAudioPresToneRefModel(AbstractFile model)
+        {
+            return new AudioPreservationToneReferenceFile(model);
+        }
 
         private static AbstractFile GetAccessModel(AbstractFile arg)
         {
@@ -92,9 +100,9 @@ namespace Packager.Factories
         private struct ResolverKey
         {
             private string Extension { get; }
-            private FileUsages FileUsage { get; }
+            private IFileUsage FileUsage { get; }
 
-            public ResolverKey(string extension, FileUsages fileUsage)
+            public ResolverKey(string extension, IFileUsage fileUsage)
             {
                 Extension = extension.ToDefaultIfEmpty().ToLowerInvariant();
                 FileUsage = fileUsage;

@@ -201,7 +201,7 @@ namespace Packager.Engine
             // and then group them by barcode
             var result = DirectoryProvider.EnumerateFiles(ProgramSettings.InputDirectory)
                 .Select(FileModelFactory.GetModel)
-                .Where(f => f.IsValid())
+                .Where(f => f.IsImportable())
                 .Where(f => f.BelongsToProject(ProgramSettings.ProjectCode))
                 .GroupBy(f => f.BarCode).ToList();
 

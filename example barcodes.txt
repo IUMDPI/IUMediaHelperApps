@@ -1,0 +1,8 @@
+8 mm Video						40000000300063	https://pod.mdpi.iu.edu/responses/objects/40000000300063/metadata/digital_provenance
+Umatic							40000002133314	https://pod.mdpi.iu.edu/responses/objects/40000002133314/metadata/digital_provenance
+Betamax							40000002441915	https://pod.mdpi.iu.edu/responses/objects/40000002441915/metadata/digital_provenance
+Cylinder						40000001327644	https://pod.mdpi.iu.edu/responses/objects/40000001327644/metadata/digital_provenance
+Lacquer Disc					40000001312158	https://pod.mdpi.iu.edu/responses/objects/40000001312158/metadata/digital_provenance
+Open Reel Audio Tape			40000001211368	https://pod.mdpi.iu.edu/responses/objects/40000001211368/metadata/digital_provenance
+Open Reel Audio Tape			45000000243771	https://pod.mdpi.iu.edu/responses/objects/45000000243771/metadata/digital_provenance
+Open Reel Audio Tape (stereo)	40000000089633	https://pod.mdpi.iu.edu/responses/objects/40000000089633/metadata/digital_provenance

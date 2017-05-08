@@ -87,13 +87,18 @@
     <Compile Include="Attributes\FFMPEGArgumentAttribute.cs" />
     <Compile Include="Engine\EngineExitCodes.cs" />
     <Compile Include="Exceptions\UserCancelledException.cs" />
+    <Compile Include="Extensions\XElmentExtensions.cs" />
+    <Compile Include="Factories\CodingHistory\AbstractCodingHistoryGenerator.cs" />
     <Compile Include="Factories\AbstractEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\AudioCarrierDataFactory.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
+    <Compile Include="Factories\CodingHistory\ICodingHistoryGenerator.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\ImportableFactory.cs" />
     <Compile Include="Factories\IPlaceHolderFactory.cs" />
+    <Compile Include="Factories\CodingHistory\LacquerOrCylinderCodingHistoryGenerator.cs" />
+    <Compile Include="Factories\CodingHistory\OpenReelCodingHistoryGenerator.cs" />
     <Compile Include="Factories\PlaceHolderFactory.cs" />
     <Compile Include="Factories\SettingsFactory.cs" />
     <Compile Include="Models\EmailMessageModels\SuccessEmailMessage.cs" />
@@ -108,6 +113,8 @@
     <Compile Include="Models\FileModels\AudioPreservationFile.cs" />
     <Compile Include="Models\FileModels\AudioPreservationIntermediateFile.cs" />
     <Compile Include="Factories\FileModelFactory.cs" />
+    <Compile Include="Models\FileModels\AudioPreservationIntermediateToneReferenceFile.cs" />
+    <Compile Include="Models\FileModels\AudioPreservationToneReferenceFile.cs" />
     <Compile Include="Models\FileModels\InfoFile.cs" />
     <Compile Include="Models\FileModels\MediaInfo.cs" />
     <Compile Include="Models\FileModels\MezzanineFile.cs" />
@@ -132,6 +139,7 @@
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Models\OutputModels\Ingest\Device.cs" />
+    <Compile Include="Models\OutputModels\VideoConfigurationData.cs" />
     <Compile Include="Models\PlaceHolderConfigurations\AbstractPlaceHolderConfiguration.cs" />
     <Compile Include="Models\PlaceHolderConfigurations\PresIntAudioPlaceHolderConfiguration.cs" />
     <Compile Include="Models\PlaceHolderConfigurations\StandardAudioPlaceHolderConfiguration.cs" />
@@ -212,7 +220,7 @@
     <Compile Include="Models\SettingsModels\IProgramSettings.cs" />
     <Compile Include="Models\OutputModels\BakingData.cs" />
     <Compile Include="Models\OutputModels\ImportableManifest.cs" />
-    <Compile Include="Models\OutputModels\ConfigurationData.cs" />
+    <Compile Include="Models\OutputModels\AudioConfigurationData.cs" />
     <Compile Include="Models\OutputModels\CleaningData.cs" />
     <Compile Include="Models\OutputModels\File.cs" />
     <Compile Include="Models\OutputModels\Ingest\AbstractIngest.cs" />

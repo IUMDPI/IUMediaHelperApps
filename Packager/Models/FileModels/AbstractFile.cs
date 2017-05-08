@@ -14,7 +14,7 @@ namespace Packager.Models.FileModels
         {
         }
 
-        protected AbstractFile(AbstractFile original, FileUsages fileUsage, string extension)
+        protected AbstractFile(AbstractFile original, IFileUsage fileUsage, string extension)
         {
             BarCode = original.BarCode;
             SequenceIndicator = original.SequenceIndicator;
@@ -27,8 +27,6 @@ namespace Packager.Models.FileModels
                 ? original.OriginalFileName
                 : Filename;
         }
-
-        public abstract int Precedence { get; }
 
         public string OriginalFileName { get; protected set; }
 
@@ -45,9 +43,7 @@ namespace Packager.Models.FileModels
 
         public int SequenceIndicator { get; protected set; }
 
-        public string FileUse => FileUsage.FileUse;
-        public FileUsages FileUsage { get; protected set; }
-        public string FullFileUse => FileUsage.FullFileUse;
+        public IFileUsage FileUsage { get; protected set; }
         public string Checksum { get; set; }
         public string BarCode { get; protected set; }
         public string Extension { get; protected set; }
@@ -71,7 +67,7 @@ namespace Packager.Models.FileModels
                 ProjectCode,
                 BarCode,
                 SequenceIndicator.ToString("D2", CultureInfo.InvariantCulture),
-                FileUse
+                FileUsage.FileUse
             };
 
             return string.Join("_", parts) + Extension;
@@ -85,7 +81,7 @@ namespace Packager.Models.FileModels
                 : 0;
         }
 
-        public virtual bool IsValid()
+        public virtual bool IsImportable()
         {
             if (ProjectCode.IsNotSet())
             {
@@ -107,7 +103,7 @@ namespace Packager.Models.FileModels
                 return false;
             }
 
-            if (FileUse.IsNotSet())
+            if (!FileUsages.IsImportable(FileUsage))
             {
                 return false;
             }
@@ -132,7 +128,7 @@ namespace Packager.Models.FileModels
                 return false;
             }
 
-            if (!model.FileUse.Equals(FileUse, StringComparison.InvariantCultureIgnoreCase))
+            if (!model.FileUsage.FileUse.Equals(FileUsage.FileUse))
             {
                 return false;
             }

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
+using Common.Models;
 using Common.UserInterface.ViewModels;
 using NLog.Config;
 using Packager.Deserializers;
 using Packager.Engine;
 using Packager.Factories;
+using Packager.Factories.CodingHistory;
 using Packager.Models.PlaceHolderConfigurations;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.ProgramArgumentsModels;
@@ -34,10 +36,10 @@ using SimpleInjector;
 
 namespace Packager
 {
-    static class Program
+    internal static class Program
     {
         [STAThread]
-        static void Main(string[] arguments)
+        private static void Main(string[] arguments)
         {
             ConfigureNLog();
 
@@ -108,29 +110,39 @@ namespace Packager
 
             container.RegisterSingleton<IPlaceHolderFactory, PlaceHolderFactory>();
 
-            container.RegisterSingleton(() => new Dictionary<string, IPlaceHolderConfiguration>
+            container.RegisterSingleton(() => new Dictionary<IMediaFormat, IPlaceHolderConfiguration>
             {
                 // standard audio
-                { "audiocassette", new StandardAudioPlaceHolderConfiguration() },
-                {"open reel audio tape", new StandardAudioPlaceHolderConfiguration() },
-                {"lp", new StandardAudioPlaceHolderConfiguration() },
-                {"cd-r", new StandardAudioPlaceHolderConfiguration() },
-                {"45", new StandardAudioPlaceHolderConfiguration() },
+                { MediaFormats.AudioCassette, new StandardAudioPlaceHolderConfiguration() },
+                { MediaFormats.OpenReelAudioTape, new StandardAudioPlaceHolderConfiguration() },
+                { MediaFormats.Lp, new StandardAudioPlaceHolderConfiguration() },
+                { MediaFormats.Cdr, new StandardAudioPlaceHolderConfiguration() },
+                { MediaFormats.FortyFive, new StandardAudioPlaceHolderConfiguration() },
+                
                 // pres-int audio
-                { "lacquer disc", new PresIntAudioPlaceHolderConfiguration()},
-                {"78", new PresIntAudioPlaceHolderConfiguration() },
+                { MediaFormats.LacquerDisc, new PresIntAudioPlaceHolderConfiguration()},
+                { MediaFormats.Cylinder, new PresIntAudioPlaceHolderConfiguration()},
+                { MediaFormats.SeventyEight, new PresIntAudioPlaceHolderConfiguration() },
+                
                 // standard video
-                { "vhs", new StandardVideoPlaceHolderConfiguration()},
-                {"betacam:anamorphic", new StandardVideoPlaceHolderConfiguration() },
-                {"dat", new StandardVideoPlaceHolderConfiguration() },
-                {"1-inch open reel video tape", new StandardVideoPlaceHolderConfiguration() },
-                {"8mm video", new StandardVideoPlaceHolderConfiguration() },
-                {"betacam", new StandardVideoPlaceHolderConfiguration() },
-                {"8mm video:quadaudio", new StandardVideoPlaceHolderConfiguration() },
-                {"u-matic", new StandardAudioPlaceHolderConfiguration() },
-                {"betamax", new StandardVideoPlaceHolderConfiguration() },
+                { MediaFormats.Vhs, new StandardVideoPlaceHolderConfiguration()},
+                { MediaFormats.BetacamAnamorphic, new StandardVideoPlaceHolderConfiguration() },
+                { MediaFormats.Dat, new StandardVideoPlaceHolderConfiguration() },
+                { MediaFormats.OneInchOpenReelVideoTape, new StandardVideoPlaceHolderConfiguration() },
+                { MediaFormats.EightMillimeterVideo, new StandardVideoPlaceHolderConfiguration() },
+                { MediaFormats.Betacam, new StandardVideoPlaceHolderConfiguration() },
+                { MediaFormats.EightMillimeterVideoQuadaudio, new StandardVideoPlaceHolderConfiguration() },
+                { MediaFormats.Umatic, new StandardAudioPlaceHolderConfiguration() },
+                { MediaFormats.Betamax, new StandardVideoPlaceHolderConfiguration() },
 
             });
+
+            container.RegisterSingleton(() => new Dictionary<IMediaFormat, ICodingHistoryGenerator>
+            {
+                { MediaFormats.OpenReelAudioTape, new OpenReelCodingHistoryGenerator() },
+                { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
+                { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() }}
+            );
 
             container.RegisterSingleton(() => new CancellationTokenSource());
 

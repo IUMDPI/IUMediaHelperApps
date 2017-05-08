@@ -3,7 +3,7 @@
 namespace Packager.Models.OutputModels
 {
     [Serializable]
-    public class ConfigurationData
+    public class AudioConfigurationData
     {
         public string Track { get; set; }
         public string SoundField { get; set; }

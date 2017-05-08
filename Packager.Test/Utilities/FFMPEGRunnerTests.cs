@@ -772,14 +772,14 @@ namespace Packager.Test.Utilities
                         {
                             Observers.Received()
                                 .EndSection(Arg.Any<string>(),
-                                    $"Generate {DerivativeFileModel.FullFileUse} skipped - already exists: {DerivativeFileModel.Filename}");
+                                    $"Generate {DerivativeFileModel.FileUsage.FullFileUse} skipped - already exists: {DerivativeFileModel.Filename}");
                         }
 
                         [Test]
                         public void ItShouldLogThatFileAlreadyExists()
                         {
                             Observers.Received()
-                                .Log("{0} already exists. Will not generate derivative", DerivativeFileModel.FullFileUse);
+                                .Log("{0} already exists. Will not generate derivative", DerivativeFileModel.FileUsage.FullFileUse);
                         }
 
                         [Test]
@@ -829,7 +829,7 @@ namespace Packager.Test.Utilities
                         {
                             Observers.Received()
                                 .EndSection(Arg.Any<string>(),
-                                    $"{DerivativeFileModel.FullFileUse} generated successfully: {DerivativeFileModel.Filename}");
+                                    $"{DerivativeFileModel.FileUsage.FullFileUse} generated successfully: {DerivativeFileModel.Filename}");
                         }
 
                         [Test]
@@ -895,7 +895,7 @@ namespace Packager.Test.Utilities
                     public void ItShouldCallBeginSectionCorrectly()
                     {
                         Observers.Received()
-                            .BeginSection("Generating {0}: {1}", DerivativeFileModel.FullFileUse,
+                            .BeginSection("Generating {0}: {1}", DerivativeFileModel.FileUsage.FullFileUse,
                                 DerivativeFileModel.Filename);
                     }
 

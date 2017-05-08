@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,7 +13,7 @@ namespace Recorder.Models
         {
             Settings = settings;
 
-            FileUsages = new List<FileUsages>
+            FileUsages = new List<IFileUsage>
             {
                 Common.Models.FileUsages.PreservationMaster,
                 Common.Models.FileUsages.PreservationIntermediateMaster,
@@ -40,14 +39,14 @@ namespace Recorder.Models
             SelectedChannelsAndStreams = PossibleChannelsAndStreams.First();
         }
         
-        public List<FileUsages> FileUsages { get; private set; }
+        public List<IFileUsage> FileUsages { get; private set; }
 
         private readonly Regex _barcodeExpression = new Regex(@"^\d{14,14}$");
         protected ProgramSettings Settings { get; }
         public string Barcode { get; set; }
         public int Part { get; set; }
         public string ProjectCode => Settings.ProjectCode;
-        public FileUsages FileUse { get; set; }
+        public IFileUsage FileUse { get; set; }
 
         public AudioChannelsAndStreams SelectedChannelsAndStreams { get; set; }
 

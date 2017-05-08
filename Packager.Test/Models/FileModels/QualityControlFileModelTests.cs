@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Common.Models;
+using NUnit.Framework;
 using Packager.Models.FileModels;
 
 namespace Packager.Test.Models.FileModels
@@ -28,15 +29,9 @@ namespace Packager.Test.Models.FileModels
         }
 
         [Test]
-        public void PrecedenceShouldBeCorrect()
+        public void FileUsageShouldBeCorrect()
         {
-            Assert.That(Model.Precedence, Is.EqualTo(4));
-        }
-
-        [Test]
-        public void FileUseShouldBeCorrect()
-        {
-            Assert.That(Model.FileUse, Is.EqualTo("pres"));
+            Assert.That(Model.FileUsage is QualityControlFileUsage);
         }
 
         [Test]

@@ -4,37 +4,88 @@ using System.Linq;
 
 namespace Common.Models
 {
-    public class FileUsages
+    public interface IFileUsage
     {
-        private FileUsages(string fileUse, string fullFileUse)
+        string FileUse { get; }
+        string FullFileUse { get; }
+        int Precedence { get; }
+    }
+
+    public class FileUsage : IFileUsage
+    {
+        internal FileUsage(string fileUse, string fullFileUse, int precendence)
         {
             FileUse = fileUse;
             FullFileUse = fullFileUse;
+            Precedence = precendence;
         }
 
         public string FileUse { get; }
         public string FullFileUse { get; }
+        public int Precedence { get; }
+    }
 
-        public static readonly FileUsages PreservationMaster = new FileUsages("pres", "Preservation Master");
-        public static readonly FileUsages PreservationIntermediateMaster = new FileUsages("presInt", "Preservation Master - Intermediate");
-        public static readonly FileUsages ProductionMaster = new FileUsages("prod", "Production Master");
-        public static readonly FileUsages MezzanineFile = new FileUsages("mezz", "Mezzanine File");
-        public static readonly FileUsages AccessFile = new FileUsages("access", "Access File");
-        public static readonly FileUsages LabelImageFile = new FileUsages("label", "Label Image File");
-        public static readonly FileUsages XmlFile = new FileUsages("", "Xml File");
-        public static readonly FileUsages UnknownFile = new FileUsages("", "Raw object file");
-
-        private static readonly List<FileUsages> AllImportableUsages = new List< FileUsages>
+    public class QualityControlFileUsage : IFileUsage
+    {
+        public QualityControlFileUsage(IFileUsage originalUsage)
         {
-            PreservationMaster, PreservationIntermediateMaster, ProductionMaster, MezzanineFile, AccessFile, LabelImageFile
+            FileUse = originalUsage.FileUse;
+            FullFileUse = originalUsage.FullFileUse;
+        }
+
+        public string FileUse { get; }
+        public string FullFileUse { get; }
+        public int Precedence => 8;
+    }
+
+    public class UnknownFileUsage: IFileUsage
+    {
+        public UnknownFileUsage(string fileUse, string fullFileUse)
+        {
+            FileUse = fileUse;
+            FullFileUse = fullFileUse;
+        }
+        public string FileUse { get; }
+        public string FullFileUse { get; }
+        public int Precedence => 100;
+    }
+
+    public class FileUsages
+    {
+        public static readonly IFileUsage PreservationMaster = new FileUsage("pres", "Preservation Master",0);
+        public static readonly IFileUsage PreservationToneReference = new FileUsage("presRef", "Reference Tone – Preservation Master", 1);
+        public static readonly IFileUsage PreservationIntermediateMaster = new FileUsage("presInt", "Preservation Master - Intermediate",2);
+        public static readonly IFileUsage PreservationIntermediateToneReference = new FileUsage("intRef",
+            "Reference Tone – Intermediate", 3);
+        public static readonly IFileUsage ProductionMaster = new FileUsage("prod", "Production Master",4);
+        public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File",5);
+        public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File",6);
+        public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File",7);
+        public static readonly IFileUsage XmlFile = new FileUsage("", "Xml File",100);
+        
+        private static readonly List<IFileUsage> AllImportableUsages = new List<IFileUsage>
+        {
+            PreservationMaster,
+            PreservationIntermediateMaster,
+            PreservationToneReference,
+            PreservationIntermediateToneReference,
+            ProductionMaster,
+            MezzanineFile,
+            AccessFile,
+            LabelImageFile
         };
 
-        public static FileUsages GetUsage(string fileUse)
+        public static IFileUsage GetUsage(string fileUse)
         {
             var usage = AllImportableUsages.SingleOrDefault(
                     u => u.FileUse.Equals(fileUse, StringComparison.InvariantCultureIgnoreCase));
 
-            return usage ?? UnknownFile;
+            return usage ??new UnknownFileUsage(fileUse, "Raw object file");
+        }
+
+        public static bool IsImportable(IFileUsage usage)
+        {
+            return AllImportableUsages.Contains(usage);
         }
     }
 }

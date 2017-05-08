@@ -10,7 +10,5 @@ namespace Packager.Models.FileModels
             base(original, FileUsages.ProductionMaster, ExtensionValue)
         {
         }
-
-        public override int Precedence => 2;
     }
 }

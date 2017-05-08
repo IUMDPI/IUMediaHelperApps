@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
@@ -42,7 +43,7 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
             Factory.ToStringValue(Element, "data/file_bext").Returns("file bext value");
         }
 
-        private string FormatValue { get; set; }
+        private IMediaFormat FormatValue { get; set; }
         private IImportableFactory Factory { get; set; }
         private XElement Element { get; set; }
         private AbstractPodMetadata Instance { get; set; }
@@ -66,8 +67,8 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 };
 
                 // need to make factory produce correct value for format
-                FormatValue = "open reel audio tape";
-                Factory.ToStringValue(Element, "data/format").Returns(FormatValue);
+                FormatValue = MediaFormats.OpenReelAudioTape;
+                Factory.ToStringValue(Element, "data/format").Returns(MediaFormats.OpenReelAudioTape.Key);
                 Factory.ToStringValue(Element, "data/sound_field").Returns("sound field value");
                 Factory.ToStringValue(Element, "data/tape_thickness").Returns("tape thickness value");
                 Factory.ToStringValue(Element, "data/track_configuration").Returns("track configuration value");
@@ -172,8 +173,8 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 };
 
                 // need to make factory produce correct value for format
-                FormatValue = "lacquer disc";
-                Factory.ToStringValue(Element, "data/format").Returns(FormatValue);
+                FormatValue = MediaFormats.LacquerDisc;
+                Factory.ToStringValue(Element, "data/format").Returns(MediaFormats.LacquerDisc.Key);
                 
                 Factory.ToStringValue(Element, "data/speed").Returns("speed value");
                 Factory.ToStringValue(Element, "data/sound_field").Returns("sound field value");
@@ -229,8 +230,8 @@ namespace Packager.Test.Models.MetadataModels.PodMetadataTests
                 };
 
                 // need to make factory produce correct value for format
-                FormatValue = "8mm video";
-                Factory.ToStringValue(Element, "data/format").Returns(FormatValue);
+                FormatValue = MediaFormats.EightMillimeterVideo;
+                Factory.ToStringValue(Element, "data/format").Returns(MediaFormats.EightMillimeterVideo.Key);
                 Factory.ToStringValue(Element, "data/image_format").Returns("image format value");
                 Factory.ToStringValue(Element, "data/recording_standard").Returns("recording standard value");
                

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Exceptions;
@@ -50,16 +51,16 @@ namespace Packager.Test.Processors
             ProdAbstractFile = FileModelFactory.GetModel(ProductionFileName);
             AccessAbstractFile = FileModelFactory.GetModel(AccessFileName);
 
-            ModelList = new List<AbstractFile> {PresAbstractFile};
+            ModelList = new List<AbstractFile> { PresAbstractFile };
 
             ExpectedObjectFolderName = $"{ProjectCode}_{Barcode}";
 
-            Metadata = new AudioPodMetadata {Barcode = Barcode, Unit = "Unit value"};
+            Metadata = new AudioPodMetadata { Barcode = Barcode, Unit = "Unit value" };
 
             MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor  = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor, PlaceHolderFactory);
-            
+            Processor = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor, PlaceHolderFactory);
+
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
             ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
@@ -149,7 +150,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                            ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                         }
 
                         [Test]
@@ -167,7 +168,7 @@ namespace Packager.Test.Processors
                         {
                             base.DoCustomSetup();
 
-                            ModelList = new List<AbstractFile> {PresAbstractFile, ProdAbstractFile};
+                            ModelList = new List<AbstractFile> { PresAbstractFile, ProdAbstractFile };
                         }
 
                         [Test]
@@ -227,7 +228,7 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(model as AbstractFile, ExpectedMetadata, Arg.Any<CancellationToken>());
+                        FFMPEGRunner.Received().Normalize(model, ExpectedMetadata, Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -244,8 +245,8 @@ namespace Packager.Test.Processors
                 public void ItShouldCallBextProcessorWithCorrectListOfFields()
                 {
                     BextProcessor.Received().ClearMetadataFields(
-                        Arg.Any<List<AbstractFile>>(), 
-                        Arg.Is<List<BextFields>>(a => a.SequenceEqual(new List<BextFields> {BextFields.ISFT, BextFields.ITCH})), 
+                        Arg.Any<List<AbstractFile>>(),
+                        Arg.Is<List<BextFields>>(a => a.SequenceEqual(new List<BextFields> { BextFields.ISFT, BextFields.ITCH })),
                         Arg.Any<CancellationToken>());
                 }
 
@@ -282,7 +283,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                         ExpectedMasterModel = PresIntAbstractFile;
                     }
                 }
@@ -324,16 +325,16 @@ namespace Packager.Test.Processors
                         Label = new TiffImageFile(new UnknownFile($"{ProjectCode}_{Barcode}_01_label.tif"));
 
                         ImageProcessor.ImportMediaImages(Arg.Any<string>(), Arg.Any<CancellationToken>())
-                            .Returns(new List<AbstractFile> {Label});
-                        
-                        AudioCarrierDataFactory.When(mg => mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
+                            .Returns(new List<AbstractFile> { Label });
+
+                        AudioCarrierDataFactory.When(mg => mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>()))
                        .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
                     }
 
                     [Test]
                     public void ModelListShouldIncludeLabelModel()
                     {
-                        Assert.That(ReceivedModelList.Count(m=>m.Equals(Label)), Is.EqualTo(1));
+                        Assert.That(ReceivedModelList.Count(m => m.Equals(Label)), Is.EqualTo(1));
                     }
                 }
 
@@ -370,14 +371,15 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
+                        PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<IMediaFormat>(), Arg.Any<List<AbstractFile>>())
                             .Returns(_placeHolders);
 
                         AudioCarrierDataFactory.When(
                                 mg =>
                                     mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(),
-                                        Arg.Any<List<AbstractFile>>()))
-                            .Do(x => {
+                                        Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>()))
+                            .Do(x =>
+                            {
                                 ReceivedModelList = x.Arg<List<AbstractFile>>();
                             });
                     }
@@ -417,7 +419,7 @@ namespace Packager.Test.Processors
                         {
                             FileProvider.DidNotReceive().CopyFileAsync(
                                 Path.Combine(ExpectedProcessingDirectory, fileModel.Filename),
-                                Arg.Any<string>(), 
+                                Arg.Any<string>(),
                                 Arg.Any<CancellationToken>());
                         }
                     }
@@ -427,7 +429,7 @@ namespace Packager.Test.Processors
             public class WhenGeneratingXmlManifest : WhenNothingGoesWrong
             {
                 private AudioCarrier AudioCarrier { get; set; }
-               
+
                 private List<AbstractFile> ReceivedModelList { get; set; }
 
                 protected override void DoCustomSetup()
@@ -435,12 +437,12 @@ namespace Packager.Test.Processors
                     base.DoCustomSetup();
 
                     AudioCarrier = new AudioCarrier();
-                    AudioCarrierDataFactory.When(mg => mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>()))
+                    AudioCarrierDataFactory.When(mg => mg.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>()))
                        .Do(x => { ReceivedModelList = x.Arg<List<AbstractFile>>(); });
-                    AudioCarrierDataFactory.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
+                    AudioCarrierDataFactory.Generate(Arg.Any<AudioPodMetadata>(), Arg.Any<string>(), Arg.Any<List<AbstractFile>>(), Arg.Any<CancellationToken>())
                         .Returns(AudioCarrier);
 
-                    AudioCarrierDataFactory.Generate(null, null, null).ReturnsForAnyArgs(AudioCarrier);
+                    AudioCarrierDataFactory.Generate(null, null, null, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(AudioCarrier);
                 }
 
                 public class WhenPreservationIntermediateModelPresent : WhenGeneratingXmlManifest
@@ -449,7 +451,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                     }
 
                     [Test]
@@ -459,7 +461,8 @@ namespace Packager.Test.Processors
                             Arg.Any<AudioPodMetadata>(),
                             Arg.Any<string>(),
                             Arg.Is<List<AbstractFile>>(
-                                l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null));
+                                l => l.SingleOrDefault(m => m.IsPreservationIntermediateVersion()) != null),
+                            Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -531,7 +534,8 @@ namespace Packager.Test.Processors
                     AudioCarrierDataFactory.Received().Generate(
                         Arg.Any<AudioPodMetadata>(),
                         Arg.Any<string>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m.IsPreservationVersion()) != null),
+                        Arg.Any<CancellationToken>());
                 }
 
 
@@ -541,14 +545,16 @@ namespace Packager.Test.Processors
                     AudioCarrierDataFactory.Received().Generate(
                         Arg.Any<AudioPodMetadata>(),
                         Arg.Any<string>(),
-                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is ProductionFile) != null));
+                        Arg.Is<List<AbstractFile>>(l => l.SingleOrDefault(m => m is ProductionFile) != null),
+                        Arg.Any<CancellationToken>());
                 }
 
                 [Test]
                 public void ItShouldPassCorrectDigitizingEntityToFactory()
                 {
                     AudioCarrierDataFactory.Received()
-                        .Generate(Arg.Any<AudioPodMetadata>(), DigitizingEntity, Arg.Any<List<AbstractFile>>());
+                        .Generate(Arg.Any<AudioPodMetadata>(), DigitizingEntity, Arg.Any<List<AbstractFile>>(),
+                        Arg.Any<CancellationToken>());
                 }
             }
 
@@ -648,7 +654,7 @@ namespace Packager.Test.Processors
                     {
                         base.DoCustomSetup();
 
-                        ModelList = new List<AbstractFile> {PresAbstractFile, PresIntAbstractFile};
+                        ModelList = new List<AbstractFile> { PresAbstractFile, PresIntAbstractFile };
                         ExpectedFiles = 5; // prod master, pres master, presInt master, access, xml manifest
                     }
 

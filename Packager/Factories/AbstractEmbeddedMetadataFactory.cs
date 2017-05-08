@@ -18,7 +18,7 @@ namespace Packager.Factories
             DigitizingEntity = programSettings.DigitizingEntity;
         }
 
-        protected string DigitizingEntity { get; }
+        private string DigitizingEntity { get; }
 
         public AbstractEmbeddedMetadata Generate(IEnumerable<AbstractFile> models, AbstractFile target, T metadata)
         {
@@ -28,11 +28,6 @@ namespace Packager.Factories
 
         protected abstract AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance, T metadata, string digitizingEntity);
         
-        protected string GenerateDescription(AbstractPodMetadata metadata, AbstractFile model)
-        {
-            return $"{metadata.Bext} {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.Filename)}";
-        }
-
         protected static string GetDateString(DateTime? date, string format, string defaultValue)
         {
             return date.HasValue == false ? defaultValue : date.Value.ToString(format);

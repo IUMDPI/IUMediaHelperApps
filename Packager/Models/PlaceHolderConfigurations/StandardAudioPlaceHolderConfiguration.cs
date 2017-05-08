@@ -8,7 +8,7 @@ namespace Packager.Models.PlaceHolderConfigurations
     public class StandardAudioPlaceHolderConfiguration : AbstractPlaceHolderConfiguration
     {
         public StandardAudioPlaceHolderConfiguration() : base(
-            new List<FileUsages> {
+            new List<IFileUsage> {
                 FileUsages.PreservationMaster,
                 FileUsages.ProductionMaster,
                 FileUsages.AccessFile})

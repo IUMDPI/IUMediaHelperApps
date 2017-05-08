@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Factories;
@@ -21,7 +24,7 @@ namespace Packager.Test.Factories
                 BakingDate = new DateTime(2015, 05, 01),
                 CleaningDate = new DateTime(2015, 05, 01),
                 CleaningComment = "Cleaning comment",
-                Format = "CD-R",
+                Format = MediaFormats.Cdr,
                 DirectionsRecorded = "1",
                 CallNumber = "Call number",
                 SoundField = "Mono",
@@ -32,7 +35,7 @@ namespace Packager.Test.Factories
             };
         }
         [SetUp]
-        public void BeforeEach()
+        public async Task BeforeEach()
         {
             ProcessingDirectory = "test folder";
 
@@ -52,7 +55,7 @@ namespace Packager.Test.Factories
             };
 
             var generator = new AudioCarrierDataFactory(SideDataFactory);
-            Result = generator.Generate(PodMetadata, DigitizingEntity, FilesToProcess) as AudioCarrier;
+            Result = await generator.Generate(PodMetadata, DigitizingEntity, FilesToProcess, CancellationToken.None) as AudioCarrier;
         }
 
         private const string PreservationSide1FileName = "MDPI_4890764553278906_01_pres.wav";
@@ -112,7 +115,7 @@ namespace Packager.Test.Factories
             [Test]
             public void ItShouldSetCarrierTypeCorrectly()
             {
-                Assert.That(Result.CarrierType, Is.EqualTo(PodMetadata.Format));
+                Assert.That(Result.CarrierType, Is.EqualTo(PodMetadata.Format.ProperName));
             }
 
             [Test]

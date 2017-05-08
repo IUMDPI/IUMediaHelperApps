@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
 using Packager.Extensions;
@@ -127,7 +128,7 @@ namespace Packager.Test.Processors
                 .Returns(Task.FromResult(new List<AbstractFile>()));
 
             PlaceHolderFactory = Substitute.For<IPlaceHolderFactory>();
-            PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<string>(), Arg.Any<List<AbstractFile>>())
+            PlaceHolderFactory.GetPlaceHoldersToAdd(Arg.Any<IMediaFormat>(), Arg.Any<List<AbstractFile>>())
                 .Returns(new List<AbstractFile>());
 
             DoCustomSetup();

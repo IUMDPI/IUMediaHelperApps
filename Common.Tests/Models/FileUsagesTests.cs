@@ -9,9 +9,9 @@ namespace Common.Tests.Models
         private static object[] _usagesCorrectCases =
         {
             new object[] {FileUsages.PreservationMaster, "pres", "Preservation Master", 0},
-            new object[] {FileUsages.PreservationToneReference, "presRef", "Preservation Master Tone Reference File", 1},
+            new object[] {FileUsages.PreservationToneReference, "presRef", "Reference Tone – Preservation Master", 1},
             new object[] {FileUsages.PreservationIntermediateMaster, "presInt", "Preservation Master - Intermediate", 2},
-            new object[] {FileUsages.PreservationIntermediateToneReference, "intRef", "Preservation Master - Intermediate Tone Reference File", 3},
+            new object[] {FileUsages.PreservationIntermediateToneReference, "intRef", "Reference Tone – Intermediate", 3},
             new object[] {FileUsages.ProductionMaster, "prod", "Production Master", 4},
             new object[] {FileUsages.MezzanineFile, "mezz", "Mezzanine File", 5},
             new object[] {FileUsages.AccessFile, "access", "Access File", 6},

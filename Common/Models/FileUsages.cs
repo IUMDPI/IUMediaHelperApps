@@ -53,10 +53,10 @@ namespace Common.Models
     public class FileUsages
     {
         public static readonly IFileUsage PreservationMaster = new FileUsage("pres", "Preservation Master",0);
-        public static readonly IFileUsage PreservationToneReference = new FileUsage("presRef", "Preservation Master Tone Reference File",1);
+        public static readonly IFileUsage PreservationToneReference = new FileUsage("presRef", "Reference Tone – Preservation Master", 1);
         public static readonly IFileUsage PreservationIntermediateMaster = new FileUsage("presInt", "Preservation Master - Intermediate",2);
         public static readonly IFileUsage PreservationIntermediateToneReference = new FileUsage("intRef",
-            "Preservation Master - Intermediate Tone Reference File",3);
+            "Reference Tone – Intermediate", 3);
         public static readonly IFileUsage ProductionMaster = new FileUsage("prod", "Production Master",4);
         public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File",5);
         public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File",6);

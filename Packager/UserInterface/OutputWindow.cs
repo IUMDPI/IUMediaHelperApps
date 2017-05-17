@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Windows;
 using Packager.Engine;
+using Packager.Exceptions;
+using Packager.Models.ProgramArgumentsModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 
@@ -17,12 +19,14 @@ namespace Packager.UserInterface
         private IEngine Engine { get; }
         private CancellationTokenSource CancellationTokenSource { get; }
         private IObserverCollection Observers { get; }
+        private IProgramArguments ProgramArguments { get; }
 
-        public OutputWindow(IProgramSettings programSettings, IViewModel viewModel, IEngine engine, IObserverCollection observers, CancellationTokenSource cancellationTokenSource)
+        public OutputWindow(IProgramSettings programSettings, IViewModel viewModel, IEngine engine, IObserverCollection observers, IProgramArguments arguments, CancellationTokenSource cancellationTokenSource)
         {
             InitializeComponent();
 
             ProgramSettings = programSettings;
+            ProgramArguments = arguments;
             Engine = engine;
             CancellationTokenSource = cancellationTokenSource;
             ViewModel = viewModel;
@@ -40,6 +44,10 @@ namespace Packager.UserInterface
             catch (Exception exception)
             {
                 Observers.LogEngineIssue(exception);
+                if (ProgramArguments.Interactive == false)
+                {
+                    throw new LoggedException(exception);
+                }
             }
             
             

@@ -58,7 +58,8 @@ namespace Packager
             }
             catch (Exception e)
             {
-                // todo: log
+                var observers = container.GetInstance<IObserverCollection>();
+                observers?.LogEngineIssue(e);
             }
         }
 

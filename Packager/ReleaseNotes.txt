@@ -75,4 +75,7 @@
 						Add specific coding-history generators for open-reel, 
 						cylinder, and lacquer disc formats
 						Use file_bext field from POD when embedding description fields
+4.1.0.0		5/18/2017	Fix issue that was causing packager to exit unexpectedly if
+						an invalid log path was specified.
+						Improve logging for unhandled exceptions
 					

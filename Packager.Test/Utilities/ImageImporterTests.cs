@@ -8,6 +8,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Packager.Models.OutputModels;
 using Packager.Models.OutputModels.Carrier;
+using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
@@ -186,6 +187,71 @@ namespace Packager.Test.Utilities
             Assert.That(result.Count, Is.EqualTo(2));
             Assert.That(result.Count(f => f.Filename.Equals(ValidFilename1)), Is.EqualTo(1));
             Assert.That(result.Count(f => f.Filename.Equals(ValidFilename2)), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void LabelImagesPresentShouldReturnTrueIfLabelsListMatchesMastersList()
+        {
+            var metadata = new AudioPodMetadata {Barcode = Barcode, FileProvenances = new List<AbstractDigitalFile>
+            {
+                new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_01_pres.wav"},
+                new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_02_pres.wav"}
+            }};
+
+            var result = ImageImporter.LabelImagesPresent(metadata);
+            Assert.That(result,Is.True);
+        }
+
+        [Test]
+        public void LabelImagesPresentShouldReturnFalseIfSourceFolderNotPresent()
+        {
+            var metadata = new AudioPodMetadata
+            {
+                Barcode = Barcode,
+                FileProvenances = new List<AbstractDigitalFile>
+                {
+                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_01_pres.wav"},
+                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_02_pres.wav"}
+                }
+            };
+            DirectoryProvider.DirectoryExists(ExpectedSourceFolder).Returns(false);
+            var result = ImageImporter.LabelImagesPresent(metadata);
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void LabelImagesPresentShouldReturnFalseIfManifestNotPresent()
+        {
+            var metadata = new AudioPodMetadata
+            {
+                Barcode = Barcode,
+                FileProvenances = new List<AbstractDigitalFile>
+                {
+                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_01_pres.wav"},
+                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_02_pres.wav"}
+                }
+            };
+            FileProvider.FileDoesNotExist(ExpectedManifestFile).Returns(true);
+            var result = ImageImporter.LabelImagesPresent(metadata);
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void LabelImagesPresentShouldReturnFalseIfListOfLabelsDoesNotMatchListOfMasters()
+        {
+            var metadata = new AudioPodMetadata
+            {
+                Barcode = Barcode,
+                FileProvenances = new List<AbstractDigitalFile>
+                {
+                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_01_pres.wav"},
+                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_02_pres.wav"},
+                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_03_pres.wav"},
+                }
+            };
+
+            var result = ImageImporter.LabelImagesPresent(metadata);
+            Assert.That(result, Is.False);
         }
     }
 }

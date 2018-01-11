@@ -9,11 +9,13 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.OutputModels.Carrier;
+using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
 using Packager.Utilities.Xml;
 using File = Packager.Models.OutputModels.File;
+using StringExtensions = Common.Extensions.StringExtensions;
 
 namespace Packager.Utilities.Images
 {
@@ -56,29 +58,20 @@ namespace Packager.Utilities.Images
                 return new List<AbstractFile>();
             }
 
-            // if so, verify that manifest exists
-            var manifestPath = Path.Combine(sourceFolder, $"{ProjectCode}_{barcode}.xml");
-            if (FileProvider.FileDoesNotExist(manifestPath))
-            {
-                throw new FileNotFoundException("Label image manifest file not present", manifestPath);
-            }
-
             var destFolder = Path.Combine(BaseProcessingFolder, $"{ProjectCode}_{barcode}");
             if (DirectoryProvider.DirectoryExists(destFolder) == false)
             {
                 throw new DirectoryNotFoundException($"Invalid processing folder: {destFolder}");
             }
 
-            // import the manifest
-            var manifest = XmlExporter.ImportFromFile<ImportableManifest<RecordCarrier>>(manifestPath);
-            var fileEntries = manifest.Carrier.Parts.Sides.SelectMany(s => s.Files);
-            // get .tiff file models
-            var labelFiles = fileEntries
-                .Select(entry => CreateFileAndAssignHash(entry, sourceFolder))
-                .Where(f => f is TiffImageFile)
-                .Where(f=>f.IsImportable())
-                .ToList();
+            var manifestPath = GetManifestPath(barcode, sourceFolder);
+            if (FileProvider.FileDoesNotExist(manifestPath))
+            {
+                throw new FileNotFoundException("Label image manifest file not present", manifestPath);
+            }
             
+            var labelFiles = GetImageFiles(manifestPath);
+
             // copy files to processing folder and verify each file
             foreach (var file in labelFiles)
             {
@@ -90,6 +83,49 @@ namespace Packager.Utilities.Images
             }
 
             return labelFiles;
+        }
+
+        public bool LabelImagesPresent(AbstractPodMetadata metadata)
+        {
+            var sourceFolder = Path.Combine(ImageDirectory, $"{metadata.Barcode}");
+            if (DirectoryProvider.DirectoryExists(sourceFolder) == false)
+            {
+                return false;
+            }
+
+            var manifestPath = GetManifestPath(metadata.Barcode, sourceFolder);
+            if (FileProvider.FileDoesNotExist(manifestPath))
+            {
+                return false;
+            }
+
+            var labels = GetImageFiles(manifestPath).Select(f=>f.SequenceIndicator).OrderBy(v=>v);
+
+            var expected = metadata.FileProvenances
+                .Select(f => FileModelFactory.GetModel(f.Filename))
+                .Where(f => f.IsPreservationVersion()).Select(f=>f.SequenceIndicator)
+                .OrderBy(v=>v);
+
+            return labels.SequenceEqual(expected);
+
+        }
+
+        private string GetManifestPath(string barcode, string sourceFolder)
+        {
+            return Path.Combine(sourceFolder, $"{ProjectCode}_{barcode}.xml");
+        }
+
+        private List<AbstractFile> GetImageFiles(string manifestPath)
+        {
+            // import the manifest
+            var manifest = XmlExporter.ImportFromFile<ImportableManifest<RecordCarrier>>(manifestPath);
+            var fileEntries = manifest.Carrier.Parts.Sides.SelectMany(s => s.Files);
+            // get .tiff file models
+            return fileEntries
+                .Select(entry => CreateFileAndAssignHash(entry, Path.GetDirectoryName(manifestPath)))
+                .Where(f => f is TiffImageFile)
+                .Where(f => f.IsImportable())
+                .ToList();
         }
 
         private async Task VerifyFile(AbstractFile file, string destPath, CancellationToken cancellationToken)

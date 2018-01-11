@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common.TaskScheduler.Configurations;
 using Microsoft.Win32.TaskScheduler;
 
@@ -20,7 +21,6 @@ namespace Common.TaskScheduler.Schedulers
                             DaysOfTheWeek.Wednesday |
                             DaysOfTheWeek.Thursday |
                             DaysOfTheWeek.Friday,
-                
             };
         }
 
@@ -30,6 +30,17 @@ namespace Common.TaskScheduler.Schedulers
                 ?? new DailyConfiguration().Import(task);
         }
 
-       
+        public override Tuple<bool, List<string>> Schedule<T>(T configuration)
+        {
+            if (configuration is ImpersonateDailyConfiguration)
+            {
+                configuration.Arguments = "-noninteractive";
+            }
+            else
+            {
+                configuration.Arguments = null;
+            }
+            return base.Schedule(configuration);
+        }
     }
 }

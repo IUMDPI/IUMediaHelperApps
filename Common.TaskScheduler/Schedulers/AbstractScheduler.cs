@@ -136,7 +136,7 @@ namespace Common.TaskScheduler.Schedulers
 
         public abstract AbstractConfiguration GetDefaultConfiguration();
 
-        public Tuple<bool, List<string>> Schedule<T>(T configuration) where T : AbstractConfiguration
+        public virtual Tuple<bool, List<string>> Schedule<T>(T configuration) where T : AbstractConfiguration
         {
             return configuration.Schedule(Identifier);
         }

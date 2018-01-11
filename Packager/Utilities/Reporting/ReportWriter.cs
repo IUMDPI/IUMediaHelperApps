@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common.Models;
+using Packager.Models.ResultModels;
 using Packager.Models.SettingsModels;
 using Packager.Utilities.Xml;
-using Packager.Validators;
 
 namespace Packager.Utilities.Reporting
 {
@@ -22,7 +22,7 @@ namespace Packager.Utilities.Reporting
 
         public void WriteResultsReport(Dictionary<string, DurationResult> results, DateTime startTime)
         {
-            var succeeded = results.All(r => r.Value.Result);
+            var succeeded = results.All(r => r.Value.Succeeded || r.Value.Skipped);
             var report = new PackagerReport
             {
                 Timestamp = startTime,
@@ -32,7 +32,9 @@ namespace Packager.Utilities.Reporting
                 ObjectReports = results.Select(r => new PackagerObjectReport
                 {
                     Barcode = r.Key,
-                    Succeeded = r.Value.Result,
+                    Succeeded = r.Value.Succeeded,
+                    Skipped = r.Value.Skipped,
+                    Failed = r.Value.Failed,
                     Issue = r.Value.Issue,
                     Timestamp = r.Value.Timestamp,
                     Duration = r.Value.Duration
@@ -54,7 +56,7 @@ namespace Packager.Utilities.Reporting
             Write(report);
         }
 
-        private void Write(PackagerReport operationReport)
+        private void Write(AbstractOperationReport operationReport)
         {
             var reportPath = Path.Combine(LogDirectoryName, $"Packager_{operationReport.Timestamp.Ticks:D19}.operationReport");
             Exporter.ExportToFile(operationReport, reportPath);

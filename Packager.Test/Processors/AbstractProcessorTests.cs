@@ -11,6 +11,7 @@ using Packager.Factories;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.ResultModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
@@ -71,7 +72,7 @@ namespace Packager.Test.Processors
 
         protected string XmlManifestFileName { get; set; }
 
-        public ValidationResult Result { get; set; }
+        public DurationResult Result { get; set; }
 
         protected List<AbstractFile> ModelList { get; set; }
 

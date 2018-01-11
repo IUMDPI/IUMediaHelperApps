@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Packager.Models.FileModels;
+using Packager.Models.ResultModels;
 using Packager.Validators;
 
 namespace Packager.Processors

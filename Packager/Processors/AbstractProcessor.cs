@@ -11,6 +11,7 @@ using Packager.Factories;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
+using Packager.Models.ResultModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
@@ -65,7 +66,7 @@ namespace Packager.Processors
         protected IObserverCollection Observers { get; }
         private IPodMetadataProvider MetadataProvider { get; }
         private IXmlExporter XmlExporter { get; }
-        private ILabelImageImporter LabelImageImporter { get; }
+        protected ILabelImageImporter LabelImageImporter { get; }
         private IPlaceHolderFactory PlaceHolderFactory { get; }
         private IHasher Hasher { get; }
         private IFileProvider FileProvider { get; }
@@ -89,6 +90,7 @@ namespace Packager.Processors
         protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models);
         protected abstract Task ClearMetadataFields(List<AbstractFile> processedList, CancellationToken cancellationToken);
         protected abstract Task<List<AbstractFile>> CreateQualityControlFiles(IEnumerable<AbstractFile> processedList, CancellationToken cancellationToken);
+        protected abstract ValidationResult ContinueProcessingObject(AbstractPodMetadata metadata);
 
         public virtual async Task<DurationResult> ProcessObject(IGrouping<string, AbstractFile> fileModels, CancellationToken cancellationToken)
         {
@@ -103,11 +105,19 @@ namespace Packager.Processors
                 // convert grouping to simple list
                 var filesToProcess = fileModels.ToList();
 
-                // now move them to processing
-                await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
-
                 // fetch, log, and validate metadata
                 var metadata = await GetMetadata<T>(filesToProcess, cancellationToken);
+
+                // now move files to processing
+                await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
+
+                // Should we defer processing
+                var shouldContinue = ContinueProcessingObject(metadata);
+                if (shouldContinue.Result == false)
+                {
+                    await ReturnOriginalsToInputHopper(filesToProcess, cancellationToken);
+                    return DurationResult.Deferred(DateTime.Now, shouldContinue.Issue);
+                }
 
                 // normalize originals
                 await NormalizeOriginals(filesToProcess, metadata, cancellationToken);
@@ -181,7 +191,7 @@ namespace Packager.Processors
                 return new DurationResult(startTime, e.GetBaseMessage());
             }
         }
-
+        
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
             foreach (var original in originals.Where(f => f is TiffImageFile == false))
@@ -390,26 +400,48 @@ namespace Packager.Processors
             }
         }
 
-        private static string GetFilenameToLog(AbstractFile model)
-        {
-            return model.OriginalFileName.Equals(model.Filename, StringComparison.InvariantCultureIgnoreCase)
-                ? model.Filename
-                : $"{model.Filename} ({model.OriginalFileName})";
-        }
-
         private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel, CancellationToken cancellationToken)
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
             var targetPath = Path.Combine(OriginalsDirectory, fileModel.Filename);
 
+            return await MoveFile(sourcePath, targetPath, cancellationToken);
+        }
+
+        private async Task ReturnOriginalsToInputHopper(List<AbstractFile> filesToProcess, CancellationToken cancellationToken)
+        {
+            foreach (var fileModel in filesToProcess)
+            {
+                await ReturnOriginalToInputHopper(fileModel, cancellationToken);
+            }
+        }
+
+        private async Task ReturnOriginalToInputHopper(AbstractFile fileModel, CancellationToken cancellationToken)
+        {
+            var sourcePath = Path.Combine(OriginalsDirectory, fileModel.OriginalFileName);
+            var targetPath = Path.Combine(InputDirectory, fileModel.Filename);
+
+            await MoveFile(sourcePath, targetPath, cancellationToken);
+        }
+
+        private async Task<string> MoveFile(string sourcePath, string targetPath, CancellationToken cancellationToken)
+        {
+
             if (FileProvider.FileExists(targetPath))
             {
-                throw new FileDirectoryExistsException("The file {0} already exists in {1}", fileModel.Filename,
+                throw new FileDirectoryExistsException("The file {0} already exists in {1}", Path.GetFileName(targetPath),
                     OriginalsDirectory);
             }
 
             await FileProvider.MoveFileAsync(sourcePath, targetPath, cancellationToken);
             return targetPath;
+        }
+
+        private static string GetFilenameToLog(AbstractFile model)
+        {
+            return model.OriginalFileName.Equals(model.Filename, StringComparison.InvariantCultureIgnoreCase)
+                ? model.Filename
+                : $"{model.Filename} ({model.OriginalFileName})";
         }
 
         private async Task<TMetadataType> GetMetadata<TMetadataType>(List<AbstractFile> filesToProcess, CancellationToken cancellationToken) where TMetadataType : AbstractPodMetadata, new()

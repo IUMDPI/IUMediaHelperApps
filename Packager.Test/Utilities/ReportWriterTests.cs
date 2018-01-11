@@ -5,6 +5,7 @@ using System.Linq;
 using Common.Models;
 using NSubstitute;
 using NUnit.Framework;
+using Packager.Models.ResultModels;
 using Packager.Models.SettingsModels;
 using Packager.Utilities.Reporting;
 using Packager.Utilities.Xml;
@@ -152,7 +153,7 @@ namespace Packager.Test.Utilities
                 Assert.That(report, Is.Not.Null);
 
                 Assert.That(report.Timestamp, Is.EqualTo(originals[key].Timestamp));
-                Assert.That(report.Succeeded, Is.EqualTo(originals[key].Result));
+                Assert.That(report.Succeeded, Is.EqualTo(originals[key].Succeeded));
                 Assert.That(report.Issue, Is.EqualTo(originals[key].Issue));
                 Assert.That(report.Duration, Is.EqualTo(originals[key].Duration));
             }

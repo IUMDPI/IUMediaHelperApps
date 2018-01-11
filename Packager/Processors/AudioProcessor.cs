@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
@@ -17,6 +18,7 @@ using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
+using ValidationResult = Packager.Validators.ValidationResult;
 
 namespace Packager.Processors
 {
@@ -89,6 +91,23 @@ namespace Packager.Processors
         {
             // do nothing here
             return await Task.FromResult(new List<AbstractFile>());
+        }
+
+        protected override ValidationResult ContinueProcessingObject(AbstractPodMetadata metadata)
+        {
+            if (metadata.Format != MediaFormats.LacquerDisc)
+            {
+                return ValidationResult.Success;
+            }
+
+            if (metadata.Unit.Equals("Archives of Traditional Music") == false)
+            {
+                return ValidationResult.Success;
+            }
+
+            return LabelImageImporter.LabelImagesPresent(metadata) 
+                ? ValidationResult.Success 
+                : new ValidationResult("Label images are not preset.");
         }
     }
 }

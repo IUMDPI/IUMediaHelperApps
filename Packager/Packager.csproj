@@ -275,7 +275,7 @@
     <Compile Include="Utilities\ProcessRunners\ProcessRunner.cs" />
     <Compile Include="Utilities\Xml\XmlExporter.cs" />
     <Compile Include="Validators\DirectoryExistsValidator.cs" />
-    <Compile Include="Validators\DurationResult.cs" />
+    <Compile Include="Models\ResultModels\DurationResult.cs" />
     <Compile Include="Validators\FileExistsValidator.cs" />
     <Compile Include="Validators\MembersValidator.cs" />
     <Compile Include="Validators\StandardValidatorCollection.cs" />

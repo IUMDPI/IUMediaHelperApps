@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Packager.Models.ResultModels;
 using Packager.Validators;
 
 namespace Packager.Utilities.Reporting

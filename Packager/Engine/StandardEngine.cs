@@ -10,6 +10,7 @@ using Packager.Factories;
 using Packager.Models.EmailMessageModels;
 using Packager.Models.FileModels;
 using Packager.Models.ProgramArgumentsModels;
+using Packager.Models.ResultModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;
@@ -127,16 +128,16 @@ namespace Packager.Engine
             SystemInfoProvider.ExitApplication(exitCode);
         }
 
-        private EngineExitCodes GetExitCode(Dictionary<string, DurationResult> results)
+        private static EngineExitCodes GetExitCode(Dictionary<string, DurationResult> results)
         {
-            return results.Any(r => r.Value.Result == false) 
+            return results.Any(r => r.Value.Failed) 
                 ? EngineExitCodes.ProcessingIssue
                 : EngineExitCodes.Success; // success
         }
 
         private void SendSuccessEmail(Dictionary<string, DurationResult> results)
         {
-            var succeededBarCodes = results.Where(r => r.Value.Result).Select(r=>r.Key).ToArray();
+            var succeededBarCodes = results.Where(r => r.Value.Succeeded).Select(r=>r.Key).ToArray();
             if (succeededBarCodes.Any() == false)
             {
                 return;
@@ -257,8 +258,8 @@ namespace Packager.Engine
 
             Observers.Log("Found {0} to process.", groupings.ToSingularOrPlural("object", "objects"));
 
-            var inError = results.Where(r => r.Value.Result == false).ToList();
-            var success = results.Where(r => r.Value.Result).ToList();
+            var inError = results.Where(r => r.Value.Failed).ToList();
+            var success = results.Where(r => r.Value.Succeeded).ToList();
 
             LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
             LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");

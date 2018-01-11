@@ -15,6 +15,7 @@ using Packager.Utilities.Hashing;
 using Packager.Utilities.Images;
 using Packager.Utilities.ProcessRunners;
 using Packager.Utilities.Xml;
+using Packager.Validators;
 
 namespace Packager.Processors
 {
@@ -85,6 +86,11 @@ namespace Packager.Processors
             }
 
             return results;
+        }
+
+        protected override ValidationResult ContinueProcessingObject(AbstractPodMetadata metadata)
+        {
+            return ValidationResult.Success;
         }
     }
 }

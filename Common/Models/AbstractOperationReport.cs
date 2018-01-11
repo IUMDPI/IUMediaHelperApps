@@ -13,6 +13,10 @@ namespace Common.Models
         [XmlAttribute("Timestamp")]
         public DateTime Timestamp { get; set; }
         public bool Succeeded { get; set; }
+        public bool Failed { get; set; }
+
+        [XmlAttribute("Deferred")]
+        public bool Skipped { get; set; }
         public string Issue { get; set; }
 
         [XmlIgnore]

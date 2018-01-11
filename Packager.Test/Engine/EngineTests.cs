@@ -10,6 +10,7 @@ using Packager.Engine;
 using Packager.Models.EmailMessageModels;
 using Packager.Models.FileModels;
 using Packager.Models.ProgramArgumentsModels;
+using Packager.Models.ResultModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Processors;

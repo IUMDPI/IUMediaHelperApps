@@ -763,7 +763,9 @@ namespace Packager.Test.Processors
             [Test]
             public void ProcessorShouldReturnTrue()
             {
-                Assert.That(Result.Result, Is.EqualTo(true));
+                Assert.That(Result.Succeeded, Is.EqualTo(true));
+                Assert.That(Result.Skipped, Is.EqualTo(false));
+                Assert.That(Result.Failed, Is.EqualTo(false));
             }
         }
 
@@ -777,7 +779,9 @@ namespace Packager.Test.Processors
                 [Test]
                 public void ProcessorShouldReturnFalse()
                 {
-                    Assert.That(Result.Result, Is.EqualTo(false));
+                    Assert.That(Result.Succeeded, Is.EqualTo(false));
+                    Assert.That(Result.Skipped, Is.EqualTo(false));
+                    Assert.That(Result.Failed, Is.EqualTo(true));
                 }
 
                 [Test]

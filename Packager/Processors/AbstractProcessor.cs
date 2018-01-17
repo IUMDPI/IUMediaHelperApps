@@ -105,17 +105,18 @@ namespace Packager.Processors
                 // convert grouping to simple list
                 var filesToProcess = fileModels.ToList();
 
-                // fetch, log, and validate metadata
-                var metadata = await GetMetadata<T>(filesToProcess, cancellationToken);
-
                 // now move files to processing
                 await CreateProcessingDirectoryAndMoveOriginals(filesToProcess, cancellationToken);
 
+                // fetch, log, and validate metadata
+                var metadata = await GetMetadata<T>(filesToProcess, cancellationToken);
+                
                 // Should we defer processing
                 var shouldContinue = ContinueProcessingObject(metadata);
                 if (shouldContinue.Result == false)
                 {
                     await ReturnOriginalsToInputHopper(filesToProcess, cancellationToken);
+                    Observers.EndSection(sectionKey, $"Object deferred: {Barcode}");
                     return DurationResult.Deferred(DateTime.Now, shouldContinue.Issue);
                 }
 

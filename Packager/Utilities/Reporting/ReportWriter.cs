@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common.Extensions;
 using Common.Models;
 using Packager.Models.ResultModels;
 using Packager.Models.SettingsModels;
@@ -22,13 +23,15 @@ namespace Packager.Utilities.Reporting
 
         public void WriteResultsReport(Dictionary<string, DurationResult> results, DateTime startTime)
         {
-            var succeeded = results.All(r => r.Value.Succeeded || r.Value.Skipped);
+            var succeeded = results.Any(r => r.Value.Succeeded) && !results.Any(r=>r.Value.Failed); // if no failed results and at least 1 success result, set succeeded to true
+            var skipped = results.Any(r => r.Value.Skipped); // if any skipped, set skipped to true
             var report = new PackagerReport
             {
                 Timestamp = startTime,
                 Duration = DateTime.Now - startTime,
                 Succeeded = succeeded,
-                Issue = succeeded ? string.Empty : "Issues occurred while processing one or more objects",
+                Skipped = skipped,
+                Issue = GetOverallIssue(results),
                 ObjectReports = results.Select(r => new PackagerObjectReport
                 {
                     Barcode = r.Key,
@@ -42,6 +45,29 @@ namespace Packager.Utilities.Reporting
             };
 
             Write(report);
+        }
+
+        private static string GetOverallIssue(Dictionary<string, DurationResult> results)
+        {
+            if (results.All(r => r.Value.Succeeded))
+            {
+                return string.Empty;
+            }
+
+            var lines = new List<string>();
+
+            if (results.Any(r => r.Value.Failed))
+            {
+                lines.Add("Issues occurred while processing one or more objects.");
+            }
+
+            var skipped = results.Where(r => r.Value.Skipped).Select(r => r.Key).ToList();
+            if (skipped.Any())
+            {
+                lines.Add($"Processing deferred for {skipped.ToPrettyDelimitedList()}.");
+            }
+
+            return string.Join("\n", lines);
         }
 
         public void WriteResultsReport(Exception e)

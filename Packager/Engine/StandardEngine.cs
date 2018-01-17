@@ -260,8 +260,10 @@ namespace Packager.Engine
 
             var inError = results.Where(r => r.Value.Failed).ToList();
             var success = results.Where(r => r.Value.Succeeded).ToList();
+            var skipped = results.Where(r => r.Value.Skipped).ToList();
 
             LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
+            LogObjectResults(skipped, $"Deferred {skipped.ToSingularOrPlural("object", "objects")}:");
             LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");
 
             if (cancellationToken.IsCancellationRequested)

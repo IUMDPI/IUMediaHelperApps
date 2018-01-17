@@ -69,6 +69,14 @@ namespace Common.Extensions
             }
             
         }
+
+        public static string ToPrettyDelimitedList(this IEnumerable<string> values)
+        {
+            var valuesArray = values.ToArray();
+            return valuesArray.Length <= 1
+                ? valuesArray.LastOrDefault()
+                : string.Join(", ", valuesArray, 0, valuesArray.Length - 1) + ", and " + valuesArray.LastOrDefault();
+        }
         
         public static string ToDefaultIfEmpty(this object value, string defaultValue = "")
         {

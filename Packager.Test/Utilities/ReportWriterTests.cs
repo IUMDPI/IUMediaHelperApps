@@ -23,6 +23,8 @@ namespace Packager.Test.Utilities
 
         private Dictionary<string, DurationResult> MockPackagerIssueResults { get; set; }
         private Dictionary<string, DurationResult> MockPackagerSucceededResults { get; set; }
+        private Dictionary<string, DurationResult> MockPackagerDeferredResults { get; set; }
+
         private Exception Exception { get; set; }
         private PackagerReport OperationReport { get; set; }
         private string ReportPath { get; set; }
@@ -45,6 +47,12 @@ namespace Packager.Test.Utilities
             MockPackagerIssueResults = new Dictionary<string, DurationResult>
             {
                 {"1111111111111", new DurationResult(new DateTime(2017,1,1),  "issue") },
+                {"2222222222222", DurationResult.Success(new DateTime(2017,1,1)) }
+            };
+
+            MockPackagerDeferredResults = new Dictionary<string, DurationResult>
+            {
+                {"1111111111111", DurationResult.Deferred(new DateTime(2017,1,1),  "label images not present.") },
                 {"2222222222222", DurationResult.Success(new DateTime(2017,1,1)) }
             };
 
@@ -76,16 +84,14 @@ namespace Packager.Test.Utilities
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017,1,1));
             Assert.That(OperationReport.Timestamp, Is.EqualTo(new DateTime(2017, 1, 1)));
         }
-
-
+        
         [Test]
         public void DurationShouldBeSet()
         {
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
             Assert.That(OperationReport.Duration, Is.GreaterThan(new TimeSpan()));
         }
-
-
+        
         [Test]
         public void IfPackagerIssuesSucceededShouldBeFalse()
         {
@@ -101,6 +107,13 @@ namespace Packager.Test.Utilities
         }
 
         [Test]
+        public void IfAnySkippedSkippedShouldBeTrue()
+        {
+            ReportWriter.WriteResultsReport(MockPackagerDeferredResults, new DateTime(2017, 1, 1));
+            Assert.That(OperationReport.Skipped, Is.EqualTo(true));
+        }
+
+        [Test]
         public void IfNoPackagerIssuesIssueShouldNotBeSet()
         {
             ReportWriter.WriteResultsReport(MockPackagerSucceededResults, new DateTime(2017, 1, 1));
@@ -108,10 +121,17 @@ namespace Packager.Test.Utilities
         }
 
         [Test]
-        public void IfNoPackagerIssuesIssueShouldBeSet()
+        public void IfPackagerIssuesIssueShouldBeSet()
         {
             ReportWriter.WriteResultsReport(MockPackagerIssueResults, new DateTime(2017, 1, 1));
-            Assert.That(OperationReport.Issue, Is.EqualTo("Issues occurred while processing one or more objects"));
+            Assert.That(OperationReport.Issue, Is.EqualTo("Issues occurred while processing one or more objects."));
+        }
+
+        [Test]
+        public void IfDeferredIssuesShouldBeSet()
+        {
+            ReportWriter.WriteResultsReport(MockPackagerDeferredResults, new DateTime(2017, 1, 1));
+            Assert.That(OperationReport.Issue, Is.EqualTo("Processing deferred for 1111111111111."));
         }
 
         [Test]

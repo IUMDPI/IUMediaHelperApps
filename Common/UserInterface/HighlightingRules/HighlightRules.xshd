@@ -46,6 +46,7 @@
     <Span color="ResultsSummary" begin="Results Summary:" />
     <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />
+    <Span color="ObjectHeader" begin="Object deferred:" />
     <Span color="SubHeader" begin="Returning object files to input folder" />
     <Span color="ProvenanceHeader" begin="File Provenance:" end=": " />
     <Span color="Warning" begin="Multiple audio streams present; merging audio streams." />

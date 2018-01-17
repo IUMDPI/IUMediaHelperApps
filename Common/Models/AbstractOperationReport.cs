@@ -15,8 +15,9 @@ namespace Common.Models
         public bool Succeeded { get; set; }
         public bool Failed { get; set; }
 
-        [XmlAttribute("Deferred")]
+        [XmlElement("Deferred")]
         public bool Skipped { get; set; }
+
         public string Issue { get; set; }
 
         [XmlIgnore]

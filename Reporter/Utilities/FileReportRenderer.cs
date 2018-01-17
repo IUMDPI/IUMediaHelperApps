@@ -60,8 +60,7 @@ namespace Reporter.Utilities
 
         private async Task<AbstractOperationReport> GetReport(AbstractReportEntry reportEntry)
         {
-            var convertedEntry = reportEntry as FileReportEntry;
-            if (convertedEntry == null)
+            if (!(reportEntry is FileReportEntry convertedEntry))
             {
                 return null;
             }
@@ -89,14 +88,25 @@ namespace Reporter.Utilities
             ViewModel.InsertLine($"Started:   {report.Timestamp:MM/dd/yyyy hh:mm tt}");
             ViewModel.InsertLine($"Completed: {report.Timestamp.Add(report.Duration):MM/dd/yyyy hh:mm tt}");
             ViewModel.InsertLine($"Duration:  {report.Duration:hh\\:mm\\:ss}");
+
+
+            if (!string.IsNullOrWhiteSpace(report.Issue))
+            {
+                ViewModel.InsertLine("");
+                ViewModel.InsertLine($"Summary: {report.Issue}");
+            }
+
             ViewModel.InsertLine("");
             ViewModel.InsertLine($"Found {report.ObjectReports.Count.ToSingularOrPlural("object", "objects")} to process.");
 
-            var inError = report.ObjectReports.Where(r => r.Succeeded == false).ToList();
+            var inError = report.ObjectReports.Where(r => r.Failed).ToList();
             var success = report.ObjectReports.Where(r => r.Succeeded).ToList();
+            var skipped = report.ObjectReports.Where(r => r.Skipped).ToList();
 
             LogObjectResults(success, $"Successfully processed {success.ToSingularOrPlural("object", "objects")}:");
+            LogObjectResults(skipped, $"Deferred {skipped.ToSingularOrPlural("object", "objects")}" );
             LogObjectResults(inError, $"Could not process {inError.ToSingularOrPlural("object", "objects")}:");
+
             ViewModel.EndSection("Summary");
         }
 
@@ -112,11 +122,19 @@ namespace Reporter.Utilities
             foreach (var result in results)
             {
                 ViewModel.InsertLine($"{result.Barcode} ({result.Duration:hh\\:mm\\:ss})");
-                if (result.Succeeded == false)
+                if (result.Failed )
                 {
                     ViewModel.InsertLine("");
                     ViewModel.InsertLine($"ERROR: {result.Issue}");
                 }
+
+                if (result.Skipped)
+                {
+                    ViewModel.InsertLine("");
+                    ViewModel.InsertLine(result.Issue);
+                }
+
+                
             }
 
             ViewModel.EndSection(header, header);

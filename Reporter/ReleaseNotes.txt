@@ -2,3 +2,4 @@
 1.1.0.0		3/20/2017	add functionality to display task-scheduler
 						logs in instances where scheduled task did
 						not run; fix issue opening logs in notepad.exe
+1.2.0.0		1/17/2018	add support for deferred reports

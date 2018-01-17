@@ -78,4 +78,5 @@
 4.1.0.0		5/18/2017	Fix issue that was causing packager to exit unexpectedly if
 						an invalid log path was specified.
 						Improve logging for unhandled exceptions
+4.2.0.0		1/17/2018	Defer ATM Lacquer Discs if label images not present
 					

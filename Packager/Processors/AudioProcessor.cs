@@ -95,19 +95,33 @@ namespace Packager.Processors
 
         protected override ValidationResult ContinueProcessingObject(AbstractPodMetadata metadata)
         {
-            if (metadata.Format != MediaFormats.LacquerDisc)
+            var sectionKey = Observers.BeginSection("Checking prerequisites");
+            try
             {
-                return ValidationResult.Success;
-            }
+                if (metadata.Format != MediaFormats.LacquerDisc)
+                {
+                    Observers.Log("All prerequisites present");
+                    return ValidationResult.Success;
+                }
 
-            if (metadata.Unit.Equals("Archives of Traditional Music") == false)
+                if (metadata.Unit.Equals("Archives of Traditional Music") == false)
+                {
+                    Observers.Log("All prerequisites present");
+                    return ValidationResult.Success;
+                }
+
+                var result =  LabelImageImporter.LabelImagesPresent(metadata)
+                    ? ValidationResult.Success
+                    : new ValidationResult("Label images are not preset.");
+
+                Observers.Log(!result.Result ? "Label images not present" : "All prerequisites present");
+
+                return result;
+            }
+            finally
             {
-                return ValidationResult.Success;
+                Observers.EndSection(sectionKey);
             }
-
-            return LabelImageImporter.LabelImagesPresent(metadata) 
-                ? ValidationResult.Success 
-                : new ValidationResult("Label images are not preset.");
         }
     }
 }

@@ -408,16 +408,26 @@ namespace Packager.Processors
             return await MoveFile(sourcePath, targetPath, cancellationToken);
         }
 
-        private async Task ReturnOriginalsToInputHopper(List<AbstractFile> filesToProcess, CancellationToken cancellationToken)
+        private async Task ReturnOriginalsToInputHopper(IEnumerable<AbstractFile> filesToProcess, CancellationToken cancellationToken)
         {
-            foreach (var fileModel in filesToProcess)
+            var sectionKey = Observers.BeginSection("Returning object files to input folder");
+            try
             {
-                await ReturnOriginalToInputHopper(fileModel, cancellationToken);
+                foreach (var fileModel in filesToProcess)
+                {
+                    await ReturnOriginalToInputHopper(fileModel, cancellationToken);
+                }
             }
+            finally
+            {
+                Observers.EndSection(sectionKey);
+            }
+            
         }
 
         private async Task ReturnOriginalToInputHopper(AbstractFile fileModel, CancellationToken cancellationToken)
         {
+            Observers.Log("Returning {0} to input hopper", fileModel.Filename);
             var sourcePath = Path.Combine(OriginalsDirectory, fileModel.OriginalFileName);
             var targetPath = Path.Combine(InputDirectory, fileModel.Filename);
 

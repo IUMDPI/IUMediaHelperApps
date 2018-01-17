@@ -42,13 +42,16 @@
     <Span color="SubHeader" begin="Clearing metadata fields" />
     <Span color="SubHeader" begin="Importing Label Images" />
     <Span color="SubHeader" begin="Adding Placeholder Entries" />
+    <Span color="SubHeader" begin="Checking prerequisites" />
     <Span color="ResultsSummary" begin="Results Summary:" />
     <Span color="SubHeader" begin="Removing.*from success folder" />
     <Span color="ObjectHeader" begin="Processing Object:" />
+    <Span color="SubHeader" begin="Returning object files to input folder" />
     <Span color="ProvenanceHeader" begin="File Provenance:" end=": " />
     <Span color="Warning" begin="Multiple audio streams present; merging audio streams." />
     <Span color="Warning" begin="No placeholder configuration found for format" />
-
+    <Span color="Warning" begin="Label images not present" />
+   
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     
     <Rule color="PathFileOrBarcode">

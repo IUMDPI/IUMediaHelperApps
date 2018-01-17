@@ -94,20 +94,7 @@ namespace Packager.Utilities.Images
             }
 
             var manifestPath = GetManifestPath(metadata.Barcode, sourceFolder);
-            if (FileProvider.FileDoesNotExist(manifestPath))
-            {
-                return false;
-            }
-
-            var labels = GetImageFiles(manifestPath).Select(f=>f.SequenceIndicator).OrderBy(v=>v);
-
-            var expected = metadata.FileProvenances
-                .Select(f => FileModelFactory.GetModel(f.Filename))
-                .Where(f => f.IsPreservationVersion()).Select(f=>f.SequenceIndicator)
-                .OrderBy(v=>v);
-
-            return labels.SequenceEqual(expected);
-
+            return !FileProvider.FileDoesNotExist(manifestPath);
         }
 
         private string GetManifestPath(string barcode, string sourceFolder)

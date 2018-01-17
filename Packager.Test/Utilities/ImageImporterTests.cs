@@ -190,7 +190,7 @@ namespace Packager.Test.Utilities
         }
 
         [Test]
-        public void LabelImagesPresentShouldReturnTrueIfLabelsListMatchesMastersList()
+        public void LabelImagesPresentShouldReturnTrueIfLabelsManifestPresent()
         {
             var metadata = new AudioPodMetadata {Barcode = Barcode, FileProvenances = new List<AbstractDigitalFile>
             {
@@ -232,24 +232,6 @@ namespace Packager.Test.Utilities
                 }
             };
             FileProvider.FileDoesNotExist(ExpectedManifestFile).Returns(true);
-            var result = ImageImporter.LabelImagesPresent(metadata);
-            Assert.That(result, Is.False);
-        }
-
-        [Test]
-        public void LabelImagesPresentShouldReturnFalseIfListOfLabelsDoesNotMatchListOfMasters()
-        {
-            var metadata = new AudioPodMetadata
-            {
-                Barcode = Barcode,
-                FileProvenances = new List<AbstractDigitalFile>
-                {
-                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_01_pres.wav"},
-                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_02_pres.wav"},
-                    new DigitalAudioFile {Filename = $"{ProjectCode}_{Barcode}_03_pres.wav"},
-                }
-            };
-
             var result = ImageImporter.LabelImagesPresent(metadata);
             Assert.That(result, Is.False);
         }

@@ -22,6 +22,7 @@ namespace Packager.Models.SettingsModels
         string LogDirectoryName { get; }
         string[] IssueNotifyEmailAddresses { get; }
         string[] SuccessNotifyEmailAddresses { get; }
+        string[] DeferredNotifyEmailAddresses { get; }
         string SmtpServer { get; }
         string FromEmailAddress { get; }
         int DeleteSuccessfulObjectsAfterDays { get; }

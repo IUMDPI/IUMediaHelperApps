@@ -112,9 +112,9 @@ namespace Packager.Processors
 
                 var result =  LabelImageImporter.LabelImagesPresent(metadata)
                     ? ValidationResult.Success
-                    : new ValidationResult("Label images not present.");
+                    : new ValidationResult("Label images not present");
 
-                Observers.Log(!result.Result ? "Label images not present" : "All prerequisites present");
+                Observers.Log(!result.Result ? "Label images not present." : "All prerequisites present");
 
                 return result;
             }

@@ -62,6 +62,8 @@ namespace Packager.Models.SettingsModels
 
         public string[] SuccessNotifyEmailAddresses { get; set; }
 
+        public string[] DeferredNotifyEmailAddresses { get; set; }
+
         [Required]
         public string UnitPrefix { get; set; }
 

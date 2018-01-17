@@ -101,6 +101,7 @@
     <Compile Include="Factories\CodingHistory\OpenReelCodingHistoryGenerator.cs" />
     <Compile Include="Factories\PlaceHolderFactory.cs" />
     <Compile Include="Factories\SettingsFactory.cs" />
+    <Compile Include="Models\EmailMessageModels\DeferredEmailMessage.cs" />
     <Compile Include="Models\EmailMessageModels\SuccessEmailMessage.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedMetadata.cs" />
     <Compile Include="Models\EmbeddedMetadataModels\AbstractEmbeddedVideoMetadata.cs" />

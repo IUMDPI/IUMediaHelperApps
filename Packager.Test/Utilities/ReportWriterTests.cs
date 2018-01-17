@@ -52,7 +52,7 @@ namespace Packager.Test.Utilities
 
             MockPackagerDeferredResults = new Dictionary<string, DurationResult>
             {
-                {"1111111111111", DurationResult.Deferred(new DateTime(2017,1,1),  "label images not present.") },
+                {"1111111111111", DurationResult.Deferred(new DateTime(2017,1,1),  "label images not present") },
                 {"2222222222222", DurationResult.Success(new DateTime(2017,1,1)) }
             };
 

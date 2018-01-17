@@ -104,6 +104,7 @@ namespace Packager.Engine
                 ReportWriter.WriteResultsReport(results, startTime);
 
                 SendSuccessEmail(results);
+                SendDeferredEmail(results);
                 exitCode = GetExitCode(results);
             }
             catch (Exception ex)
@@ -152,6 +153,29 @@ namespace Packager.Engine
                 succeededBarCodes, 
                 ProgramSettings.SuccessNotifyEmailAddresses, 
                 ProgramSettings.FromEmailAddress, 
+                SystemInfoProvider.MachineName,
+                SystemInfoProvider.CurrentSystemLogPath);
+
+            EmailSender.Send(message);
+        }
+
+        private void SendDeferredEmail(Dictionary<string, DurationResult> results)
+        {
+            var deferredBarCodes = results.Where(r => r.Value.Skipped).ToArray();
+            if (deferredBarCodes.Any() == false)
+            {
+                return;
+            }
+
+            if (ProgramSettings.DeferredNotifyEmailAddresses.Any() == false)
+            {
+                return;
+            }
+
+            var message = new DeferredEmailMessage(
+                deferredBarCodes,
+                ProgramSettings.DeferredNotifyEmailAddresses,
+                ProgramSettings.FromEmailAddress,
                 SystemInfoProvider.MachineName,
                 SystemInfoProvider.CurrentSystemLogPath);
 

@@ -124,6 +124,7 @@ namespace Packager
                 { MediaFormats.LacquerDisc, new PresIntAudioPlaceHolderConfiguration()},
                 { MediaFormats.Cylinder, new PresIntAudioPlaceHolderConfiguration()},
                 { MediaFormats.SeventyEight, new PresIntAudioPlaceHolderConfiguration() },
+                { MediaFormats.AluminumDisc, new PresIntAudioPlaceHolderConfiguration() },
                 
                 // standard video
                 { MediaFormats.Vhs, new StandardVideoPlaceHolderConfiguration()},
@@ -143,6 +144,7 @@ namespace Packager
                 { MediaFormats.OpenReelAudioTape, new StandardCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
+                { MediaFormats.AluminumDisc, new StandardCodingHistoryGenerator()}
             }
             );
 

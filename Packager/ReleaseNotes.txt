@@ -79,4 +79,5 @@
 						an invalid log path was specified.
 						Improve logging for unhandled exceptions
 4.2.0.0		1/17/2018	Defer ATM Lacquer Discs if label images not present
+4.3.0.0		1/30/2018	Add coding history generator for aluminum discs
 					

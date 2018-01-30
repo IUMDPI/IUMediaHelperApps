@@ -20,7 +20,7 @@ namespace Packager.Test.Factories.CodingHistory
                 Format = MediaFormats.OpenReelAudioTape
             };
 
-            Generator = new OpenReelCodingHistoryGenerator();
+            Generator = new StandardCodingHistoryGenerator();
         }
 
         private static object[] _lines2And3Cases =

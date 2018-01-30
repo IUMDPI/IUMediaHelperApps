@@ -98,7 +98,7 @@
     <Compile Include="Factories\ImportableFactory.cs" />
     <Compile Include="Factories\IPlaceHolderFactory.cs" />
     <Compile Include="Factories\CodingHistory\LacquerOrCylinderCodingHistoryGenerator.cs" />
-    <Compile Include="Factories\CodingHistory\OpenReelCodingHistoryGenerator.cs" />
+    <Compile Include="Factories\CodingHistory\StandardCodingHistoryGenerator.cs" />
     <Compile Include="Factories\PlaceHolderFactory.cs" />
     <Compile Include="Factories\SettingsFactory.cs" />
     <Compile Include="Models\EmailMessageModels\DeferredEmailMessage.cs" />

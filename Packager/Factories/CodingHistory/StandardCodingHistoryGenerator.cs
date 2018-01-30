@@ -5,7 +5,7 @@ using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories.CodingHistory
 {
-    public class OpenReelCodingHistoryGenerator : AbstractCodingHistoryGenerator
+    public class StandardCodingHistoryGenerator : AbstractCodingHistoryGenerator
     {
         protected override string GenerateLine1(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
         {

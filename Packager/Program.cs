@@ -140,9 +140,10 @@ namespace Packager
 
             container.RegisterSingleton(() => new Dictionary<IMediaFormat, ICodingHistoryGenerator>
             {
-                { MediaFormats.OpenReelAudioTape, new OpenReelCodingHistoryGenerator() },
+                { MediaFormats.OpenReelAudioTape, new StandardCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
-                { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() }}
+                { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
+            }
             );
 
             container.RegisterSingleton(() => new CancellationTokenSource());
@@ -161,7 +162,7 @@ namespace Packager
                 new MembersValidator()
             });
 
-            container.RegisterSingleton<IObserverCollection>(() => new ObserverCollection()
+            container.RegisterSingleton<IObserverCollection>(() => new ObserverCollection
                 {
                     new GeneralNLogObserver(container.GetInstance<IProgramSettings>()),
                     new ObjectNLogObserver(container.GetInstance<IProgramSettings>()),

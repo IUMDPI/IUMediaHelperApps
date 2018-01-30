@@ -144,7 +144,7 @@ namespace Packager
                 { MediaFormats.OpenReelAudioTape, new StandardCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
-                { MediaFormats.AluminumDisc, new StandardCodingHistoryGenerator()}
+                { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()}
             }
             );
 

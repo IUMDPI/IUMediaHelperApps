@@ -78,6 +78,7 @@
 4.1.0.0		5/18/2017	Fix issue that was causing packager to exit unexpectedly if
 						an invalid log path was specified.
 						Improve logging for unhandled exceptions
-4.2.0.0		1/17/2018	Defer ATM Lacquer Discs if label images not present
+4.2.0.0		1/17/2018	Defer ATM lacquer discs if label images not present
 4.3.0.0		1/30/2018	Add coding history generator for aluminum discs
+4.4.0.0		1/31/2018	Defer ATM aluminum discs if label images not present
 					

@@ -312,6 +312,145 @@ namespace Packager.Test.Processors
                 }
             }
 
+            public class WhenDeterminingWhetherToDefer : WhenNothingGoesWrong
+            {
+                public class WhenImagesPresent : WhenDeterminingWhetherToDefer
+                {
+                    protected override void DoCustomSetup()
+                    {
+                        base.DoCustomSetup();
+                        var label = new TiffImageFile(new UnknownFile($"{ProjectCode}_{Barcode}_01_label.tif"));
+
+                        ImageProcessor.ImportMediaImages(Arg.Any<string>(), Arg.Any<CancellationToken>())
+                            .Returns(new List<AbstractFile> { label });
+
+                        ImageProcessor.LabelImagesPresent(Arg.Any<AbstractPodMetadata>())
+                            .Returns(true);
+                    }
+
+                    public class ContinueIfAtmLacquerDisc : WhenImagesPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.LacquerDisc;
+                        }
+                    }
+
+                    public class ContinueIfAtmAluminumDisc : WhenImagesPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.AluminumDisc;
+                        }
+                    }
+
+                    public class ContinueIfNonAtmLacquerDisc : WhenImagesPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Other Unit";
+                            Metadata.Format = MediaFormats.LacquerDisc;
+                        }
+                    }
+
+                    public class ContinueIfNonAtmAluminumDisc : WhenImagesPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Other Unit";
+                            Metadata.Format = MediaFormats.AluminumDisc;
+                        }
+                    }
+
+                    public class ContinueIfOtherAtmFormat : WhenImagesPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.OpenReelAudioTape;
+                        }
+                    }
+
+                }
+
+                public class WhenImagesNotPresent : WhenDeterminingWhetherToDefer
+                {
+                  
+                    public class DeferIfAtmLacquerDisc : WhenImagesNotPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.LacquerDisc;
+                        }
+
+                        public override void ProcessorShouldReturnExpectedResult()
+                        {
+                            Assert.That(Result.Skipped, Is.EqualTo(true));
+                            Assert.That(Result.Succeeded, Is.EqualTo(false));
+                            Assert.That(Result.Failed, Is.EqualTo(false));
+                        }
+                    }
+
+                    public class DeferIfAtmAluminumDisc : WhenImagesNotPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.AluminumDisc;
+                        }
+
+                        public override void ProcessorShouldReturnExpectedResult()
+                        {
+                            Assert.That(Result.Skipped, Is.EqualTo(true));
+                            Assert.That(Result.Succeeded, Is.EqualTo(false));
+                            Assert.That(Result.Failed, Is.EqualTo(false));
+                        }
+                    }
+
+                    public class ContinueIfNonAtmLacquerDisc : WhenImagesNotPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Other Unit";
+                            Metadata.Format = MediaFormats.LacquerDisc;
+                        }
+                    }
+
+                    public class ContinueIfNonAtmAluminumDisc : WhenImagesNotPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Other Unit";
+                            Metadata.Format = MediaFormats.AluminumDisc;
+                        }
+                    }
+
+                    public class ContinueIfOtherAtmFormat : WhenImagesNotPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.OpenReelAudioTape;
+                        }
+                    }
+
+
+                }
+            }
+
             public class WhenImportingImages : WhenNothingGoesWrong
             {
                 public class WhenImagesAreImported : WhenImportingImages
@@ -772,7 +911,7 @@ namespace Packager.Test.Processors
             }
 
             [Test]
-            public void ProcessorShouldReturnTrue()
+            public virtual void ProcessorShouldReturnExpectedResult()
             {
                 Assert.That(Result.Succeeded, Is.EqualTo(true));
                 Assert.That(Result.Failed, Is.EqualTo(false));

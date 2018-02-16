@@ -348,6 +348,16 @@ namespace Packager.Test.Processors
                         }
                     }
 
+                    public class ContinueIfAtmOtherAnalogSoundDisc : WhenImagesPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.OtherAnalogSoundDisc;
+                        }
+                    }
+
                     public class ContinueIfNonAtmLacquerDisc : WhenImagesPresent
                     {
                         protected override void DoCustomSetup()
@@ -417,6 +427,24 @@ namespace Packager.Test.Processors
                         }
                     }
 
+                    public class DeferIfAtmOtherAnalogSoundDisc : WhenImagesNotPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Archives of Traditional Music";
+                            Metadata.Format = MediaFormats.OtherAnalogSoundDisc;
+                        }
+
+                        public override void ProcessorShouldReturnExpectedResult()
+                        {
+                            Assert.That(Result.Skipped, Is.EqualTo(true));
+                            Assert.That(Result.Succeeded, Is.EqualTo(false));
+                            Assert.That(Result.Failed, Is.EqualTo(false));
+                        }
+                    }
+
+
                     public class ContinueIfNonAtmLacquerDisc : WhenImagesNotPresent
                     {
                         protected override void DoCustomSetup()
@@ -436,6 +464,17 @@ namespace Packager.Test.Processors
                             Metadata.Format = MediaFormats.AluminumDisc;
                         }
                     }
+
+                    public class ContinueIfNonAtmOtherAnalogSoundDisc : WhenImagesNotPresent
+                    {
+                        protected override void DoCustomSetup()
+                        {
+                            base.DoCustomSetup();
+                            Metadata.Unit = "Other Unit";
+                            Metadata.Format = MediaFormats.OtherAnalogSoundDisc;
+                        }
+                    }
+
 
                     public class ContinueIfOtherAtmFormat : WhenImagesNotPresent
                     {

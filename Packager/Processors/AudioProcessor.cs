@@ -98,7 +98,7 @@ namespace Packager.Processors
             var sectionKey = Observers.BeginSection("Checking prerequisites");
             try
             {
-                if (metadata.Format != MediaFormats.LacquerDisc && metadata.Format != MediaFormats.AluminumDisc)
+                if (metadata.Format != MediaFormats.LacquerDisc && metadata.Format != MediaFormats.AluminumDisc && metadata.Format != MediaFormats.OtherAnalogSoundDisc)
                 {
                     Observers.Log("All prerequisites present");
                     return ValidationResult.Success;

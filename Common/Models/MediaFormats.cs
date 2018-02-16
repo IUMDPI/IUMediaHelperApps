@@ -54,6 +54,7 @@ namespace Common.Models
         public static readonly IMediaFormat Umatic = new MediaFormat("u-matic", "U-matic");
         public static readonly IMediaFormat Betamax = new MediaFormat("betamax", "Betamax");
         public static readonly IMediaFormat AluminumDisc = new MediaFormat("aluminum disc", "Aluminum Disc");
+        public static readonly IMediaFormat OtherAnalogSoundDisc = new MediaFormat("other analog sound disc", "Other Analog Sound Disc");
         
         private static readonly List<IMediaFormat> AllKnownFormats = new List<IMediaFormat>
         {
@@ -74,7 +75,8 @@ namespace Common.Models
             EightMillimeterVideoQuadaudio,
             Umatic,
             Betamax,
-            AluminumDisc
+            AluminumDisc,
+            OtherAnalogSoundDisc
         };
 
         public static IMediaFormat GetFormat(string key)

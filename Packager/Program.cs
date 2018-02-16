@@ -125,6 +125,7 @@ namespace Packager
                 { MediaFormats.Cylinder, new PresIntAudioPlaceHolderConfiguration()},
                 { MediaFormats.SeventyEight, new PresIntAudioPlaceHolderConfiguration() },
                 { MediaFormats.AluminumDisc, new PresIntAudioPlaceHolderConfiguration() },
+                { MediaFormats.OtherAnalogSoundDisc, new PresIntAudioPlaceHolderConfiguration() },
                 
                 // standard video
                 { MediaFormats.Vhs, new StandardVideoPlaceHolderConfiguration()},
@@ -144,9 +145,9 @@ namespace Packager
                 { MediaFormats.OpenReelAudioTape, new StandardCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
-                { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()}
-            }
-            );
+                { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},
+                { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator()}
+            });
 
             container.RegisterSingleton(() => new CancellationTokenSource());
 

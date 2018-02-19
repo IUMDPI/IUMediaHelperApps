@@ -81,4 +81,5 @@
 4.2.0.0		1/17/2018	Defer ATM lacquer discs if label images not present
 4.3.0.0		1/30/2018	Add coding history generator for aluminum discs
 4.4.0.0		1/31/2018	Defer ATM aluminum discs if label images not present
+4.5.0.0		2/19/2018	Add support for "Other Analog Sound Disc" format
 					

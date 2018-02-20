@@ -62,7 +62,9 @@ namespace Common.Models
         public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File",6);
         public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File",7);
         public static readonly IFileUsage XmlFile = new FileUsage("", "Xml File",100);
-        
+        public static readonly IFileUsage TextFile = new FileUsage("", "Text File", 9);
+        public static readonly IFileUsage CueFile = new FileUsage("", "Cue File", 8);
+
         private static readonly List<IFileUsage> AllImportableUsages = new List<IFileUsage>
         {
             PreservationMaster,
@@ -72,7 +74,9 @@ namespace Common.Models
             ProductionMaster,
             MezzanineFile,
             AccessFile,
-            LabelImageFile
+            LabelImageFile,
+            TextFile,
+            CueFile
         };
 
         public static IFileUsage GetUsage(string fileUse)

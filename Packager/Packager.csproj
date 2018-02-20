@@ -116,12 +116,14 @@
     <Compile Include="Factories\FileModelFactory.cs" />
     <Compile Include="Models\FileModels\AudioPreservationIntermediateToneReferenceFile.cs" />
     <Compile Include="Models\FileModels\AudioPreservationToneReferenceFile.cs" />
+    <Compile Include="Models\FileModels\CueFile.cs" />
     <Compile Include="Models\FileModels\InfoFile.cs" />
     <Compile Include="Models\FileModels\MediaInfo.cs" />
     <Compile Include="Models\FileModels\MezzanineFile.cs" />
     <Compile Include="Models\FileModels\PlaceHolderFile.cs" />
     <Compile Include="Models\FileModels\ProductionFile.cs" />
     <Compile Include="Models\FileModels\QualityControlFile.cs" />
+    <Compile Include="Models\FileModels\TextFile.cs" />
     <Compile Include="Models\FileModels\TiffImageFile.cs" />
     <Compile Include="Models\FileModels\UnknownFile.cs" />
     <Compile Include="Models\FileModels\VideoPreservationFile.cs" />

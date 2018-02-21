@@ -147,7 +147,7 @@ namespace Packager.Test.Factories
             for (var i = 0; i < Results.Length; i++)
             {
                 var modelsForSide =
-                    FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).OrderBy(m => m.FileUsage.Precedence).ToArray();
+                    FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1)).OrderBy(m => m.Precedence).ToArray();
 
                 AssertOrderExpected(Results[i].Files.ToArray(), modelsForSide);
             }
@@ -159,7 +159,7 @@ namespace Packager.Test.Factories
             for (var i = 0; i < Results.Length; i++)
             {
                 var modelsForSide = FilesToProcess.Where(m => m.SequenceIndicator.Equals(i + 1))
-                    .OrderBy(m => m.FileUsage.Precedence).ToArray();
+                    .OrderBy(m => m.Precedence).ToArray();
                 AssertOrderExpected(Results[i].Ingest.ToArray(), modelsForSide);
             }
         }

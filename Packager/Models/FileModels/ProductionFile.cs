@@ -10,5 +10,8 @@ namespace Packager.Models.FileModels
             base(original, FileUsages.ProductionMaster, ExtensionValue)
         {
         }
+
+        public override bool ShouldNormalize => true;
+        public override int Precedence => 4;
     }
 }

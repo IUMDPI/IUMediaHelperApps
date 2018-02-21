@@ -9,5 +9,7 @@ namespace Packager.Models.FileModels
         {
         }
 
+        public override bool ShouldNormalize => true;
+        public override int Precedence => 2;
     }
 }

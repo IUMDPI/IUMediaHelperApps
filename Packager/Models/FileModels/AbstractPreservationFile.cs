@@ -9,5 +9,9 @@ namespace Packager.Models.FileModels
             base(original, FileUsages.PreservationMaster, extension)
         {
         }
+
+        public override bool ShouldNormalize => true;
+
+        public override int Precedence => 0;
     }
 }

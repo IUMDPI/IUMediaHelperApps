@@ -11,8 +11,10 @@ namespace Packager.Models.FileModels
             BarCode = barCode;
             Extension = ".xml";
             Filename = $"{ProjectCode}_{BarCode}{Extension}";
-            FileUsage = FileUsages.XmlFile;
+            FileUsage = FileUsages.None;
         }
+
+        public override int Precedence => 100;
 
         public override bool IsImportable()
         {

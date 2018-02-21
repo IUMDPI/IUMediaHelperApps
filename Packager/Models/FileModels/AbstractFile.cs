@@ -28,6 +28,10 @@ namespace Packager.Models.FileModels
                 : Filename;
         }
 
+        protected AbstractFile(AbstractFile original, string extension):this(original, original.FileUsage, extension)
+        {
+        }
+
         public string OriginalFileName { get; protected set; }
 
         public string ProjectCode
@@ -49,6 +53,8 @@ namespace Packager.Models.FileModels
         public string Extension { get; protected set; }
         public string Filename { get; protected set; }
         public bool IsPlaceHolder { get; protected set; }
+        public virtual bool ShouldNormalize => false;
+        public abstract int Precedence { get; }
         
         public string GetFolderName()
         {

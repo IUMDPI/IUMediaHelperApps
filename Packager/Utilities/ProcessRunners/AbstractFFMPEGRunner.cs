@@ -102,7 +102,7 @@ namespace Packager.Utilities.ProcessRunners
 
         public async Task Verify(List<AbstractFile> originals, CancellationToken cancellationToken)
         {
-            foreach (var model in originals)
+            foreach (var model in originals.Where(o=>o.ShouldNormalize))
             {
                 await GenerateMd5Hashes(model, cancellationToken);
                 await VerifyHashes(model, cancellationToken);

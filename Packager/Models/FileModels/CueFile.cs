@@ -1,14 +1,13 @@
-﻿using Common.Models;
-
-namespace Packager.Models.FileModels
+﻿namespace Packager.Models.FileModels
 {
     public class CueFile : AbstractFile
     {
         private const string ExtensionValue = ".cue";
 
-        public CueFile(AbstractFile original) : base(original, FileUsages.CueFile, ExtensionValue)
+        public CueFile(AbstractFile original) : base(original, ExtensionValue)
         {
-
         }
+
+        public override int Precedence => 8;
     }
 }

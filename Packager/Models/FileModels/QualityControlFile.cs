@@ -15,5 +15,7 @@ namespace Packager.Models.FileModels
             Filename = $"{original.Filename}{ExtensionValue}";
             IntermediateFileName = $"{original.Filename}{IntermediateExtensionValue}";
         }
+
+        public override int Precedence => 7;
     }
 }

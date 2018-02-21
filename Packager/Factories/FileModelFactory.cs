@@ -20,7 +20,9 @@ namespace Packager.Factories
                 {VideoPresIntKey, GetVideoPresIntModel},
                 {VideoMezzKey, GetMezzModel},
                 {AccessKey, GetAccessModel},
-                {TiffImageKey, GetTiffImageModel }
+                {TiffImageKey, GetTiffImageModel },
+                {CueKey,GetCueModel },
+                {TxtKey, GetTxtModel }
             };
 
         private static ResolverKey AudioPresKey => new ResolverKey(".wav", FileUsages.PreservationMaster);
@@ -33,6 +35,8 @@ namespace Packager.Factories
         private static ResolverKey VideoMezzKey => new ResolverKey(".mov", FileUsages.MezzanineFile);
         private static ResolverKey AccessKey => new ResolverKey(".mp4", FileUsages.AccessFile);
         private static ResolverKey TiffImageKey => new ResolverKey(".tif", FileUsages.LabelImageFile);
+        private static ResolverKey CueKey => new ResolverKey(".cue", FileUsages.PreservationMaster);
+        private static ResolverKey TxtKey => new ResolverKey(".txt", FileUsages.PreservationMaster);
 
         private static AbstractFile GetMezzModel(AbstractFile arg)
         {
@@ -84,16 +88,31 @@ namespace Packager.Factories
             return new TiffImageFile(arg);
         }
 
+        private static AbstractFile GetTxtModel(AbstractFile arg)
+        {
+            return new TextFile(arg);
+        }
+
+        private static AbstractFile GetCueModel(AbstractFile arg)
+        {
+            return new CueFile(arg);
+        }
+
         public static AbstractFile GetModel(string path)
         {
             var rawModel = new UnknownFile(path);
             var key = new ResolverKey(rawModel);
 
-            Func<AbstractFile, AbstractFile> resolver;
 
-            return Resolvers.TryGetValue(key, out resolver)
-                ? resolver(rawModel)
-                : rawModel;
+            Resolvers.TryGetValue(key, out var resolver);
+            if (resolver != null)
+            {
+                return resolver(rawModel);
+            }
+            else
+            {
+                return rawModel;
+            }
         }
 
       

@@ -195,7 +195,7 @@ namespace Packager.Processors
         
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
-            foreach (var original in originals.Where(f => f is TiffImageFile == false))
+            foreach (var original in originals.Where(f => f.ShouldNormalize))
             {
                 var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
                 await FFMpegRunner.Normalize(original, metadata, cancellationToken);
@@ -404,7 +404,9 @@ namespace Packager.Processors
         private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel, CancellationToken cancellationToken)
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
-            var targetPath = Path.Combine(OriginalsDirectory, fileModel.Filename);
+            var targetPath = fileModel.ShouldNormalize 
+                ? Path.Combine(OriginalsDirectory, fileModel.Filename)
+                : Path.Combine(ProcessingDirectory, fileModel.Filename);
 
             return await MoveFile(sourcePath, targetPath, cancellationToken);
         }

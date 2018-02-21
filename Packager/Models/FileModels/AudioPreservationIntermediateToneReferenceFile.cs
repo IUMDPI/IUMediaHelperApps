@@ -11,6 +11,7 @@ namespace Packager.Models.FileModels
         {
         }
 
-        //todo: figure out proper value
+        public override bool ShouldNormalize => true;
+        public override int Precedence => 3;
     }
 }

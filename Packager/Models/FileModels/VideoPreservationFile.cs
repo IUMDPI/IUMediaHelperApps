@@ -7,5 +7,7 @@
         public VideoPreservationFile(AbstractFile original) : base(original, ExtensionValue)
         {
         }
+
+        public override bool ShouldNormalize => true;
     }
 }

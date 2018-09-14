@@ -52,7 +52,7 @@ namespace Packager.Factories
             if (!CodingHistoryGenerators.ContainsKey(metadata.Format))
             {
                 throw new EmbeddedMetadataException(
-                    $"No coding history generator defined for {metadata.Format}");
+                    $"No coding history generator defined for {metadata.Format.ProperName}");
             }
 
             return CodingHistoryGenerators[metadata.Format].Generate(metadata, provenance, model);

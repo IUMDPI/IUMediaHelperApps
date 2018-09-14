@@ -173,7 +173,7 @@ namespace Packager.Providers
         private static void CheckForInternalIssue<T>(IRestResponse<T> response)
             where T : AbstractPodMetadata
         {
-            if (response.ResponseStatus == ResponseStatus.Completed)
+            if (response.StatusCode !=0 || response.ResponseStatus == ResponseStatus.Completed )
             {
                 return;
             }

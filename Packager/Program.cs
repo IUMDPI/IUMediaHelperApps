@@ -191,7 +191,8 @@ namespace Packager
         private static IRestClient GetRestClient(IProgramSettings programSettings, IFileProvider fileProvider,
             IImportableFactory factory)
         {
-            var podAuth = fileProvider.Deserialize<PodAuth>(programSettings.PodAuthFilePath);
+            var podAuth = fileProvider.Deserialize<PodAuth>(programSettings.PodAuthFilePath) ?? 
+                          new PodAuth();
             var result = new RestClient(programSettings.WebServiceUrl)
             {
                 Authenticator = new HttpBasicAuthenticator(podAuth.UserName, podAuth.Password)

@@ -39,7 +39,7 @@ namespace Common.Models
         public static readonly IMediaFormat AudioCassette = new MediaFormat("audiocassette", "Audio Cassette");
         public static readonly IMediaFormat OpenReelAudioTape = new MediaFormat("open reel audio tape", "Open Reel Audio Tape");
         public static readonly IMediaFormat Lp = new MediaFormat("lp", "Lp");
-        public static readonly IMediaFormat Cdr = new MediaFormat("cd-r", "CD Rom");
+        public static readonly IMediaFormat Cdr = new MediaFormat("cd-r", "CD-R");
         public static readonly IMediaFormat FortyFive = new MediaFormat("45", "45");
         public static readonly IMediaFormat LacquerDisc = new MediaFormat("lacquer disc", "Lacquer Disc");
         public static readonly IMediaFormat Cylinder = new MediaFormat("cylinder", "Cylinder");

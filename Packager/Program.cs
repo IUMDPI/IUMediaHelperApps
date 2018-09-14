@@ -143,6 +143,7 @@ namespace Packager
             container.RegisterSingleton(() => new Dictionary<IMediaFormat, ICodingHistoryGenerator>
             {
                 { MediaFormats.OpenReelAudioTape, new StandardCodingHistoryGenerator() },
+                { MediaFormats.Cdr, new CdrCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
                 { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},

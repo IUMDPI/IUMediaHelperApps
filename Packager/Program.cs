@@ -143,6 +143,7 @@ namespace Packager
             container.RegisterSingleton(() => new Dictionary<IMediaFormat, ICodingHistoryGenerator>
             {
                 { MediaFormats.OpenReelAudioTape, new StandardCodingHistoryGenerator() },
+                { MediaFormats.AudioCassette, new StandardCodingHistoryGenerator()},
                 { MediaFormats.Cdr, new CdrCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
@@ -191,7 +192,7 @@ namespace Packager
         private static IRestClient GetRestClient(IProgramSettings programSettings, IFileProvider fileProvider,
             IImportableFactory factory)
         {
-            var podAuth = fileProvider.Deserialize<PodAuth>(programSettings.PodAuthFilePath) ?? 
+            var podAuth = fileProvider.Deserialize<PodAuth>(programSettings.PodAuthFilePath) ??
                           new PodAuth();
             var result = new RestClient(programSettings.WebServiceUrl)
             {

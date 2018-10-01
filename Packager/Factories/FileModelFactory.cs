@@ -21,7 +21,8 @@ namespace Packager.Factories
                 {VideoMezzKey, GetMezzModel},
                 {AccessKey, GetAccessModel},
                 {TiffImageKey, GetTiffImageModel },
-                {CueKey,GetCueModel },
+                {CuePresKey,GetCueModel },
+                {CuePresIntKey, GetCueModel},
                 {TxtKey, GetTxtModel }
             };
 
@@ -35,7 +36,8 @@ namespace Packager.Factories
         private static ResolverKey VideoMezzKey => new ResolverKey(".mov", FileUsages.MezzanineFile);
         private static ResolverKey AccessKey => new ResolverKey(".mp4", FileUsages.AccessFile);
         private static ResolverKey TiffImageKey => new ResolverKey(".tif", FileUsages.LabelImageFile);
-        private static ResolverKey CueKey => new ResolverKey(".cue", FileUsages.PreservationMaster);
+        private static ResolverKey CuePresKey => new ResolverKey(".cue", FileUsages.PreservationMaster);
+        private static ResolverKey CuePresIntKey => new ResolverKey(".cue", FileUsages.PreservationIntermediateMaster);
         private static ResolverKey TxtKey => new ResolverKey(".txt", FileUsages.PreservationMaster);
 
         private static AbstractFile GetMezzModel(AbstractFile arg)

@@ -1,4 +1,6 @@
-﻿namespace Packager.Models.FileModels
+﻿using Common.Models;
+
+namespace Packager.Models.FileModels
 {
     public class CueFile : AbstractFile
     {
@@ -8,6 +10,6 @@
         {
         }
 
-        public override int Precedence => 8;
+        public override int Precedence => FileUsage == FileUsages.PreservationMaster ? 1 : 3;
     }
 }

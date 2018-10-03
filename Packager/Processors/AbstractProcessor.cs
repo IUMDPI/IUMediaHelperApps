@@ -489,7 +489,7 @@ namespace Packager.Processors
             foreach (var model in models.NonPlaceHolderFiles())
             {
                 model.Checksum = await Hasher.Hash(model, cancellationToken);
-                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
+                Observers.Log("{0} checksum: {1}", model.Filename, model.Checksum);
             }
         }
 

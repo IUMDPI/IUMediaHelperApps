@@ -38,6 +38,10 @@ namespace Packager.Factories
                     Track = metadata.TrackConfiguration,
                     SoundField = metadata.SoundField,
                     Speed = metadata.PlaybackSpeed,
+                    FormatDuration = metadata.FormatDuration,
+                    TapeStockBrand = metadata.TapeStockBrand,
+                    TapeType = metadata.TapeType,
+                    NoiseReduction = metadata.NoiseReduction
                 },
                 PhysicalCondition = new PhysicalConditionData
                 {

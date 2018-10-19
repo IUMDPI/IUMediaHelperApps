@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Packager.Exceptions;
 using Packager.Factories;
 using RestSharp.Extensions;
 
@@ -22,6 +23,15 @@ namespace Packager.Models.PodMetadataModels
         public string NoiseReduction { get; set; }
         public string FormatDuration { get; set; }
 
+        private static readonly Dictionary<string, string> KnownTapeTypes = new Dictionary<string, string>
+        {
+            {"i", "Type I"},
+            {"ii", "Type II"},
+            {"iii", "Type III"},
+            {"iv", "Type IV"},
+            {"unknown", "Unknown"}
+        };
+
         public override void ImportFromXml(XElement element, IImportableFactory factory)
         {
             base.ImportFromXml(element, factory);
@@ -39,24 +49,19 @@ namespace Packager.Models.PodMetadataModels
             FormatDuration = factory.ToStringValue(element, "data/format_duration");
         }
 
-        private string ConvertTapeType(string value)
+        private static string ConvertTapeType(string value)
         {
             if (!value.HasValue())
             {
                 return value;
             }
 
-            if (value.StartsWith("type", StringComparison.OrdinalIgnoreCase))
+            if (!KnownTapeTypes.ContainsKey(value.ToLowerInvariant()))
             {
-                return value;
+                throw new PodMetadataException($"{value} does not correspond to a known tape type");
             }
 
-            if (value.Equals("unknown", StringComparison.OrdinalIgnoreCase))
-            {
-                return value;
-            }
-
-            return $"Type {value.Trim(' ')}";
+            return KnownTapeTypes[value.ToLowerInvariant()];
         }
         
         protected override List<AbstractDigitalFile> ImportFileProvenances(XElement element, string path, 

@@ -85,4 +85,6 @@
 4.6.0.0     9/21/2018   Add support for Cassette objects
                         Fix issue that would crash packager at launch if pod_auth.xml missing 
 						or invalid. Also improve other error messages.
+4.7.0.0    10/19/2018   Fix issue embedding metadata into audio prod files
+                        Add missing xml manifest fields for audio cassettes
 					

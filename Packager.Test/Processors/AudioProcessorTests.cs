@@ -763,13 +763,13 @@ namespace Packager.Test.Processors
                 public void ItShouldLogChecksumsCorrectly()
                 {
                     Observers.Received()
-                        .Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(PreservationFileName),
+                        .Log("{0} checksum: {1}", Path.GetFileName(PreservationFileName),
                             $"{PreservationFileName} checksum");
                     Observers.Received()
-                        .Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(ProductionFileName),
+                        .Log("{0} checksum: {1}", Path.GetFileName(ProductionFileName),
                             $"{ProductionFileName} checksum");
                     Observers.Received()
-                        .Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(AccessFileName),
+                        .Log("{0} checksum: {1}", Path.GetFileName(AccessFileName),
                             $"{AccessFileName} checksum");
                 }
 

@@ -31,12 +31,14 @@ namespace Packager.Factories
         protected override AbstractEmbeddedMetadata Generate(AbstractFile model, AbstractDigitalFile provenance,
             AudioPodMetadata metadata, string digitizingEntity)
         {
+            var description = GenerateDescription(metadata, model);
+            
             return new EmbeddedAudioMetadata
             {
                 Originator = digitizingEntity,
                 OriginatorReference = Path.GetFileNameWithoutExtension(model.Filename),
-                Description = provenance.BextFile,
-                ICMT = provenance.BextFile,
+                Description = description,
+                ICMT = description,
                 IARL = metadata.Iarl,
                 OriginationDate = GetDateString(provenance.DateDigitized, "yyyy-MM-dd", ""),
                 OriginationTime = GetDateString(provenance.DateDigitized, "HH:mm:ss", ""),
@@ -45,6 +47,11 @@ namespace Packager.Factories
                 INAM = metadata.Title,
                 CodingHistory = GenerateCodingHistory(metadata, provenance as DigitalAudioFile, model)
             };
+        }
+
+        private static string GenerateDescription(AbstractPodMetadata metadata, AbstractFile model)
+        {
+            return $"{metadata.Icmt} {model.FullFileUse}. {Path.GetFileNameWithoutExtension(model.Filename)}";
         }
 
         private string GenerateCodingHistory(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)

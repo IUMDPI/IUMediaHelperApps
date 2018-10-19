@@ -55,6 +55,7 @@ namespace Packager.Models.FileModels
         public bool IsPlaceHolder { get; protected set; }
         public virtual bool ShouldNormalize => false;
         public abstract int Precedence { get; }
+        public string FullFileUse => FileUsage.FullFileUse;
         
         public string GetFolderName()
         {

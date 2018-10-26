@@ -3,8 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using Packager.Extensions;
 using Packager.Factories;
+using Packager.Factories.FFMPEGArguments;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
@@ -32,8 +34,10 @@ namespace Packager.Processors
             IXmlExporter xmlExporter, 
             ICarrierDataFactory<VideoPodMetadata> carrierDataFactory, 
             IEmbeddedMetadataFactory<VideoPodMetadata> embeddedMetadataFactory, 
-            IFFMPEGRunner ffMpegRunner, 
+            IFFMPEGRunner ffmpegRunner, 
+            IFFMPEGArgumentsFactory ffmpegArgumentsFactory,
             IFFProbeRunner ffProbeRunner, 
+            IMediaInfoProvider mediaInfoProvider,
             ILabelImageImporter imageProcessor, 
             IPlaceHolderFactory placeHolderFactory) : base(
                 bextProcessor, 
@@ -41,6 +45,8 @@ namespace Packager.Processors
                 fileProvider, 
                 hasher, 
                 metadataProvider, 
+                ffmpegRunner,
+                ffmpegArgumentsFactory,
                 observers, 
                 programSettings, 
                 xmlExporter, 
@@ -49,14 +55,17 @@ namespace Packager.Processors
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;
-            FFMpegRunner = ffMpegRunner;
             FFProbeRunner = ffProbeRunner;
+            MediaInfoProvider = mediaInfoProvider;
         }
 
+        private const string ReduceStreamsAccessArguments =
+            "-filter_complex \"[0:a:0][0:a:1]amerge=inputs=2[aout]\" -map 0:v -map \"[aout]\"";
+
         private IFFProbeRunner FFProbeRunner { get; }
+        private IMediaInfoProvider MediaInfoProvider { get; }
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");
         protected override ICarrierDataFactory<VideoPodMetadata> CarrierDataFactory { get; }
-        protected override IFFMPEGRunner FFMpegRunner { get; }
         protected override IEmbeddedMetadataFactory<VideoPodMetadata> EmbeddedMetadataFactory { get; }
 
         protected override AbstractFile CreateProdOrMezzModel(AbstractFile master)
@@ -86,6 +95,22 @@ namespace Packager.Processors
             }
 
             return results;
+        }
+
+        protected override async Task<AbstractFile> CreateAccessDerivative(AbstractFile model, IMediaFormat format, CancellationToken cancellationToken)
+        {
+            var notes = new List<string>();
+
+            var arguments = FFMPEGArgumentsFactory.GetAccessArguments(format);
+
+            var mediaInfo = await MediaInfoProvider.GetMediaInfo(model, cancellationToken);
+            if (mediaInfo.AudioStreams > 1)
+            {
+                notes.Add("Multiple audio streams present; merging audio streams.");
+                arguments.AddArguments(ReduceStreamsAccessArguments);
+            }
+
+            return await FFMpegRunner.CreateAccessDerivative(model, arguments, notes, cancellationToken);
         }
 
         protected override ValidationResult ContinueProcessingObject(AbstractPodMetadata metadata)

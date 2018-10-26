@@ -10,6 +10,7 @@ using Packager.Deserializers;
 using Packager.Engine;
 using Packager.Factories;
 using Packager.Factories.CodingHistory;
+using Packager.Factories.FFMPEGArguments;
 using Packager.Models.PlaceHolderConfigurations;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.ProgramArgumentsModels;
@@ -96,13 +97,8 @@ namespace Packager
             container.RegisterSingleton<ILabelImageImporter, LabelImageImporter>();
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
-
-            container.RegisterConditional<IFFMPEGRunner, VideoFFMPEGRunner>(Lifestyle.Singleton,
-                c => c.Consumer.ImplementationType == typeof(VideoProcessor));
-
-            container.RegisterConditional<IFFMPEGRunner, AudioFFMPEGRunner>(Lifestyle.Singleton,
-                c => c.Consumer.ImplementationType == typeof(AudioProcessor) || c.Consumer.ImplementationType == typeof(ConfigurationLogger));
-
+            container.RegisterSingleton<IFFMPEGRunner, FFMPEGRunner>();
+            
             container.RegisterSingleton(() => new Dictionary<string, IProcessor>
             {
                 {".wav", container.GetInstance<AbstractProcessor<AudioPodMetadata>>()},
@@ -150,6 +146,31 @@ namespace Packager
                 { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator()}
             });
+
+            container.RegisterSingleton(()=>new Dictionary<IMediaFormat, IFFMPEGArgumentsGenerator>
+                {
+                    {MediaFormats.AluminumDisc, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.AudioCassette, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Betacam, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.BetacamAnamorphic, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Betamax, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Cdr, new CdrFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Cylinder,new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Dat, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.EightMillimeterVideo, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.EightMillimeterVideoQuadaudio, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.FortyFive, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.LacquerDisc, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Lp, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.OneInchOpenReelVideoTape, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.OpenReelAudioTape,new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.OtherAnalogSoundDisc, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.SeventyEight, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Umatic, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Vhs, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())}
+            });
+
+            container.RegisterSingleton<IFFMPEGArgumentsFactory, FFMPEGArgumentsFactory>();
 
             container.RegisterSingleton(() => new CancellationTokenSource());
 

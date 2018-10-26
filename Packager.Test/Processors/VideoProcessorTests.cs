@@ -16,6 +16,7 @@ using Packager.Models.OutputModels;
 using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
+using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Test.Processors
 {
@@ -31,13 +32,12 @@ namespace Packager.Test.Processors
 
         protected override void DoCustomSetup()
         {
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
+            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>(), Arg.Any<ArgumentBuilder>(), Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult((AbstractFile)new AccessFile(x.Arg<AbstractFile>())));
             FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(),
-                Arg.Any<AbstractEmbeddedMetadata>(), Arg.Any<CancellationToken>())
+                Arg.Any<ArgumentBuilder>(), Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>())
                 .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
-            FFMPEGRunner.AccessArguments.Returns("Test");
-
+            
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
 
@@ -60,7 +60,7 @@ namespace Packager.Test.Processors
 
             MetadataProvider.GetObjectMetadata<VideoPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
 
-            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, FFProbeRunner, ImageProcessor, PlaceHolderFactory);
+            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, VideoMetadataFactory, FFMPEGRunner, null, FFProbeRunner,null, ImageProcessor, PlaceHolderFactory);
 
             ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
             ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
@@ -230,7 +230,7 @@ namespace Packager.Test.Processors
                     foreach (var model in ModelList)
                     {
                         FFMPEGRunner.Received().Normalize(Arg.Is<AbstractFile>(m => m.Filename.Equals(model.Filename)),
-                            Arg.Any<AbstractEmbeddedVideoMetadata>(), Arg.Any<CancellationToken>());
+                            Arg.Any<ArgumentBuilder>(), Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -279,14 +279,17 @@ namespace Packager.Test.Processors
                 public void ItShouldCreateAccessFileFromMezzanineMaster()
                 {
                     FFMPEGRunner.Received().CreateAccessDerivative(
-                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<CancellationToken>());
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<ArgumentBuilder>(), 
+                        Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>());
                 }
 
                 [Test]
                 public void ItShouldCreateProdFromMasterWithExpectedMetadata()
                 {
+                    Assert.Fail("todo: fix");
                     FFMPEGRunner.Received().CreateProdOrMezzDerivative(ExpectedMasterModel,
-                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), ExpectedMetadata, Arg.Any<CancellationToken>());
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<ArgumentBuilder>(),
+                        Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>());
                 }
             }
 

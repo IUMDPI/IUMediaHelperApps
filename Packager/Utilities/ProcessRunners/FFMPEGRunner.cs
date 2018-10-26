@@ -8,19 +8,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Packager.Exceptions;
 using Packager.Extensions;
-using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.SettingsModels;
 using Packager.Observers;
 using Packager.Providers;
 using Packager.Utilities.Hashing;
 using Packager.Validators.Attributes;
+using RestSharp.Extensions;
 
 namespace Packager.Utilities.ProcessRunners
 {
-    public abstract class AbstractFFMPEGRunner : IFFMPEGRunner
+    public class FFMPEGRunner : IFFMPEGRunner
     {
-        protected AbstractFFMPEGRunner(IProgramSettings programSettings, IFileProvider fileProvider, IHasher hasher, IObserverCollection observers, IProcessRunner processRunner)
+        public FFMPEGRunner(IProgramSettings programSettings, IFileProvider fileProvider, IHasher hasher, IObserverCollection observers, IProcessRunner processRunner)
         {
             FFMPEGPath = programSettings.FFMPEGPath;
             BaseProcessingDirectory = programSettings.ProcessingDirectory;
@@ -30,8 +30,6 @@ namespace Packager.Utilities.ProcessRunners
             ProcessRunner = processRunner;
         }
         
-
-        protected abstract string NormalizingArguments { get; }
         private IProcessRunner ProcessRunner { get; }
         private IObserverCollection Observers { get; }
         private IFileProvider FileProvider { get; }
@@ -66,7 +64,7 @@ namespace Packager.Utilities.ProcessRunners
             }
         }
 
-        public async Task Normalize(AbstractFile original, AbstractEmbeddedMetadata metadata, CancellationToken cancellationToken)
+        public async Task Normalize(AbstractFile original, ArgumentBuilder arguments, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Normalizing {0}", original.Filename);
             try
@@ -84,12 +82,11 @@ namespace Packager.Utilities.ProcessRunners
                     throw new FileDirectoryExistsException("{0} already exists in the processing directory", targetPath);
                 }
 
-                var arguments = new ArgumentBuilder($"-i {originalPath.ToQuoted()}")
-                    .AddArguments(NormalizingArguments)
-                    .AddArguments(metadata.AsArguments())
+                var fullArguments = new ArgumentBuilder($"-i {originalPath.ToQuoted()}")
+                    .AddArguments(arguments)
                     .AddArguments(targetPath.ToQuoted());
 
-                await RunProgram(arguments, cancellationToken);
+                await RunProgram(fullArguments, cancellationToken);
                 Observers.EndSection(sectionKey, $"{original.Filename} normalized successfully");
             }
             catch (Exception e)
@@ -108,17 +105,14 @@ namespace Packager.Utilities.ProcessRunners
                 await VerifyHashes(model, cancellationToken);
             }
         }
-
-        public abstract string ProdOrMezzArguments { get; }
-        public abstract string AccessArguments { get; }
-
-        public virtual async Task<AbstractFile> CreateAccessDerivative(AbstractFile original, CancellationToken cancellationToken)
+        
+        public virtual async Task<AbstractFile> CreateAccessDerivative(AbstractFile original, ArgumentBuilder arguments,  IEnumerable<string> notes, CancellationToken cancellationToken)
         {
-            return await CreateDerivative(original, new AccessFile(original), new ArgumentBuilder(AccessArguments), cancellationToken);
+            return await CreateDerivative(original, new AccessFile(original), arguments, notes, cancellationToken);
         }
         
         public async Task<AbstractFile> CreateProdOrMezzDerivative(AbstractFile original, AbstractFile target,
-            AbstractEmbeddedMetadata metadata, CancellationToken cancellationToken)
+           ArgumentBuilder arguments, IEnumerable<string> notes, CancellationToken cancellationToken)
         {
             if (TargetAlreadyExists(target))
             {
@@ -126,10 +120,7 @@ namespace Packager.Utilities.ProcessRunners
                 return target;
             }
 
-            var args = new ArgumentBuilder(ProdOrMezzArguments)
-                .AddArguments(metadata.AsArguments());
-
-            return await CreateDerivative(original, target, args, cancellationToken);
+            return await CreateDerivative(original, target, arguments, notes, cancellationToken);
         }
 
         private async Task RunProgram(IEnumerable arguments, CancellationToken cancellationToken)
@@ -201,23 +192,18 @@ namespace Packager.Utilities.ProcessRunners
         }
 
         private async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
-            ArgumentBuilder arguments, CancellationToken cancellationToken)
-        {
-            return await CreateDerivative(original, target, arguments, cancellationToken, new List<string>());
-        }
-
-        protected async Task<AbstractFile> CreateDerivative(AbstractFile original, AbstractFile target,
-            ArgumentBuilder arguments, CancellationToken cancellationToken, List<string> notes)
+            ArgumentBuilder arguments, IEnumerable<string> notes, CancellationToken cancellationToken)
         {
             var sectionKey = Observers.BeginSection("Generating {0}: {1}", target.FileUsage.FullFileUse, target.Filename);
             try
             {
-                if (notes.Any())
+                var notesText = string.Join("\\n\\n", notes);
+                if (notesText.HasValue())
                 {
-                    Observers.Log(string.Join("\\n\\n", notes));
+                    Observers.Log(notesText);
                     Observers.Log("");
                 }
-                
+
                 var outputFolder = Path.Combine(BaseProcessingDirectory, original.GetFolderName());
 
                 var inputPath = Path.Combine(outputFolder, original.Filename);

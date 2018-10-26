@@ -1,27 +1,21 @@
 ﻿using Packager.Extensions;
 using Packager.Models.SettingsModels;
-using Packager.Observers;
-using Packager.Providers;
-using Packager.Utilities.Hashing;
+using Packager.Utilities.ProcessRunners;
 
-namespace Packager.Utilities.ProcessRunners
+namespace Packager.Factories.FFMPEGArguments
 {
-    // ReSharper disable once InconsistentNaming
-    public class AudioFFMPEGRunner : AbstractFFMPEGRunner
+    public class AudioFFMPEGArgumentsGenerator : AbstractFFMPEGArgumentGenerator
     {
         private const string RequiredProductionBextArguments = "-write_bext 1";
         private const string RequiredProductionRiffArguments = "-rf64 auto";
-
-        public AudioFFMPEGRunner(IProgramSettings programSettings, IFileProvider fileProvider, IHasher hasher, IObserverCollection observers, IProcessRunner processRunner) : base(programSettings, fileProvider, hasher, observers, processRunner)
+        
+        public AudioFFMPEGArgumentsGenerator(IProgramSettings programSettings)
         {
-            AccessArguments = programSettings.FFMPEGAudioAccessArguments;
-            ProdOrMezzArguments = AddRequiredArguments(programSettings.FFMPEGAudioProductionArguments);
+            NormalizingArguments = new ArgumentBuilder("-acodec copy -write_bext 1 -rf64 auto -map_metadata -1");
+            AccessArguments = new ArgumentBuilder(programSettings.FFMPEGAudioAccessArguments);
+            ProdOrMezzArguments = new ArgumentBuilder(AddRequiredArguments(programSettings.FFMPEGAudioProductionArguments));
         }
-
-        protected override string NormalizingArguments => "-acodec copy -write_bext 1 -rf64 auto -map_metadata -1";
-        public override string ProdOrMezzArguments { get; }
-        public override string AccessArguments { get; }
-
+        
         private static string AddRequiredArguments(string arguments)
         {
             if (arguments.IsNotSet())

@@ -86,6 +86,7 @@
     <Compile Include="Attributes\BextFieldAttribute.cs" />
     <Compile Include="Attributes\FFMPEGArgumentAttribute.cs" />
     <Compile Include="Engine\EngineExitCodes.cs" />
+    <Compile Include="Exceptions\FormatNotSupportedException.cs" />
     <Compile Include="Exceptions\UserCancelledException.cs" />
     <Compile Include="Extensions\XElmentExtensions.cs" />
     <Compile Include="Factories\CodingHistory\AbstractCodingHistoryGenerator.cs" />
@@ -95,6 +96,13 @@
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />
     <Compile Include="Factories\CodingHistory\ICodingHistoryGenerator.cs" />
+    <Compile Include="Factories\FFMPEGArguments\AbstractFFMPEGArgumentGenerator.cs" />
+    <Compile Include="Factories\FFMPEGArguments\AudioFFMPEGArgumentsGenerator.cs" />
+    <Compile Include="Factories\FFMPEGArguments\CdrFFMPEGArgumentsGenerator.cs" />
+    <Compile Include="Factories\FFMPEGArguments\FFMPEGArgumentsFactory.cs" />
+    <Compile Include="Factories\FFMPEGArguments\IFFMPEGArgumentsFactory.cs" />
+    <Compile Include="Factories\FFMPEGArguments\IFFMPEGArgumentsGenerator.cs" />
+    <Compile Include="Factories\FFMPEGArguments\VideoFFMPEGArgumentsGenerator.cs" />
     <Compile Include="Factories\IEmbeddedMetadataFactory.cs" />
     <Compile Include="Factories\ImportableFactory.cs" />
     <Compile Include="Factories\IPlaceHolderFactory.cs" />
@@ -179,9 +187,8 @@
     <Compile Include="Utilities\Images\LabelImageImporter.cs" />
     <Compile Include="Utilities\Images\ILabelImageImporter.cs" />
     <Compile Include="Models\PlaceHolderConfigurations\IPlaceHolderConfiguration.cs" />
-    <Compile Include="Utilities\ProcessRunners\AbstractFFMPEGRunner.cs" />
+    <Compile Include="Utilities\ProcessRunners\FFMPEGRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\ArgumentBuilder.cs" />
-    <Compile Include="Utilities\ProcessRunners\AudioFFMPEGRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\BwfMetaEditRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\FFProbeRunner.cs" />
     <Compile Include="Utilities\ProcessRunners\FileOutputBuffer.cs" />
@@ -191,7 +198,6 @@
     <Compile Include="Utilities\ProcessRunners\IOutputBuffer.cs" />
     <Compile Include="Utilities\FileSystem\ISuccessFolderCleaner.cs" />
     <Compile Include="Utilities\ProcessRunners\StringOutputBuffer.cs" />
-    <Compile Include="Utilities\ProcessRunners\VideoFFMPEGRunner.cs" />
     <Compile Include="Utilities\Reporting\IReportWriter.cs" />
     <Compile Include="Utilities\Reporting\ReportWriter.cs" />
     <Compile Include="Validators\Attributes\HasMembersAttribute.cs" />

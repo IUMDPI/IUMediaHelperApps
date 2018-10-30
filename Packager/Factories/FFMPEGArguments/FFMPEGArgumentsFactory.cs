@@ -13,8 +13,8 @@ namespace Packager.Factories.FFMPEGArguments
         {
             Generators = generators;
         }
-        
-        public IFFMPEGArgumentsGenerator GetGenerator(IMediaFormat format)
+
+        private IFFMPEGArgumentsGenerator GetGenerator(IMediaFormat format)
         {
             if (!Generators.ContainsKey(format))
             {

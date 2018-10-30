@@ -82,6 +82,7 @@
     <Compile Include="Extensions\StringBuilderExtensionsTests.cs" />
     <Compile Include="Extensions\StringExtensionTests.cs" />
     <Compile Include="Extensions\XElementExtensionTests.cs" />
+    <Compile Include="Factories\ArgumentsFactories\FFMPEGArgumentsFactoryTests.cs" />
     <Compile Include="Factories\AudioCarrierDataFactoryTests.cs" />
     <Compile Include="Factories\AudioIngestFactoryTests.cs" />
     <Compile Include="Factories\AudioSideDataFactoryTests.cs" />

@@ -135,7 +135,8 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    await Runner.Normalize(PreservationFileModel, Metadata.AsArguments(), CancellationToken.None);
+                    var arguments = new ArgumentBuilder("base arguments").AddArguments(Metadata.AsArguments());
+                    await Runner.Normalize(PreservationFileModel, arguments, CancellationToken.None);
                 }
 
                 private ProcessStartInfo StartInfo { get; set; }
@@ -145,13 +146,7 @@ namespace Packager.Test.Utilities
                     base.DoCustomSetup();
                     ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg), CancellationToken.None);
                 }
-
-                [Test]
-                public void ArgsShouldIncludeRf64Commands()
-                {
-                    Assert.That(StartInfo.Arguments.Contains("-rf64 auto"));
-                }
-
+                
                 [Test]
                 public void ArgsShouldEndWithCorrectOutputFile()
                 {
@@ -160,17 +155,11 @@ namespace Packager.Test.Utilities
                             PreservationFileModel.Filename).ToQuoted();
                     Assert.That(StartInfo.Arguments.EndsWith(normalizedPath));
                 }
-
+                
                 [Test]
-                public void ArgsShouldIncludeBextCommands()
+                public void ArgsShouldIncludeBaseArguments()
                 {
-                    Assert.That(StartInfo.Arguments.Contains("-write_bext 1"));
-                }
-
-                [Test]
-                public void ArgsShouldIncludeCopyCommands()
-                {
-                    Assert.That(StartInfo.Arguments.Contains("-acodec copy"));
+                    Assert.That(StartInfo.Arguments.Contains("base arguments"));
                 }
 
                 [Test]
@@ -581,7 +570,7 @@ namespace Packager.Test.Utilities
                     });
 
                     Result = await Runner.CreateAccessDerivative(new ProductionFile(MasterFileModel), 
-                        new ArgumentBuilder(""), Enumerable.Empty<string>(), CancellationToken.None);
+                        new ArgumentBuilder(AudioAccessArguments), Enumerable.Empty<string>(), CancellationToken.None);
                 }
 
                 private const string AccessDerivativeFileName = "MDPI_123456789_01_access.mp4";
@@ -598,7 +587,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ArgumentsShouldContainGlobalArguments()
                 {
-                    Assert.That(StartInfo.Arguments.Contains(AudioProductionArguments));
+                    Assert.That(StartInfo.Arguments.Contains(AudioAccessArguments));
                 }
 
                 [Test]
@@ -671,7 +660,7 @@ namespace Packager.Test.Utilities
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        var arguments = Metadata.AsArguments();
+                        var arguments = new ArgumentBuilder(AudioProductionArguments).AddArguments(Metadata.AsArguments());
                         Result = await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, arguments, Enumerable.Empty<string>(), CancellationToken.None);
                     }
 
@@ -720,6 +709,12 @@ namespace Packager.Test.Utilities
                         public void ArgumentsShouldContainGlobalArguments()
                         {
                             Assert.That(StartInfo.Arguments.Contains(AudioProductionArguments));
+                        }
+
+                        [Test]
+                        public void ArgumentsShouldContainMetadata()
+                        {
+                            Assert.That(StartInfo.Arguments.Contains(Metadata.AsArguments().ToString()));
                         }
 
                         [Test]
@@ -850,7 +845,7 @@ namespace Packager.Test.Utilities
                             Assert.ThrowsAsync<LoggedException>(
                                 async () =>
                                     await
-                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, null, Enumerable.Empty<string>(),CancellationToken.None));
+                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, new ArgumentBuilder(), Enumerable.Empty<string>(),CancellationToken.None));
                     }
 
                     [Test]
@@ -871,7 +866,7 @@ namespace Packager.Test.Utilities
                         Exception = new Exception("testing");
                         ProcessRunner.WhenForAnyArgs(x => x.Run(null, CancellationToken.None)).Do(x => throw Exception);
                         FinalException = Assert.ThrowsAsync<LoggedException>(async () => await
-                            Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, null, Enumerable.Empty<string>(), CancellationToken.None));
+                            Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, new ArgumentBuilder(), Enumerable.Empty<string>(), CancellationToken.None));
                     }
 
                     private Exception Exception { get; set; }

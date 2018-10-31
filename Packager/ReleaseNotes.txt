@@ -87,4 +87,5 @@
 						or invalid. Also improve other error messages.
 4.7.0.0    10/19/2018   Fix issue embedding metadata into audio prod files
                         Add missing xml manifest fields for audio cassettes
+4.8.0.0	   10/31/2018   Should not re-sample when creating Cdr production masters 	
 					

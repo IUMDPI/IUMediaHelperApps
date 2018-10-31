@@ -9,6 +9,7 @@ namespace Packager.Factories.FFMPEGArguments
         private const string RequiredProductionBextArguments = "-write_bext 1";
         private const string RequiredProductionRiffArguments = "-rf64 auto";
         
+        
         public AudioFFMPEGArgumentsGenerator(IProgramSettings programSettings)
         {
             NormalizingArguments = new ArgumentBuilder("-acodec copy -write_bext 1 -rf64 auto -map_metadata -1");

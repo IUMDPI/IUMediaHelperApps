@@ -8,7 +8,7 @@ namespace Packager.Factories.FFMPEGArguments
         public VideoFFMPEGArgumentsGenerator(IProgramSettings programSettings)
         {
             NormalizingArguments = new ArgumentBuilder("-map 0 -acodec copy -vcodec copy");
-            AccessArguments = new ArgumentBuilder(programSettings.FFMPEGAudioAccessArguments);
+            AccessArguments = new ArgumentBuilder(programSettings.FFMPEGVideoAccessArguments);
             ProdOrMezzArguments = new ArgumentBuilder(programSettings.FFMPEGVideoMezzanineArguments);
         }
     }

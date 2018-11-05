@@ -49,6 +49,7 @@ namespace Common.Models
         public static readonly IMediaFormat BetacamAnamorphic = new MediaFormat("betacam:Anamorphic", "Betacam: Anamorphic");
         public static readonly IMediaFormat Dat = new MediaFormat("dat", "DAT");
         public static readonly IMediaFormat OneInchOpenReelVideoTape = new MediaFormat("1-inch open reel video tape", "1-inch Open Reel Video Tape");
+        public static readonly IMediaFormat HalfInchOpenReelVideoTape = new MediaFormat("1/2-Inch Open Reel Video Tape","1/2-Inch Open Reel Video Tape");
         public static readonly IMediaFormat EightMillimeterVideo = new MediaFormat("8mm video", "8mm Video");
         public static readonly IMediaFormat EightMillimeterVideoQuadaudio = new MediaFormat("8mm video:quadaudio", "8mm Video: Quadaudio");
         public static readonly IMediaFormat Umatic = new MediaFormat("u-matic", "U-matic");
@@ -71,6 +72,7 @@ namespace Common.Models
             BetacamAnamorphic,
             Dat,
             OneInchOpenReelVideoTape,
+            HalfInchOpenReelVideoTape,
             EightMillimeterVideo,
             EightMillimeterVideoQuadaudio,
             Umatic,

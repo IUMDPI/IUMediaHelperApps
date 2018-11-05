@@ -25,15 +25,14 @@ namespace Recorder.Utilities
 
         public bool Combining
         {
-            get { return _combining; }
-            set
+            get => _combining;
+            private set
             {
                 _combining = value;
                 OnPropertyChanged();
             }
         }
-
-
+        
         private string CombineFilePath => Path.Combine(ObjectModel.WorkingFolderPath, "combine.txt");
 
         public async Task Combine()

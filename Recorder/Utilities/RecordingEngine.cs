@@ -128,7 +128,9 @@ namespace Recorder.Utilities
             switch (ObjectModel.SelectedChannelsAndStreams.Streams)
             {
                 case 1:
-                    return string.Empty;
+                    return ObjectModel.SelectedChannelsAndStreams.Channels == 1
+                        ? "-ac 1"
+                        : string.Empty;
                 case 2:
                     return "-filter_complex channelsplit"; // default layout is 2 mono channels
                 case 4:

@@ -29,7 +29,7 @@ namespace Packager.Test.Factories.ArgumentsFactories
         [Test]
         public void AccessArgumentsShouldBeCorrect()
         {
-            var expected = ProgramSettings.FFMPEGAudioAccessArguments.Split(' ');
+            var expected = "-c:a aac -b:a 192k -strict -2 -ar 44100 -map_metadata -1".Split(' ');
             Assert.That(Generator.GetAccessArguments(), Is.EquivalentTo(expected));
         }
 

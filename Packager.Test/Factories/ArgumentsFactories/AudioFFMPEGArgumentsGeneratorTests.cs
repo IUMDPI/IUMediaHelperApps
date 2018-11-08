@@ -29,7 +29,7 @@ namespace Packager.Test.Factories.ArgumentsFactories
         public void AccessArgumentsShouldBeCorrect()
         {
             var generator = new AudioFFMPEGArgumentsGenerator(ProgramSettings);
-            var expected = ProgramSettings.FFMPEGAudioAccessArguments.Split(' ');
+            var expected = "audio access arguments -map_metadata -1".Split(' ');
             Assert.That(generator.GetAccessArguments(), Is.EquivalentTo(expected));
         }
 
@@ -44,6 +44,8 @@ namespace Packager.Test.Factories.ArgumentsFactories
             var generator = new AudioFFMPEGArgumentsGenerator(ProgramSettings);
             Assert.That(generator.GetProdOrMezzArguments(), Is.EquivalentTo(expected.Split(' ')));
         }
+
+        
 
     }
 }

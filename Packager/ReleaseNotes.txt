@@ -89,4 +89,7 @@
                         Add missing xml manifest fields for audio cassettes
 4.8.0.0	   10/31/2018   Should not re-sample when creating Cdr production masters
 4.9.0.0    11/05/2018	Add support for 1/2 inch video format
+4.10.0.0   11/08/2018	Fix issue with command-line factory
+                        Clear metadata from access files
+						Output 44.1 k CD-R access files
 					

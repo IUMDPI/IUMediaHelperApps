@@ -8,8 +8,8 @@ namespace Packager.Factories.FFMPEGArguments
         protected ArgumentBuilder NormalizingArguments { get; set; }
         protected ArgumentBuilder ProdOrMezzArguments { get; set; }
 
-        public ArgumentBuilder GetAccessArguments() => AccessArguments;
-        public ArgumentBuilder GetNormalizingArguments() => NormalizingArguments;
-        public ArgumentBuilder GetProdOrMezzArguments() => ProdOrMezzArguments;
+        public ArgumentBuilder GetAccessArguments() => AccessArguments.Clone();
+        public ArgumentBuilder GetNormalizingArguments() => NormalizingArguments.Clone();
+        public ArgumentBuilder GetProdOrMezzArguments() => ProdOrMezzArguments.Clone();
     }
 }

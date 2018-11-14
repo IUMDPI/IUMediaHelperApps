@@ -31,8 +31,8 @@ namespace Common.Tests.Models
             new object[] {"label", FileUsages.LabelImageFile },
             new object[] {"presRef", FileUsages.PreservationToneReference},
             new object[] {"intRef", FileUsages.PreservationIntermediateToneReference},
-            new object[] {string.Empty, new UnknownFileUsage(string.Empty, "Raw object file")},
-            new object[] {null, new UnknownFileUsage(null, "Raw object file")},
+            new object[] {string.Empty, FileUsages.None},
+            new object[] {null, FileUsages.None},
             new object[] {"some other value", new UnknownFileUsage("some other value", "Raw object file") }
         };
 

@@ -67,7 +67,7 @@ namespace Packager.Models.FileModels
             return ProjectCode.Equals(projectCode, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private string NormalizeFilename()
+        protected virtual string NormalizeFilename()
         {
             var parts = new[]
             {

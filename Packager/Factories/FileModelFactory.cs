@@ -38,7 +38,7 @@ namespace Packager.Factories
         private static ResolverKey TiffImageKey => new ResolverKey(".tif", FileUsages.LabelImageFile);
         private static ResolverKey CuePresKey => new ResolverKey(".cue", FileUsages.PreservationMaster);
         private static ResolverKey CuePresIntKey => new ResolverKey(".cue", FileUsages.PreservationIntermediateMaster);
-        private static ResolverKey TxtKey => new ResolverKey(".txt", FileUsages.PreservationMaster);
+        private static ResolverKey TxtKey => new ResolverKey(".txt", FileUsages.None);
 
         private static AbstractFile GetMezzModel(AbstractFile arg)
         {

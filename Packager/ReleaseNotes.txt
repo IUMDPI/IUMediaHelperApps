@@ -92,4 +92,5 @@
 4.10.0.0   11/08/2018	Fix issue with command-line factory
                         Clear metadata from access files
 						Output 44.1 k CD-R access files
+4.11.0.0   11/14/2018   Address change to Cdr .txt filenames
 					

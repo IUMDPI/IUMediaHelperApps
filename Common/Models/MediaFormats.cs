@@ -39,7 +39,7 @@ namespace Common.Models
         public static readonly IMediaFormat AudioCassette = new MediaFormat("audiocassette", "Audio Cassette");
         public static readonly IMediaFormat OpenReelAudioTape = new MediaFormat("open reel audio tape", "Open Reel Audio Tape");
         public static readonly IMediaFormat Lp = new MediaFormat("lp", "Lp");
-        public static readonly IMediaFormat Cdr = new MediaFormat("cd-r", "CD Rom");
+        public static readonly IMediaFormat Cdr = new MediaFormat("cd-r", "CD-R");
         public static readonly IMediaFormat FortyFive = new MediaFormat("45", "45");
         public static readonly IMediaFormat LacquerDisc = new MediaFormat("lacquer disc", "Lacquer Disc");
         public static readonly IMediaFormat Cylinder = new MediaFormat("cylinder", "Cylinder");
@@ -49,6 +49,7 @@ namespace Common.Models
         public static readonly IMediaFormat BetacamAnamorphic = new MediaFormat("betacam:Anamorphic", "Betacam: Anamorphic");
         public static readonly IMediaFormat Dat = new MediaFormat("dat", "DAT");
         public static readonly IMediaFormat OneInchOpenReelVideoTape = new MediaFormat("1-inch open reel video tape", "1-inch Open Reel Video Tape");
+        public static readonly IMediaFormat HalfInchOpenReelVideoTape = new MediaFormat("1/2-Inch Open Reel Video Tape","1/2-Inch Open Reel Video Tape");
         public static readonly IMediaFormat EightMillimeterVideo = new MediaFormat("8mm video", "8mm Video");
         public static readonly IMediaFormat EightMillimeterVideoQuadaudio = new MediaFormat("8mm video:quadaudio", "8mm Video: Quadaudio");
         public static readonly IMediaFormat Umatic = new MediaFormat("u-matic", "U-matic");
@@ -71,6 +72,7 @@ namespace Common.Models
             BetacamAnamorphic,
             Dat,
             OneInchOpenReelVideoTape,
+            HalfInchOpenReelVideoTape,
             EightMillimeterVideo,
             EightMillimeterVideoQuadaudio,
             Umatic,

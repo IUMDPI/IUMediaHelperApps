@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
-using Packager.Utilities;
 using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Test.Utilities
@@ -119,6 +114,16 @@ namespace Packager.Test.Utilities
             Assert.That(arguments.ToArray()[2], Is.EqualTo("22"));
             Assert.That(arguments.ToArray()[3], Is.EqualTo("333"));
             Assert.That(arguments.ToArray()[4], Is.EqualTo("4444"));
+        }
+
+        [Test]
+        public void CloneShouldWorkCorrectly()
+        {
+            var original = new ArgumentBuilder("aa bb cc dd ee ff gg");
+            var clone = original.Clone();
+
+            Assert.That(original.Equals(clone), Is.False, "Clone should not be same object a original");
+            Assert.That(clone, Is.EquivalentTo(original), "Clone should be equivalent to original");
         }
     }
 }

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
@@ -57,12 +57,11 @@ namespace Packager.Test.Utilities
             Metadata = MockBextMetadata.Get();
 
             
-            Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
+            Runner = new FFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
 
             DoCustomSetup();
         }
-
-
+        
         private const string FFMPEGPath = "ffmpeg.exe";
         private const string AudioProductionArguments = "production arguments";
         private const string AudioAccessArguments = "production arguments";
@@ -76,7 +75,7 @@ namespace Packager.Test.Utilities
         private IProcessRunner ProcessRunner { get; set; }
         private IObserverCollection Observers { get; set; }
         private IFileProvider FileProvider { get; set; }
-        private AudioFFMPEGRunner Runner { get; set; }
+        private IFFMPEGRunner Runner { get; set; }
         private AbstractFile Result { get; set; }
         private IProcessResult ProcessRunnerResult { get; set; }
         private IProgramSettings ProgramSettings { get; set; }
@@ -88,92 +87,7 @@ namespace Packager.Test.Utilities
         protected virtual void DoCustomSetup()
         {
         }
-
-        public class WhenInitializing : FFMPEGRunnerTests
-        {
-            public class WhenProductionWriteBextArgsNotPresent : WhenInitializing
-            {
-                [Test]
-                public void ItShouldSetArgsCorrectly()
-                {
-                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -write_bext 1").Count, Is.EqualTo(1));
-                }
-            }
-
-            public class WhenProductionRiffArgsNotPresent : WhenInitializing
-            {
-                [Test]
-                public void ItShouldSetArgsCorrectly()
-                {
-                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -rf64 auto").Count, Is.EqualTo(1));
-                }
-            }
-
-            public class WhenProductionWriteBextArgsPresent : WhenInitializing
-            {
-                public override async Task BeforeEach()
-                {
-                    await base.BeforeEach();
-                    ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -write_bext 1");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
-                }
-
-                [Test]
-                public void ItShouldSetArgsCorrectly()
-                {
-                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -write_bext 1").Count, Is.EqualTo(1));
-                }
-            }
-
-            public class WhenProductionRiffArgsPresent : WhenInitializing
-            {
-                public override async Task BeforeEach()
-                {
-                    await base.BeforeEach();
-                    ProgramSettings.FFMPEGAudioProductionArguments.Returns(" -rf64 auto");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
-                }
-
-                [Test]
-                public void ItShouldSetArgsCorrectly()
-                {
-                    Assert.That(Regex.Matches(Runner.ProdOrMezzArguments, " -rf64 auto").Count, Is.EqualTo(1));
-                }
-            }
-
-            public class WhenPassedInProductionArgumentsNull : WhenInitializing
-            {
-                public override async Task BeforeEach()
-                {
-                    await base.BeforeEach();
-                    ProgramSettings.FFMPEGAudioProductionArguments.Returns((string) null);
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
-                }
-
-                [Test]
-                public void ItShouldNotModifyArguments()
-                {
-                    Assert.That(Runner.ProdOrMezzArguments, Is.Null);
-                }
-            }
-
-            public class WhenPassedInProductionArgumentsEmpty : WhenInitializing
-            {
-                public override async Task BeforeEach()
-                {
-                    await base.BeforeEach();
-                    ProgramSettings.FFMPEGAudioProductionArguments.Returns("");
-                    Runner = new AudioFFMPEGRunner(ProgramSettings, FileProvider, Hasher, Observers, ProcessRunner);
-                }
-
-                [Test]
-                public void ItShouldNotModifyArguments()
-                {
-                    Assert.That(Runner.ProdOrMezzArguments, Is.EqualTo(""));
-                }
-            }
-        }
-
+        
         public class WhenNormalizingOriginals : FFMPEGRunnerTests
         {
             public override async Task BeforeEach()
@@ -213,7 +127,7 @@ namespace Packager.Test.Utilities
             {
                 public override async Task BeforeEach()
                 {
-                    base.BeforeEach();
+                    await base.BeforeEach();
 
                     ProcessRunner.Run(Arg.Any<ProcessStartInfo>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(x =>
                     {
@@ -221,7 +135,8 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    await Runner.Normalize(PreservationFileModel, Metadata, CancellationToken.None);
+                    var arguments = new ArgumentBuilder("base arguments").AddArguments(Metadata.AsArguments());
+                    await Runner.Normalize(PreservationFileModel, arguments, CancellationToken.None);
                 }
 
                 private ProcessStartInfo StartInfo { get; set; }
@@ -231,13 +146,7 @@ namespace Packager.Test.Utilities
                     base.DoCustomSetup();
                     ProcessRunner.Run(Arg.Do<ProcessStartInfo>(arg => StartInfo = arg), CancellationToken.None);
                 }
-
-                [Test]
-                public void ArgsShouldIncludeRf64Commands()
-                {
-                    Assert.That(StartInfo.Arguments.Contains("-rf64 auto"));
-                }
-
+                
                 [Test]
                 public void ArgsShouldEndWithCorrectOutputFile()
                 {
@@ -246,17 +155,11 @@ namespace Packager.Test.Utilities
                             PreservationFileModel.Filename).ToQuoted();
                     Assert.That(StartInfo.Arguments.EndsWith(normalizedPath));
                 }
-
+                
                 [Test]
-                public void ArgsShouldIncludeBextCommands()
+                public void ArgsShouldIncludeBaseArguments()
                 {
-                    Assert.That(StartInfo.Arguments.Contains("-write_bext 1"));
-                }
-
-                [Test]
-                public void ArgsShouldIncludeCopyCommands()
-                {
-                    Assert.That(StartInfo.Arguments.Contains("-acodec copy"));
+                    Assert.That(StartInfo.Arguments.Contains("base arguments"));
                 }
 
                 [Test]
@@ -666,7 +569,8 @@ namespace Packager.Test.Utilities
                         return Task.FromResult(ProcessRunnerResult);
                     });
 
-                    Result = await Runner.CreateAccessDerivative(new ProductionFile(MasterFileModel), CancellationToken.None);
+                    Result = await Runner.CreateAccessDerivative(new ProductionFile(MasterFileModel), 
+                        new ArgumentBuilder(AudioAccessArguments), Enumerable.Empty<string>(), CancellationToken.None);
                 }
 
                 private const string AccessDerivativeFileName = "MDPI_123456789_01_access.mp4";
@@ -683,7 +587,7 @@ namespace Packager.Test.Utilities
                 [Test]
                 public void ArgumentsShouldContainGlobalArguments()
                 {
-                    Assert.That(StartInfo.Arguments.Contains(AudioProductionArguments));
+                    Assert.That(StartInfo.Arguments.Contains(AudioAccessArguments));
                 }
 
                 [Test]
@@ -756,7 +660,8 @@ namespace Packager.Test.Utilities
                             return Task.FromResult(ProcessRunnerResult);
                         });
 
-                        Result = await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None);
+                        var arguments = new ArgumentBuilder(AudioProductionArguments).AddArguments(Metadata.AsArguments());
+                        Result = await Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, arguments, Enumerable.Empty<string>(), CancellationToken.None);
                     }
 
                     public class WhenDerivativeAlreadyExists : WhenThingsGoWell
@@ -804,6 +709,12 @@ namespace Packager.Test.Utilities
                         public void ArgumentsShouldContainGlobalArguments()
                         {
                             Assert.That(StartInfo.Arguments.Contains(AudioProductionArguments));
+                        }
+
+                        [Test]
+                        public void ArgumentsShouldContainMetadata()
+                        {
+                            Assert.That(StartInfo.Arguments.Contains(Metadata.AsArguments().ToString()));
                         }
 
                         [Test]
@@ -934,7 +845,7 @@ namespace Packager.Test.Utilities
                             Assert.ThrowsAsync<LoggedException>(
                                 async () =>
                                     await
-                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None));
+                                        Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, new ArgumentBuilder(), Enumerable.Empty<string>(),CancellationToken.None));
                     }
 
                     [Test]
@@ -953,9 +864,9 @@ namespace Packager.Test.Utilities
                         await base.BeforeEach();
                         DerivativeFileModel = new ProductionFile(MasterFileModel);
                         Exception = new Exception("testing");
-                        ProcessRunner.WhenForAnyArgs(x => x.Run(null, CancellationToken.None)).Do(x => { throw Exception; });
+                        ProcessRunner.WhenForAnyArgs(x => x.Run(null, CancellationToken.None)).Do(x => throw Exception);
                         FinalException = Assert.ThrowsAsync<LoggedException>(async () => await
-                            Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, Metadata, CancellationToken.None));
+                            Runner.CreateProdOrMezzDerivative(MasterFileModel, DerivativeFileModel, new ArgumentBuilder(), Enumerable.Empty<string>(), CancellationToken.None));
                     }
 
                     private Exception Exception { get; set; }
@@ -986,7 +897,7 @@ namespace Packager.Test.Utilities
         [Test]
         public void FFMPEGPathPropertyShouldHaveValidateAttribute()
         {
-            var info = typeof (AudioFFMPEGRunner).GetProperty("FFMPEGPath");
+            var info = typeof (FFMPEGRunner).GetProperty("FFMPEGPath");
             Assert.That(info.GetCustomAttribute<ValidateFileAttribute>(), Is.Not.Null);
         }
     }

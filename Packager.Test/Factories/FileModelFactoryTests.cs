@@ -8,8 +8,6 @@ namespace Packager.Test.Factories
     [TestFixture]
     public class FileModelFactoryTests
     {
-        private const string UnknownFilename = "unknown.txt";
-
         [TestCase("mdpi_4890764553278906_01_pres.wav")]
         [TestCase("mdpi_4890764553278906_01_Pres.Wav")]
         public void ShouldGenerateAudioPreservationModelsCorrectly(string filename)
@@ -104,8 +102,15 @@ namespace Packager.Test.Factories
         [Test]
         public void ShouldAssignRawObectFileModelToOtherFileExtensions()
         {
-            var result = FileModelFactory.GetModel(UnknownFilename);
+            var result = FileModelFactory.GetModel("unknown.rnd");
             Assert.That(result as UnknownFile, Is.Not.Null);
+        }
+
+        [Test]
+        public void ShouldAssignTextModelsCorrectly()
+        {
+            var result = FileModelFactory.GetModel("text.txt");
+            Assert.That(result as TextFile, Is.Not.Null);
         }
     }
 }

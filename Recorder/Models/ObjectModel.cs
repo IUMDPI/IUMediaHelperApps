@@ -24,19 +24,25 @@ namespace Recorder.Models
             {
                 new AudioChannelsAndStreams
                 {
-                    Channels = 2, Streams = 1, Id = 1, DisplayName = "2 audio channels (1 stereo stream)"
+                    Channels = 1, Streams = 1, Id = 1, DisplayName = "1 audio channel (1 mono stream)"
                 },
                 new AudioChannelsAndStreams
                 {
-                    Channels = 2, Streams = 2, Id = 1, DisplayName = "2 audio channels (2 mono streams)"
+                    Channels = 2, Streams = 1, Id = 2, DisplayName = "2 audio channels (1 stereo stream)"
                 },
                 new AudioChannelsAndStreams
                 {
-                    Channels = 4, Streams = 4, Id = 1, DisplayName = "4 audio channels (4 mono streams)"
+                    Channels = 2, Streams = 2, Id = 3, DisplayName = "2 audio channels (2 mono streams)"
+                },
+                new AudioChannelsAndStreams
+                {
+                    Channels = 4, Streams = 4, Id = 4, DisplayName = "4 audio channels (4 mono streams)"
                 }
             };
             
-            SelectedChannelsAndStreams = PossibleChannelsAndStreams.First();
+            SelectedChannelsAndStreams = PossibleChannelsAndStreams.Count < 2 
+                ? PossibleChannelsAndStreams.FirstOrDefault()
+                : PossibleChannelsAndStreams[1];
         }
         
         public List<IFileUsage> FileUsages { get; private set; }
@@ -61,7 +67,7 @@ namespace Recorder.Models
         public string OutputFile => Path.Combine(OutputFolder, Filename);
 
         public string ExistingPartsMask => $"{ProjectCode}_{Barcode}_part_*.mkv";
-        public List<AudioChannelsAndStreams> PossibleChannelsAndStreams { get; private set; }
+        public List<AudioChannelsAndStreams> PossibleChannelsAndStreams { get; }
         
         public ValidationResult FilePartsValid()
         {

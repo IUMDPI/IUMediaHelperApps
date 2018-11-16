@@ -42,6 +42,7 @@ namespace Packager.Test.Factories
                 FileProvenances = new List<AbstractDigitalFile> {Provenance},
                 Iarl = Iarl,
                 Bext = Bext,
+                Icmt = ICMT
             };
 
             Factory = new EmbeddedAudioMetadataFactory(ProgramSettings, CodingHistoryGenerators);
@@ -68,6 +69,9 @@ namespace Packager.Test.Factories
         private const string Iarl = "Indiana University-Bloomington. Office of University Archives and Records Management";
         private const string Bext = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use:";
         private const string BextFile = "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use: Preservation Master. MDPI_4890764553278906_01_pres";
+
+        private const string ICMT =
+            "Indiana University-Bloomington. Office of University Archives and Records Management. isos048. File use:";
         private IProgramSettings ProgramSettings { get; set; }
         private Dictionary<IMediaFormat, ICodingHistoryGenerator> CodingHistoryGenerators { get; set; }
        
@@ -132,10 +136,10 @@ namespace Packager.Test.Factories
         [Test]
         public void IcmtAndDescriptionShouldBeCorrect()
         {
-          
+            var expected = $"{ICMT} {Model.FullFileUse}. {Path.GetFileNameWithoutExtension(Model.Filename)}";
             var result = Factory.Generate(Instances, Model, Metadata) as EmbeddedAudioMetadata;
-            Assert.That(result.ICMT, Is.EqualTo(BextFile));
-            Assert.That(result.Description, Is.EqualTo(BextFile));
+            Assert.That(result.ICMT, Is.EqualTo(expected));
+            Assert.That(result.Description, Is.EqualTo(expected));
         }
 
         [Test]
@@ -150,7 +154,7 @@ namespace Packager.Test.Factories
         {
             Metadata.Format = new UnknownMediaFormat("unknown format");
             var exception = Assert.Throws<EmbeddedMetadataException>(() => Factory.Generate(Instances, Model, Metadata));
-            Assert.That(exception.Message, Is.EqualTo($"No coding history generator defined for {Metadata.Format}"));
+            Assert.That(exception.Message, Is.EqualTo($"No coding history generator defined for {Metadata.Format.ProperName}"));
         }
     }
 }

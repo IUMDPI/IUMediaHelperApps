@@ -8,21 +8,19 @@ namespace Common.Models
     {
         string FileUse { get; }
         string FullFileUse { get; }
-        int Precedence { get; }
     }
 
     public class FileUsage : IFileUsage
     {
-        internal FileUsage(string fileUse, string fullFileUse, int precendence)
+        internal FileUsage(string fileUse, string fullFileUse)
         {
             FileUse = fileUse;
             FullFileUse = fullFileUse;
-            Precedence = precendence;
         }
 
         public string FileUse { get; }
         public string FullFileUse { get; }
-        public int Precedence { get; }
+      
     }
 
     public class QualityControlFileUsage : IFileUsage
@@ -35,7 +33,6 @@ namespace Common.Models
 
         public string FileUse { get; }
         public string FullFileUse { get; }
-        public int Precedence => 8;
     }
 
     public class UnknownFileUsage: IFileUsage
@@ -47,22 +44,22 @@ namespace Common.Models
         }
         public string FileUse { get; }
         public string FullFileUse { get; }
-        public int Precedence => 100;
     }
 
     public class FileUsages
     {
-        public static readonly IFileUsage PreservationMaster = new FileUsage("pres", "Preservation Master",0);
-        public static readonly IFileUsage PreservationToneReference = new FileUsage("presRef", "Reference Tone – Preservation Master", 1);
-        public static readonly IFileUsage PreservationIntermediateMaster = new FileUsage("presInt", "Preservation Master - Intermediate",2);
+        public static readonly IFileUsage PreservationMaster = new FileUsage("pres", "Preservation Master");
+        public static readonly IFileUsage PreservationToneReference = new FileUsage("presRef", "Reference Tone – Preservation Master");
+        public static readonly IFileUsage PreservationIntermediateMaster = new FileUsage("presInt", "Preservation Master - Intermediate");
         public static readonly IFileUsage PreservationIntermediateToneReference = new FileUsage("intRef",
-            "Reference Tone – Intermediate", 3);
-        public static readonly IFileUsage ProductionMaster = new FileUsage("prod", "Production Master",4);
-        public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File",5);
-        public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File",6);
-        public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File",7);
-        public static readonly IFileUsage XmlFile = new FileUsage("", "Xml File",100);
-        
+            "Reference Tone – Intermediate");
+        public static readonly IFileUsage ProductionMaster = new FileUsage("prod", "Production Master");
+        public static readonly IFileUsage MezzanineFile = new FileUsage("mezz", "Mezzanine File");
+        public static readonly IFileUsage AccessFile = new FileUsage("access", "Access File");
+        public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File");
+        public static readonly IFileUsage None = new FileUsage(string.Empty, "No Usage Present");
+        public static readonly IFileUsage TextFile = new FileUsage(string.Empty, "Text File"); 
+
         private static readonly List<IFileUsage> AllImportableUsages = new List<IFileUsage>
         {
             PreservationMaster,
@@ -72,11 +69,17 @@ namespace Common.Models
             ProductionMaster,
             MezzanineFile,
             AccessFile,
-            LabelImageFile
+            LabelImageFile,
+            TextFile
         };
 
         public static IFileUsage GetUsage(string fileUse)
         {
+            if (string.IsNullOrWhiteSpace(fileUse))
+            {
+                return None;
+            }
+            
             var usage = AllImportableUsages.SingleOrDefault(
                     u => u.FileUse.Equals(fileUse, StringComparison.InvariantCultureIgnoreCase));
 

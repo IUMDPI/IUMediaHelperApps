@@ -15,7 +15,7 @@ namespace Common.Tests.Models
             new object[] {MediaFormats.AudioCassette, "audiocassette", "Audio Cassette"},
             new object[] {MediaFormats.OpenReelAudioTape,"open reel audio tape", "Open Reel Audio Tape"},
             new object[] {MediaFormats.Lp, "lp", "Lp"},
-            new object[] {MediaFormats.Cdr, "cd-r", "CD Rom"},
+            new object[] {MediaFormats.Cdr, "cd-r", "CD-R"},
             new object[] {MediaFormats.FortyFive, "45", "45"},
             new object[] {MediaFormats.LacquerDisc, "lacquer disc", "Lacquer Disc"},
             new object[] {MediaFormats.Cylinder,"cylinder", "Cylinder"},

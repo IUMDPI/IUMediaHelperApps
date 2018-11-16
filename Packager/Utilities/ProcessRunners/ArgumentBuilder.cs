@@ -27,6 +27,12 @@ namespace Packager.Utilities.ProcessRunners
             AddRange(arguments.Select(a=>a.ToDefaultIfEmpty().Trim()).Where(a=>a.IsSet()));
             return this;
         }
+
+        public ArgumentBuilder Clone()
+        {
+            return new ArgumentBuilder()
+                .AddArguments(this);
+        }
         
         public override string ToString()
         {

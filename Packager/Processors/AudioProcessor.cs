@@ -8,6 +8,7 @@ using Common.Models;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
+using Packager.Factories.FFMPEGArguments;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
 using Packager.Models.SettingsModels;
@@ -36,13 +37,16 @@ namespace Packager.Processors
             ICarrierDataFactory<AudioPodMetadata> carrierDataFactory, 
             IEmbeddedMetadataFactory<AudioPodMetadata> embeddedMetadataFactory, 
             IFFMPEGRunner ffMpegRunner, 
+            IFFMPEGArgumentsFactory ffmpegArgumentsFactory,
             ILabelImageImporter imageProcessor,
             IPlaceHolderFactory placeHolderFactory) : base(
                 bextProcessor, 
                 directoryProvider, 
                 fileProvider, 
                 hasher, 
-                metadataProvider, 
+                metadataProvider,
+                ffMpegRunner,
+                ffmpegArgumentsFactory,
                 observers, 
                 programSettings, 
                 xmlExporter,
@@ -51,11 +55,9 @@ namespace Packager.Processors
         {
             CarrierDataFactory = carrierDataFactory;
             EmbeddedMetadataFactory = embeddedMetadataFactory;
-            FFMpegRunner = ffMpegRunner;
         }
 
         protected override ICarrierDataFactory<AudioPodMetadata> CarrierDataFactory { get; }
-        protected override IFFMPEGRunner FFMpegRunner { get; }
         protected override IEmbeddedMetadataFactory<AudioPodMetadata> EmbeddedMetadataFactory { get; } 
            
         protected override string OriginalsDirectory => Path.Combine(ProcessingDirectory, "Originals");

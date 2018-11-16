@@ -18,9 +18,8 @@ namespace Packager.Factories
 
         private ISideDataFactory SideDataFactory { get; }
 
-#pragma warning disable 1998
+
         public async Task<AbstractCarrierData> Generate(AudioPodMetadata metadata, string digitizingEntity, List<AbstractFile> filesToProcess, CancellationToken cancellationToken)
-#pragma warning restore 1998
         {
             var result = new AudioCarrier
             {
@@ -39,6 +38,10 @@ namespace Packager.Factories
                     Track = metadata.TrackConfiguration,
                     SoundField = metadata.SoundField,
                     Speed = metadata.PlaybackSpeed,
+                    FormatDuration = metadata.FormatDuration,
+                    TapeStockBrand = metadata.TapeStockBrand,
+                    TapeType = metadata.TapeType,
+                    NoiseReduction = metadata.NoiseReduction
                 },
                 PhysicalCondition = new PhysicalConditionData
                 {
@@ -48,7 +51,7 @@ namespace Packager.Factories
                 Comments = metadata.Comments
             };
 
-            return result;
+            return await Task.FromResult(result);
         }
 
         private PartsData GeneratePartsData(AudioPodMetadata metadata, string digitizingEntity, IEnumerable<AbstractFile> filesToProcess)

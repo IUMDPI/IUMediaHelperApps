@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -31,7 +30,7 @@ namespace Packager.Factories
             return sideGroupings.Select(grouping => new SideData
             {
                 Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
-                Files = grouping.OrderBy(model=>model.FileUsage.Precedence).Select(GetFileData).ToList(),
+                Files = grouping.OrderBy(model=>model.Precedence).Select(GetFileData).ToList(),
                 Ingest = GenerateAudioIngestElements(podMetadata, grouping)
             }).ToArray();
         }
@@ -55,7 +54,7 @@ namespace Packager.Factories
             return sideGroupings.Select(grouping => new SideData
             {
                 Side = grouping.Key.ToString(CultureInfo.InvariantCulture),
-                Files = grouping.OrderBy(model => model.FileUsage.Precedence).Select(GetFileData).ToList(),
+                Files = grouping.OrderBy(model => model.Precedence).Select(GetFileData).ToList(),
                 Ingest = GenerateVideoIngestElements(podMetadata, grouping),
             }).ToArray();
         }
@@ -73,7 +72,7 @@ namespace Packager.Factories
         {
             // intersect digital provenances with applicable models
             return filesToProcess
-                .OrderBy(model => model.FileUsage.Precedence)
+                .OrderBy(model => model.Precedence)
                 .Select(model => podMetadata.FileProvenances.GetFileProvenance(model) as T)
                 .Where(provenance => provenance != null).ToList();
         }

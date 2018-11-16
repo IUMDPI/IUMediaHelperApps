@@ -8,6 +8,7 @@ using Common.Models;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
+using Packager.Factories.FFMPEGArguments;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
 using Packager.Models.PodMetadataModels;
@@ -32,6 +33,8 @@ namespace Packager.Processors
            IFileProvider fileProvider,
            IHasher hasher,
            IPodMetadataProvider metadataProvider,
+           IFFMPEGRunner ffmpegRunner,
+           IFFMPEGArgumentsFactory ffmpegArgumentsFactory,
            IObserverCollection observers,
            IProgramSettings programSettings,
            IXmlExporter xmlExporter,
@@ -47,6 +50,9 @@ namespace Packager.Processors
             DirectoryProvider = directoryProvider;
             FileProvider = fileProvider;
             Hasher = hasher;
+
+            FFMpegRunner = ffmpegRunner;
+            FFMPEGArgumentsFactory = ffmpegArgumentsFactory;
 
             ProjectCode = programSettings.ProjectCode;
 
@@ -84,7 +90,8 @@ namespace Packager.Processors
         private string DropBoxDirectory => Path.Combine(RootDropBoxDirectory, ObjectDirectoryName);
 
         protected abstract ICarrierDataFactory<T> CarrierDataFactory { get; }
-        protected abstract IFFMPEGRunner FFMpegRunner { get; }
+        protected IFFMPEGRunner FFMpegRunner { get; }
+        protected IFFMPEGArgumentsFactory FFMPEGArgumentsFactory { get; }
         protected abstract IEmbeddedMetadataFactory<T> EmbeddedMetadataFactory { get; }
         protected abstract AbstractFile CreateProdOrMezzModel(AbstractFile master);
         protected abstract IEnumerable<AbstractFile> GetProdOrMezzModels(IEnumerable<AbstractFile> models);
@@ -147,7 +154,7 @@ namespace Packager.Processors
 
                 // generate the access versions from production masters
                 processedList = processedList.Concat(
-                    await CreateAccessDerivatives(processedList, cancellationToken)).ToList();
+                    await CreateAccessDerivatives(processedList,  metadata, cancellationToken)).ToList();
 
                 // create QC files
                 // add qc files to processed list
@@ -195,10 +202,13 @@ namespace Packager.Processors
         
         private async Task NormalizeOriginals(List<AbstractFile> originals, T podMetadata, CancellationToken cancellationToken)
         {
-            foreach (var original in originals.Where(f => f is TiffImageFile == false))
+            foreach (var original in originals.Where(f => f.ShouldNormalize))
             {
                 var metadata = EmbeddedMetadataFactory.Generate(originals, original, podMetadata);
-                await FFMpegRunner.Normalize(original, metadata, cancellationToken);
+                var arguments = FFMPEGArgumentsFactory.GetNormalizingArguments(podMetadata.Format);
+                arguments.AddArguments(metadata.AsArguments());
+
+                await FFMpegRunner.Normalize(original, arguments, cancellationToken);
             }
         }
 
@@ -211,22 +221,35 @@ namespace Packager.Processors
             {
                 var derivative = CreateProdOrMezzModel(master);
                 var metadata = EmbeddedMetadataFactory.Generate(models, derivative, podMetadata);
-                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, metadata, cancellationToken));
+
+                var arguments = FFMPEGArgumentsFactory.GetProdOrMezzArguments(podMetadata.Format);
+                arguments.AddArguments(metadata.AsArguments());
+
+                results.Add(await FFMpegRunner.CreateProdOrMezzDerivative(master, derivative, arguments, 
+                    Enumerable.Empty<string>(), cancellationToken));
             }
 
             return results;
         }
 
-        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models, CancellationToken cancellationToken)
+        private async Task<List<AbstractFile>> CreateAccessDerivatives(IEnumerable<AbstractFile> models, AbstractPodMetadata podMetadata, CancellationToken cancellationToken)
         {
             var results = new List<AbstractFile>();
 
             // for each production master, create an access version
             foreach (var model in GetProdOrMezzModels(models))
             {
-                results.Add(await FFMpegRunner.CreateAccessDerivative(model, cancellationToken));
+                results.Add(await CreateAccessDerivative(model, podMetadata.Format, cancellationToken));
             }
             return results;
+        }
+
+        protected virtual async Task<AbstractFile> CreateAccessDerivative(AbstractFile model,IMediaFormat format,
+            CancellationToken cancellationToken)
+        {
+            var arguments = FFMPEGArgumentsFactory.GetAccessArguments(format);
+            return await FFMpegRunner.CreateAccessDerivative(model, arguments,
+                Enumerable.Empty<string>(), cancellationToken);
         }
 
         private async Task MoveToSuccessFolder()
@@ -404,7 +427,9 @@ namespace Packager.Processors
         private async Task<string> MoveOriginalToProcessing(AbstractFile fileModel, CancellationToken cancellationToken)
         {
             var sourcePath = Path.Combine(InputDirectory, fileModel.OriginalFileName);
-            var targetPath = Path.Combine(OriginalsDirectory, fileModel.Filename);
+            var targetPath = fileModel.ShouldNormalize 
+                ? Path.Combine(OriginalsDirectory, fileModel.Filename)
+                : Path.Combine(ProcessingDirectory, fileModel.Filename);
 
             return await MoveFile(sourcePath, targetPath, cancellationToken);
         }
@@ -487,7 +512,7 @@ namespace Packager.Processors
             foreach (var model in models.NonPlaceHolderFiles())
             {
                 model.Checksum = await Hasher.Hash(model, cancellationToken);
-                Observers.Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(model.Filename), model.Checksum);
+                Observers.Log("{0} checksum: {1}", model.Filename, model.Checksum);
             }
         }
 

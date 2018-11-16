@@ -28,7 +28,7 @@ namespace Packager.Utilities.Bext
 
         public async Task ClearMetadataFields(List<AbstractFile> instances, List<BextFields> fields, CancellationToken cancellationToken)
         {
-            foreach (var instance in instances)
+            foreach (var instance in instances.Where(i=>i.ShouldNormalize))
             {
                 var result = await MetaEditRunner.ClearMetadata(instance, fields, cancellationToken);
 

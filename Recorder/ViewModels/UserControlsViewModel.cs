@@ -93,8 +93,8 @@ namespace Recorder.ViewModels
 
         public BarcodeHandler BarcodeHandler { get; }
 
-        public CombiningEngine Combiner { get; set; }
-        public OutputWindowViewModel OutputWindowViewModel { get; set; }
+        public CombiningEngine Combiner { get; }
+        public OutputWindowViewModel OutputWindowViewModel { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -103,7 +103,6 @@ namespace Recorder.ViewModels
             return Panels.Single(p => p.GetType() == typeof (T)) as T;
         }
         
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -128,7 +127,7 @@ namespace Recorder.ViewModels
             get {
                 return _showOutputCommand ?? (_showOutputCommand = new RelayCommand(
                     param => ShowOutputWindow(), 
-                    param =>EnableShowOutputCommand()));
+                    param => EnableShowOutputCommand()));
             }
         }
         

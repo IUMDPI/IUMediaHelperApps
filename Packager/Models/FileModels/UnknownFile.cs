@@ -7,7 +7,6 @@ namespace Packager.Models.FileModels
 {
     public class UnknownFile : AbstractFile
     {
-        
         public UnknownFile(string file) 
         {
             var parts = GetPathParts(file);
@@ -33,5 +32,7 @@ namespace Packager.Models.FileModels
         {
             return false;
         }
+
+        public override int Precedence => 200;
     }
 }

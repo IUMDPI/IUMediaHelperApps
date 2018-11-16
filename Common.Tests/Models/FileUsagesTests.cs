@@ -8,17 +8,17 @@ namespace Common.Tests.Models
     {
         private static object[] _usagesCorrectCases =
         {
-            new object[] {FileUsages.PreservationMaster, "pres", "Preservation Master", 0},
-            new object[] {FileUsages.PreservationToneReference, "presRef", "Reference Tone – Preservation Master", 1},
-            new object[] {FileUsages.PreservationIntermediateMaster, "presInt", "Preservation Master - Intermediate", 2},
-            new object[] {FileUsages.PreservationIntermediateToneReference, "intRef", "Reference Tone – Intermediate", 3},
-            new object[] {FileUsages.ProductionMaster, "prod", "Production Master", 4},
-            new object[] {FileUsages.MezzanineFile, "mezz", "Mezzanine File", 5},
-            new object[] {FileUsages.AccessFile, "access", "Access File", 6},
-            new object[] {FileUsages.LabelImageFile, "label", "Label Image File", 7},
-            new object[] {new QualityControlFileUsage(FileUsages.PreservationMaster), FileUsages.PreservationMaster.FileUse, FileUsages.PreservationMaster.FullFileUse, 8},
-            new object[] {new UnknownFileUsage("", "Raw object file"), "", "Raw object file", 100},
-            new object[] {FileUsages.XmlFile, "", "Xml File", 100},
+            new object[] {FileUsages.PreservationMaster, "pres", "Preservation Master"},
+            new object[] {FileUsages.PreservationToneReference, "presRef", "Reference Tone – Preservation Master"},
+            new object[] {FileUsages.PreservationIntermediateMaster, "presInt", "Preservation Master - Intermediate"},
+            new object[] {FileUsages.PreservationIntermediateToneReference, "intRef", "Reference Tone – Intermediate"},
+            new object[] {FileUsages.ProductionMaster, "prod", "Production Master"},
+            new object[] {FileUsages.MezzanineFile, "mezz", "Mezzanine File"},
+            new object[] {FileUsages.AccessFile, "access", "Access File"},
+            new object[] {FileUsages.LabelImageFile, "label", "Label Image File"},
+            new object[] {new QualityControlFileUsage(FileUsages.PreservationMaster), FileUsages.PreservationMaster.FileUse, FileUsages.PreservationMaster.FullFileUse},
+            new object[] {new UnknownFileUsage("", "Raw object file"), "", "Raw object file"},
+            new object[] {FileUsages.None, "", "No Usage Present"}
         };
 
         private static object[] _getUsageCases =
@@ -31,20 +31,18 @@ namespace Common.Tests.Models
             new object[] {"label", FileUsages.LabelImageFile },
             new object[] {"presRef", FileUsages.PreservationToneReference},
             new object[] {"intRef", FileUsages.PreservationIntermediateToneReference},
-            new object[] {string.Empty, new UnknownFileUsage(string.Empty, "Raw object file")},
-            new object[] {null, new UnknownFileUsage(null, "Raw object file")},
+            new object[] {string.Empty, FileUsages.None},
+            new object[] {null, FileUsages.None},
             new object[] {"some other value", new UnknownFileUsage("some other value", "Raw object file") }
         };
 
         [Test, TestCaseSource(nameof(_usagesCorrectCases))]
-        public void UsagesShouldBeCorrect(IFileUsage usage, string expectedFileUse, string expectedFullFileUse, int expectedPrecedence)
+        public void UsagesShouldBeCorrect(IFileUsage usage, string expectedFileUse, string expectedFullFileUse)
         {
             Assert.That(usage.FileUse, Is.EqualTo(expectedFileUse),
                 $"File use should be {expectedFileUse}");
             Assert.That(usage.FullFileUse, Is.EqualTo(expectedFullFileUse),
                 $"Full file use should be {expectedFullFileUse}");
-            Assert.That(usage.Precedence, Is.EqualTo(expectedPrecedence),
-                $"Precendence should be {expectedPrecedence}");
         }
 
         [Test, TestCaseSource(nameof(_getUsageCases))]

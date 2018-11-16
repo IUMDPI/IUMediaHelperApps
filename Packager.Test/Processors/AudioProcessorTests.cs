@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
+using Packager.Factories.FFMPEGArguments;
 using Packager.Models.EmbeddedMetadataModels;
 using Packager.Models.FileModels;
 using Packager.Models.OutputModels;
@@ -17,6 +18,7 @@ using Packager.Models.OutputModels.Carrier;
 using Packager.Models.PodMetadataModels;
 using Packager.Processors;
 using Packager.Utilities.Bext;
+using Packager.Utilities.ProcessRunners;
 
 namespace Packager.Test.Processors
 {
@@ -28,15 +30,14 @@ namespace Packager.Test.Processors
         private const string FFMPEGPath = "ffmpeg.exe";
         private string SectionKey { get; set; }
 
+        private static ArgumentBuilder NormalizingArguments => new ArgumentBuilder("normalizing arguments");
+        private static ArgumentBuilder ProdArguments => new ArgumentBuilder(ProdCommandLineArgs);
+        private static ArgumentBuilder AccessArguments => new ArgumentBuilder(AccessCommandLineArgs);
+
         private AudioPodMetadata Metadata { get; set; }
 
         protected override void DoCustomSetup()
         {
-            FFMPEGRunner.CreateAccessDerivative(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
-                .Returns(x => Task.FromResult((AbstractFile)new AccessFile(x.Arg<AbstractFile>())));
-            FFMPEGRunner.CreateProdOrMezzDerivative(Arg.Any<AbstractFile>(), Arg.Any<AbstractFile>(), Arg.Any<EmbeddedAudioMetadata>(), Arg.Any<CancellationToken>())
-                .Returns(x => Task.FromResult(x.ArgAt<AbstractFile>(1)));
-
             SectionKey = Guid.NewGuid().ToString();
             Observers.BeginProcessingSection(Barcode, "Processing Object: {0}", Barcode).Returns(SectionKey);
 
@@ -58,12 +59,20 @@ namespace Packager.Test.Processors
             Metadata = new AudioPodMetadata { Barcode = Barcode, Unit = "Unit value" };
 
             MetadataProvider.GetObjectMetadata<AudioPodMetadata>(Barcode, Arg.Any<CancellationToken>()).Returns(Task.FromResult(Metadata));
+            
+            FFMPEGArgumentsFactory.GetNormalizingArguments(Arg.Any<IMediaFormat>())
+                .Returns(NormalizingArguments);
+            FFMPEGArgumentsFactory.GetAccessArguments(Arg.Any<IMediaFormat>())
+                .Returns(AccessArguments);
+            FFMPEGArgumentsFactory.GetProdOrMezzArguments(Arg.Any<IMediaFormat>())
+                .Returns(ProdArguments);
 
-            Processor = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, ImageProcessor, PlaceHolderFactory);
-
-            ProgramSettings.FFMPEGAudioAccessArguments.Returns(AccessCommandLineArgs);
-            ProgramSettings.FFMPEGAudioProductionArguments.Returns(ProdCommandLineArgs);
             ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
+
+            Processor = new AudioProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, MetadataProvider, Observers, ProgramSettings, XmlExporter, AudioCarrierDataFactory, AudioMetadataFactory, FFMPEGRunner, 
+                FFMPEGArgumentsFactory, ImageProcessor, PlaceHolderFactory);
+
+            
         }
 
         public class WhenNothingGoesWrong : AudioProcessorTests
@@ -228,7 +237,7 @@ namespace Packager.Test.Processors
                 {
                     foreach (var model in ModelList)
                     {
-                        FFMPEGRunner.Received().Normalize(model, ExpectedMetadata, Arg.Any<CancellationToken>());
+                        FFMPEGRunner.Received().Normalize(model, Arg.Any<ArgumentBuilder>(), Arg.Any<CancellationToken>());
                     }
                 }
 
@@ -300,15 +309,21 @@ namespace Packager.Test.Processors
                 public void ItShouldCreateAccessFileFromProductionMaster()
                 {
                     FFMPEGRunner.Received()
-                        .CreateAccessDerivative(Arg.Is<AbstractFile>(m => m.IsProductionVersion()), Arg.Any<CancellationToken>());
+                        .CreateAccessDerivative(Arg.Is<AbstractFile>(m => m.IsProductionVersion()), Arg.Any<ArgumentBuilder>(), Arg.Any<IEnumerable<string>>(),
+                            Arg.Any<CancellationToken>());
                 }
 
                 [Test]
                 public void ItShouldCreateProdFromMasterWithExpectedMetadata()
                 {
+                    var expectedArguments = ProdArguments.AddArguments(ExpectedMetadata.AsArguments());
+
                     FFMPEGRunner.Received()
                         .CreateProdOrMezzDerivative(ExpectedMasterModel,
-                            Arg.Is<AbstractFile>(m => m.IsProductionVersion()), ExpectedMetadata, Arg.Any<CancellationToken>());
+                            Arg.Is<AbstractFile>(m => m.IsProductionVersion()), 
+                            Arg.Is<ArgumentBuilder>(v=>v.SequenceEqual(expectedArguments)), 
+                            Arg.Any<IEnumerable<string>>(), 
+                            Arg.Any<CancellationToken>());
                 }
             }
 
@@ -525,14 +540,6 @@ namespace Packager.Test.Processors
 
             public class WhenAddingPlaceHolders : WhenNothingGoesWrong
             {
-                public class WhenNoPlaceHoldersAreNeeded : WhenAddingPlaceHolders
-                {
-                    public void ItShouldLogThatNoPlaceHoldersAreNeeded()
-                    {
-                        Observers.Received().Log("No place-holders to add");
-                    }
-                }
-
                 public class WhenPlaceHoldersAreNeeded : WhenAddingPlaceHolders
                 {
 
@@ -763,13 +770,13 @@ namespace Packager.Test.Processors
                 public void ItShouldLogChecksumsCorrectly()
                 {
                     Observers.Received()
-                        .Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(PreservationFileName),
+                        .Log("{0} checksum: {1}", Path.GetFileName(PreservationFileName),
                             $"{PreservationFileName} checksum");
                     Observers.Received()
-                        .Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(ProductionFileName),
+                        .Log("{0} checksum: {1}", Path.GetFileName(ProductionFileName),
                             $"{ProductionFileName} checksum");
                     Observers.Received()
-                        .Log("{0} checksum: {1}", Path.GetFileNameWithoutExtension(AccessFileName),
+                        .Log("{0} checksum: {1}", Path.GetFileName(AccessFileName),
                             $"{AccessFileName} checksum");
                 }
 

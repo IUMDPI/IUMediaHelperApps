@@ -5,5 +5,7 @@
         public AudioPreservationFile(AbstractFile original) : base(original, original.Extension)
         {
         }
+
+        public override bool ShouldNormalize => Extension.Equals(".wav");
     }
 }

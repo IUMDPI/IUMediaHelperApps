@@ -120,8 +120,8 @@ namespace Packager.Providers
         {
             var results = new ValidationResults();
 
-            var unexpectedMasters = filesToProcess.Where(
-                m => m.IsPreservationVersion() || m.IsPreservationIntermediateVersion())
+            var unexpectedMasters = filesToProcess
+                .Where(m => m.ShouldNormalize)
                 .Select(m => new {key = m.Filename, value = provenances.GetFileProvenance(m)})
                 .Where(p => p.value == null)
                 .Select(p => p.key);

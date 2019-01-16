@@ -11,7 +11,8 @@ namespace Packager.Factories
         private static readonly Dictionary<ResolverKey, Func<AbstractFile, AbstractFile>> Resolvers =
             new Dictionary<ResolverKey, Func<AbstractFile, AbstractFile>>
             {
-                {AudioPresKey, GetAudioPresModel},
+                {WavAudioPresKey, GetAudioPresModel},
+                {ZipAudioPresKey, GetAudioPresModel},
                 {AudioPresIntKey, GetAudioPresIntModel},
                 {AudioPresToneRefKey, GetAudioPresToneRefModel},
                 {AudioPresIntToneRefKey, GetAudioPresIntToneRefModel},
@@ -23,10 +24,12 @@ namespace Packager.Factories
                 {TiffImageKey, GetTiffImageModel },
                 {CuePresKey,GetCueModel },
                 {CuePresIntKey, GetCueModel},
-                {TxtKey, GetTxtModel }
+                {TxtKey, GetTxtModel },
+                {FilesArchiveKey, GetFilesArchiveModel}
             };
 
-        private static ResolverKey AudioPresKey => new ResolverKey(".wav", FileUsages.PreservationMaster);
+        private static ResolverKey WavAudioPresKey => new ResolverKey(".wav", FileUsages.PreservationMaster);
+        private static ResolverKey ZipAudioPresKey => new ResolverKey(".zip", FileUsages.PreservationMaster);
         private static ResolverKey AudioPresIntKey => new ResolverKey(".wav", FileUsages.PreservationIntermediateMaster);
         private static ResolverKey AudioPresToneRefKey => new ResolverKey(".wav", FileUsages.PreservationToneReference);
         private static ResolverKey AudioPresIntToneRefKey => new ResolverKey(".wav", FileUsages.PreservationIntermediateToneReference);
@@ -39,6 +42,7 @@ namespace Packager.Factories
         private static ResolverKey CuePresKey => new ResolverKey(".cue", FileUsages.PreservationMaster);
         private static ResolverKey CuePresIntKey => new ResolverKey(".cue", FileUsages.PreservationIntermediateMaster);
         private static ResolverKey TxtKey => new ResolverKey(".txt", FileUsages.None);
+        private static ResolverKey FilesArchiveKey => new ResolverKey(".zip", FileUsages.FilesArchiveFile);
 
         private static AbstractFile GetMezzModel(AbstractFile arg)
         {
@@ -69,7 +73,7 @@ namespace Packager.Factories
         {
             return new AudioPreservationFile(arg);
         }
-        
+
         private static AbstractFile GetAudioPresIntToneRefModel(AbstractFile model)
         {
             return new AudioPreservationIntermediateToneReferenceFile(model);
@@ -98,6 +102,11 @@ namespace Packager.Factories
         private static AbstractFile GetCueModel(AbstractFile arg)
         {
             return new CueFile(arg);
+        }
+
+        private static AbstractFile GetFilesArchiveModel(AbstractFile arg)
+        {
+            return new FilesArchiveFile(arg); 
         }
 
         public static AbstractFile GetModel(string path)

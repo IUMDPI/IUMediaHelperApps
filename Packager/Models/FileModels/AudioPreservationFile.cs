@@ -2,9 +2,7 @@
 {
     public class AudioPreservationFile : AbstractPreservationFile
     {
-        private const string ExtensionValue = ".wav";
-
-        public AudioPreservationFile(AbstractFile original) : base(original, ExtensionValue)
+        public AudioPreservationFile(AbstractFile original) : base(original, original.Extension)
         {
         }
     }

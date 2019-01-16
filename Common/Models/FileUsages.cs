@@ -59,6 +59,7 @@ namespace Common.Models
         public static readonly IFileUsage LabelImageFile = new FileUsage("label", "Label Image File");
         public static readonly IFileUsage None = new FileUsage(string.Empty, "No Usage Present");
         public static readonly IFileUsage TextFile = new FileUsage(string.Empty, "Text File"); 
+        public static readonly IFileUsage FilesArchiveFile = new FileUsage("files", "Miscellaneous Irene Files Archive");
 
         private static readonly List<IFileUsage> AllImportableUsages = new List<IFileUsage>
         {
@@ -70,7 +71,8 @@ namespace Common.Models
             MezzanineFile,
             AccessFile,
             LabelImageFile,
-            TextFile
+            TextFile,
+            FilesArchiveFile
         };
 
         public static IFileUsage GetUsage(string fileUse)

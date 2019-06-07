@@ -98,7 +98,7 @@ namespace Packager
             container.RegisterSingleton<AbstractProcessor<AudioPodMetadata>, AudioProcessor>();
             container.RegisterSingleton<AbstractProcessor<VideoPodMetadata>, VideoProcessor>();
             container.RegisterSingleton<IFFMPEGRunner, FFMPEGRunner>();
-            
+
             container.RegisterSingleton(() => new Dictionary<string, IProcessor>
             {
                 {".wav", container.GetInstance<AbstractProcessor<AudioPodMetadata>>()},
@@ -143,12 +143,13 @@ namespace Packager
                 { MediaFormats.AudioCassette, new StandardCodingHistoryGenerator()},
                 { MediaFormats.Cdr, new CdrCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
+                { MediaFormats.LacquerDiscIrene, new LacquerDiscIreneCodingHistoryGenerator()},
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
                 { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator()}
             });
 
-            container.RegisterSingleton(()=>new Dictionary<IMediaFormat, IFFMPEGArgumentsGenerator>
+            container.RegisterSingleton(() => new Dictionary<IMediaFormat, IFFMPEGArgumentsGenerator>
                 {
                     {MediaFormats.AluminumDisc, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.AudioCassette, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
@@ -162,6 +163,7 @@ namespace Packager
                     {MediaFormats.EightMillimeterVideoQuadaudio, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.FortyFive, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.LacquerDisc, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.LacquerDiscIrene, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.Lp, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.OneInchOpenReelVideoTape, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.HalfInchOpenReelVideoTape, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},

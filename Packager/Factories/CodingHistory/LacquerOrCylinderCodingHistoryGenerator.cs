@@ -23,5 +23,10 @@ namespace Packager.Factories.CodingHistory
             var soundField = model.IsPreservationVersion() ? StereoSoundField : MonoSoundField;
             return string.Format(CodingHistoryLine3Format, soundField);
         }
+
+        protected override string GenerateLine4(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
+        {
+            return string.Empty;
+        }
     }
 }

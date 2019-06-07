@@ -136,6 +136,7 @@
     <Compile Include="Processors\AbstractProcessorTests.cs" />
     <Compile Include="Processors\AudioProcessorTests.cs" />
     <Compile Include="Processors\VideoProcessorTests.cs" />
+    <Compile Include="Providers\PodMetadataProviderTests.cs" />
     <Compile Include="Utilities\ArgumentBuilderTests.cs" />
     <Compile Include="Utilities\BextProcessorClearMetadataTests.cs" />
     <Compile Include="Utilities\BwfMetaEditRunnerTests.cs" />

@@ -115,6 +115,9 @@ namespace Packager.Test.Processors
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
+            MetadataProvider.AdjustMediaFormat(Arg.Any<AudioPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a=>a.Arg<AudioPodMetadata>());
+            MetadataProvider.AdjustMediaFormat(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a=>a.Arg<VideoPodMetadata>());
+
             AudioCarrierDataFactory = Substitute.For<ICarrierDataFactory<AudioPodMetadata>>();
             VideoCarrierDataFactory = Substitute.For<ICarrierDataFactory<VideoPodMetadata>>();
             BextProcessor = Substitute.For<IBextProcessor>();

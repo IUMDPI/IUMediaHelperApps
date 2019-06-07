@@ -488,6 +488,9 @@ namespace Packager.Processors
                 // get base metadata
                 var metadata = await MetadataProvider.GetObjectMetadata<TMetadataType>(Barcode, cancellationToken);
 
+                // adjust format if necessary
+                metadata = MetadataProvider.AdjustMediaFormat(metadata, filesToProcess);
+
                 // log metadata
                 MetadataProvider.Log(metadata);
 

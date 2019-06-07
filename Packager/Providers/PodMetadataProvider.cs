@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using Packager.Exceptions;
 using Packager.Extensions;
 using Packager.Factories;
@@ -224,5 +225,19 @@ namespace Packager.Providers
             
         }
 
+        public T AdjustMediaFormat<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata
+        {
+            if (podMetadata.Format == MediaFormats.LacquerDisc &&  models.Any(m => IsIreneMaster(m))){
+                podMetadata.Format = MediaFormats.LacquerDiscIrene;
+            }
+
+            return podMetadata;
+        }
+
+        private static bool IsIreneMaster(AbstractFile model)
+        {
+            return model.FileUsage == FileUsages.PreservationMaster &&
+                   model.Extension.ToDefaultIfEmpty().Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 }

@@ -21,5 +21,10 @@ namespace Packager.Factories.CodingHistory
             const string lineFormat = "A=PCM,F=44100,W=16,M={0},T=Lynx AES16;DIO";
             return string.Format(lineFormat, StereoSoundField);
         }
+
+        protected override string GenerateLine4(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
+        {
+            return string.Empty;
+        }
     }
 }

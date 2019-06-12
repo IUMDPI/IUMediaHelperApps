@@ -35,7 +35,7 @@ namespace Packager.Providers
 
             var response = await Client.ExecuteGetTaskAsync<T>(request, cancellationToken);
             VerifyResponse(response);
-           
+
             return Normalize(response.Data);
         }
 
@@ -123,7 +123,7 @@ namespace Packager.Providers
 
             var unexpectedMasters = filesToProcess
                 .Where(m => m.ShouldNormalize)
-                .Select(m => new {key = m.Filename, value = provenances.GetFileProvenance(m)})
+                .Select(m => new { key = m.Filename, value = provenances.GetFileProvenance(m) })
                 .Where(p => p.value == null)
                 .Select(p => p.key);
 
@@ -151,14 +151,14 @@ namespace Packager.Providers
 
             return metadata;
         }
-        
+
         private static T NormalizeFields<T>(T value)
         {
             foreach (
                 var property in
-                    value.GetType().GetProperties().Where(p => p.PropertyType == typeof (string) && p.CanWrite))
+                    value.GetType().GetProperties().Where(p => p.PropertyType == typeof(string) && p.CanWrite))
             {
-                property.SetValue(value, ((string) property.GetValue(value)).TrimWhiteSpace());
+                property.SetValue(value, ((string)property.GetValue(value)).TrimWhiteSpace());
             }
 
             return value;
@@ -174,14 +174,14 @@ namespace Packager.Providers
         private static void CheckForInternalIssue<T>(IRestResponse<T> response)
             where T : AbstractPodMetadata
         {
-            if (response.StatusCode !=0 || response.ResponseStatus == ResponseStatus.Completed )
+            if (response.StatusCode != 0 || response.ResponseStatus == ResponseStatus.Completed)
             {
                 return;
             }
 
             var reportedException = response.ErrorException ?? new Exception("an unknown issue occurred");
 
-            throw new PodMetadataException(response.ErrorException, 
+            throw new PodMetadataException(response.ErrorException,
                 $"Could not retrieve metadata from POD: an internal issue occurred\n--- {reportedException}");
         }
 
@@ -198,7 +198,7 @@ namespace Packager.Providers
             {
                 message = $"{message}\n--- {response.Data.Message}";
             }
-             
+
             throw new PodMetadataException(response.ErrorException, message);
         }
 
@@ -216,18 +216,19 @@ namespace Packager.Providers
                 return;
             }
 
-            var message = ResponseMessageSet(response) 
+            var message = ResponseMessageSet(response)
                 // ReSharper disable once PossibleNullReferenceException (ResponseMessageSet checks for null)
                 ? $"Could not retrieve metadata from POD: {response.Data.Message}"
                 : "Could not retrieve metadata from POD: metadata element could not be resolved";
-            
+
             throw new PodMetadataException(message);
-            
+
         }
 
         public T AdjustMediaFormat<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata
         {
-            if (podMetadata.Format == MediaFormats.LacquerDisc &&  models.Any(m => IsIreneMaster(m))){
+            if (models.Any(m => IsIreneMaster(m)))
+            {
                 podMetadata.Format = MediaFormats.LacquerDiscIrene;
             }
 
@@ -238,6 +239,49 @@ namespace Packager.Providers
         {
             return model.FileUsage == FileUsages.PreservationMaster &&
                    model.Extension.ToDefaultIfEmpty().Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public T AdjustDigitalProvenanceData<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata
+        {
+            var ireneProvenances = models
+                .Where(m => IsIreneMaster(m))
+                .Select(m => CloneProvenance(m, podMetadata.FileProvenances))
+                .Where(p => podMetadata.FileProvenances.Any(pm => pm.Filename == p.Filename) == false)
+                .ToList();
+
+            podMetadata.FileProvenances.AddRange(ireneProvenances);
+
+            return podMetadata;
+        }
+
+        private AbstractDigitalFile CloneProvenance(AbstractFile master, List<AbstractDigitalFile> provenances)
+        {
+            var matchingFilename = master.ConvertTo<AudioPreservationIntermediateFile>().Filename;
+            var matchingProvenance = provenances.SingleOrDefault(p => p.Filename.Equals(matchingFilename)) as DigitalAudioFile;
+
+            if (matchingProvenance == null)
+            {
+                throw new PodMetadataException(
+                    $"Could not backfill .zip (Irene) master provenance; No provenance present for {matchingFilename}");
+            }
+
+            return new DigitalAudioFile
+            {
+                Filename = master.Filename,
+                SpeedUsed = matchingProvenance?.SpeedUsed,
+                ReferenceFluxivity = matchingProvenance?.ReferenceFluxivity,
+                AnalogOutputVoltage = matchingProvenance?.AnalogOutputVoltage,
+                Peak = matchingProvenance?.Peak,
+                StylusSize = matchingProvenance?.StylusSize,
+                Turnover = matchingProvenance?.Turnover,
+                Gain = matchingProvenance?.Gain,
+                Rolloff = matchingProvenance?.Rolloff,
+                DateDigitized = matchingProvenance?.DateDigitized,
+                CreatedBy = matchingProvenance?.CreatedBy,
+                Comment = matchingProvenance?.Comment,
+                SignalChain = matchingProvenance?.SignalChain,
+            };
+
         }
     }
 }

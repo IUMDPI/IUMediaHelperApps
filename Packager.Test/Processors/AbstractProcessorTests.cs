@@ -53,7 +53,7 @@ namespace Packager.Test.Processors
         protected IFFProbeRunner FFProbeRunner { get; set; }
         protected ILabelImageImporter ImageProcessor { get; set; }
         protected IPlaceHolderFactory PlaceHolderFactory { get; set; }
-        
+
         protected string ExpectedProcessingDirectory => Path.Combine(ProcessingRoot, ExpectedObjectFolderName);
         protected string ExpectedOriginalsDirectory => Path.Combine(ExpectedProcessingDirectory, "Originals");
         protected string ExpectedObjectFolderName { get; set; }
@@ -96,7 +96,7 @@ namespace Packager.Test.Processors
             ProgramSettings.DigitizingEntity.Returns(DigitizingEntity);
 
             AudioMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<AudioPodMetadata>>();
-            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(), Arg.Any<AbstractFile>(),Arg.Any<AudioPodMetadata>())
+            AudioMetadataFactory.Generate(Arg.Any<IEnumerable<AbstractFile>>(), Arg.Any<AbstractFile>(), Arg.Any<AudioPodMetadata>())
                 .Returns(new EmbeddedAudioMetadata());
 
             VideoMetadataFactory = Substitute.For<IEmbeddedMetadataFactory<VideoPodMetadata>>();
@@ -115,9 +115,11 @@ namespace Packager.Test.Processors
             XmlExporter = Substitute.For<IXmlExporter>();
             Observers = Substitute.For<IObserverCollection>();
             MetadataProvider = Substitute.For<IPodMetadataProvider>();
-            MetadataProvider.AdjustMediaFormat(Arg.Any<AudioPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a=>a.Arg<AudioPodMetadata>());
-            MetadataProvider.AdjustMediaFormat(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a=>a.Arg<VideoPodMetadata>());
-
+            MetadataProvider.AdjustMediaFormat(Arg.Any<AudioPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a => a.Arg<AudioPodMetadata>());
+            MetadataProvider.AdjustMediaFormat(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a => a.Arg<VideoPodMetadata>());
+            MetadataProvider.AdjustDigitalProvenanceData(Arg.Any<AudioPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a => a.Arg<AudioPodMetadata>());
+            MetadataProvider.AdjustDigitalProvenanceData(Arg.Any<VideoPodMetadata>(), Arg.Any<List<AbstractFile>>()).Returns(a => a.Arg<VideoPodMetadata>());
+           
             AudioCarrierDataFactory = Substitute.For<ICarrierDataFactory<AudioPodMetadata>>();
             VideoCarrierDataFactory = Substitute.For<ICarrierDataFactory<VideoPodMetadata>>();
             BextProcessor = Substitute.For<IBextProcessor>();

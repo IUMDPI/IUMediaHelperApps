@@ -491,6 +491,9 @@ namespace Packager.Processors
                 // adjust format if necessary
                 metadata = MetadataProvider.AdjustMediaFormat(metadata, filesToProcess);
 
+                // add missing provenances
+                metadata = MetadataProvider.AdjustDigitalProvenanceData(metadata, filesToProcess);
+
                 // log metadata
                 MetadataProvider.Log(metadata);
 

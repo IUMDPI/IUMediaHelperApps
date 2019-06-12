@@ -10,6 +10,7 @@ namespace Packager.Providers
     {
         Task<T> GetObjectMetadata<T>(string barcode, CancellationToken cancellationToken) where T : AbstractPodMetadata, new();
         T AdjustMediaFormat<T>(T podMetadata, List<AbstractFile> models) where T: AbstractPodMetadata;
+        T AdjustDigitalProvenanceData<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata;
         void Validate<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata;
         void Log<T>(T podMetadata) where T : AbstractPodMetadata;
     }

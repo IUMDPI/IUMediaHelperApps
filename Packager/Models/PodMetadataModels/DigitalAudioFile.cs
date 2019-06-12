@@ -1,5 +1,4 @@
-﻿using System.Security.RightsManagement;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using Packager.Factories;
 using Packager.Validators.Attributes;
 

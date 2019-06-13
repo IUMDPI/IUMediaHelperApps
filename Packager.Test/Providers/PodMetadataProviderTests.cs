@@ -77,7 +77,6 @@ namespace Packager.Test.Providers
         {
             new object [] { MediaFormats.LacquerDisc, Side1ZipMaster, MediaFormats.LacquerDiscIrene, "It should convert format to LacquerDiscIrene when master is .zip file"},
             new object [] { MediaFormats.LacquerDisc, Side1WavMaster, MediaFormats.LacquerDisc, "It should not convert format to LacquerDiscIrene when master is .wav file"},
-            new object [] { MediaFormats.EightMillimeterVideo, VideoMaster, MediaFormats.EightMillimeterVideo, "It should not convert format to LacquerDiscIrene when format is video format"}
         };
 
         [TestCaseSource(nameof(AdjustFormatCases))]
@@ -96,6 +95,26 @@ namespace Packager.Test.Providers
             var result = Provider.AdjustMediaFormat(metadata, models);
             Assert.That(metadata.Format, Is.EqualTo(expected), description);
         }
+
+        [Test]
+        public void ItShouldRaiseExceptionIfIreneMasterPresentAndFormatNotLacquerDisc()
+        {
+            var metadata = new AudioPodMetadata
+            {
+                Format = MediaFormats.AluminumDisc
+            };
+                        
+            var models = new List<AbstractFile>
+            {
+                Side1ZipMaster
+            };
+
+            var issue = Assert.Throws<PodMetadataException>(()=>Provider.AdjustMediaFormat(metadata, models));
+            Assert.That(issue, Is.Not.Null);
+            Assert.That(issue.Message, Is.EqualTo($"No Irene-compatible format found for {metadata.Format}"));
+
+        }
+       
 
         [Test]
         public void ItShouldAdjustDigitalProvenanceDataIfIreneMasterPresent()
@@ -214,7 +233,7 @@ namespace Packager.Test.Providers
         }
 
         [Test]
-        public void AdjustProvenancesShouldThroughExceptionIfNoMatchingPresIntProvenanceFound()
+        public void AdjustProvenancesShouldRaiseExceptionIfNoMatchingPresIntProvenanceFound()
         {
 
             var masters = new List<AbstractFile>

@@ -229,7 +229,7 @@ namespace Packager.Providers
         {
             if (models.Any(m => IsIreneMaster(m)))
             {
-                podMetadata.Format = MediaFormats.LacquerDiscIrene;
+                podMetadata.Format = GetIreneFormat(podMetadata.Format);
             }
 
             return podMetadata;
@@ -239,6 +239,16 @@ namespace Packager.Providers
         {
             return model.FileUsage == FileUsages.PreservationMaster &&
                    model.Extension.ToDefaultIfEmpty().Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        private static IMediaFormat GetIreneFormat(IMediaFormat format)
+        {
+            if (format != MediaFormats.LacquerDisc)
+            {
+                throw new PodMetadataException($"No Irene-compatible format found for {format}");
+            }
+
+            return MediaFormats.LacquerDiscIrene;
         }
 
         public T AdjustDigitalProvenanceData<T>(T podMetadata, List<AbstractFile> models) where T : AbstractPodMetadata

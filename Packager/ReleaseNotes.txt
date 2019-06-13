@@ -93,4 +93,5 @@
                         Clear metadata from access files
 						Output 44.1 k CD-R access files
 4.11.0.0   11/14/2018   Address change to Cdr .txt filenames
+4.12.0.0   06/13/2019   Support Irene .zip masters
 					

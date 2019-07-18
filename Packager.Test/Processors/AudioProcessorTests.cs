@@ -545,9 +545,9 @@ namespace Packager.Test.Processors
 
                     private readonly List<AbstractFile> _placeHolders = new List<AbstractFile>
                     {
-                        new AudioPreservationFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
-                        new ProductionFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
-                        new AccessFile(new PlaceHolderFile(ProjectCode, Barcode, 3))
+                        new AudioPreservationFile(new PlaceHolderFile(ProjectCode, Barcode, 3, ".wav")),
+                        new ProductionFile(new PlaceHolderFile(ProjectCode, Barcode, 3, ".wav")),
+                        new AccessFile(new PlaceHolderFile(ProjectCode, Barcode, 3, ".wav"))
                     };
 
                     private List<AbstractFile> ReceivedModelList { get; set; }

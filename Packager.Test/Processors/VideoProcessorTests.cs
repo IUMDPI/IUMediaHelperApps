@@ -83,9 +83,9 @@ namespace Packager.Test.Processors
             MediaInfoProvider.GetMediaInfo(Arg.Any<AbstractFile>(), Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(MultiStreamMediaInfo));
 
-            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher, 
-                MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory, 
-                VideoMetadataFactory, FFMPEGRunner, FFMPEGArgumentsFactory, FFProbeRunner, MediaInfoProvider, 
+            Processor = new VideoProcessor(BextProcessor, DirectoryProvider, FileProvider, Hasher,
+                MetadataProvider, Observers, ProgramSettings, XmlExporter, VideoCarrierDataFactory,
+                VideoMetadataFactory, FFMPEGRunner, FFMPEGArgumentsFactory, FFProbeRunner, MediaInfoProvider,
                 ImageProcessor, PlaceHolderFactory);
 
             ProgramSettings.FFMPEGPath.Returns(FFMPEGPath);
@@ -303,7 +303,7 @@ namespace Packager.Test.Processors
                 public void ItShouldCreateAccessFileFromMezzanineMaster()
                 {
                     FFMPEGRunner.Received().CreateAccessDerivative(
-                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<ArgumentBuilder>(), 
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Any<ArgumentBuilder>(),
                         Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>());
                 }
 
@@ -311,9 +311,9 @@ namespace Packager.Test.Processors
                 public void ItShouldCreateProdFromMasterWithExpectedArgument()
                 {
                     var expectedArguments = MezzArguments.AddArguments(ExpectedMetadata.AsArguments());
-                  
+
                     FFMPEGRunner.Received().CreateProdOrMezzDerivative(ExpectedMasterModel,
-                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Is<ArgumentBuilder>(v=> v.SequenceEqual(expectedArguments)),
+                        Arg.Is<AbstractFile>(m => m.IsMezzanineVersion()), Arg.Is<ArgumentBuilder>(v => v.SequenceEqual(expectedArguments)),
                         Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>());
                 }
             }
@@ -366,9 +366,9 @@ namespace Packager.Test.Processors
 
                     private List<AbstractFile> PlaceHolders = new List<AbstractFile>
                     {
-                        new VideoPreservationFile(new PlaceHolderFile(ProjectCode, Barcode,3)),
-                        new MezzanineFile(new PlaceHolderFile(ProjectCode, Barcode, 3)),
-                        new AccessFile(new PlaceHolderFile(ProjectCode, Barcode, 3))
+                        new VideoPreservationFile(new PlaceHolderFile(ProjectCode, Barcode,3, ".wav")),
+                        new MezzanineFile(new PlaceHolderFile(ProjectCode, Barcode, 3, ".wav")),
+                        new AccessFile(new PlaceHolderFile(ProjectCode, Barcode, 3, ".wav"))
                     };
 
                     private List<AbstractFile> ReceivedModelList { get; set; }

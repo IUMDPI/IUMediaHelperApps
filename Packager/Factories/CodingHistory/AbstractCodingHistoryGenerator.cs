@@ -20,17 +20,17 @@ namespace Packager.Factories.CodingHistory
         protected const string CodingHistoryLine3Format = "A=PCM,F=96000,W=24,M={0},T=Lynx AES16;DIO";
 
         protected abstract string GenerateLine1(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model);
-
         protected abstract string GenerateLine2(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model);
-
         protected abstract string GenerateLine3(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model);
+        protected abstract string GenerateLine4(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model);
 
         public string Generate(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
         {
             var parts = new[]{
                 GenerateLine1(metadata, provenance, model),
                 GenerateLine2(metadata, provenance, model),
-                GenerateLine3(metadata, provenance, model)};
+                GenerateLine3(metadata, provenance, model),
+                GenerateLine4(metadata, provenance, model)};
 
             return string.Join("\r\n", parts.Where(p=>p.HasValue()));
         }

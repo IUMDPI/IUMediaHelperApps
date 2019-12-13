@@ -19,7 +19,7 @@ namespace Packager.Models.FileModels
             BarCode = original.BarCode;
             SequenceIndicator = original.SequenceIndicator;
             ProjectCode = original.ProjectCode;
-            Extension = extension;
+            Extension = extension.ToDefaultIfEmpty().ToLower();
             FileUsage = fileUsage;
             Filename = NormalizeFilename();
             IsPlaceHolder = original.IsPlaceHolder;

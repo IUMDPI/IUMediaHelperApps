@@ -56,7 +56,7 @@
     <!--<Rule color="BarcodeLink">\d{14}</Rule>-->
     
     <Rule color="PathFileOrBarcode">
-      .{4}_\d{14}_\d{1,2}_(presRef|presref|presInt|presint|intRef|intref|pres|prod|mezz|access|label)\..{3,4}|.{4}_\d{14}\.xml|.{4}_\d{14}_\d{1,2}_(presRef|presref|presInt|presint|intRef|intref|pres|prod|mezz|access|label)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
+      .{4}_\d{14}_\d{1,2}_(presRef|presref|presInt|presint|intRef|intref|pres|prod|mezz|access|label|files)\..{3,4}|.{4}_\d{14}\.xml|.{4}_\d{14}_\d{1,2}_(presRef|presref|presInt|presint|intRef|intref|pres|prod|mezz|access|label|files)|.{4}_\d{14}_.{14}|.{4}_\d{14} #barcode, file name
     </Rule>
 
     <Rule fontWeight="bold" foreground="Orange">

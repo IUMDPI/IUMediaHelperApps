@@ -8,6 +8,7 @@ namespace Packager.Test.Models.FileModels
     {
         private const string ProjectCode = "MDPI";
         private const string BarCode = "4890764553278906";
+        private const string Extension = ".wav";
         private const int SequenceIndicator = 1;
         private PlaceHolderFile PlaceHolderModel { get; set; }
         private AudioPreservationFile DerivedModel { get; set; }
@@ -15,7 +16,7 @@ namespace Packager.Test.Models.FileModels
         [SetUp]
         public void BeforeEach()
         {
-            PlaceHolderModel = new PlaceHolderFile(ProjectCode, BarCode, SequenceIndicator);
+            PlaceHolderModel = new PlaceHolderFile(ProjectCode, BarCode, SequenceIndicator, Extension);
             DerivedModel = new AudioPreservationFile(PlaceHolderModel);
         }
 
@@ -47,6 +48,13 @@ namespace Packager.Test.Models.FileModels
         public void PlaceHolderFlagShouldBeSetOnDerivedModel()
         {
             Assert.That(DerivedModel.IsPlaceHolder, Is.True);
+        }
+
+        [Test]
+        public void ExtensionShouldBeCorrect()
+        {
+            Assert.That(PlaceHolderModel.Extension, Is.EqualTo(Extension));
+            Assert.That(DerivedModel.Extension, Is.EqualTo(Extension));
         }
     }
 }

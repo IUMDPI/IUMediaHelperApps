@@ -34,5 +34,10 @@ namespace Packager.Factories.CodingHistory
 
             throw new EmbeddedMetadataException("No sound field specified in metadata");
         }
+
+        protected override string GenerateLine4(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
+        {
+            return string.Empty;
+        }
     }
 }

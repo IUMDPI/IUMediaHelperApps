@@ -18,6 +18,7 @@ namespace Common.Tests.Models
             new object[] {MediaFormats.Cdr, "cd-r", "CD-R"},
             new object[] {MediaFormats.FortyFive, "45", "45"},
             new object[] {MediaFormats.LacquerDisc, "lacquer disc", "Lacquer Disc"},
+            new object[] {MediaFormats.LacquerDiscIrene, "lacquer disc irene", "Lacquer Disc"},
             new object[] {MediaFormats.Cylinder,"cylinder", "Cylinder"},
             new object[] {MediaFormats.SeventyEight, "78", "78"},
             new object[] {MediaFormats.Vhs, "vhs", "VHS"},

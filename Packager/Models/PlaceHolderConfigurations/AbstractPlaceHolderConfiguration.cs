@@ -8,7 +8,7 @@ namespace Packager.Models.PlaceHolderConfigurations
 {
     public abstract class AbstractPlaceHolderConfiguration : IPlaceHolderConfiguration
     {
-        
+
         protected List<IFileUsage> RequiredUsages { get; }
 
         protected AbstractPlaceHolderConfiguration(List<IFileUsage> requiredUsages)
@@ -26,18 +26,19 @@ namespace Packager.Models.PlaceHolderConfigurations
 
             var projectCode = GetProjectCode(fileModels);
             var barcode = GetBarCode(fileModels);
+            var extension = GetExtension(fileModels);
 
             var result = new List<AbstractFile>();
             return sequencesRequiringPlaceHolders
                 .Aggregate(result, (current, sequence) =>
                     current.Concat(
-                            GetPlaceHolders(projectCode, barcode, sequence))
+                            GetPlaceHolders(projectCode, barcode, sequence, extension))
                         .ToList());
         }
 
-        private IEnumerable<AbstractFile> GetPlaceHolders(string projectCode, string barcode, int sequence)
+        private IEnumerable<AbstractFile> GetPlaceHolders(string projectCode, string barcode, int sequence, string extension)
         {
-            var template = new PlaceHolderFile(projectCode, barcode, sequence);
+            var template = new PlaceHolderFile(projectCode, barcode, sequence, extension);
             return GetPlaceHolders(template);
         }
 
@@ -65,6 +66,12 @@ namespace Packager.Models.PlaceHolderConfigurations
         {
             var firstPresFile = fileModels.FirstOrDefault(f => f.IsPreservationVersion());
             return firstPresFile?.BarCode;
+        }
+
+        private static string GetExtension(IEnumerable<AbstractFile> fileModels)
+        {
+            var firstPresFile = fileModels.FirstOrDefault(f => f.IsPreservationVersion());
+            return firstPresFile?.Extension;
         }
 
         protected abstract List<AbstractFile> GetPlaceHolders(PlaceHolderFile template);

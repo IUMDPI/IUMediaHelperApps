@@ -42,6 +42,7 @@ namespace Common.Models
         public static readonly IMediaFormat Cdr = new MediaFormat("cd-r", "CD-R");
         public static readonly IMediaFormat FortyFive = new MediaFormat("45", "45");
         public static readonly IMediaFormat LacquerDisc = new MediaFormat("lacquer disc", "Lacquer Disc");
+        public static readonly IMediaFormat LacquerDiscIrene = new MediaFormat("lacquer disc irene", "Lacquer Disc");
         public static readonly IMediaFormat Cylinder = new MediaFormat("cylinder", "Cylinder");
         public static readonly IMediaFormat SeventyEight = new MediaFormat("78", "78");
         public static readonly IMediaFormat Vhs = new MediaFormat("vhs", "VHS");
@@ -65,6 +66,7 @@ namespace Common.Models
             Cdr,
             FortyFive,
             LacquerDisc,
+            LacquerDiscIrene,
             Cylinder,
             SeventyEight,
             Vhs,

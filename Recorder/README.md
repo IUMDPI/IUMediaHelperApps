@@ -23,7 +23,7 @@ For a more detailed description of the recorder, see the Appendix to the white p
 * The Recorder requires that FFMPEG and FFPROBE be installed on the engineer's system. You can download these from [ffbinaries.com](https://ffbinaries.com/). 
 * The Recorder's configuration settings are stored in its "Recorder.exe.config" file. This file should be located in the same directory as the Recorder.exe binary.
 * If you are installing the Recorder for the first time, you may need to rename or copy "Recorder.exe.config.dev" to "Recorder.exe.config."
-* The following keys should be present and configured under the appSettings node:
+* The following keys should be present and configured under the appSettings node in the "Recorder.exe.config" file:
     - `ProjectCode` - this key controls the "Project Code" element of video filenames. In the IU environment, it should be set to `mdpi`.
     - `PathToFFMPEG` - this key specifies the path to the FFMPEG binary. In the IU environment, it should be set to `C:\Dependencies\ffmpeg\ffmpeg.exe`.
     - `PathToFFProbe` - this key specifies the path to the FFPROBE binary. In the IU environment, it should be set to `C:\Dependencies\ffmpeg\ffprobe.exe`.

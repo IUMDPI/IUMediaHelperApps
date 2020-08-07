@@ -16,7 +16,7 @@ namespace Packager.Test.Factories.CodingHistory
         private static AudioPreservationIntermediateToneReferenceFile IntRefModel
             => BaseModel.ConvertTo<AudioPreservationIntermediateToneReferenceFile>();
 
-        private static object[] _line1Cases =
+        private static readonly object[] _line1Cases =
         {
             new object[] {PresModel, "8.5 ips", "8.5 ips;"},
             new object[] {PresModel, "8.5 ips, 1.1 ips, 2.1 ips", "8.5 ips;1.1 ips;2.1 ips;"},
@@ -40,7 +40,7 @@ namespace Packager.Test.Factories.CodingHistory
             new object[] {ProdModel, "", ""},
         };
 
-        private static object[] _lines2And3Cases =
+        private static readonly object[] _lines2And3Cases =
         {
             new object[] {PresModel, "Stereo" },
             new object[] {PresIntModel, "Mono" },

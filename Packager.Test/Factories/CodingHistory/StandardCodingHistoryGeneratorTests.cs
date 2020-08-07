@@ -8,7 +8,7 @@ using Packager.Models.PodMetadataModels;
 
 namespace Packager.Test.Factories.CodingHistory
 {
-    public class OpenReelCodingHistoryGeneratorTests:CodingHistoryGeneratorTestsBase
+    public class StandardCodingHistoryGeneratorTests : CodingHistoryGeneratorTestsBase
     {
         [SetUp]
         public override void BeforeEach()
@@ -23,7 +23,7 @@ namespace Packager.Test.Factories.CodingHistory
             Generator = new StandardCodingHistoryGenerator();
         }
 
-        private static object[] _lines2And3Cases =
+        private static readonly object[] _lines2And3Cases =
         {
             new object[] {PresModel, "Mono" },
             new object[] {PresModel, "Stereo" },
@@ -32,8 +32,8 @@ namespace Packager.Test.Factories.CodingHistory
             new object[] {ProdModel,  "Mono" },
             new object[] {ProdModel, "Stereo" },
         };
-        
-        private static object[] _line1Cases =
+
+        private static readonly object[] _line1Cases =
         {
             new object[] {PresModel, "8.5 ips", "Mono", "8.5 ips;" },
             new object[] {PresModel, "8.5 ips, 1.1 ips, 2.1 ips", "Mono", "8.5 ips;1.1 ips;2.1 ips;" },
@@ -62,22 +62,22 @@ namespace Packager.Test.Factories.CodingHistory
             new object[] {ProdModel, null, "Stereo", "" },
             new object[] {ProdModel, "", "Stereo", "" },
         };
-        
+
         [Test, TestCaseSource(nameof(_line1Cases))]
         public void Line1ShouldBeCorrect(AbstractFile model, string speed, string soundField, string expectedSpeedText)
         {
             Metadata.SoundField = soundField;
             Provenance.SpeedUsed = speed;
 
-            var result = Generator.Generate(Metadata, Provenance,model);
+            var result = Generator.Generate(Metadata, Provenance, model);
             var parts = result.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
             var expected =
                 $"A=ANALOGUE,M={soundField},T=Player manufacturer Player model;SNPlayer serial number;{expectedSpeedText}Open Reel Audio Tape,";
-            
+
             Assert.That(parts[0], Is.EqualTo(expected));
         }
-        
+
         [Test, TestCaseSource(nameof(_lines2And3Cases))]
         public void Line2ShouldBeCorrect(AbstractFile model, string soundField)
         {
@@ -89,7 +89,7 @@ namespace Packager.Test.Factories.CodingHistory
             var expected = $"A=PCM,F=96000,W=24,M={soundField},T=Ad manufacturer Ad model;SNAd serial number;A/D,";
             Assert.That(parts[1], Is.EqualTo(expected));
         }
-        
+
         [Test, TestCaseSource(nameof(_lines2And3Cases))]
         public void Line3ShouldBeCorrect(AbstractFile model, string soundField)
         {
@@ -98,7 +98,7 @@ namespace Packager.Test.Factories.CodingHistory
             var result = Generator.Generate(Metadata, Provenance, model);
             var parts = result.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
-            var expected = $"A=PCM,F=96000,W=24,M={Metadata.SoundField},T=Lynx AES16;DIO"; 
+            var expected = $"A=PCM,F=96000,W=24,M={Metadata.SoundField},T=Lynx AES16;DIO";
             Assert.That(parts[2], Is.EqualTo(expected));
         }
 
@@ -110,7 +110,7 @@ namespace Packager.Test.Factories.CodingHistory
                 () => Generator.Generate(Metadata, Provenance, PresModel));
             Assert.That(exception.Message, Is.EqualTo("No sound field specified in metadata"));
         }
-       
+
     }
 }
 

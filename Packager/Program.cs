@@ -115,7 +115,7 @@ namespace Packager
                 { MediaFormats.Lp, new StandardAudioPlaceHolderConfiguration() },
                 { MediaFormats.Cdr, new StandardAudioPlaceHolderConfiguration() },
                 { MediaFormats.FortyFive, new StandardAudioPlaceHolderConfiguration() },
-                
+
                 // pres-int audio
                 { MediaFormats.LacquerDisc, new PresIntAudioPlaceHolderConfiguration()},
                 { MediaFormats.Cylinder, new PresIntAudioPlaceHolderConfiguration()},
@@ -146,7 +146,8 @@ namespace Packager
                 { MediaFormats.LacquerDiscIrene, new LacquerDiscIreneCodingHistoryGenerator()},
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
                 { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},
-                { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator()}
+                { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator() },
+                { MediaFormats.SeventyEight, new SeventyEightCodingHistoryGenerator() }
             });
 
             container.RegisterSingleton(() => new Dictionary<IMediaFormat, IFFMPEGArgumentsGenerator>

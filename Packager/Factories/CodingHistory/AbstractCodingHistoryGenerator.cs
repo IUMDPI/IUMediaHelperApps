@@ -88,5 +88,15 @@ namespace Packager.Factories.CodingHistory
                 ? result
                 : result.Replace(",", ";").Replace("; ", ";");
         }
+
+        protected static void AssertSoundFieldSpecifiedInMetadata(string soundField)
+        {
+            if (soundField.IsSet())
+            {
+                return;
+            }
+
+            throw new EmbeddedMetadataException("No sound field specified in metadata");
+        }
     }
 }

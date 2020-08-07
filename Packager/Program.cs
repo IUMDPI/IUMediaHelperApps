@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using Common.Models;
 using Common.UserInterface.ViewModels;
@@ -42,6 +43,7 @@ namespace Packager
         [STAThread]
         private static void Main(string[] arguments)
         {
+            ConfigureServicePointManager();
             ConfigureNLog();
 
             var container = Bootstrap(arguments);
@@ -238,6 +240,12 @@ namespace Packager
             ConfigurationItemFactory.Default.LayoutRenderers.RegisterDefinition("Barcode",
                 typeof(BarcodeLayoutRenderer));
 
+        }
+
+        private static void ConfigureServicePointManager()
+        {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
     }
 }

@@ -77,6 +77,17 @@ namespace Packager.Factories.CodingHistory
             return string.Join(";", parts.Where(p => p.IsSet()));
         }
 
+        protected static string GeneratePreAmpTextField(AbstractDigitalFile provenance)
+        {
+            if (!provenance.PreampDevices.Any())
+            {
+                throw new EmbeddedMetadataException("No PreAmp data present in metadata");
+            }
+
+            var parts = GenerateDevicePartsArray(provenance.PreampDevices);
+            return string.Join(";", parts.Where(p => p.IsSet()));
+        }
+
         // if provenance.speedUsed is present
         // otherwise use metadata.playback speed
         // finally, replace comma delimiters with semi-colons and remove spaces

@@ -117,7 +117,8 @@ namespace Packager
                 { MediaFormats.Lp, new StandardAudioPlaceHolderConfiguration() },
                 { MediaFormats.Cdr, new StandardAudioPlaceHolderConfiguration() },
                 { MediaFormats.FortyFive, new StandardAudioPlaceHolderConfiguration() },
-
+                { MediaFormats.Magnabelt, new StandardAudioPlaceHolderConfiguration() },
+                
                 // pres-int audio
                 { MediaFormats.LacquerDisc, new PresIntAudioPlaceHolderConfiguration()},
                 { MediaFormats.Cylinder, new PresIntAudioPlaceHolderConfiguration()},
@@ -149,7 +150,8 @@ namespace Packager
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
                 { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator() },
-                { MediaFormats.SeventyEight, new SeventyEightCodingHistoryGenerator() }
+                { MediaFormats.SeventyEight, new SeventyEightCodingHistoryGenerator() },
+                { MediaFormats.Magnabelt, new MagnabeltCodingHistoryGenerator() }
             });
 
             container.RegisterSingleton(() => new Dictionary<IMediaFormat, IFFMPEGArgumentsGenerator>
@@ -168,6 +170,7 @@ namespace Packager
                     {MediaFormats.LacquerDisc, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.LacquerDiscIrene, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.Lp, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
+                    {MediaFormats.Magnabelt, new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.OneInchOpenReelVideoTape, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.HalfInchOpenReelVideoTape, new VideoFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},
                     {MediaFormats.OpenReelAudioTape,new AudioFFMPEGArgumentsGenerator(container.GetInstance<IProgramSettings>())},

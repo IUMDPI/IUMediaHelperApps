@@ -45,7 +45,7 @@ namespace Common.Models
         public static readonly IMediaFormat LacquerDiscIrene = new MediaFormat("lacquer disc irene", "Lacquer Disc");
         public static readonly IMediaFormat Cylinder = new MediaFormat("cylinder", "Cylinder");
         public static readonly IMediaFormat SeventyEight = new MediaFormat("78", "78");
-        public static readonly IMediaFormat Vhs = new MediaFormat("vhs", "VHS");
+                public static readonly IMediaFormat Vhs = new MediaFormat("vhs", "VHS");
         public static readonly IMediaFormat Betacam = new MediaFormat("betacam", "Betacam");
         public static readonly IMediaFormat BetacamAnamorphic = new MediaFormat("betacam:Anamorphic", "Betacam: Anamorphic");
         public static readonly IMediaFormat Dat = new MediaFormat("dat", "DAT");
@@ -57,7 +57,8 @@ namespace Common.Models
         public static readonly IMediaFormat Betamax = new MediaFormat("betamax", "Betamax");
         public static readonly IMediaFormat AluminumDisc = new MediaFormat("aluminum disc", "Aluminum Disc");
         public static readonly IMediaFormat OtherAnalogSoundDisc = new MediaFormat("other analog sound disc", "Other Analog Sound Disc");
-        
+        public static readonly IMediaFormat Magnabelt = new MediaFormat("magnabelt", "Magnabelt");
+
         private static readonly List<IMediaFormat> AllKnownFormats = new List<IMediaFormat>
         {
             AudioCassette,
@@ -80,7 +81,8 @@ namespace Common.Models
             Umatic,
             Betamax,
             AluminumDisc,
-            OtherAnalogSoundDisc
+            OtherAnalogSoundDisc,
+            Magnabelt
         };
 
         public static IMediaFormat GetFormat(string key)

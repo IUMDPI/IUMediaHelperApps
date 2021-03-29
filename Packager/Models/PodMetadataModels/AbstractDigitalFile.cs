@@ -9,9 +9,11 @@ namespace Packager.Models.PodMetadataModels
 {
     public abstract class AbstractDigitalFile : IImportable
     {
-        private const string AdDeviceType = "AD";
+        private const string AdDeviceType1 = "AD";
+        private const string AdDeviceType2 = "A/D";
         private const string PlayerDeviceType = "Player";
-        private const string PreampDeviceType = "Preamp";
+        private const string PreampDeviceType1 = "Preamp";
+        private const string PreampDeviceType2 = "Pre amp";
         private const string ExtractionWorkstationDeviceType = "Extraction Workstation";
 
         [Required]
@@ -42,7 +44,8 @@ namespace Packager.Models.PodMetadataModels
             get
             {
                 return SignalChain?.
-                    Where(e => e.DeviceType.Equals(AdDeviceType, StringComparison.InvariantCultureIgnoreCase)) ??
+                    Where(e => e.DeviceType.Equals(AdDeviceType1, StringComparison.InvariantCultureIgnoreCase) || 
+                          e.DeviceType.Equals(AdDeviceType2, StringComparison.InvariantCultureIgnoreCase))  ??
                        new List<Device>();
             }
         }
@@ -52,7 +55,8 @@ namespace Packager.Models.PodMetadataModels
             get
             {
                 return SignalChain?.
-                    Where(e => e.DeviceType.Equals(PreampDeviceType, StringComparison.InvariantCultureIgnoreCase)) ??
+                    Where(e => e.DeviceType.Equals(PreampDeviceType1, StringComparison.InvariantCultureIgnoreCase) ||
+                        e.DeviceType.Equals(PreampDeviceType2, StringComparison.InvariantCultureIgnoreCase)) ??
                        new List<Device>();
             }
         }

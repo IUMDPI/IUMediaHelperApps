@@ -94,6 +94,7 @@
     <Compile Include="Factories\AudioCarrierDataFactory.cs" />
     <Compile Include="Factories\CodingHistory\CdrCodingHistoryGenerator.cs" />
     <Compile Include="Factories\CodingHistory\LacquerDiscIreneCodingHistoryGenerator.cs" />
+    <Compile Include="Factories\CodingHistory\MagnabeltCodingHistoryGenerator.cs" />
     <Compile Include="Factories\CodingHistory\SeventyEightCodingHistoryGenerator.cs" />
     <Compile Include="Factories\EmbeddedAudioMetadataFactory.cs" />
     <Compile Include="Factories\EmbeddedVideoMetadataFactory.cs" />

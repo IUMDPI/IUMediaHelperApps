@@ -1,5 +1,5 @@
 # IUMediaHelperApps
-This is the repo for the MDPI utilities that are required to run on the desktop of media engineers and QC operators.
+This is the repository for the MDPI utilities that are required to run on the desktop of media engineers and QC operators.
 
 The two core utilities in this repository are the [IU Media Helper Recorder](Recorder/README.md) and the [IU Media Helper Packager](Packager/readme.md): 
 

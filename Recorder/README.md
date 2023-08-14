@@ -1,14 +1,14 @@
 # IU Media Helper Apps - Recorder #
 
-The IU Media Helper Recorder "drives" provides a graphical user shell for FFMPEG, allowing video engineers better control over the video capture and processing pipeline.
+The IU Media Helper Recorder provides a graphical user shell for FFMPEG, allowing video engineers better control over the video capture and processing pipeline.
 
 For a more detailed description of the recorder, see the Appendix to the white paper, [Indiana University Media Digitization and Preservation Initiative (MDPI)](https://mdpi.iu.edu/doc/MDPIwhitepaper.pdf).
 
 ## Build Instructions ##
 
-1. Download and install [Visual Studio 2019 from Microsoft's download site](https://visualstudio.microsoft.com/downloads/). The free, Community Edition, is fine. Be sure to include the ".Net Desktop Development" workload in your installation.
+1. Download and install [Visual Studio 2022 from Microsoft's download site](https://visualstudio.microsoft.com/downloads/). The free, Community Edition, is fine. Be sure to include the ".Net Desktop Development" workload in your installation.
 2. Download or clone this repository from Github. The Recorder has dependencies on libraries that are shared with other projects in the repository, so you will need to clone the entire repository, not just the Recorder project folder.
-3. Open the solution file, "MediaHelper.sln" in Visual Studio 2019
+3. Open the solution file, "MediaHelper.sln" in Visual Studio 2022
 4. From the Visual Studio "Build" menu, select and open "Configuration Manager..."
 5. On the Configuration Manager dialog, set "Active solution configuration" to "Release." Leave "Active solution platform" set to "Any CPU."
 6. Click "Close" to exit the Configuration Manager.

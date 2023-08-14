@@ -45,7 +45,7 @@ The IU Media Helper Packager is a post-processor that normalizes and embeds meta
     1. Both folders contain the Packager binaries, but the deploy folder contains only the files that need to be deployed to the engineer's computer. 
     2. Additionally, the "Packager.exe.config" file is renamed to "Packager.exe.config.dev" in the Deploy folder. This is to prevent accidently overwriting an engineer's production configuration file when updating the Recorder binaries.
 
-## Configuring the Recorder ##
+## Configuring the Packager ##
 
 * The Packager requires that BWF Metaedit, FFMPEG, and FFPROBE be installed on the engineer's system. You can download these from [BWF Metaedit](https://mediaarea.net/BWFMetaEdit) and [ffbinaries.com](https://ffbinaries.com/). 
 * The Packager's configuration settings are stored in its "Packager.exe.config" file. This file should be located in the same directory as the Packager.exe binary.

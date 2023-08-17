@@ -99,4 +99,5 @@
 4.15.0.0   12/17/2019   Add 78 coding history generator
 4.16.0.0   08/07/2020   Configure packager to use TLS 1.2
 4.17.0.0   03/24/2021   Add support for Magnabelt format
+4.18.0.0   08/17/2023   Add support for Lp format
 					

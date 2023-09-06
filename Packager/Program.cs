@@ -147,6 +147,7 @@ namespace Packager
                 { MediaFormats.Cdr, new CdrCodingHistoryGenerator() },
                 { MediaFormats.LacquerDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.LacquerDiscIrene, new LacquerDiscIreneCodingHistoryGenerator()},
+                { MediaFormats.Lp, new StandardCodingHistoryGenerator() },
                 { MediaFormats.Cylinder, new LacquerOrCylinderCodingHistoryGenerator() },
                 { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator() },

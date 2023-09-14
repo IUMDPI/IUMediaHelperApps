@@ -4,10 +4,7 @@ using Packager.Models.PodMetadataModels;
 
 namespace Packager.Factories.CodingHistory
 {
-    // TODO:
-    // Here, the pres-int model should have their sound field set to "Mono".
-    // Otherwise, the sound field should be set to "Stereo"
-    public class DatCodingHistoryGenerator : AbstractCodingHistoryGenerator
+     public class DatCodingHistoryGenerator : AbstractCodingHistoryGenerator
     {
         protected override string GenerateLine1(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
         {

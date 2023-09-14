@@ -152,7 +152,8 @@ namespace Packager
                 { MediaFormats.AluminumDisc, new LacquerOrCylinderCodingHistoryGenerator()},
                 { MediaFormats.OtherAnalogSoundDisc, new LacquerOrCylinderCodingHistoryGenerator() },
                 { MediaFormats.SeventyEight, new SeventyEightCodingHistoryGenerator() },
-                { MediaFormats.Magnabelt, new MagnabeltCodingHistoryGenerator() }
+                { MediaFormats.Magnabelt, new MagnabeltCodingHistoryGenerator() },
+                { MediaFormats.Dat, new DatCodingHistoryGenerator() }
             });
 
             container.RegisterSingleton(() => new Dictionary<IMediaFormat, IFFMPEGArgumentsGenerator>

@@ -62,7 +62,7 @@ namespace Packager.Test.Factories.CodingHistory
             
             // build expected text
             var expected =
-                $"A=ANALOGUE,M={expectedSoundField},T=Player manufacturer Player model;SNPlayer serial number;{expectedSpeedText}DAT,";
+                $"A=DIGITAL,M={expectedSoundField},T=Player manufacturer Player model;SNPlayer serial number;{expectedSpeedText}DAT,";
 
             Assert.That(parts[0], Is.EqualTo(expected));
         }

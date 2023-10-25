@@ -1,9 +1,9 @@
-﻿using Packager.Extensions;
+﻿using Packager.Exceptions;
+using Packager.Extensions;
 using Packager.Models.FileModels;
 using Packager.Models.PodMetadataModels;
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Data;
 
 namespace Packager.Factories.CodingHistory
 {
@@ -20,7 +20,7 @@ namespace Packager.Factories.CodingHistory
         private const string NinetySixK = "96k";
         private const string TwentyFourBit = "24";
         private const string SixteenBit = "16";
-        private IDictionary<string, string> SampleRatesToText = new Dictionary<string, string>()
+        private readonly IDictionary<string, string> SampleRatesToText = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
             { ThirtyTwoK, "32000" },
             { FortyFourOneK, "44100" },
@@ -31,8 +31,10 @@ namespace Packager.Factories.CodingHistory
         protected override string GenerateLine1(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
         {
             //AssertSoundFieldSpecifiedInMetadata(metadata.SoundField);
+            var ad = provenance.AnalogTransfer ? AnalogueFormat : DigitalFormat;
             var soundField = model.IsPreservationIntermediateVersion() ? MonoSoundField : StereoSoundField;
-            return string.Format(Line1Format, DigitalFormat, soundField, GeneratePlayerTextField(metadata, provenance));
+
+            return string.Format(Line1Format, ad, soundField, GeneratePlayerTextField(metadata, provenance));
         }
 
         protected override string GenerateLine2(AudioPodMetadata metadata, DigitalAudioFile provenance, AbstractFile model)
@@ -63,7 +65,14 @@ namespace Packager.Factories.CodingHistory
         /// <returns></returns>
         private string ConvertSampleRate(string value)
         {
-            return SampleRatesToText[value.ToLower()];
+            if (String.IsNullOrWhiteSpace(value))
+            {
+                throw new EmbeddedMetadataException("Sample is blank in POD!");
+            }
+
+            return SampleRatesToText.TryGetValue(value, out var rate)
+                ? rate
+                : throw new EmbeddedMetadataException($"Unknown sample rate {value}");
         }
     }
 }

@@ -103,6 +103,7 @@
     <Compile Include="Factories\AudioIngestFactoryTests.cs" />
     <Compile Include="Factories\AudioSideDataFactoryTests.cs" />
     <Compile Include="Factories\CodingHistory\CodingHistoryGeneratorTestsBase.cs" />
+    <Compile Include="Factories\CodingHistory\DatCodingHistoryGeneratorTests.cs" />
     <Compile Include="Factories\CodingHistory\LacquerOrCylinderCodingHistoryGeneratorTests.cs" />
     <Compile Include="Factories\CodingHistory\SeventyEightCodingHistoryGeneratorTests.cs" />
     <Compile Include="Factories\CodingHistory\StandardCodingHistoryGeneratorTests.cs" />

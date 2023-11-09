@@ -15,7 +15,8 @@ namespace Packager.Models.PodMetadataModels
         public string Turnover { get; set; }
         public string Gain { get; set; }
         public string Rolloff { get; set; }
-      
+        public string SampleRate { get; set; }
+        public bool AnalogTransfer { get; set;  }
 
         // xpath queries here are against each digital_file_provenance node in
         // digital_files
@@ -30,6 +31,10 @@ namespace Packager.Models.PodMetadataModels
             Turnover = factory.ToStringValue(element, "turnover");
             Gain = factory.ToStringValue(element, "volume_units");
             Rolloff = factory.ToStringValue(element, "rolloff");
+
+            // additional fields
+            SampleRate = factory.ToStringValue(element, "sample_rate");
+            AnalogTransfer = factory.ToBooleanValue(element, "digital_to_analog");
         }
     }
 }
